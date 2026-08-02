@@ -4,6 +4,24 @@ An end-to-end data science project on the [Amazon Reviews 2023](https://amazon-r
 
 It covers the full lifecycle: ingestion → EDA → feature engineering → NLP → recommender systems → explainability → a served API and demo UI, with tests and CI.
 
+---
+
+## The problem
+
+A beauty catalogue with over 112,000 products is far more than any shopper will browse. Most customers arrive without a specific item in mind, and whether they buy anything depends on whether the store can put the right handful of products in front of them. That makes product discovery a revenue problem, not a cosmetic one.
+
+Customer reviews are the most obvious raw material for solving it. They are abundant, they carry explicit 1-5 star preferences, and they cost nothing to collect. The natural plan is to learn what each customer likes from their review history and personalize what they see.
+
+**This project asks whether that plan actually works, and answers three questions a team would need settled before committing engineering time to it:**
+
+| Question | Why it matters commercially |
+|---|---|
+| Can we personalize recommendations from review history? | Determines whether to build a personalization system or keep serving the same best-sellers to everyone |
+| Can we predict how a customer will rate a product they have not bought? | Would let us surface products a customer is likely to love, and flag ones likely to disappoint before they buy |
+| Can we automatically detect unhappy customers from what they write? | Review volume is far beyond manual reading; catching dissatisfaction early is what enables intervention |
+
+**The answers, briefly:** no, no, and yes. Two of the three are negative results, and each is backed by a baseline comparison rather than a headline metric taken at face value. The recommendation is therefore to *stop* investing in review-based personalization and redirect that effort toward collecting denser behavioural data, which is a more useful conclusion than a model that looks good in a notebook and disappoints in production.
+
 **The most interesting results in this project are the negative ones.** Two models that looked good by their headline metric turned out, under proper baselines and ablation, not to do what their metric implied. Finding that is the work.
 
 ---
@@ -78,14 +96,27 @@ Segmenting the evaluation by user activity confirmed it isn't only a cold-start 
 | 2–4 interactions | 2,194 | 0.226 | 0.132 |
 | 5+ interactions | 553 | 0.184 | 0.132 |
 
-**The fix is more data, not a better model.** No algorithm recovers a signal that isn't there. Real recommender systems train on clicks, cart-adds, and purchases, which are dense implicit feedback, not reviews, which roughly 1% of customers write.
+**The fix is more data, not a better model.** No algorithm recovers a signal that isn't there. Real recommender systems train on clicks, cart-adds, and purchases, which are dense implicit feedback, rather than on reviews. Reviews are written by a small, self-selected minority of buyers, and note that a review-only dataset cannot even measure what that fraction is: customers who never write one leave no trace in it.
 
 ---
 
+## What this means for the product
+
+Mapping each finding to the decision it drives:
+
+| Finding | Recommendation |
+|---|---|
+| Personalization from reviews does not beat best-sellers | Do not build review-based personalization for this category. Serve popularity on discovery surfaces, and invest the engineering time in capturing behavioural signals instead |
+| Rating prediction only works once the review exists | Do not promise "products you'll love" from this model. Redeploy it as rating inference on unstarred feedback, and as a rating/text mismatch detector |
+| Negative-review detection works (68% recall vs 0%) | Ship it. Route flagged reviews to customer support for follow-up, which is the one place here with clear near-term value |
+| Content-based similarity works and needs no user history | Ship it for "similar products" surfaces, including day-one coverage for new inventory |
+
+The commercially useful output is the negative result. Knowing that review data cannot support personalization in this category prevents a team from spending a quarter building a system that would have lost to a popularity ranker in production.
+
 ## What I'd do next
 
-1. **Change the input, not the algorithm.** Use implicit feedback (views, cart-adds, purchases) instead of reviews, and re-test collaborative filtering on a denser category (Electronics, Books) where it can get a fair trial.
-2. **Ship what works now** - content-based similarity for "similar products", popularity for cold-start home surfaces.
+1. **Change the input, not the algorithm.** Use implicit feedback (views, cart-adds, purchases) instead of reviews, and re-test collaborative filtering on a denser category (Electronics, Books) where it can get a fair trial. Only a fraction of buyers write a review; essentially all of them browse and click, so behavioural logs cover far more customers and give far more events per customer.
+2. **Ship what works now** - content-based similarity for "similar products", popularity for cold-start home surfaces, negative-review flagging for support.
 3. **Fix the offline metric before trusting any future model.** Standardize on popularity-weighted negatives, then validate online with an A/B test. Offline ranking metrics are a proxy for customer behaviour, and this project is a case study in how far a proxy can drift.
 
 ---
