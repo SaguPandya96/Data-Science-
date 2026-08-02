@@ -1,0 +1,22 @@
+check_name,records_evaluated,records_affected,percentage_affected,action_taken,reason
+missing developer profile values,35,12,34.29,retained and flagged,HTML fallback does not expose every REST profile field
+duplicate developers,5,0,0.0,deduplicated by developer_id,one public account per ID
+duplicate repositories,637,0,0.0,deduplicated by repository_id,search and stars overlap
+duplicate interactions,290,0,0.0,deduplicated by typed pair,prevent double weighting
+invalid repository timestamps,637,89,13.97,retained and flagged,HTML fallback timestamps are unavailable
+empty descriptions,637,33,5.18,retained; README/topics may supply content,description is optional on GitHub
+empty README text,637,460,72.21,retained and quality-scored,raw checks were rate/bandwidth bounded
+missing topics,637,318,49.92,retained,topics are optional
+missing primary language,637,10,1.57,retained,empty or metadata-light repositories can lack language
+missing licenses,637,167,26.22,retained and quality-scored,license presence is a ranking signal
+archived repositories,637,9,1.41,excluded from candidates,not open for active contribution
+disabled repositories,637,0,0.0,excluded from candidates,unusable candidate
+forked repositories,637,6,0.94,excluded from candidates,recommend canonical projects
+extremely inactive repositories (>5 years),637,6,0.94,excluded from candidates,stale projects reduce contribution value
+extremely popular repositories (top 1%),637,7,1.1,retained; tested in robustness,measure popularity bias rather than hide it
+users with insufficient history (<20),5,0,0.0,excluded from offline evaluation only,profiles/holdouts would be unstable
+repositories with insufficient metadata,637,1,0.16,excluded from candidates,content scoring is not meaningful
+API failures,32,5,15.62,logged in collection manifest,no failed response becomes a row
+rate-limit interruptions,32,5,15.62,HTML fallback or missing values,unauthenticated GitHub core limit
+uneven user activity,5,1,20.0,reported; macro-average metrics,avoid prolific users dominating evaluation
+missing language byte distributions,627,627,100.0,primary-language fallback retained,per-repository language calls exceed reduced-mode budget

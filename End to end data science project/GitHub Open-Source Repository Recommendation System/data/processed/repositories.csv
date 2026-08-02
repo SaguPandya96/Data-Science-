@@ -1,0 +1,304 @@
+repository_id,full_name,repository_url,owner,name,description,readme_text,primary_language,topics,stars,forks,watchers,open_issues,created_at,updated_at,pushed_at,license,archived,disabled,fork,repository_size,default_branch,has_readme,has_license,has_contributing,has_code_of_conduct,has_good_first_issue,has_help_wanted,readme_checked,file_checks_completed,metadata_source
+764723738,Skyvern-AI/skyvern,https://github.com/Skyvern-AI/skyvern,Skyvern-AI,skyvern,Automate browser based workflows with AI,"<!-- DOCTOC SKIP -->
+
+<h1 align=""center"">
+ <a href=""https://www.skyvern.com"">
+  <picture>
+    <source media=""(prefers-color-scheme: dark)"" srcset=""fern/images/skyvern_logo.png""/>
+    <img height=""120"" src=""fern/images/skyvern_logo_blackbg.png""/>
+  </picture>
+ </a>
+ <br />
+</h1>
+<p align=""center"">
+ğŸ‰ Automate Browser-based workflows using LLMs and Computer Vision ğŸ‰
+</p>
+<p align=""center"">
+  <a href=""https://www.skyvern.com/""><img src=""https://img.shields.io/badge/Website-blue?logo=googlechrome&logoColor=black""/></a>
+  <a href=""https://www.skyvern.com/docs/""><img src=""https://img.shields.io/badge/Docs-yellow?logo=gitbook&logoColor=black""/></a>
+  <a href=""https://discord.gg/fG2XXEuQX3""><img src=""https://img.shields.io/discord/1212486326352617534?logo=discord&label=discord""/></a>
+  <!-- <a href=""https://pepy.tech/project/skyvern"" target=""_blank""><img src=""https://static.pepy.tech/badge/skyvern"" alt=""Total Downloads""/></a> -->
+  <a href=""https://github.com/skyvern-ai/skyvern""><img src=""https://img.shields.io/github/stars/skyvern-ai/skyvern"" /></a>
+  <a href=""https://github.com/Skyvern-AI/skyvern/blob/main/LICENSE""><img src=""https://img.shields.io/github/license/skyvern-ai/skyvern""/></a>
+  <a href=""https://twitter.com/skyvernai""><img src=""https://img.shields.io/twitter/follow/skyvernai?style=social""/></a>
+  <a href=""https://www.linkedin.com/company/95726232""><img src=""https://img.shields.io/badge/Follow%20 on%20LinkedIn-8A2BE2?logo=linkedin""/></a>
+</p>
+
+[Skyvern](https://www.skyvern.com) automates browser-based workflows using LLMs and computer vision. It provides a Playwright-compatible SDK that adds AI functionality on top of playwright, as well as a no-code workflow builder to help both technical and non-technical users automate manual workflows on any website, replacing brittle or unreliable automation solutions.
+
+<p align=""center"">
+  <img src=""fern/images/geico_shu_recording_cropped.gif""/>
+</p>
+
+Traditional approaches to browser automations required writing custom scripts for websites, often relying on DOM parsing and XPath-based interactions which would break whenever the website layouts changed.
+
+Instead of only relying on code-defined XPath interactions, Skyvern relies on Vision LLMs to learn and interact with the websites.
+
+# How it works
+Skyvern was inspired by the Task-Driven autonomous agent design popularized by [BabyAGI](https://github.com/yoheinakajima/babyagi) and [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT) -- with one major bonus: we give Skyvern the ability to interact with websites using browser automation libraries like [Playwright](https://playwright.dev/).
+
+Skyvern uses a swarm of agents to comprehend a website, and plan and execute its actions:
+
+<picture>
+  <source media=""(prefers-color-scheme: dark)"" srcset=""fern/images/skyvern_2_0_system_diagram.png"" />
+  <img src=""fern/images/skyvern_2_0_system_diagram.png"" />
+</picture>
+
+This approach has a few advantages:
+
+1. Skyvern can operate on websites it's never seen before, as it's able to map visual elements to actions necessary to complete a workflow, without any customized code
+1. Skyvern is resistant to website layout changes, as there are no pre-determined XPaths or other selectors our system is looking for while trying to navigate
+1. Skyvern is able to take a single workflow and apply it to a large number of websites, as it's able to reason through the interactions necessary to complete the workflow
+A detailed technical report can be found [here](https://www.skyvern.com/blog/skyvern-2-0-state-of-the-art-web-navigation-with-85-8-on-webvoyager-eval/).
+
+# Demo
+<!-- Redo demo -->
+https://github.com/user-attachments/assets/5cab4668-e8e2-4982-8551-aab05ff73a7f
+
+# Quickstart
+
+## Skyvern Cloud
+[Skyvern Cloud](https://app.skyvern.com) is a managed cloud version of Skyvern that allows you to run Skyvern without worrying about the infrastructure. It allows you to run multiple Skyvern instances in parallel and comes bundled with anti-bot detection mechanisms, proxy network, and CAPTCHA solvers.
+
+If you'd like to try it out, navigate to [app.skyvern.com](https://app.skyvern.com) and create an account.
+
+## Run Locally (UI + Server)
+
+Choose your preferred setup method:
+
+> **Database default**: `skyvern quickstart` and `skyvern run server` default to a SQLite database at `~/.skyvern/data.db` so the pip path works without Postgres or Docker. To use Postgres instead, pass `--postgres` for a local container or `--database-string` for an existing database. Docker Compose always uses the bundled Postgres service.
+
+### Option A: pip install (Recommended for Python-managed local setup)
+
+Dependencies needed:
+- [Python 3.11, 3.12, or 3.13](https://www.python.org/downloads/)
+
+Additionally, for Windows:
+- [Rust](https://rustup.rs/)
+- VS Code with C++ dev tools and Windows SDK
+
+#### 1. Install Skyvern
+
+```bash
+pip install ""skyvern[all]""
+```
+
+#### 2. Run Skyvern
+
+```bash
+skyvern quickstart
+```
+
+The pip quickstart uses SQLite by default. For a local Postgres container, run `skyvern quickstart --postgres`.
+
+### Option B: Docker Compose
+
+Use this option if you want everything containerized (Postgres, API, UI) and don't want to install Python/Node locally.
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/skyvern-ai/skyvern.git && cd skyvern
+   ```
+3. Configure your LLM provider in `.env` (the `quickstart --docker-compose` command below will create it from `.env.example` if missing):
+   ```bash
+   cp .env.example .env  # if not already created
+   # edit .env to add your LLM API key
+   ```
+4. Start everything:
+   ```bash
+   docker compose up -d
+   ```
+5. Open http://localhost:8080
+
+### Troubleshooting
+
+**`(sqlite3.OperationalError) table organizations already exists`** â€” You hit a known bug in `pip install skyvern==1.0.31`. Fix:
+
+```bash
+rm ~/.skyvern/data.db   # remove the leftover SQLite file
+pip install --upgrade skyvern   # 1.0.32+ contains the fix
+skyvern quickstart
+```
+
+If you are still on 1.0.31 and cannot upgrade, install via uv instead:
+
+```bash
+uv pip install skyvern
+```
+
+**`pip install skyvern` fails with ResolutionImpossible (litellm / fastmcp)** â€” You hit a dependency-resolution conflict in 1.0.31. Either upgrade to 1.0.32+ or use uv: `uv pip install skyvern`.
+
+## SDK
+
+**Skyvern is a Playwright extension that adds AI-powered browser automation.** It gives you the full power of Playwright with additional AI capabilitiesâ€”use natural language prompts to interact with elements, extract data, and automate complex multi-step workflows.
+
+**Installation:**
+- Python SDK / cloud API: `pip install skyvern`
+- Local server + packaged UI: `pip install ""skyvern[all]""` then run `skyvern quickstart`
+- Local server + packaged UI with Postgres: `pip install ""skyvern[all]""` then run `skyvern quickstart --postgres`
+- Packaged UI for an existing API: `pip install ""skyvern[ui]""` then run
+  `skyvern run ui --api-url <api-url> --api-key <api-key>`
+- TypeScript: `npm install @skyvern/client`
+
+### AI-Powered Page Commands
+
+Skyvern adds four core AI commands directly on the page object:
+
+| Command | Description |
+|---------|-------------|
+| `page.act(prompt)` | Perform actions using natural language (e.g., ""Click the login button"") |
+| `page.extract(prompt, schema)` | Extract structured data from the page with optional JSON schema |
+| `page.validate(prompt)` | Validate page state, returns `bool` (e.g., ""Check if user is logged in"") |
+| `page.prompt(prompt, schema)` | Send arbitrary prompts to the LLM with optional response schema |
+
+Additionally, `page.agent` provides higher-level workflow commands:
+
+| Command | Description |
+|---------|-------------|
+| `page.agent.run_task(prompt)` | Execute complex multi-step tasks |
+| `page.agent.login(credential_type, credential_id)` | Authenticate with stored credentials (Skyvern, Bitwarden, 1Password) |
+| `page.agent.download_files(prompt)` | Navigate and download files |
+| `page.agent.run_workflow(workflow_id)` | Execute pre-built workflows |
+
+### AI-Augmented Playwright Actions
+
+All standard Playwright actions support an optional `prompt` parameter for AI-powered element location:
+
+| Action | Playwright | AI-Augmented |
+|--------|------------|--------------|
+| Click | `page.click(""#btn"")` | `page.click(prompt=""Click login button"")` |
+| Fill | `page.fill(""#email"", ""a@b.com"")` | `page.fill(prompt=""Email field"", value=""a@b.com"")` |
+| Select | `page.select_option(""#country"", ""US"")` | `page.select_option(prompt=""Country dropdown"", value=""US"")` |
+| Upload | `page.upload_file(""#file"", ""doc.pdf"")` | `page.upload_file(prompt=""Upload area"", files=""doc.pdf"")` |
+
+**Three interaction modes:**
+```python
+# 1. Traditional Playwright - CSS/XPath selectors
+await page.click(""#submit-button"")
+
+# 2. AI-powered - natural language
+await page.click(prompt=""Click the green Submit button"")
+
+# 3. AI fallback - tries selector first, falls back to AI if it fails
+await page.click(""#submit-btn"", prompt=""Click the Submit button"")
+```
+
+### Core AI Commands - Examples
+
+```python
+# act - Perform actions using natural language
+await page.act(""Click the login button and wait for the dashboard to load"")
+
+# extract - Extract structured data with optional JSON schema
+result = await page.extract(""Get the product name and price"")
+result = await page.extract(
+    prompt=""Extract order details"",
+    schema={""order_id"": ""string"", ""total"": ""number"", ""items"": ""array""}
+)
+
+# validate - Check page state (returns bool)
+is_logged_in = await page.validate(""Check if the user is logged in"")
+
+# prompt - Send arbitrary prompts to the LLM
+summary = await page.prompt(""Summarize what's on this page"")
+```
+
+### Quick Start Examples
+
+**Run via UI:**
+```bash
+skyvern run all
+```
+Navigate to http://localhost:8080 to run tasks through the web interface. If the packaged UI is missing, `skyvern run ui` will offer to install the matching UI package. For non-interactive setup, use `skyvern run ui --install-ui` or `skyvern run all --install-ui`.
+
+To run only the packaged UI against an existing Skyvern API, install `skyvern[ui]` and pass
+`--api-url`; the CLI infers `--wss-url` from the API URL unless you override it. You can also set
+`VITE_API_BASE_URL`, `VITE_WSS_BASE_URL`, `VITE_ARTIFACT_API_BASE_URL`, `VITE_SKYVERN_API_KEY`,
+and `VITE_BROWSER_STREAMING_MODE` before running `skyvern run ui`.
+
+**Python SDK:**
+```python
+from skyvern import Skyvern
+
+# Local mode
+skyvern = Skyvern.local()
+
+# Or connect to Skyvern Cloud
+skyvern = Skyvern(api_key=""your-api-key"")
+
+# Launch browser and get page
+browser = await skyvern.launch_cloud_browser()
+page = await browser.get_working_page()
+
+# Mix Playwright with AI-powered actions
+await page.goto(""https://example.com"")
+await page.click(""#login-button"")  # Traditional Playwright
+await page.agent.login(credential_type=""skyvern"", credential_id=""cred_123"")  # AI login
+await page.click(prompt=""Add first item to cart"")  # AI-augmented click
+await page.agent.run_task(""Complete checkout with: John Snow, 12345"")  # AI task
+```
+
+**TypeScript SDK:**
+```typescript
+import { Skyvern } from ""@skyvern/client"";
+
+const skyvern = new Skyvern({ apiKey: ""your-api-key"" });
+const browser = await skyvern.launchCloudBrowser();
+const page = await browser.getWorkingPage();
+
+// Mix Playwright with AI-powered actions
+await page.goto(""https://example.com"");
+await page.click(""#login-button"");  // Traditional Playwright
+await page.agent.login(""skyvern"", { credentialId: ""cred_123"" });  // AI login
+await page.click({ prompt: ""Add first item to cart"" });  // AI-augmented click
+await page.agent.runTask(""Complete checkout with: John Snow, 12345"");  // AI task
+
+await browser.close();
+```
+
+**Simple task execution:**
+```python
+from skyvern import Skyvern
+
+skyvern = Skyvern()
+task = await skyvern.run_task(prompt=""Find the top post on hackernews today"")
+print(task)
+```
+
+## Advanced Usage
+
+### Control your own browser (Chrome)
+
+Let Skyvern control your existing Chrome browser â€” wi",Python,"[""ai"", ""api"", ""automation"", ""browser"", ""browser-automation"", ""computer"", ""gpt"", ""llm"", ""playwright"", ""powerautomate"", ""puppeteer"", ""python"", ""rpa"", ""selenium"", ""vision"", ""workflow""]",22650,2133,22650,225.0,2024-02-28 15:45:19+00:00,2026-08-02 04:01:30+00:00,2026-08-02 04:01:21+00:00,AGPL-3.0,False,False,False,600596.0,main,True,True,True,True,,,True,True,github_rest_api
+1228206444,steveseguin/b70-optimization-lab,https://github.com/steveseguin/b70-optimization-lab,steveseguin,b70-optimization-lab,,,Python,[],25,3,25,0.0,2026-05-03 18:26:20+00:00,2026-08-02 04:01:34+00:00,2026-08-02 04:01:21+00:00,Unlicense,False,False,False,472952.0,main,,True,,,,,False,False,github_rest_api
+1083597494,sm-monirulislam/SM-Live-TV,https://github.com/sm-monirulislam/SM-Live-TV,sm-monirulislam,SM-Live-TV,Automatically updated list of  (SM LIVE TV)  Live Matches Links (provided as json-file or PlayList),,Python,"[""api"", ""automation"", ""live"", ""m3u-playlist"", ""m3u8"", ""workflow""]",34,16,34,0.0,2025-10-26 10:59:49+00:00,2026-08-02 04:01:24+00:00,2026-08-02 04:01:20+00:00,,False,False,False,185847.0,main,,False,,,,,False,False,github_rest_api
+903985246,xiaoxiunique/x-kit,https://github.com/xiaoxiunique/x-kit,xiaoxiunique,x-kit,"Pure-Python protocol tools and research notes for X.com, with VibeLoft Twitter account datasets","# x-kit
+
+Pure-Python protocol tools and research notes for the X.com web client.
+
+This repository now uses the Python protocol implementation as the source of truth. The previous Bun/TypeScript automation has been removed; selected full-user tweet exports are preserved under `data/user_tweets/`.
+
+## Capabilities
+
+- Read tweet details through `TweetDetail`.
+- Resolve user profiles through `UserByScreenName`.
+- Collect user timelines through `UserTweets`.
+- Collect search results through `SearchTimeline`, including date-window pagination for deeper history.
+- Create tweets with optional media upload.
+- Retweet, quote tweet, or copy public tweet text/media into a new tweet.
+- Automatically inject `x-client-transaction-id` for `/i/api/` requests.
+
+## Setup
+
+```bash
+uv sync
+cp config/settings.example.json config/settings.json
+```
+
+Edit `config/settings.json` and fill:
+
+- `auth.auth_token`
+- `auth.ct0`
+
+Both values come from an authenÛµã‹h‘éì¶»§q«^uÁ•!¥•É…É¡åMÕ‰ÑåÁ•Ít¡¡ÑÑÁÌè¼½µ¥É½Í½™Ğ¹¥Ñ¡Õˆ¹¥¼½±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°½ÍÁ•¥™¥…Ñ¥½¹Ì½ÍÁ•¥™¥…Ñ¥½¸µÕÉÉ•¹Ğ¼ÑåÁ•!¥•É…É¡å}ÍÕ‰ÑåÁ•Ì¤(´mátmÍ•µ…¹Ñ¥Q½­•¹Ít¡¡ÑÑÁÌè¼½µ¥É½Í½™Ğ¹¥Ñ¡Õˆ¹¥¼½±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°½ÍÁ•¥™¥…Ñ¥½¹Ì½ÍÁ•¥™¥…Ñ¥½¸µÕÉÉ•¹Ğ¼Ñ•áÑ½Õµ•¹Ñ}Í•µ…¹Ñ¥Q½­•¹Ì¤(´mátm±¥¹­•‘‘¥Ñ¥¹I…¹•t¡¡ÑÑÁÌè¼½µ¥É½Í½™Ğ¹¥Ñ¡Õˆ¹¥¼½±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°½ÍÁ•¥™¥…Ñ¥½¹Ì½ÍÁ•¥™¥…Ñ¥½¸µÕÉÉ•¹Ğ¼Ñ•áÑ½Õµ•¹Ñ}±¥¹­•‘‘¥Ñ¥¹I…¹”¤(´ltm•á•ÕÑ•½µµ…¹‘AÉ½Ù¥‘•Ét¡¡ÑÑÁÌè¼½µ¥É½Í½™Ğ¹¥Ñ¡Õˆ¹¥¼½±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°½ÍÁ•¥™¥…Ñ¥½¹Ì½ÍÁ•¥™¥…Ñ¥½¸µÕÉÉ•¹Ğ¼İ½É­ÍÁ…•}•á•ÕÑ•½µµ…¹¤(´mátm¥¹±¥¹•Y…±Õ•AÉ½Ù¥‘•Ét¡¡ÑÑÁÌè¼½µ¥É½Í½™Ğ¹¥Ñ¡Õˆ¹¥¼½±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°½ÍÁ•¥™¥…Ñ¥½¹Ì½ÍÁ•¥™¥…Ñ¥½¸µÕÉÉ•¹Ğ¼Ñ•áÑ½Õµ•¹Ñ}¥¹±¥¹•Y…±Õ”¤(´mátm¥¹±…å!¥¹ÑAÉ½Ù¥‘•Ét¡¡ÑÑÁÌè¼½µ¥É½Í½™Ğ¹¥Ñ¡Õˆ¹¥¼½±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°½ÍÁ•¥™¥…Ñ¥½¹Ì½ÍÁ•¥™¥…Ñ¥½¸µÕÉÉ•¹Ğ¼Ñ•áÑ½Õµ•¹Ñ}¥¹±…å!¥¹Ğ¤()%¹±¥¹”Ù…±Õ•Ì…É”„‘•‰Õ•Èµ™…¥¹œ™•…ÑÕÉ”É…Ñ¡•ÈÑ¡…¸¹½Éµ…°•‘¥Ñ½È)…¹¹½Ñ…Ñ¥½¹Ì¸]¡•¸•á•ÕÑ¥½¸¥ÌÁ…ÕÍ•°„½µÁ…Ñ¥‰±”•‘¥Ñ½È…¹‘•‰Õœ…‘…ÁÑ•È)É•ÅÕ•ÍĞÙ…É¥…‰±”±½½­ÕÀÉ…¹•Ì™É½´Ñ¡”±…¹Õ…”Í•ÉÙ•È°•Ù…±Õ…Ñ”Ñ¡•´¥¸Ñ¡”)Í•±•Ñ•ÍÑ…¬™É…µ”°…¹É•¹‘•ÈÑ¡”É•ÍÕ±Ñ¥¹œÙ…±Õ•Ì‰•Í¥‘”Ñ¡”Í½ÕÉ”¸Q¡•ä)¡…Ù”¹¼Ù¥Í¥‰±”•™™•Ğİ¡•¸Ñ¡”±¥•¹Ğ½ÈH‘•‰Õœ…‘…ÁÑ•È‘½•Ì¹½ĞÉ•ÅÕ•ÍĞ)Ñ•áÑ½Õµ•¹Ğ½¥¹±¥¹•Y…±Õ•€¸((ŒŒM•ÑÑ¥¹Ì()±…¹Õ…•Í•ÉÙ•É€•áÁ½Í•ÌÑ¡”™½±±½İ¥¹œÍ•ÑÑ¥¹ÌÙ¥„1M@½¹™¥ÕÉ…Ñ¥½¸¸()Í•ÑÑ¥¹Ìğ‘•™…Õ±Ğğ‘•ÍÉ¥ÁÑ¥½¸(´´´´€€€€ğ€´´´´´€€ğ€´´´´´)È¹±ÍÀ¹‘•‰Õ€€ğ™…±Í•€ğ¥¹É•…Í”Ù•É‰½Í¥Ñä™½È‘•‰ÕœÁÕÉÁ½Í”)È¹±ÍÀ¹±½}™¥±•€ğ¹Õ±±€ğ™¥±”Ñ¼±½œ‘•‰Õœµ•ÍÍ…•Ì°™…±±‰…¬Ñ¼ÍÑ‘•ÉÈ¥˜•µÁÑä)È¹±ÍÀ¹‘¥…¹½ÍÑ¥Í€ğÑÉÕ•€ğ•¹…‰±”™¥±”‘¥…¹½ÍÑ¥ÌÙ¥„m±¥¹ÑÉt¡¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Èµ±¥ˆ½±¥¹ÑÈ¤)È¹±ÍÀ¹¥¹±…å}¡¥¹ÑÍ}µ¥¹¥µÕµ}…ÉÕµ•¹ÑÍ€ğ€É€ğµ¥¹¥µÕ´ÍÕÁÁ±¥•…ÉÕµ•¹ÑÌ‰•™½É”Á…É…µ•Ñ•Èµ¹…µ”¥¹±…ä¡¥¹ÑÌ…É”Í¡½İ¸)È¹±ÍÀ¹¥¹±…å}¡¥¹ÑÍ}µ¥¹¥µÕµ}…ÉÕµ•¹Ñ}±•¹Ñ¡€ğ€É€ğµ¥¹¥µÕ´…ÉÕµ•¹Ğµ¹…µ”±•¹Ñ ™½È…¸¥¹±…ä¡¥¹Ğ°•á±Õ‘¥¹œ…¸¥¹¥Ñ¥…°€¹€)È¹±ÍÀ¹É¥¡}‘½Õµ•¹Ñ…Ñ¥½¹€ğÑÉÕ•€ğÉ¥ ‘½Õµ•¹Ñ…Ñ¥½¸İ¥Ñ •¹¡…¹•µ…É­‘½İ¸™•…ÑÕÉ•Ì)È¹±ÍÀ¹Í¹¥ÁÁ•Ñ}ÍÕÁÁ½ÉÑ€ğÑÉÕ•€ğ•¹…‰±”Í¹¥ÁÁ•ÑÌ¥¸…ÕÑ¼½µÁ±•Ñ¥½¸)È¹±ÍÀ¹µ…á}½µÁ±•Ñ¥½¹Í€ğ€ÈÀÀğµ…á¥µÕ´¹Õµ‰•È½˜½µÁ±•Ñ¥½¸¥Ñ•µÌ)È¹±ÍÀ¹±¥¹Ñ}…¡•€ğ™…±Í•€ğÑ½±”…¡¥¹œ½˜±¥¹ĞÉ•ÍÕ±ÑÌ)È¹±ÍÀ¹Á…ÉÍ•}‘•±…å€ğ€À¸ÄÕ€ğÍ•½¹‘ÌÑ¼‘•‰½Õ¹”Á…ÉÍ¥¹œ…™Ñ•È…¸•‘¥Ğ)È¹±ÍÀ¹‘¥…¹½ÍÑ¥Í}‘•±…å€ğ€À¸ÜÕ€ğÍ•½¹‘ÌÑ¼‘•‰½Õ¹”‘¥…¹½ÍÑ¥Ì…™Ñ•ÈÑ¡”ÕÉÉ•¹ĞÁ…ÉÍ”)È¹±ÍÀ¹Á…ÉÍ•}…¡•}µ…á}µ‰€ğ€ØÑ€ğµ…á¥µÕ´µ•µ½ÉäÕÍ•‰ä…¡•‘½Õµ•¹ĞÁ…ÉÍ”Ù•ÉÍ¥½¹Ì)È¹±ÍÀ¹‘¥…¹½ÍÑ¥Í}…¡•}µ…á}µ‰€ğ€ÄÙ€ğµ…á¥µÕ´µ•µ½ÉäÕÍ•‰ä…¡•‘¥…¹½ÍÑ¥Ì)È¹±ÍÀ¹Í•ÉÙ•É}…Á…‰¥±¥Ñ¥•Í€ğíõ€ğ½Ù•ÉÉ¥‘”Í•ÉÙ•È…Á…‰¥±¥Ñ¥•Ì‘•™¥¹•¥¸m…Á…‰¥±¥Ñ¥•Ì¹It¡¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½I‘¥Ñ½ÉMÕÁÁ½ÉĞ½±…¹Õ…•Í•ÉÙ•È½‰±½ˆ½µ…ÍÑ•È½H½…Á…‰¥±¥Ñ¥•Ì¹H¤¸M•”D‰•±½Ü¸)È¹±ÍÀ¹±¥¹­}™¥±•}Í¥é•}±¥µ¥Ñ€ğ€ÄØÌàĞğµ…á¥µÕ´™¥±”Í¥é”€¡¥¸‰åÑ•Ì¤Ñ¡…ĞÍÕÁÁ½ÉÑÌ‘½Õµ•¹Ğ±¥¹­Ì()Q¡•Í”Í•ÑÑ¥¹Ì½Õ±…±Í¼ÍÁ•¥™¥•¥¸€¹IÁÉ½™¥±•€™¥±”Ù¥„½ÁÑ¥½¹Ì¡±…¹Õ…•Í•ÉÙ•È¸ñMQQ%9}95ø€ô€€ñY1Uø¥€¸½È•á…µÁ±”°()È)½ÁÑ¥½¹Ì¡±…¹Õ…•Í•ÉÙ•È¹Í¹¥ÁÁ•Ñ}ÍÕÁÁ½ÉĞ€ô1M¤)€()İ¥±°ÑÕÉ¸½™˜Í¹¥ÁÁ•ĞÍÕÁÁ½ÉĞ±½‰…±±ä¸1M@½¹™¥ÕÉ…Ñ¥½¸Í•ÑÑ¥¹Ì…É”…±İ…åÌ½Ù•ÉÉ¥‘•¸‰ä½ÁÑ¥½¹Ì ¥€¸((ŒŒD((ŒŒŒ1¥¹Ñ•ÉÌ()]¥Ñ m±¥¹ÑÉt¡¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Èµ±¥ˆ½±¥¹ÑÈ¤ØÈ¸À¸Àˆ±H°‰lˆ‰±…¹Õ…”µÍ•ÉÙ•ÈµÁÉ½Ñ½½°ˆˆ°€ˆ‰Èˆ‰tˆ°ØÜÈ°ÄÄØ°ØÜÈ°ÄÌÄ¸À°ÈÀÄÜ´Àä´ÄÄ€ÀÌèÌÄèÀÜ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÈèÀĞèÔØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÈèÀĞèÔÈ¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ÄÜÔĞ¸À±µ…ÍÑ•È±QÉÕ”±QÉÕ”±…±Í”±…±Í”°°±QÉÕ”±QÉÕ”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(äÈÀàÔÄÈÀÈ±Ğµ­…±¥¹½İÍ­¤½ÅÕ¥­È±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Ğµ­…±¥¹½İÍ­¤½ÅÕ¥­È±Ğµ­…±¥¹½İÍ­¤±ÅÕ¥­È±HÑ¼½ÉÑÉ…¸QÉ…¹ÍÁ¥±•È°±H±mt°ÄàĞ°à°ÄàĞ°Ğà¸À°ÈÀÈÔ´ÀÄ´ÈÈ€ÈÈèÀÀèÌĞ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÈèÀÀèÄÜ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÈèÀÀèÀà¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ĞØØÌ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(àÔÀĞÜÀÄäÜ±É¥½¡•ĞµÉÌ½É…¸µ¡•­Ì±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½É¥½¡•ĞµÉÌ½É…¸µ¡•­Ì±É¥½¡•ĞµÉÌ±É…¸µ¡•­Ì±ÁÕ‰±¥ŒA$Ñ¼•ĞI8Á…­…”¡•¬ÍÑ…ÑÕÌ¸UÁ‘…Ñ•½¹”‘…¥±ä¸€ÉÍÑ…ÑÌ€°±H±mt°ÈĞ°È°ÈĞ°À¸À°ÈÀÈĞ´Àà´ÌÄ€ÈÄèÈØèĞĞ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèĞØèÄà¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèĞØèÀà¬ÀÀèÀÀ°±…±Í”±…±Í”±…±Í”°ÔÔÀØÌÈØ¸À±µ…¥¸°±…±Í”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ØàÄäàäÄÈĞ±‘Õ­‘ˆ½‘Õ­‘ˆµÈ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½‘Õ­‘ˆ½‘Õ­‘ˆµÈ±‘Õ­‘ˆ±‘Õ­‘ˆµÈ±Q¡”‘Õ­‘ˆHÁ…­…”°±H°‰lˆ‰‘…Ñ…‰…Í”ˆˆ°€ˆ‰‘Õ­‘ˆˆˆ°€ˆ‰½±…Àˆˆ°€ˆ‰Èˆ‰tˆ°ÈÈÌ°ÔÌ°ÈÈÌ°äÜ¸À°ÈÀÈÌ´Àà´ÈÌ€ÀÜèĞÀèÀÈ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèÈÄèÔÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÌèÄäèĞÌ¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ØÄĞÌĞ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÄÀÔÀÜààÌÄä±½…Ñ±•ÍÌµÉÁ­œ½¡•­Ñ½È±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½½…Ñ±•ÍÌµÉÁ­œ½¡•­Ñ½È±½…Ñ±•ÍÌµÉÁ­œ±¡•­Ñ½È±m=¸µI9t	•…ÕÍ”ÍÕ‰µ¥ÑÑ¥¹œÁ…­…•ÌÑ¼I8Í¡½Õ±‰”±•ÍÌ¥¹™ÕÉ¥Ñ…Ñ¥¹œİ¡•¸¡Õµ…¹ÌÉÕ¸•áÑÉ„…ÕÑ½µ…Ñ•¡•­ÌÑ¡…Ğ…É•¸ĞÁÕ‰±¥Œ‰ÕĞÍÑ¥±°‘¥¹œå½ÕÈÍÕ‰µ¥ÍÍ¥½¸°±H±mt°ÈØ°À°ÈØ°Ğ¸À°ÈÀÈÔ´Àä´ÀÔ€ÀÀèÄÈèÀà¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèÄÔèĞÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèÄÜèĞĞ¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ÈØàÀ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÈÀÀÜØØÄÈä±¹™±Ù•ÉÍ”½¹™±‘…Ñ„±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½¹™±Ù•ÉÍ”½¹™±‘…Ñ„±¹™±Ù•ÉÍ”±¹™±‘…Ñ„±90…Ñ„€¡‰ä1•”M¡…ÉÁ”¤°±H±mt°ÌĞÜ°àÈ°ÌĞÜ°ÄÌ¸À°ÈÀÄä´Àà´ÀØ€ÀÌèÀÈèÈÈ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèÄÔèÄÜ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÄèÄÔèÄÌ¬ÀÀèÀÀ°±…±Í”±…±Í”±…±Í”°ÜäÜàÔäÜ¸À±µ…ÍÑ•È°±…±Í”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ØÀĞÜĞàÄÜÀ±Q¡•½¹½µ¥ÍĞ½Ñ¡”µ•½¹½µ¥ÍĞµİ…Èµ™¥É”µµ½‘•°±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Q¡•½¹½µ¥ÍĞ½Ñ¡”µ•½¹½µ¥ÍĞµİ…Èµ™¥É”µµ½‘•°±Q¡•½¹½µ¥ÍĞ±Ñ¡”µ•½¹½µ¥ÍĞµİ…Èµ™¥É”µµ½‘•°±M½ÕÉ”½‘”…¹‘…Ñ„™½ÈQ¡”½¹½µ¥ÍĞÌU­É…¥¹”İ…Èµ™¥É”µ½‘•°°±H±mt°ÈÜÜ°ÌÀ°ÈÜÜ°À¸À°ÈÀÈÌ´ÀÈ´ÈÄ€ÄÜèÔÌèÈÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèĞØèÔÜ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèĞØèÔÈ¬ÀÀèÀÀ±5%P±…±Í”±…±Í”±…±Í”°ÔÀàÄÜÜÌà¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÈØÜàÜØÜÀØ±…µ˜ÜÄ½±½¹•5…À±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½…µ˜ÜÄ½±½¹•5…À±…µ˜ÜÄ±±½¹•5…À±¸HÁ…­…”Ñ¼Á±½Ğµ…ÁÌ½˜±½¹”‘¥ÍÑÉ¥‰ÕÑ¥½¹Ì¥¸Í½µ…Ñ¥Œ•Ù½±ÕÑ¥½¸°±H±mt°ÈÀ°Ø°ÈÀ°È¸À°ÈÀÈÀ´ÀÔ´Èä€ÄĞèÈÄèĞÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèÄÌèÄà¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèÄÌèÄĞ¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ÈÈÄÄĞ¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ØÜàĞÀààÔ±±¥¹‘‰É½½¬½¡½±•É„±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½±¥¹‘‰É½½¬½¡½±•É„±±¥¹‘‰É½½¬±¡½±•É„±HA…­…”™½È¹…±åé¥¹œ)½¡¸M¹½ÜÌ€ÄàÔĞ¡½±•É„5…À°±H°‰lˆ‰¡½±•É„ˆˆ°€ˆ‰‘…Ñ„µÙ¥ÍÕ…±¥é…Ñ¥½¸ˆˆ°€ˆ‰‘…Ñ…Í•ÑÌˆˆ°€ˆ‰•Á¥‘•µ¥½±½äˆˆ°€ˆ‰©½¡¸µÍ¹½Üˆˆ°€ˆ‰ÁÕ‰±¥Œµ¡•…±Ñ ˆˆ°€ˆ‰Èˆˆ°€ˆ‰ÑÉ¥…¹Õ±…Ñ¥½¸µ‘•±…Õ¹…äˆˆ°€ˆ‰Ù½É½¹½¤ˆˆ°€ˆ‰Ù½É½¹½¤µÁ½±å½¹Ìˆ‰tˆ°ÄĞÄ°ÄØ°ÄĞÄ°À¸À°ÈÀÄØ´Àä´ÄÀ€ÀÀèÄäèÌÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèÄÈèĞÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèÄÈèĞÄ¬ÀÀèÀÀ°±…±Í”±…±Í”±…±Í”°ÄÄÌääÀ¸À±µ…ÍÑ•È°±…±Í”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÄÜààääĞÌÄ±©½¡¹µÕ±±½ ½)5M}	\±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½©½¡¹µÕ±±½ ½)5M}	\±©½¡¹µÕ±±½ ±)5M}	\±)ÕÍĞ„5¥É½‰¥½±½äMåÍÑ•´€¡)5L¤€´„ÍÕ¥Ñ”™½È…¹…±åé¥¹œµ¥É½‰¥½±½¥…°Í•ÅÕ•¹¥¹œ‘…Ñ„™½ÈÕÍ”½¸9% !AÍåÍÑ•µÌ€¡	¥½İÕ±˜¤°±H±mt°Èä°ÄÌ°Èä°ÄÈ¸À°ÈÀÄä´ÀĞ´ÀÄ€ÄØèÀÔèÌĞ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèĞÜèÔÔ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèĞÜèÔÈ¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ĞÀØØÌà¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÈØÔäÔÀäÄ±‘…¹¥±¥¹…É•Ì½ÅÕ¥­ÁÍä±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½‘…¹¥±¥¹…É•Ì½ÅÕ¥­ÁÍä±‘…¹¥±¥¹…É•Ì±ÅÕ¥­ÁÍä±ÅÕ¥­±ä™¥ÑÌ…¹Á±½ÑÌÁÍå¡½µ•ÑÉ¥Œ™Õ¹Ñ¥½¹Ì™½ÈµÕ±Ñ¥Á±”É½ÕÁÌ°±H±mt°ÈØ°ÄÀ°ÈØ°ÄÄ¸À°ÈÀÄĞ´ÄÄ´ÄÌ€ÄÔèĞàèĞØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèÌÈèÄÌ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèÌÈèÀä¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ÈÜÔÌÌ¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÌÌäØÀäÄÌà±•É¥Ñ±•Õ¹œ½Á¥á…É™¥±µÌ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½•É¥Ñ±•Õ¹œ½Á¥á…É™¥±µÌ±•É¥Ñ±•Õ¹œ±Á¥á…É™¥±µÌ°ˆéµ½Ù¥•}…µ•É„èH‘…Ñ„Á…­…”Ñ¼•áÁ±½É”A¥á…È™¥±µÌ°Ñ¡”Á•½Á±”°…¹É••ÁÑ¥½¸‘…Ñ„ˆ°±H°‰lˆ‰‘…Ñ„ˆˆ°€ˆ‰‘…Ñ„µÍ¥•¹”ˆˆ°€ˆ‰‘…Ñ…Á…­…”ˆˆ°€ˆ‰‘¥Í¹•äˆˆ°€ˆ‰¥µ‘ˆˆˆ°€ˆ‰¥µ‘ˆµ‘…Ñ…Í•Ğˆˆ°€ˆ‰Á¥á…Èˆˆ°€ˆ‰Á¥á…Èµ™¥±µÌˆˆ°€ˆ‰ÉÍÑ…ÑÌˆˆ°€ˆ‰İ•ˆµÍÉ…Á¥¹œˆˆ°€ˆ‰İ¥­¥Á•‘¥„ˆ‰tˆ°ÈÄ°Ğ°ÈÄ°ÔØ¸À°ÈÀÈÄ´ÀÈ´ÄÜ€ÀĞèÄàèĞÌ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèÈÀèĞÈ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèÈÀèÌä¬ÀÀèÀÀ±À´Ä¸À±…±Í”±…±Í”±…±Í”°ÄØĞÄ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(àÀÌÈÜÌÌÀ±©¥´µ‰É•¬½Ğ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½©¥´µ‰É•¬½Ğ±©¥´µ‰É•¬±Ğ±¥Í 	¥½•¹•É•Ñ¥Ì5½‘•°€Ğ°±H±mt°ÈÄ°ÄÈ°ÈÄ°Ğ¸À°ÈÀÄÜ´ÀÄ´Èä€ÀÌèĞäèÌØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèÄàèĞĞ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèÀÄèÀä¬ÀÀèÀÀ°±…±Í”±…±Í”±…±Í”°ÌäàÀ¸À±µ…ÍÑ•È°±…±Í”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÔàäÀÜØÄÔØ±Á•Á¥©¸µ‘•ÙÉ¥•Ì½½Á•É¹¥ÕÍ5…É¥¹”±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Á•Á¥©¸µ‘•ÙÉ¥•Ì½½Á•É¹¥ÕÍ5…É¥¹”±Á•Á¥©¸µ‘•ÙÉ¥•Ì±½Á•É¹¥ÕÍ5…É¥¹”±MÕ‰Í•Ğ…¹‘½İ¹±½…µ…É¥¹”‘…Ñ„™É½´T½Á•É¹¥ÕÌ€€€€5…É¥¹”M•ÉÙ¥”%¹™½Éµ…Ñ¥½¸¸%µÁ½ÉĞ‘…Ñ„½¸Ñ¡”½•…¹Ì€€€€Á¡åÍ¥…°…¹‰¥½•½¡•µ¥…°ÍÑ…Ñ”™É½´½Á•É¹¥ÕÌ¥¹Ñ¼H€€€€İ¥Ñ¡½ÕĞÑ¡”¹••½˜•áÑ•É¹…°Í½™Ñİ…É”¸°±H°‰lˆ‰‘…Ñ„ˆˆ°€ˆ‰ÍÁ…Ñ¥…°ˆ‰tˆ°ÌÔ°Ø°ÌÔ°È¸À°ÈÀÈÌ´ÀÄ´ÄÔ€ÀÀèÔÜèĞÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÔØèÈÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÔäèÌà¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ÈĞÌĞÌ¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÄÀÄÄÔÈĞäĞĞ±™•É•¹¤µÑ…µ…Ì½Ù½¹…Ğµ­•Í•Ì±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½™•É•¹¤µÑ…µ…Ì½Ù½¹…Ğµ­•Í•Ì±™•É•¹¤µÑ…µ…Ì±Ù½¹…Ğµ­•Í•Ì±Y½¹…Ñ¯¥Ï¥Í¤ÍÑ…Ñ¥ÍéÑ¥­„°±H°‰lˆ‰É…¥±İ…äˆ‰tˆ°ÈÌ°À°ÈÌ°À¸À°ÈÀÈÔ´ÀÜ´ÀÄ€ÀÀèĞÜèĞà¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÔÌèÌÔ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÔÌèÄä¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ÄØäÈÌØäØ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÔàÈÌàÜÄØĞ±Á½±„µÉÌ½ÈµÁ½±…ÉÌ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Á½±„µÉÌ½ÈµÁ½±…ÉÌ±Á½±„µÉÌ±ÈµÁ½±…ÉÌ±A½±…ÉÌH‰¥¹‘¥¹Ì°±H°‰lˆ‰…ÉÉ½Üˆˆ°€ˆ‰Á½±…ÉÌˆˆ°€ˆ‰Èˆˆ°€ˆ‰ÉÕÍĞˆ‰tˆ°ÔØÜ°ĞÄ°ÔØÜ°ÔÔ¸À°ÈÀÈÈ´ÄÈ´ÈØ€ÄÜèÀÈèĞÌ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÄÜèĞÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÄÜèÌà¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°äØØà¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ØÀĞÜÔÔÈÜØ±É…¹Ñµ‘•Éµ½ÑĞ½Ñ¥¹åÁ±½Ğ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½É…¹Ñµ‘•Éµ½ÑĞ½Ñ¥¹åÁ±½Ğ±É…¹Ñµ‘•Éµ½ÑĞ±Ñ¥¹åÁ±½Ğ±1¥¡Ñİ•¥¡Ğ•áÑ•¹Í¥½¸½˜Ñ¡”‰…Í”HÉ…Á¡¥ÌÍåÍÑ•´°±H±mt°ĞÈÌ°ÈĞ°ĞÈÌ°ÌÜ¸À°ÈÀÈÌ´ÀÈ´ÈÄ€ÄàèÄÀèÔÔ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÈ€ÀÀèÄÀèÈÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÀÜèÔÀ¬ÀÀèÀÀ±Á…¡”´È¸À±…±Í”±…±Í”±…±Í”°ÔÔàÈÌÜ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ĞØÀÔĞÌÄÌÜ±á¥„µ±…ˆ½=µ¥Í9•ÑH±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½á¥„µ±…ˆ½=µ¥Í9•ÑH±á¥„µ±…ˆ±=µ¥Í9•ÑH±H™Õ¹Ñ¥½¹ÌÕ¹‘•É±å¥¹œ=µ¥Í9•Ğ°±H±mt°ÈÀ°Ğ°ÈÀ°Ğ¸À°ÈÀÈÈ´ÀÈ´ÄÜ€ÄÜèĞÈèÀØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÀÈèÌä¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÈèÀÈèÌÔ¬ÀÀèÀÀ±5%P±…±Í”±…±Í”±…±Í”°ÌÀØàÈ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ØàÔÜÌàĞ±A•…¹AÉ½©•Ğ½Á•…¸±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½A•…¹AÉ½©•Ğ½Á•…¸±A•…¹AÉ½©•Ğ±Á•…¸±Q¡”AÉ•‘¥Ñ¥Ù”½ÍåÍÑ•´¹…±åé•È€¡A¸¤¥Ì…¸¥¹Ñ•É…Ñ••½±½¥…°‰¥½¥¹™½Éµ…Ñ¥ÌÑ½½±‰½à¸°±H°‰lˆ‰‰…å•Í¥…¸ˆˆ°€ˆ‰å‰•É¥¹™É…ÍÑÉÕÑÕÉ”ˆˆ°€ˆ‰‘…Ñ„µ…ÍÍ¥µ¥±…Ñ¥½¸ˆˆ°€ˆ‰‘…Ñ„µÍ¥•¹”ˆˆ°€ˆ‰•½ÍåÍÑ•´µµ½‘•°ˆˆ°€ˆ‰•½ÍåÍÑ•´µÍ¥•¹”ˆˆ°€ˆ‰™½É•…ÍÑ¥¹œˆˆ°€ˆ‰µ•Ñ„µ…¹…±åÍ¥Ìˆˆ°€ˆ‰¹…Ñ¥½¹…°µÍ¥•¹”µ™½Õ¹‘…Ñ¥½¸ˆˆ°€ˆ‰Á•…¸ˆˆ°€ˆ‰Á±…¹ÑÌˆˆ°€ˆ‰Èˆ‰tˆ°ÈÌÜ°ÌÄÔ°ÈÌÜ°ĞØÔ¸À°ÈÀÄÈ´ÄÄ´ÈÔ€ÈÌèĞàèÈØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèÔØèÀà¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèÔØèÀĞ¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ĞÌäàäĞ¸À±‘•Ù•±½À°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÈäÌÔÔÈÄÄ±ÍÑ•İ¥½M¥µ%¹˜±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½ÍÑ•İ¥½M¥µ%¹˜±ÍÑ•İ¥±M¥µ%¹˜±™É…µ•İ½É¬™½È‘…Ñ„µ‘É¥Ù•¸ÍÑ½¡…ÍÑ¥Œ‘¥Í•…Í”ÍÁÉ•…Í¥µÕ±…Ñ¥½¹Ì°±H°‰lˆ‰É…¸ˆˆ°€ˆ‰‘…Ñ„µ‘É¥Ù•¸ˆˆ°€ˆ‰•Á¥‘•µ¥½±½äˆˆ°€ˆ‰¡¥ µÁ•É™½Éµ…¹”µ½µÁÕÑ¥¹œˆˆ°€ˆ‰µ…É­½Øµ¡…¥¸ˆˆ°€ˆ‰µ…Ñ¡•µ…Ñ¥…°µµ½‘•±±¥¹œˆˆ°€ˆ‰Èˆ‰tˆ°Ìà°ÄØ°Ìà°À¸À°ÈÀÄÔ´ÀÄ´ÄØ€ÄÔèÔÀèĞĞ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèĞäèĞÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèÔÈèĞà¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ÄäÀÔÌ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÌÌĞÄĞÔÄÌĞ±İ¥¹½İ•ÉX½=Á•¹MÁ•äµÁ…­…”±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½İ¥¹½İ•ÉX½=Á•¹MÁ•äµÁ…­…”±İ¥¹½İ•ÉX±=Á•¹MÁ•äµÁ…­…”°‰¹…±åé”°AÉ½•ÍÌ°%‘•¹Ñ¥™ä°…¹M¡…É”°I…µ…¸…¹€¡P¥%HMÁ•ÑÉ„ˆ°±H±mt°ĞÌ°ÄÈ°ĞÌ°ÈØ¸À°ÈÀÈÄ´ÀÄ´Èä€ÄÈèÔÈèÌÌ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèĞÈèÄà¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèĞÈèÄÔ¬ÀÀèÀÀ±µ	d´Ğ¸À±…±Í”±…±Í”±…±Í”°ÄÄÈĞĞÈÜ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÄÀØÈàÈààÀØ±ÌÍÉ‘¥„½Å½°±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½ÌÍÉ‘¥„½Å½°±ÌÍÉ‘¥„±Å½°±A½İ•É™Õ°€MLœ%¹ÍÁ¥É•½¹•ÁÑÌ™½Èµ½É”™™¥¥•¹Ğ	¥•È=ÕÑÁÕÑÌ°±H°‰lˆ‰É…¸ˆˆ°€ˆ‰É…¸µÈˆˆ°€ˆ‰‘…Ñ„µ…¹…±åÍ¥Ìˆˆ°€ˆ‰‘…Ñ„µµ…¹¥ÁÕ±…Ñ¥½¸ˆˆ°€ˆ‰•á•°ˆˆ°€ˆ‰•á•°µ•áÁ½ÉĞˆˆ°€ˆ‰™½Éµ…ÑÌˆˆ°€ˆ‰¡¥ µÁ•É™½Éµ…¹”ˆˆ°€ˆ‰½ÕÑÁÕĞˆˆ°€ˆ‰Èˆˆ°€ˆ‰ÉÍÑ…Ğˆˆ°€ˆ‰Í…Ìˆˆ°€ˆ‰ÍÑ…Ñ¥ÍÑ¥Ìˆˆ°€ˆ‰İ•¥¡ÑÌˆ‰tˆ°ÈÀ°Ä°ÈÀ°Ä¸À°ÈÀÈÔ´Àä´ÈÌ€ÄäèÌàèÄÈ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèÄĞèÄØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÄèÄĞèÄÈ¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ÄÌÄĞÀ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÄÜÌÄÀÀÔÜĞ±9¥¬µi…¥¹…°µÉ½ÕÀ½Í¥¹…ÑÕÉ”¹Ñ½½±Ì¹±¥ˆ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½9¥¬µi…¥¹…°µÉ½ÕÀ½Í¥¹…ÑÕÉ”¹Ñ½½±Ì¹±¥ˆ±9¥¬µi…¥¹…°µÉ½ÕÀ±Í¥¹…ÑÕÉ”¹Ñ½½±Ì¹±¥ˆ±HÁ…­…”½¹Ñ…¥¹¥¹œÕÍ•™Õ°™Õ¹Ñ¥½¹Ì™½ÈµÕÑ…Ñ¥½¹…°Í¥¹…ÑÕÉ”…¹…±åÍ¥Ì°±H±mt°àÜ°ÈØ°àÜ°Ø¸À°ÈÀÄä´ÀÈ´Èà€ÄÄèÌÌèÀÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÀèĞÌèÌÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÀèĞÌèÌÜ¬ÀÀèÀÀ±9=MMIQ%=8±…±Í”±…±Í”±…±Í”°ÌÈÔÀÜ¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÔàäààäÌ±Í¥é•ÍÁ•ÑÉÕ´½µ¥é•È±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Í¥é•ÍÁ•ÑÉÕ´½µ¥é•È±Í¥é•ÍÁ•ÑÉÕ´±µ¥é•È±5Õ±Ñ¤µÍÁ•¥•ÌÍ¥é”µ‰…Í••½±½¥…°µ½‘•±±¥¹œ¥¸H°±H°‰lˆ‰•½ÍåÍÑ•´µµ½‘•°ˆˆ°€ˆ‰™¥Í µÁ½ÁÕ±…Ñ¥½¸µ‘å¹…µ¥Ìˆˆ°€ˆ‰™¥Í¡•É¥•Ìˆˆ°€ˆ‰™¥Í¡•É¥•Ìµµ…¹…•µ•¹Ğˆˆ°€ˆ‰µ…É¥¹”µ•½ÍåÍÑ•´ˆˆ°€ˆ‰Á½ÁÕ±…Ñ¥½¸µ‘å¹…µ¥Ìˆˆ°€ˆ‰Èˆˆ°€ˆ‰Í¥µÕ±…Ñ¥½¸ˆˆ°€ˆ‰Í¥é”µÍÑÉÕÑÕÉ”ˆˆ°€ˆ‰ÍÁ•¥•Ìµ¥¹Ñ•É…Ñ¥½¹Ìˆˆ°€ˆ‰ÑÉ…¹ÍÁ½ÉĞµ•ÅÕ…Ñ¥½¸ˆ‰tˆ°ĞÌ°Ğà°ĞÌ°ÌØ¸À°ÈÀÄÈ´Àä´ÈÄ€ÀàèÔÄèÄä¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÔÌèÔÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÔÌèĞÜ¬ÀÀèÀÀ°±…±Í”±…±Í”±…±Í”°ÌÀÔÈØÔ¸À±µ…ÍÑ•È°±…±Í”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÈĞĞÀÄÜØÄ±•á•É¥Í´½È±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½•á•É¥Í´½È±•á•É¥Í´±È±á•É¥Í´•á•É¥Í•Ì¥¸H¸°±H°‰lˆ‰½µµÕ¹¥Ñäµ½¹ÑÉ¥‰ÕÑ¥½¹ÌµÁ…ÕÍ•ˆˆ°€ˆ‰•á•É¥Í´µÑÉ…¬ˆˆ°€ˆ‰µ…¥¹Ñ…¥¹•ˆ‰tˆ°ÌÄ°ĞÜ°ÌÄ°ÈØ¸À°ÈÀÄĞ´Àä´ÈĞ€ÀÔèÈÈèÄÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÔÈèÀØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÔÈèÀĞ¬ÀÀèÀÀ±5%P±…±Í”±…±Í”±…±Í”°ÄĞÀÔ¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÄÀÜÌÈÄÌĞĞÀ±µ…¹½Õ¥°½ÅÕ…ÉÑ¼µ½±±…ÁÍ”µ½ÕÑÁÕĞ±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½µ…¹½Õ¥°½ÅÕ…ÉÑ¼µ½±±…ÁÍ”µ½ÕÑÁÕĞ±µ…¹½Õ¥°±ÅÕ…ÉÑ¼µ½±±…ÁÍ”µ½ÕÑÁÕĞ±EÕ…ÉÑ¼•áÑ•¹Í¥½¸Ñ¡…ĞÁÉ½Ù¥‘•ÌÑ¡”…‰¥±¥ÑäÑ¼½±±…ÁÍ”½‘”•±°½ÕÑÁÕÑÌ¥¸!Q50‘½Õµ•¹ÑÌÕÍ¥¹œ½±±…ÁÍ¥‰±”€ñ‘•Ñ…¥±Ìù€•±•µ•¹ÑÌ¸°±H°‰lˆ‰½±±…ÁÍ”µ½ÕÑÁÕĞˆˆ°€ˆ‰½µÁÕÑ¥¹œˆˆ°€ˆ‰‘•Ñ…¥±Ìˆˆ°€ˆ‰ÅÕ…ÉÑ¼ˆˆ°€ˆ‰ÅÕ…ÉÑ¼µ•áÑ•¹Í¥½¸ˆˆ°€ˆ‰ÍÑ…‰±”ˆˆ°€ˆ‰ÍÕµµ…Éäˆ‰tˆ°ÈÀ°À°ÈÀ°È¸À°ÈÀÈÔ´ÄÀ´Àä€ÄäèÈÌèÈÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèĞàèĞÈ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèĞàèÌà¬ÀÀèÀÀ±5%P±…±Í”±…±Í”±…±Í”°ĞÀà¸À±µ…¥¸°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÈÈĞÄÔĞÔÔÔ±Í‰…±¤½±¥¹¥½A…Ñ¡)…µ½Ù¥5½‘Õ±”±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Í‰…±¤½±¥¹¥½A…Ñ¡)…µ½Ù¥5½‘Õ±”±Í‰…±¤±±¥¹¥½A…Ñ¡)…µ½Ù¥5½‘Õ±”±±¥¹¥½A…Ñ ©…µ½Ù¤5½‘Õ±”°±H°‰lˆ‰½ÉÉ•±…Ñ¥½¸ˆˆ°€ˆ‰‘•¥Í¥½¸ˆˆ°€ˆ‰©…µ½Ù¤ˆˆ°€ˆ‰µ½‘Õ±”ˆˆ°€ˆ‰¹…ÑÕÉ…°µ±…¹Õ…”µÍÕµµ…É¥•Ìˆˆ°€ˆ‰ÈµÁ…­…”ˆˆ°€ˆ‰É•Á½ÉĞˆˆ°€ˆ‰ÍÑ…Ñ¥ÍÑ¥Ìˆˆ°€ˆ‰ÍÕµµ…Éäˆˆ°€ˆ‰ÍÕÉÙ¥Ù…°ˆˆ°€ˆ‰ÍÕÉÙ¥Ù…°µ…¹…±åÍ¥Ìˆˆ°€ˆ‰Ñ…‰±•½¹”ˆ‰tˆ°ÈÌ°Ì°ÈÌ°À¸À°ÈÀÄä´ÄÄ´ÈØ€ÀäèÌàèÌÌ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèĞÌèĞÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèĞÌèÌÔ¬ÀÀèÀÀ±A0´È¸À±…±Í”±…±Í”±…±Í”°ÔàÌÄäØ¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ĞØÄÈàÜĞÌÀ±©‘©½¡¸ÈÄÔ½µ¥±İ…Õ­•”µİ•…Ñ¡•È±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½©‘©½¡¸ÈÄÔ½µ¥±İ…Õ­•”µİ•…Ñ¡•È±©‘©½¡¸ÈÄÔ±µ¥±İ…Õ­•”µİ•…Ñ¡•È±UÍ”¥Ñ¡ÕˆÑ¥½¹ÌÑ¼…ÕÑ½µ…Ñ¥…±±äÕÁ‘…Ñ”„İ•…Ñ¡•ÈÉ…Á •Ù•Éä‘…ä°±H±mt°àà°ÈÔ°àà°À¸À°ÈÀÈÈ´ÀÈ´Ää€ÄäèÀĞèÔÄ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÈØèÌÔ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÈØèÌÈ¬ÀÀèÀÀ°±…±Í”±…±Í”±…±Í”°ÌÔÔØÀÜ¸À±µ…¥¸°±…±Í”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ĞàäÈäÌÔ±…©‘…µ¥¼½…Í‘™É•”±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½…©‘…µ¥¼½…Í‘™É•”±…©‘…µ¥¼±…Í‘™É•”±…¹…±åé”ÍÕÉÙ•ä‘…Ñ„™½È™É•”°±H°‰lˆ‰µ¥É½‘…Ñ„ˆˆ°€ˆ‰½™™¥¥…°µÍÑ…Ñ¥ÍÑ¥Ìˆˆ°€ˆ‰ÁÕ‰±¥Œµ‘…Ñ„ˆˆ°€ˆ‰Èˆˆ°€ˆ‰ÉÍÑ…ÑÌˆˆ°€ˆ‰ÍÑ…Ñ¥ÍÑ¥Ìˆˆ°€ˆ‰ÍÕÉÙ•äˆ‰tˆ°ØÈĞ°ĞĞÜ°ØÈĞ°ĞÀ¸À°ÈÀÄÈ´ÀÜ´ÀĞ€ÈÄèĞÄèÄĞ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÄÔèÔØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÄÔèÔÄ¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ÈÀÄÌÔÄ¸À±µ…ÍÑ•È°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(ÔÈØÌĞÄØÌ±Á¥¹¥¸Ñ™©½É‘Ì½Í¡¥¹å¹Ì±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½Á¥¹¥¸Ñ™©½É‘Ì½Í¡¥¹å¹Ì±Á¥¹¥¸Ñ™©½É‘Ì±Í¡¥¹å¹Ì±M¡¥¹ä…ÁÁÌ™½È9L•ÑŒ‰…Í•½¸É•ÕÍ…‰±”½µÁ½¹•¹ÑÌÉ•…Ñ•ÕÍ¥¹œM¡¥¹äµ½‘Õ±•Ì°±H±mt°äÄ°ÌÄ°äÄ°ÄÀ¸À°ÈÀÄØ´ÀÈ´ÈØ€ÈÄèÌÌèÔÀ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÄäèÀÄèÀØ¬ÀÀèÀÀ°ÈÀÈØ´Àà´ÀÄ€ÈÌèÌĞèÔÌ¬ÀÀèÀÀ±A0´Ì¸À±…±Í”±…±Í”±…±Í”°ĞÜÜÄĞÀ¸À±‘•Ù•±½À°±QÉÕ”°°°°±…±Í”±…±Í”±¥Ñ¡Õ‰}É•ÍÑ}…Á¤4(äààäÈÜĞÌä±‰¥½µ¥Ì½Á±…¥±¡ÑÑÁÌè¼½¥Ñ¡Õˆ¹½´½‰¥½µ¥Ì½Á±…¥±

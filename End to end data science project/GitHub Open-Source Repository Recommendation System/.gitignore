@@ -1,0 +1,12 @@
+.env
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+*.pyo
+*.log
+*.tmp
+~$*
+.venv/
+venv/
+data/raw/*
+!data/raw/.gitkeep

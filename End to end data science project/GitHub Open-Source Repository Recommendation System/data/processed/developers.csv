@@ -1,0 +1,6 @@
+developer_id,username,account_created_at,followers,following,public_repo_count,metadata_source
+170270,sindresorhus,2009-12-20 22:57:02+00:00,80599.0,31.0,1140.0,github_rest_api
+241138,karpathy,2010-04-10 17:55:32+00:00,214061.0,8.0,63.0,github_rest_api
+810438,gaearon,,,,,github_public_html_fallback
+781659,jakevdp,,,,,github_public_html_fallback
+4196,hadley,,,,,github_public_html_fallback
