@@ -1,3 +1,6 @@
+# Applies when this project is used as a standalone repository. Inside the parent
+# Data-Science- repo this file is inert, because GitHub only reads workflows from
+# .github/workflows at the repository root; the active workflow lives there.
 name: CI
 
 on:
@@ -9,9 +12,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip

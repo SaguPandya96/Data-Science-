@@ -135,6 +135,8 @@ data/raw/          Amazon Reviews 2023 All_Beauty (JSONL.gz, downloaded)
    ├── src/models/recommender.py       SGD matrix factorization + TF-IDF content-based
    ├── src/models/evaluate.py          baselines, both sampling protocols, segmented eval
    │
+   ├── src/train.py               pipeline entry point, writes models/metrics.json
+   │
    ├── src/api/main.py            FastAPI serving layer
    └── src/app/streamlit_app.py   demo UI
 ```
@@ -179,10 +181,25 @@ The `/predict_rating` response ranks feature contributions by absolute SHAP valu
 
 ## Setup
 
+Python 3.11.
+
 ```bash
-python -m venv .venv && .venv\Scripts\activate    # Windows
+python -m venv .venv
+```
+
+```bash
+source .venv/bin/activate     # macOS / Linux
+```
+
+```bash
+.venv\Scripts\activate        # Windows
+```
+
+```bash
 pip install -r requirements.txt
 ```
+
+Download the data (about 134 MB), build the processed splits, then train everything:
 
 ```bash
 python -m src.data.download && python -m src.data.preprocess && python -m src.train
