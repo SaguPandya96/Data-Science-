@@ -1,0 +1,78 @@
+project:
+  name: SupplyLens
+  author: Sagar Pandya
+  random_seed: 42
+
+data:
+  raw_path: data/raw/SCMS_Delivery_History_Dataset.csv
+  processed_path: data/processed/shipments.csv
+  source_catalog_url: https://catalog.data.gov/dataset/supply-chain-shipment-pricing-data
+  mirror_url: https://raw.githubusercontent.com/SanjogRam619/FedEx-Logistics-EDA/27dc0c7d20267ec2627b39f2290994bcf7186f30/SCMS_Delivery_History_Dataset.csv
+  sha256: 918b992dd3e8d4b64d2a727b2c4ea607603d0c58f19484e73f7b78528c6a8673
+  expected_rows: 10324
+  expected_columns: 33
+  date_columns:
+    - Scheduled Delivery Date
+    - Delivered to Client Date
+    - Delivery Recorded Date
+    - PO Sent to Vendor Date
+
+target:
+  delay_days_threshold: 7
+  name: severe_delay
+  definition: Delivered to Client Date more than 7 calendar days after Scheduled Delivery Date
+
+splits:
+  prediction_date_column: scheduled_delivery_date
+  train_end: 2012-12-31
+  validation_start: 2013-01-01
+  validation_end: 2013-12-31
+  test_start: 2014-01-01
+  test_end: 2015-12-31
+
+modeling:
+  logistic_regression:
+    C: 0.3
+    max_iter: 2000
+    class_weight: balanced
+  hist_gradient_boosting:
+    learning_rate: 0.05
+    max_iter: 250
+    max_leaf_nodes: 15
+    min_samples_leaf: 30
+    l2_regularization: 0.5
+    class_weight: balanced
+  categorical_min_frequency: 10
+  calibration_methods:
+    - none
+    - sigmoid
+    - isotonic
+
+operations:
+  review_capacity_levels:
+    - 0.05
+    - 0.10
+    - 0.20
+    - 0.30
+  recommended_review_capacity: 0.20
+  supplier_min_volume: 20
+  scenario_assumptions:
+    review_cost_usd: 50
+    missed_severe_delay_exposure_usd: 2500
+    intervention_success_rate: 0.25
+
+outputs:
+  model_path: models/supplylens_model.joblib
+  final_metrics_path: reports/metrics/final_metrics.json
+  monitoring_baseline_path: reports/metrics/monitoring_baseline.json
+  figures_dir: reports/figures
+  tables_dir: reports/tables
+  html_dir: reports/html
+
+monitoring:
+  null_rate_increase_alert: 0.10
+  population_stability_index_alert: 0.20
+  unseen_category_rate_alert: 0.05
+  high_risk_rate_relative_change_alert: 0.30
+  minimum_labeled_batch: 200
+

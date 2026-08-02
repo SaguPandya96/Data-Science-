@@ -1,0 +1,255 @@
+{
+  "project": "SupplyLens",
+  "target": {
+    "threshold_days": 7,
+    "definition": "Delivered to Client Date more than 7 calendar days after Scheduled Delivery Date",
+    "modeling_grain": "ASN/DN shipment",
+    "all_data_positive_shipments": 509,
+    "all_data_prevalence": 0.07240398293029872
+  },
+  "splits": {
+    "train": {
+      "rows": 4681,
+      "start": "2006-05-02",
+      "end": "2012-12-31",
+      "positive_shipments": 267,
+      "prevalence": 0.057039094210638755
+    },
+    "validation": {
+      "rows": 870,
+      "start": "2013-01-02",
+      "end": "2013-12-31",
+      "positive_shipments": 83,
+      "prevalence": 0.09540229885057472
+    },
+    "test": {
+      "rows": 1479,
+      "start": "2014-01-03",
+      "end": "2015-12-31",
+      "positive_shipments": 159,
+      "prevalence": 0.1075050709939148
+    }
+  },
+  "model_selection": {
+    "selected_model": "logistic_regression",
+    "selection_reason": "Advanced model did not clear the predeclared 0.01 PR-AUC improvement margin; the simpler logistic regression was retained.",
+    "validation_comparison": [
+      {
+        "model": "prevalence_baseline",
+        "roc_auc": 0.5,
+        "pr_auc": 0.09540229885057472,
+        "brier_score": 0.08777243569484594,
+        "calibration_error": 0.038363204639935956
+      },
+      {
+        "model": "supplier_rate_rule",
+        "roc_auc": 0.6436903905329068,
+        "pr_auc": 0.1379585397986808,
+        "brier_score": 0.08810374290072799,
+        "calibration_error": 0.06155575277189987
+      },
+      {
+        "model": "logistic_regression",
+        "roc_auc": 0.7461000290871236,
+        "pr_auc": 0.19773160167431933,
+        "brier_score": 0.16147909816868156,
+        "calibration_error": 0.223249734177058
+      },
+      {
+        "model": "hist_gradient_boosting",
+        "roc_auc": 0.7388512117083327,
+        "pr_auc": 0.18703694166015278,
+        "brier_score": 0.1400719979669303,
+        "calibration_error": 0.21614116802668876
+      }
+    ]
+  },
+  "calibration": {
+    "selected_method": "isotonic",
+    "validation_comparison": [
+      {
+        "method": "isotonic",
+        "brier_score": 0.07925571363754055,
+        "calibration_error": 1.3431146361126175e-17,
+        "pr_auc": 0.20611532505900554
+      },
+      {
+        "method": "sigmoid",
+        "brier_score": 0.08149857958921641,
+        "calibration_error": 0.019920662488176945,
+        "pr_auc": 0.19773160167431933
+      },
+      {
+        "method": "none",
+        "brier_score": 0.16147909816868156,
+        "calibration_error": 0.223249734177058,
+        "pr_auc": 0.19773160167431933
+      }
+    ]
+  },
+  "operating_policy": {
+    "selected_policy": "top_20_percent_risk_per_batch",
+    "selected_capacity": 0.2,
+    "validation_score_threshold": 0.17647058823529413,
+    "validation_result": {
+      "capacity": 0.2,
+      "shipments_reviewed": 174.0,
+      "severe_delays_captured": 36.0,
+      "precision": 0.20689655172413793,
+      "recall": 0.43373493975903615,
+      "lift": 2.1686746987951806,
+      "false_negatives": 47.0,
+      "represented_shipment_value_usd": 70556476.23
+    },
+    "test_result": {
+      "capacity": 0.2,
+      "shipments_reviewed": 296.0,
+      "severe_delays_captured": 56.0,
+      "precision": 0.1891891891891892,
+      "recall": 0.3522012578616352,
+      "lift": 1.7598164201937787,
+      "false_negatives": 103.0,
+      "represented_shipment_value_usd": 190060667.08
+    },
+    "cost_sensitive_validation_scenario": {
+      "policy": "cost_sensitive_assumption_scenario",
+      "threshold": 0.10144927536231885,
+      "shipments_reviewed": 477,
+      "severe_delays_captured": 77,
+      "expected_avoided_exposure_usd": 48125.0,
+      "review_cost_usd": 23850.0,
+      "expected_net_value_usd": 24275.0,
+      "assumption_based": true
+    },
+    "cost_sensitive_test_result_at_validation_threshold": {
+      "shipments_reviewed": 752,
+      "severe_delays_captured": 128,
+      "precision": 0.1702127659574468,
+      "recall": 0.8050314465408805,
+      "lift": 1.5832998795664392,
+      "false_negatives": 31
+    },
+    "scenario_assumptions": {
+      "review_cost_usd": 50,
+      "missed_severe_delay_exposure_usd": 2500,
+      "intervention_success_rate": 0.25
+    }
+  },
+  "test_metrics": {
+    "roc_auc": 0.6962716790546979,
+    "pr_auc": 0.16607114189504749,
+    "precision": 0.1891891891891892,
+    "recall": 0.3522012578616352,
+    "f1": 0.24615384615384617,
+    "brier_score": 0.09557694944193028,
+    "calibration_error": 0.03604540790950825,
+    "threshold": 0.17647058823529413,
+    "reviewed_count": 296,
+    "tie_breaking": "stable risk rank",
+    "confusion_matrix": [
+      [
+        1080,
+        240
+      ],
+      [
+        103,
+        56
+      ]
+    ],
+    "policy": "top_20_percent_risk"
+  },
+  "lead_time_experiment": {
+    "status": "completed",
+    "eligible_counts": {
+      "train": 2116,
+      "validation": 476,
+      "test": 856
+    },
+    "validation_selection": "scheduled_lead_time",
+    "test_metrics": [
+      {
+        "model": "scheduled_lead_time",
+        "mae_days": 0.6997663551401869,
+        "median_absolute_error_days": 0.0,
+        "p50_pinball_loss": 0.34988317757009346
+      },
+      {
+        "model": "learned_p50",
+        "mae_days": 4.436031052176876,
+        "median_absolute_error_days": 1.0158046703862524,
+        "p50_pinball_loss": 2.218015526088438
+      },
+      {
+        "model": "supplier_historical_median",
+        "mae_days": 57.285630841121495,
+        "median_absolute_error_days": 40.0,
+        "p50_pinball_loss": 28.642815420560748
+      },
+      {
+        "model": "overall_historical_median",
+        "mae_days": 62.23598130841121,
+        "median_absolute_error_days": 48.0,
+        "p50_pinball_loss": 31.117990654205606
+      },
+      {
+        "model": "lane_historical_median",
+        "mae_days": 63.467289719626166,
+        "median_absolute_error_days": 44.75,
+        "p50_pinball_loss": 31.733644859813083
+      }
+    ],
+    "p90_pinball_loss": 1.8241128123758683,
+    "p90_empirical_coverage": 0.9042056074766355,
+    "median_prediction_interval_width_days": 6.21281663987925,
+    "recommendation": "retain_scheduled_lead_time_baseline"
+  },
+  "artifacts": {
+    "model": "models\\supplylens_model.joblib",
+    "intervention_queue": "reports/tables/shipment_intervention_queue.csv",
+    "supplier_scorecard": "reports/tables/supplier_scorecard.csv",
+    "replenishment_indicators": "reports/tables/replenishment_risk_indicators.csv"
+  },
+  "causal_readiness": {
+    "treatment": "Fulfill Via equals From RDC",
+    "outcome": "Severe delay greater than 7 days",
+    "propensity_auc": 0.9416475027531256,
+    "below_0_05_or_above_0_95_fraction": 0.40839260312944525,
+    "maximum_absolute_smd_before": 0.9653858734194085,
+    "maximum_absolute_smd_after_weighting": 0.4617532255382016,
+    "trimming_sensitivity": [
+      {
+        "trim_bound": 0.01,
+        "retained_rows": 5337,
+        "retained_fraction": 0.7591749644381224,
+        "weighted_risk_difference_association": 0.082846918973151
+      },
+      {
+        "trim_bound": 0.05,
+        "retained_rows": 4159,
+        "retained_fraction": 0.5916073968705547,
+        "weighted_risk_difference_association": 0.10679403014488045
+      },
+      {
+        "trim_bound": 0.1,
+        "retained_rows": 3281,
+        "retained_fraction": 0.46671408250355617,
+        "weighted_risk_difference_association": 0.1199371764519108
+      }
+    ],
+    "identification_conclusion": "No causal effect is reported. Fulfillment assignment has limited overlap and is confounded by unobserved inventory availability, urgency, contracting, and routing decisions."
+  },
+  "business_impact_scenario": {
+    "capacity": 0.2,
+    "intervention_success_rate_assumption": 0.25,
+    "missed_delay_exposure_usd_assumption": 2500.0,
+    "review_cost_usd": 14800.0,
+    "expected_avoided_exposure_usd": 35000.0,
+    "expected_net_value_usd": 20200.0,
+    "break_even_success_rate": 0.10571428571428572,
+    "interpretation": "Assumption-based scenario only; these values are not observed costs or realized savings."
+  },
+  "report_artifacts": {
+    "figure_count": 15,
+    "table_count": 26
+  }
+}

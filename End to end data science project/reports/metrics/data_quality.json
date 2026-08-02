@@ -1,0 +1,83 @@
+{
+  "raw": {
+    "passed": true,
+    "errors": [],
+    "warnings": [
+      "3 rows were recorded before the delivered date",
+      "4 rows arrived more than 365 days before their scheduled date"
+    ],
+    "metrics": {
+      "row_count": 10324,
+      "column_count": 33,
+      "duplicate_rows": 0,
+      "duplicate_ids": 0,
+      "missing_cells": 2383,
+      "sha256": "918b992dd3e8d4b64d2a727b2c4ea607603d0c58f19484e73f7b78528c6a8673",
+      "invalid_scheduled_delivery_date": 0,
+      "invalid_delivered_to_client_date": 0,
+      "invalid_delivery_recorded_date": 0,
+      "po_sent_date_available_rows": 4592,
+      "po_sent_date_unavailable_rows": 5732,
+      "missing_line_item_quantity": 0,
+      "negative_line_item_quantity": 0,
+      "missing_line_item_value": 0,
+      "negative_line_item_value": 0,
+      "missing_pack_price": 0,
+      "negative_pack_price": 0,
+      "missing_unit_price": 0,
+      "negative_unit_price": 0,
+      "numeric_weight_(kilograms)_rows": 6372,
+      "numeric_freight_cost_(usd)_rows": 6198,
+      "numeric_line_item_insurance_(usd)_rows": 10037,
+      "recorded_before_delivered_rows": 3,
+      "more_than_365_days_early_rows": 4,
+      "source_line_grain": "shipment line",
+      "unique_asn_dn": 7030,
+      "multi_line_asn_dn": 1450
+    }
+  },
+  "processed": {
+    "passed": true,
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "shipment_count": 7030,
+      "duplicate_shipment_ids": 0,
+      "missing_scheduled_dates": 0,
+      "missing_actual_dates": 0,
+      "severe_delay_count": 509,
+      "severe_delay_rate": 0.07240398293029872
+    }
+  },
+  "target_prevalence": {
+    "0": {
+      "positive_shipments": 800,
+      "prevalence": 0.11379800853485064
+    },
+    "3": {
+      "positive_shipments": 657,
+      "prevalence": 0.09345661450924608
+    },
+    "7": {
+      "positive_shipments": 509,
+      "prevalence": 0.07240398293029872
+    },
+    "14": {
+      "positive_shipments": 326,
+      "prevalence": 0.04637268847795164
+    }
+  },
+  "date_coverage": {
+    "scheduled_delivery_min": "2006-05-02",
+    "scheduled_delivery_max": "2015-12-31",
+    "actual_delivery_min": "2006-05-02",
+    "actual_delivery_max": "2015-09-14"
+  },
+  "grain_decision": {
+    "raw_grain": "shipment line",
+    "modeling_grain": "ASN/DN shipment",
+    "raw_rows": 10324,
+    "modeled_shipments": 7030,
+    "multi_line_shipments": 1450
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "treatment": "Fulfill Via equals From RDC",
+  "outcome": "Severe delay greater than 7 days",
+  "propensity_auc": 0.9416475027531256,
+  "below_0_05_or_above_0_95_fraction": 0.40839260312944525,
+  "maximum_absolute_smd_before": 0.9653858734194085,
+  "maximum_absolute_smd_after_weighting": 0.4617532255382016,
+  "trimming_sensitivity": [
+    {
+      "trim_bound": 0.01,
+      "retained_rows": 5337,
+      "retained_fraction": 0.7591749644381224,
+      "weighted_risk_difference_association": 0.082846918973151
+    },
+    {
+      "trim_bound": 0.05,
+      "retained_rows": 4159,
+      "retained_fraction": 0.5916073968705547,
+      "weighted_risk_difference_association": 0.10679403014488045
+    },
+    {
+      "trim_bound": 0.1,
+      "retained_rows": 3281,
+      "retained_fraction": 0.46671408250355617,
+      "weighted_risk_difference_association": 0.1199371764519108
+    }
+  ],
+  "identification_conclusion": "No causal effect is reported. Fulfillment assignment has limited overlap and is confounded by unobserved inventory availability, urgency, contracting, and routing decisions."
+}

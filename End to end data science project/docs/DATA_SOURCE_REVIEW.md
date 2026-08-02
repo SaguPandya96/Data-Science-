@@ -1,0 +1,24 @@
+# Public Data Source Review
+
+## Selection criteria
+
+SupplyLens requires real delivery outcomes, a defensible pre-outcome prediction point, supplier or vendor information, enough dated observations for chronological validation, and public access without credentials. The source review favored original publishers and persistent repositories; it did not assume a dataset was suitable because its title mentioned supply chain management.
+
+## Candidate comparison
+
+| Candidate | Publisher and source | Usage information | Approximate size and coverage | Relevant fields | Strengths | Limitations | Decision |
+|---|---|---|---|---|---|---|---|
+| Supply Chain Shipment Pricing / SCMS Delivery History | U.S. Agency for International Development. [Data.gov catalog](https://catalog.data.gov/dataset/supply-chain-shipment-pricing-data); [public mirror used](https://github.com/SanjogRam619/FedEx-Logistics-EDA) | The current mirror supplies no explicit data license. The original catalog record identifies a U.S. government publisher, but redistribution permission could not be re-verified from the retired original asset. | 3.79 MB CSV; 10,324 shipment lines; 33 columns; scheduled deliveries from 2006-05-02 through 2015-12-31. | ASN/DN, PO/SO, country, fulfillment path, shipment mode, scheduled and actual delivery dates, product group, vendor, quantity, value, price, manufacturing site, weight, freight, insurance. | Best direct match to supplier delivery-risk framing; real public-health commodity movements; scheduled versus actual delivery supports a transparent target. | Historical program-specific scope; several fields contain status text; raw grain is shipment line; no timestamp for when the schedule was entered; current mirror license is not explicit. | **Selected.** The field coverage and observable outcome best support the business problem. Raw redistribution is disabled because permission is not explicit. |
+| DataCo SMART Supply Chain for Big Data Analysis | Fabian Constante, Fernando Silva, and António Pereira. [Mendeley Data, DOI 10.17632/8gx2fvg2k6.5](https://data.mendeley.com/datasets/8gx2fvg2k6/5) | CC BY 4.0 on the publisher page. | Approximately 180,000 order-product records and about 50 structured fields, plus clickstream data. | Scheduled and actual shipping days, delivery-risk flag, order and product attributes, market, shipment mode, sales and profit. | Persistent DOI, explicit license, large sample, broad commercial distribution attributes. | Delivery-risk and delivery-status fields are post-outcome leakage; calendar milestone dates are limited; supplier identity and scheduled/actual delivery dates are not as direct as the selected source. | Not selected. Strong benchmark data, but weaker prediction-time and supplier-performance alignment. |
+| Brazilian E-Commerce Public Dataset by Olist | Olist. [Dataset page](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce); [public description mirror](https://github.com/spdrio/Brazilian-E-Commerce-Public-Dataset-by-Olist) | Publicly downloadable through Kaggle; an explicit redistribution grant was not confirmed during this review. | Approximately 100,000 orders across nine linked CSV files, 2016–2018. | Order purchase, carrier handoff, estimated delivery, actual customer delivery, seller ID, product, price, freight, customer destination. | Real anonymized commerce data; explicit estimated-versus-actual delivery; seller and product tables; useful relational grain. | Requires multi-table order/item joins; an order can contain items from different sellers; seller-to-order outcome attribution is ambiguous; source is customer-delivery rather than supplier inbound delivery. | Not selected. Useful for last-mile analysis, but the entity and operational decision do not match supplier shipment review as closely. |
+
+## Final selection
+
+The SCMS source was selected because it uniquely combines vendor, shipment mode, destination, scheduled delivery, actual delivery, quantity, value, manufacturing site, freight, and an ASN/DN grouping key. Those fields support a shipment-level outcome without inventing relationships across datasets.
+
+The public mirror was necessary because the original publisher asset linked by the historical catalog is no longer directly retrievable. The mirror is pinned to commit `27dc0c7d20267ec2627b39f2290994bcf7186f30`, and the downloader validates SHA-256 `918b992dd3e8d4b64d2a727b2c4ea607603d0c58f19484e73f7b78528c6a8673` before accepting the file.
+
+## Suitability boundary
+
+The selected source supports retrospective risk ranking and supplier delivery-performance analysis. It does not contain current inventory, stockouts, intervention history, contracts, or observed delay cost. Replenishment and financial outputs are therefore labeled historical indicators or assumption-based scenarios.
+

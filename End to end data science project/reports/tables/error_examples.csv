@@ -1,0 +1,4 @@
+shipment_id,supplier,country,shipment_mode,predicted_severe_delay_probability,delivery_delay_days,severe_delay,example_type
+DN-3432,SCMS from RDC,Zambia,Truck,0.5,0,0,highest_risk
+ASN-30228,PHARMACY DIRECT,South Africa,Truck,0.5,0,0,false_positive
+ASN-25925,"SHANGHAI KEHUA BIOENGINEERING CO.,LTD.  (KHB)",Rwanda,Air,0.0,49,1,false_negative
