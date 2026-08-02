@@ -1,0 +1,10 @@
+{
+  "capacity": 0.2,
+  "intervention_success_rate_assumption": 0.25,
+  "missed_delay_exposure_usd_assumption": 2500.0,
+  "review_cost_usd": 14800.0,
+  "expected_avoided_exposure_usd": 35000.0,
+  "expected_net_value_usd": 20200.0,
+  "break_even_success_rate": 0.10571428571428572,
+  "interpretation": "Assumption-based scenario only; these values are not observed costs or realized savings."
+}

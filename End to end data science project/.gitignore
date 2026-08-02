@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments and local configuration
+.venv/
+.env
+.env.*
+!.env.example
+
+# Notebook and editor state
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Generated caches and logs
+*.log
+.cache/
+
+# Generated project artifacts (reproducible)
+models/*.joblib
+models/*.pkl
+data/processed/*.csv
+data/processed/*.parquet
+reports/html/*.html
+!reports/html/SupplyLens_End_to_End_Project.html
+
+# Raw source is downloaded locally because the mirror has no explicit
+# redistribution grant. Directory sentinels remain tracked.
+data/raw/*
+!data/raw/.gitkeep
+
+# Operating systems
+.DS_Store
+Thumbs.db

@@ -1,0 +1,2 @@
+"""SupplyLens dashboard package."""
+

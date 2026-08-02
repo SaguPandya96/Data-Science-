@@ -1,0 +1,45 @@
+{
+  "status": "completed",
+  "eligible_counts": {
+    "train": 2116,
+    "validation": 476,
+    "test": 856
+  },
+  "validation_selection": "scheduled_lead_time",
+  "test_metrics": [
+    {
+      "model": "scheduled_lead_time",
+      "mae_days": 0.6997663551401869,
+      "median_absolute_error_days": 0.0,
+      "p50_pinball_loss": 0.34988317757009346
+    },
+    {
+      "model": "learned_p50",
+      "mae_days": 4.436031052176876,
+      "median_absolute_error_days": 1.0158046703862524,
+      "p50_pinball_loss": 2.218015526088438
+    },
+    {
+      "model": "supplier_historical_median",
+      "mae_days": 57.285630841121495,
+      "median_absolute_error_days": 40.0,
+      "p50_pinball_loss": 28.642815420560748
+    },
+    {
+      "model": "overall_historical_median",
+      "mae_days": 62.23598130841121,
+      "median_absolute_error_days": 48.0,
+      "p50_pinball_loss": 31.117990654205606
+    },
+    {
+      "model": "lane_historical_median",
+      "mae_days": 63.467289719626166,
+      "median_absolute_error_days": 44.75,
+      "p50_pinball_loss": 31.733644859813083
+    }
+  ],
+  "p90_pinball_loss": 1.8241128123758683,
+  "p90_empirical_coverage": 0.9042056074766355,
+  "median_prediction_interval_width_days": 6.21281663987925,
+  "recommendation": "retain_scheduled_lead_time_baseline"
+}

@@ -1,0 +1,18 @@
+{
+  "numeric_psi_train_to_test": {
+    "total_quantity": 0.028794258089255852,
+    "total_value_usd": 0.022384446916934673,
+    "weight_kg": 0.11388244225372746,
+    "freight_cost_usd": 0.09532044162497222
+  },
+  "category_frequency_distance_train_to_test": {
+    "supplier": 0.22576167462469302,
+    "country": 0.222362667893845,
+    "shipment_mode": 0.17695649077832373,
+    "fulfill_via": 0.09970405299630994,
+    "product_group": 0.05278918026189916
+  },
+  "prediction_psi_train_to_test": 0.2974690339203901,
+  "train_high_risk_rate_at_test_score_cutoff": 0.25720999786370435,
+  "test_review_queue_rate": 0.20013522650439486
+}

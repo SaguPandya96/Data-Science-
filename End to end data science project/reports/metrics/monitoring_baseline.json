@@ -1,0 +1,105 @@
+{
+  "row_count": 1479,
+  "numeric": {
+    "total_quantity": {
+      "missing_rate": 0.0,
+      "mean": 36407.79851250845,
+      "std": 85461.06107522194,
+      "p10": 214.4000000000001,
+      "p50": 6600.0,
+      "p90": 91711.2
+    },
+    "total_value_usd": {
+      "missing_rate": 0.0,
+      "mean": 313762.99064908724,
+      "std": 747069.4862299132,
+      "p10": 2979.6000000000004,
+      "p50": 76284.0,
+      "p90": 713307.0000000003
+    },
+    "weight_kg": {
+      "missing_rate": 0.16159567275185938,
+      "mean": 5037.397580645162,
+      "std": 11133.076123142002,
+      "p10": 80.0,
+      "p50": 1699.5,
+      "p90": 11049.400000000009
+    },
+    "freight_cost_usd": {
+      "missing_rate": 0.18120351588911426,
+      "mean": 13767.702881915771,
+      "std": 18331.064104864166,
+      "p10": 1069.31,
+      "p50": 6126.12,
+      "p90": 34837.8
+    }
+  },
+  "categorical_top_frequencies": {
+    "supplier": {
+      "SCMS from RDC": 0.4192021636240703,
+      "Orgenics, Ltd": 0.09533468559837728,
+      "HETERO LABS LIMITED": 0.07437457741717377,
+      "ABBVIE LOGISTICS (FORMERLY ABBOTT LOGISTICS BV)": 0.07031778228532792,
+      "Aurobindo Pharma Limited": 0.06490872210953347,
+      "MYLAN LABORATORIES LTD (FORMERLY MATRIX LABORATORIES)": 0.05949966193373901,
+      "PHARMACY DIRECT": 0.0392156862745098,
+      "Trinity Biotech, Plc": 0.029749830966869506,
+      "CIPLA LIMITED": 0.020960108181203516,
+      "S. BUYS WHOLESALER": 0.0196078431372549,
+      "SHANGHAI KEHUA BIOENGINEERING CO.,LTD.  (KHB)": 0.016903313049357674,
+      "CHEMBIO DIAGNOSTIC SYSTEMS, INC.": 0.016227180527383367,
+      "EMCURE PHARMACEUTICALS LTD": 0.01555104800540906,
+      "STRIDES ARCOLAB LIMITED": 0.010818120351588911,
+      "Standard Diagnostics, Inc.": 0.0067613252197430695,
+      "MICRO LABS LIMITED": 0.006085192697768763,
+      "MERCK SHARP & DOHME IDEA GMBH (FORMALLY MERCK SHARP & DOHME B.V.)": 0.005409060175794456,
+      "JANSSEN SCIENCES IRELAND UC (FORMERLY JANSSEN R&D IRELAND)": 0.004732927653820149,
+      "BIO-RAD LABORATORIES (FRANCE)": 0.004056795131845842,
+      "Orasure Technologies Inc.": 0.004056795131845842
+    },
+    "country": {
+      "Nigeria": 0.10141987829614604,
+      "C\u00f4te d'Ivoire": 0.0966869506423259,
+      "Haiti": 0.08586883029073698,
+      "Vietnam": 0.08248816768086545,
+      "Mozambique": 0.07640297498309669,
+      "Rwanda": 0.07572684246112238,
+      "Uganda": 0.07505070993914807,
+      "Zambia": 0.06626098715348208,
+      "Zimbabwe": 0.06626098715348208,
+      "South Africa": 0.05949966193373901,
+      "Tanzania": 0.054090601757944556,
+      "Congo, DRC": 0.030425963488843813,
+      "Ghana": 0.022988505747126436,
+      "South Sudan": 0.021636240703177823,
+      "Burundi": 0.018255578093306288,
+      "Guyana": 0.018255578093306288,
+      "Cameroon": 0.010818120351588911,
+      "Namibia": 0.009465855307640297,
+      "Ethiopia": 0.006085192697768763,
+      "Mali": 0.006085192697768763
+    },
+    "shipment_mode": {
+      "Air": 0.5686274509803921,
+      "Truck": 0.3333333333333333,
+      "Air Charter": 0.0676132521974307,
+      "Ocean": 0.030425963488843813
+    },
+    "fulfill_via": {
+      "Direct Drop": 0.5807978363759296,
+      "From RDC": 0.4192021636240703
+    },
+    "product_group": {
+      "ARV": 0.8208248816768087,
+      "HRDT": 0.1757944557133198,
+      "ANTM": 0.0033806626098715348
+    }
+  },
+  "prediction": {
+    "mean_score": 0.09569655882398766,
+    "score_std": 0.09719554358928995,
+    "p10": 0.0,
+    "p50": 0.10144927536231885,
+    "p90": 0.1926605504587156
+  }
+}
