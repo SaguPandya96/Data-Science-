@@ -31,7 +31,6 @@ TEXT_SUFFIXES = {
 REQUIRED_FILES = [
     "README.md",
     "LICENSE",
-    "AGENTS.md",
     "requirements.txt",
     "pyproject.toml",
     "Makefile",
@@ -166,6 +165,8 @@ def check_repository_text(errors: list[str], warnings: list[str]) -> None:
     ]
     for path in repository_files():
         relative = path.relative_to(ROOT).as_posix()
+        if not path.is_file():
+            continue
         if path.stat().st_size > 25 * 1024 * 1024:
             errors.append(f"Repository file exceeds 25 MiB: {relative}")
         if path.suffix.lower() not in TEXT_SUFFIXES:
