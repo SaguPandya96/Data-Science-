@@ -144,10 +144,10 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m pip install -e .
 .\.venv\Scripts\python.exe scripts\download_data.py
-.\.venv\Scripts\python.exe scriptsalidate_data.py
-.\.venv\Scripts\python.exe scripts	rain.py
-.\.venv\Scripts\python.exe scriptsuild_reports.py
-.\.venv\Scripts\python.exe scriptsuild_readme.py
+.\.venv\Scripts\python.exe scripts\validate_data.py
+.\.venv\Scripts\python.exe scripts\train.py
+.\.venv\Scripts\python.exe scripts\build_reports.py
+.\.venv\Scripts\python.exe scripts\build_readme.py
 .\.venv\Scripts\python.exe -m pytest
 ```
 

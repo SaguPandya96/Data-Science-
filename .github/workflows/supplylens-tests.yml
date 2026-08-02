@@ -1,0 +1,49 @@
+name: SupplyLens tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "End to end data science project/SupplyLens/**"
+      - ".github/workflows/supplylens-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/SupplyLens/**"
+      - ".github/workflows/supplylens-tests.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: "End to end data science project/SupplyLens"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/SupplyLens/requirements.txt"
+
+      - name: Install project and development dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+
+      - name: Download checksum-pinned public data
+        run: python scripts/download_data.py
+
+      - name: Run lightweight data validation
+        run: python scripts/validate_data.py
+
+      - name: Lint source and tests
+        run: python -m ruff check .
+
+      - name: Run tests
+        run: python -m pytest

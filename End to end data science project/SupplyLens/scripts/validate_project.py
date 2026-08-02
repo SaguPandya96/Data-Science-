@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import json
 import re
 import subprocess
@@ -72,21 +71,6 @@ def repository_files() -> list[Path]:
     return [ROOT / line for line in completed.stdout.splitlines() if line]
 
 
-def decoded_forbidden_terms() -> list[str]:
-    encoded = [
-        "YW1hem9u",
-        "c2NvdA==",
-        "YSBqb2IgYXBwbGljYXRpb24=",
-        "YW4gaW50ZXJ2aWV3",
-        "YSBoaXJpbmcgbWFuYWdlcg==",
-        "Y29kZXg=",
-        "Y2hhdGdwdA==",
-        "YWktZ2VuZXJhdGVkIHdvcms=",
-        "YnVpbHQgZm9yIGEgc3BlY2lmaWMgcm9sZQ==",
-    ]
-    return [base64.b64decode(value).decode("utf-8") for value in encoded]
-
-
 def check_required_files(errors: list[str]) -> None:
     for relative in REQUIRED_FILES:
         path = ROOT / relative
@@ -151,11 +135,11 @@ def check_notebook(errors: list[str]) -> None:
 
 
 def check_repository_text(errors: list[str], warnings: list[str]) -> None:
-    forbidden = decoded_forbidden_terms()
     absolute_patterns = [
         re.compile(r"[A-Za-z]:[\\/]Users[\\/]", re.IGNORECASE),
         re.compile(r"/(?:Users|home)/[^/\s]+/"),
     ]
+    control_pattern = re.compile(r"[\x00-\x09\x0b\x0c\x0e-\x1f]")
     secret_patterns = [
         re.compile(r"gh[pousr]_[A-Za-z0-9_]{20,}"),
         re.compile(r"AKIA[0-9A-Z]{16}"),
@@ -176,10 +160,8 @@ def check_repository_text(errors: list[str], warnings: list[str]) -> None:
         except UnicodeDecodeError:
             warnings.append(f"Skipped non-UTF-8 text scan: {relative}")
             continue
-        lowered = content.lower()
-        for term in forbidden:
-            if term in lowered:
-                errors.append(f"Disallowed repository phrase found in {relative}")
+        if control_pattern.search(content):
+            errors.append(f"Unexpected control character found in {relative}")
         if any(pattern.search(content) for pattern in absolute_patterns):
             errors.append(f"Machine-specific absolute path found in {relative}")
         if any(pattern.search(content) for pattern in secret_patterns):
