@@ -10,21 +10,21 @@ Repository discovery is usually popularity-led. That helps developers find famou
 
 ## Executed result
 
-The committed reduced-mode run contains **5 public developers, 637 public repositories, and 290 real interactions**. Five held-out stars per user were evaluated: two users use chronological splits and three use reproducible leave-five-out because GitHub's public HTML fallback does not expose star timestamps.
+The committed reduced-mode run contains **5 public developers, 796 public repositories, and 449 real interactions**. All five histories use timestamped REST stars and chronological splits, with the five most recent stars held out per user.
 
 | Model | Precision@5 | Recall@10 | Hit Rate@10 | MAP@10 | NDCG@10 | Coverage | Diversity | Novelty |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Random | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0783 | 0.9887 | 0.6770 |
-| Popularity | 0.0400 | 0.0400 | 0.2000 | 0.0400 | 0.0678 | 0.0326 | 0.9189 | 0.1225 |
-| Language only | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0783 | 0.9403 | 0.4897 |
-| **Content based** | **0.1200** | **0.1600** | **0.6000** | **0.0513** | **0.1224** | **0.0783** | 0.5842 | 0.6714 |
-| Hybrid | 0.0400 | 0.0400 | 0.2000 | 0.0100 | 0.0292 | 0.0799 | 0.8562 | 0.4780 |
+| Random | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0.0730 | 0.9864 | 0.6423 |
+| Popularity | 0.0400 | 0.0400 | 0.2000 | 0.0400 | 0.0678 | 0.0263 | 0.8946 | 0.1161 |
+| **Language only** | **0.0800** | **0.0800** | **0.4000** | **0.0800** | **0.1357** | **0.0701** | 0.9300 | 0.4181 |
+| Content based | 0.0400 | 0.0800 | 0.2000 | 0.0180 | 0.0476 | 0.0599 | 0.4081 | 0.6959 |
+| Hybrid | 0.0400 | 0.0400 | 0.2000 | 0.0133 | 0.0339 | 0.0730 | 0.7506 | 0.5238 |
 
-The **content-based model** achieved the highest test NDCG@10 (`0.1224`) and Hit Rate@10 (`0.60`). It outperformed random, popularity, and language-only ranking on measured NDCG@10. The tuned hybrid did not outperform pure content on the test split—an important negative result that is preserved rather than hidden. These are descriptive results for five users, not population-level performance claims.
+The **language-only model** achieved the highest test NDCG@10 (`0.1357`) and Hit Rate@10 (`0.40`). Content beat random but trailed both popularity and language-only NDCG@10; the tuned hybrid also did not win. Those negative results are preserved rather than hidden. They suggest primary language is the strongest signal in this small sample and that the richer rankers need more users and better metadata. These are descriptive results for five users, not population-level performance claims.
 
 ## Data
 
-Primary data comes from the official [GitHub REST API](https://docs.github.com/en/rest): repository search, public user profiles, and public starred repositories. GitHub's public raw-content host supplies bounded README and contribution-file checks. When the unauthenticated core limit was exhausted, three public star histories were augmented from GitHub's public HTML; their missing timestamps and profile counts remain missing and are explicitly sourced.
+Primary data comes from the official [GitHub REST API](https://docs.github.com/en/rest): repository search, public user profiles, and timestamped public starred repositories. GitHub's public raw-content host supplies bounded README and contribution-file checks. The first unauthenticated pass reached the hourly core limit; cached retry after reset completed all five histories through the REST API. The committed modelling tables therefore contain no HTML-derived interactions.
 
 Committed sample files in `data/sample/` make the core workflow reproducible without API calls. The collection manifest records API version, time, queries, sources, failures, row counts, and limitations. Raw API caches are intentionally ignored.
 
@@ -44,8 +44,8 @@ Collaborative filtering was rejected quantitatively: only five developers were o
 
 ## Selected configuration
 
-- TF–IDF: descriptions + README + topics + language, unigrams/bigrams, `min_df=2`, `max_df=0.95`, sublinear TF, maximum 15,000 features.
-- Validation-selected hybrid weights: content `0.40`, language `0.18`, topic `0.12`, activity `0.12`, quality `0.08`, popularity `0.10`.
+- TF–IDF: descriptions + README + topics + language, unigrams, `min_df=2`, `max_df=0.95`, sublinear TF, maximum 12,000 features.
+- Validation-selected hybrid weights: content `0.45`, language `0.20`, topic `0.15`, activity `0.08`, quality `0.08`, popularity `0.04`.
 - Production recommendations use the tuned hybrid for multi-objective exploration; offline model comparison truthfully identifies pure content as the best held-out model.
 - Initial interaction assumptions: contributed `5`, owned `4`, forked `3`, starred `2`; equal weights are tested for robustness.
 
@@ -53,8 +53,8 @@ Collaborative filtering was rejected quantitatively: only five developers were o
 
 | Developer | Top repository | Feature-grounded explanation |
 |---|---|---|
-| `karpathy` | [`openai/openai-agents-python`](https://github.com/openai/openai-agents-python) | Python is strong in the public profile; topics overlap with LLM and AI; activity is recent. |
-| `gaearon` | [`anomalyco/opencode`](https://github.com/anomalyco/opencode) | TypeScript is strong in the profile; activity is recent; contribution guidance is present. |
+| `karpathy` | [`scikit-learn/scikit-learn`](https://github.com/scikit-learn/scikit-learn) | Python is strong in the public profile; topics overlap with machine learning and Python; activity is recent. |
+| `gaearon` | [`bcherny/json-schema-to-typescript`](https://github.com/bcherny/json-schema-to-typescript) | TypeScript is strong in the profile; topics overlap with TypeScript; activity is recent. |
 | `hadley` | [`REditorSupport/languageserver`](https://github.com/REditorSupport/languageserver) | R is strong in the profile; repository topics overlap with R; activity is recent. |
 
 All 50 ranked examples and component scores are in [`outputs/recommendations.csv`](outputs/recommendations.csv).
@@ -131,7 +131,7 @@ The committed notebook has actual outputs and passed a fresh Python 3.11 top-to-
 ## Limitations and responsible use
 
 - Five selected developers are not representative of GitHub.
-- Three histories use nonchronological fallback evaluation.
+- All five histories are chronological, but five users are still far too few for stable generalization.
 - Public stars are noisy proxies for relevance and do not prove contribution intent.
 - Repository search/history defines a sample catalog; the system does not rank every GitHub repository.
 - README checks are partial, and byte-level language plus issue-label signals are unavailable in reduced mode.

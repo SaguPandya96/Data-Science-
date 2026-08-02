@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-08-02T04:04:54.737666+00:00",
+  "collected_at_utc": "2026-08-02T04:31:59.925097+00:00",
   "source": "GitHub REST API and raw.githubusercontent.com",
   "github_api_version": "2022-11-28",
   "authenticated": false,
@@ -20,67 +20,19 @@
     "language:\"C++\" stars:20..50000 pushed:>=2024-01-01 archived:false fork:false",
     "language:\"R\" stars:20..50000 pushed:>=2024-01-01 archived:false fork:false"
   ],
-  "requests_made": 32,
-  "cache_hits": 0,
-  "api_failures": [
-    {
-      "url": "https://api.github.com/users/gaearon/starred",
-      "params": {
-        "per_page": 100,
-        "page": 1
-      },
-      "error": "403 Client Error: rate limit exceeded for url: https://api.github.com/users/gaearon/starred?per_page=100&page=1"
-    },
-    {
-      "url": "https://api.github.com/users/jakevdp",
-      "params": {},
-      "error": "403 Client Error: rate limit exceeded for url: https://api.github.com/users/jakevdp"
-    },
-    {
-      "url": "https://api.github.com/users/jakevdp/starred",
-      "params": {
-        "per_page": 100,
-        "page": 1
-      },
-      "error": "403 Client Error: rate limit exceeded for url: https://api.github.com/users/jakevdp/starred?per_page=100&page=1"
-    },
-    {
-      "url": "https://api.github.com/users/hadley",
-      "params": {},
-      "error": "403 Client Error: rate limit exceeded for url: https://api.github.com/users/hadley"
-    },
-    {
-      "url": "https://api.github.com/users/hadley/starred",
-      "params": {
-        "per_page": 100,
-        "page": 1
-      },
-      "error": "403 Client Error: rate limit exceeded for url: https://api.github.com/users/hadley/starred?per_page=100&page=1"
-    }
-  ],
+  "requests_made": 5,
+  "cache_hits": 12,
+  "api_failures": [],
   "rows": {
     "developers": 5,
-    "repositories": 637,
-    "repository_languages": 627,
-    "interactions": 290
+    "repositories": 796,
+    "repository_languages": 772,
+    "interactions": 449
   },
   "limitations": [
     "Only the 100 most recent public stars per selected developer are collected.",
     "Primary-language metadata is complete where GitHub supplied it; byte distributions were not fetched in the unauthenticated run.",
     "README and contribution-file checks are limited to a prioritized subset.",
-    "Issue-label signals are unavailable in the reduced sample and are stored as missing, never inferred.",
-    "Three developer star histories use two public GitHub HTML pages (up to 60 stars each) after REST exhaustion; timestamps and unavailable profile counts remain missing."
-  ],
-  "html_fallback": {
-    "users": [
-      "gaearon",
-      "jakevdp",
-      "hadley"
-    ],
-    "star_pages_per_user": 2,
-    "repositories_added": 89,
-    "interactions_added": 90,
-    "reason": "GitHub REST core limit exhausted during the unauthenticated run",
-    "timestamp_available": false
-  }
+    "Issue-label signals are unavailable in the reduced sample and are stored as missing, never inferred."
+  ]
 }
