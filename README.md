@@ -44,7 +44,7 @@ The project also flags unhappy customers from their written reviews, which does 
 
 **The question:** can a developer's public activity suggest useful projects, including smaller ones that never reach the front page?
 
-**The answer: only partially, based on this dataset.** The simplest approach—matching repositories to programming languages a developer already uses—performed best. The content-based and hybrid approaches did not improve the recommendations.
+**The answer: only partially, based on this dataset.** The simplest approach was matching repositories to programming languages a developer already uses. It performed best, while the content-based and hybrid approaches did not improve the recommendations.
 
 It carries an honest limitation. This was measured on **5 developers**, far too small to claim it holds generally, and the project says so rather than quietly leaving it out.
 
