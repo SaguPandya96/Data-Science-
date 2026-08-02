@@ -1,14 +1,14 @@
 # Data Science
 
-Four end-to-end data science projects, plus the study material behind them.
+End-to-end data science projects, plus the study material behind them.
 
-Every project answers a real question, and every model is measured against a simple alternative to check it is actually adding value. **In three of the four, the simple alternative won.** Those results are published as they came out, because a model that looks impressive on its own can still be useless, and comparing it against something basic is the only way to know.
+Every project starts from a real question, and every model is measured against a simple alternative to check it is actually adding value. Where the simple alternative wins, that is what gets published.
 
 ---
 
 ## The projects
 
-### 1. SupplyLens: Supplier Delivery Risk
+### SupplyLens: Supplier Delivery Risk
 
 **The question:** a team receives far more shipments than it can possibly check. Which ones should it look at first?
 
@@ -23,7 +23,7 @@ Two decisions matter as much as the result. A more complex model was tested and 
 
 ---
 
-### 2. Amazon Review Intelligence and Recommender System
+### Amazon Review Intelligence and Recommender System
 
 **The question:** can 700,000 product reviews tell us what each shopper likes, so we can show them products picked for them?
 
@@ -40,7 +40,7 @@ The project also flags unhappy customers from their written reviews, which does 
 
 ---
 
-### 3. GitHub Open-Source Repository Recommendation System
+### GitHub Open-Source Repository Recommendation System
 
 **The question:** can a developer's public activity suggest useful projects, including smaller ones that never reach the front page?
 
@@ -55,7 +55,7 @@ It carries an honest limitation. This was measured on **5 developers**, far too 
 
 ---
 
-### 4. Bitcoin Direction Forecasting with News Sentiment
+### Bitcoin Direction Forecasting with News Sentiment
 
 **The question:** does the mood of Bitcoin news help predict whether the price rises or falls tomorrow?
 
