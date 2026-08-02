@@ -1,9 +1,9 @@
 check_name,records_evaluated,records_affected,percentage_affected,action_taken,reason
-missing developer profile values,30,0,0.0,retained and flagged,HTML fallback does not expose every REST profile field
+missing developer profile values,30,0,0.0,retained and flagged,some public profile fields are optional
 duplicate developers,5,0,0.0,deduplicated by developer_id,one public account per ID
 duplicate repositories,796,0,0.0,deduplicated by repository_id,search and stars overlap
 duplicate interactions,449,0,0.0,deduplicated by typed pair,prevent double weighting
-invalid repository timestamps,796,0,0.0,retained and flagged,HTML fallback timestamps are unavailable
+invalid repository timestamps,796,0,0.0,retained and flagged,missing timestamps are not imputed
 empty descriptions,796,48,6.03,retained; README/topics may supply content,description is optional on GitHub
 empty README text,796,619,77.76,retained and quality-scored,raw checks were rate/bandwidth bounded
 missing topics,796,437,54.9,retained,topics are optional
@@ -17,6 +17,6 @@ extremely popular repositories (top 1%),796,8,1.01,retained; tested in robustnes
 users with insufficient history (<20),5,0,0.0,excluded from offline evaluation only,profiles/holdouts would be unstable
 repositories with insufficient metadata,796,2,0.25,excluded from candidates,content scoring is not meaningful
 API failures,5,0,0.0,logged in collection manifest,no failed response becomes a row
-rate-limit interruptions,5,0,0.0,HTML fallback or missing values,unauthenticated GitHub core limit
+rate-limit interruptions,5,0,0.0,recorded; cached collection can resume,unauthenticated API budgets can interrupt collection
 uneven user activity,5,1,20.0,reported; macro-average metrics,avoid prolific users dominating evaluation
 missing language byte distributions,772,772,100.0,primary-language fallback retained,per-repository language calls exceed reduced-mode budget
