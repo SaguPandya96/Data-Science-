@@ -4,6 +4,10 @@
 
 The business problem is a constrained decision: operations teams cannot investigate every shipment, so a useful model must capture more severe delays than a volume-matched review policy while preserving calibrated risk and a reproducible handoff.
 
+## Why I built this
+
+I built SupplyLens to explore a practical question: when an operations team cannot investigate every shipment, can a risk model help decide which cases deserve attention first? I chose the SCMS data because it contains scheduled and actual delivery dates at a usable shipment grain. My goal was not to chase the highest possible model score; it was to build a workflow I could defend from data acquisition through an operational review queue.
+
 ```mermaid
 flowchart LR
     A["Pinned public CSV"] --> B["Checksum + schema validation"]
@@ -68,6 +72,13 @@ The model uses an explicit prediction-time allowlist. Actual delivery, delivery-
 5. Compare prevalence, supplier-rate, logistic-regression, and histogram-gradient-boosting models.
 6. Select calibration on validation Brier score.
 7. Evaluate the chosen system once on the final period and rank by fixed review capacity.
+
+## Decisions I made
+
+- I defined severe delay as more than seven days late after comparing 0, 3, 7, and 14-day thresholds. Seven days kept 509 positive cases while representing a material delivery miss.
+- I treated scheduled-delivery commitment as the scoring point and excluded actual delivery, calculated delay, and shifted target-history features when timestamp availability could not be guaranteed.
+- I retained logistic regression when histogram gradient boosting failed to improve validation PR-AUC by the predeclared 0.01 margin.
+- I selected an exact top-20% review policy because the use case is capacity constrained; a generic 0.50 probability threshold was not operationally relevant.
 
 ## Model comparison
 
@@ -167,6 +178,13 @@ python scripts/validate_project.py
 
 Continuous integration downloads the checksum-pinned 3.79 MB source, runs lightweight validation, linting, and tests, but does not retrain the full model on every commit.
 
+## What I learned
+
+- A more complex classifier was not automatically better; logistic regression was the stronger recommendation for this dataset.
+- The learned P50 lead-time model performed worse than the schedule baseline, so I preserved the negative result instead of presenting it as deployable.
+- Temporal validation mattered: prevalence and calibration changed across periods, making review capacity and drift monitoring as important as one headline AUC.
+- Small implementation details mattered operationally. Isotonic probability ties required stable rank-based selection to keep the queue at exactly the configured capacity.
+
 ## Limitations and responsible use
 
 - Historical program data may not generalize to current networks.
@@ -182,5 +200,7 @@ See the [model card](docs/MODEL_CARD.md), [business assumptions](docs/BUSINESS_A
 ## Author
 
 **Sagar Pandya**
+
+I built this project as an end-to-end study of how predictive modeling can support constrained operational decisions. The decisions, results, and limitations above are tied to the executed artifacts in this repository.
 
 Project code is available under the MIT License. Source data retains its own usage status.
