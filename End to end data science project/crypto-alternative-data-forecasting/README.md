@@ -4,6 +4,8 @@ This repository documents a simple question that turned out to have an inconveni
 
 For the data available here, it does not. The market model was below chance on the held-out period, the combined model did not improve it, and the available GDELT history was too short to support a serious multi-year sentiment test. I kept that result rather than tuning until the conclusion changed.
 
+![Held-out strategy and buy-and-hold comparison](reports/figures/backtest.png)
+
 ## What is being predicted?
 
 Each row represents one UTC day. The target is:
@@ -62,6 +64,7 @@ Market variables include lagged returns, rolling means and volatility, volume ch
 News variables include mean and median sentiment, positive and negative ratios, article volume, abnormal volume, dispersion, momentum, surprise, rolling sentiment, extreme-negative-news flags, and sentiment-volume interaction.
 
 The full formulas, intuition, scaling notes, and leakage controls are in [data/FEATURE_DICTIONARY.md](data/FEATURE_DICTIONARY.md).
+Column-level meanings are listed in [data/DATA_DICTIONARY.md](data/DATA_DICTIONARY.md).
 
 ## Repository layout
 
@@ -110,6 +113,8 @@ The notebook shows the work rather than only loading final tables:
 The largest weakness is not the classifier; it is the alternative-data history. A credible incremental-value test needs point-in-time headlines across every training and evaluation period. Other limitations include possible vendor revisions, ambiguity between GDELT observation time and publication time, VADER's general-language lexicon, one asset, dependent daily observations, changing market regimes, and the risk of learning from repeated test-set inspection.
 
 The next version should start with a licensed or archived headline history, a manually labelled sentiment audit, cached FinBERT scores, preregistered robustness choices, and block-based uncertainty estimates across multiple assets. Until then, the defensible conclusion is that this run did not show useful forecast or trading value.
+
+A compact results summary is available in [reports/FINAL_CONCLUSIONS.md](reports/FINAL_CONCLUSIONS.md).
 
 ## Disclaimer
 
