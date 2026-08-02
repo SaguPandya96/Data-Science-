@@ -1,0 +1,45 @@
+name: Amazon Review Intelligence tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "End to end data science project/Amazon Review Intelligence and Recommender System/**"
+      - ".github/workflows/amazon-review-intelligence-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/Amazon Review Intelligence and Recommender System/**"
+      - ".github/workflows/amazon-review-intelligence-tests.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: "End to end data science project/Amazon Review Intelligence and Recommender System"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/Amazon Review Intelligence and Recommender System/requirements.txt"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Lint source and tests
+        run: python -m ruff check src tests
+
+      - name: Run tests
+        # API tests self-skip when trained artifacts are absent, which is the case here
+        # since the dataset and model files are not committed.
+        run: python -m pytest tests -v

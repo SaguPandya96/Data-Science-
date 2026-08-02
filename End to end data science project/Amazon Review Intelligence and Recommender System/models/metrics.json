@@ -1,0 +1,190 @@
+{
+  "dataset": {
+    "modeled_reviews": 38945,
+    "users": 14846,
+    "items": 5593,
+    "mean_train_interactions_per_user": 1.61
+  },
+  "rating_predictor": {
+    "train": {
+      "rmse": 0.5747732597011111,
+      "mae": 0.4074331435018238
+    },
+    "test": {
+      "rmse": 0.8287831153786217,
+      "mae": 0.5251365895073619
+    }
+  },
+  "ranker_comparison": [
+    {
+      "ranker": "random",
+      "negative_sampling": "uniform",
+      "HR@10": 0.105,
+      "NDCG@10": 0.0452,
+      "n_users": 2000
+    },
+    {
+      "ranker": "popularity",
+      "negative_sampling": "uniform",
+      "HR@10": 0.237,
+      "NDCG@10": 0.1434,
+      "n_users": 2000
+    },
+    {
+      "ranker": "matrix_factorization",
+      "negative_sampling": "uniform",
+      "HR@10": 0.131,
+      "NDCG@10": 0.0683,
+      "n_users": 2000
+    },
+    {
+      "ranker": "hybrid (MF + popularity)",
+      "negative_sampling": "uniform",
+      "HR@10": 0.214,
+      "NDCG@10": 0.1256,
+      "n_users": 2000
+    },
+    {
+      "ranker": "random",
+      "negative_sampling": "popularity",
+      "HR@10": 0.105,
+      "NDCG@10": 0.0452,
+      "n_users": 2000
+    },
+    {
+      "ranker": "popularity",
+      "negative_sampling": "popularity",
+      "HR@10": 0.11,
+      "NDCG@10": 0.05,
+      "n_users": 2000
+    },
+    {
+      "ranker": "matrix_factorization",
+      "negative_sampling": "popularity",
+      "HR@10": 0.086,
+      "NDCG@10": 0.0432,
+      "n_users": 2000
+    },
+    {
+      "ranker": "hybrid (MF + popularity)",
+      "negative_sampling": "popularity",
+      "HR@10": 0.1025,
+      "NDCG@10": 0.0485,
+      "n_users": 2000
+    }
+  ],
+  "by_user_activity": [
+    {
+      "segment": "cold start (0)",
+      "population": 207,
+      "ranker": "random",
+      "HR@10": 0.1014,
+      "NDCG@10": 0.0482
+    },
+    {
+      "segment": "cold start (0)",
+      "population": 207,
+      "ranker": "popularity",
+      "HR@10": 0.1981,
+      "NDCG@10": 0.1242
+    },
+    {
+      "segment": "cold start (0)",
+      "population": 207,
+      "ranker": "matrix_factorization",
+      "HR@10": 0.0773,
+      "NDCG@10": 0.0431
+    },
+    {
+      "segment": "cold start (0)",
+      "population": 207,
+      "ranker": "hybrid (MF + popularity)",
+      "HR@10": 0.1449,
+      "NDCG@10": 0.0854
+    },
+    {
+      "segment": "1 interaction",
+      "population": 12099,
+      "ranker": "random",
+      "HR@10": 0.1,
+      "NDCG@10": 0.0431
+    },
+    {
+      "segment": "1 interaction",
+      "population": 12099,
+      "ranker": "popularity",
+      "HR@10": 0.2333,
+      "NDCG@10": 0.1453
+    },
+    {
+      "segment": "1 interaction",
+      "population": 12099,
+      "ranker": "matrix_factorization",
+      "HR@10": 0.1387,
+      "NDCG@10": 0.0721
+    },
+    {
+      "segment": "1 interaction",
+      "population": 12099,
+      "ranker": "hybrid (MF + popularity)",
+      "HR@10": 0.216,
+      "NDCG@10": 0.1288
+    },
+    {
+      "segment": "2-4 interactions",
+      "population": 2194,
+      "ranker": "random",
+      "HR@10": 0.098,
+      "NDCG@10": 0.0425
+    },
+    {
+      "segment": "2-4 interactions",
+      "population": 2194,
+      "ranker": "popularity",
+      "HR@10": 0.226,
+      "NDCG@10": 0.1187
+    },
+    {
+      "segment": "2-4 interactions",
+      "population": 2194,
+      "ranker": "matrix_factorization",
+      "HR@10": 0.132,
+      "NDCG@10": 0.0636
+    },
+    {
+      "segment": "2-4 interactions",
+      "population": 2194,
+      "ranker": "hybrid (MF + popularity)",
+      "HR@10": 0.2093,
+      "NDCG@10": 0.1083
+    },
+    {
+      "segment": "5+ interactions",
+      "population": 553,
+      "ranker": "random",
+      "HR@10": 0.0976,
+      "NDCG@10": 0.0485
+    },
+    {
+      "segment": "5+ interactions",
+      "population": 553,
+      "ranker": "popularity",
+      "HR@10": 0.1844,
+      "NDCG@10": 0.0788
+    },
+    {
+      "segment": "5+ interactions",
+      "population": 553,
+      "ranker": "matrix_factorization",
+      "HR@10": 0.132,
+      "NDCG@10": 0.0613
+    },
+    {
+      "segment": "5+ interactions",
+      "population": 553,
+      "ranker": "hybrid (MF + popularity)",
+      "HR@10": 0.1736,
+      "NDCG@10": 0.0759
+    }
+  ]
+}
