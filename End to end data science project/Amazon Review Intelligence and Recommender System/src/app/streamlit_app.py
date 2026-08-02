@@ -40,7 +40,7 @@ def api_post(path: str, payload: dict):
 
 
 recommend_tab, similar_tab, sentiment_tab, rating_tab = st.tabs(
-    ["Recommendations", "Similar products", "Review sentiment", "Rating prediction"]
+    ["Recommendations", "Similar products", "Review sentiment", "Rating inference"]
 )
 
 with recommend_tab:
@@ -85,10 +85,13 @@ with sentiment_tab:
             st.bar_chart(data["probabilities"])
 
 with rating_tab:
-    st.subheader("Rating prediction with SHAP explanation")
+    st.subheader("Rating inference with SHAP explanation")
     st.write(
-        "Predicts what a given user would rate a given product, and explains "
-        "which features drove the prediction."
+        "Infers the star rating that goes with a piece of written feedback, and shows "
+        "which features drove it. Note this is inference, not prediction: the ablation "
+        "in `notebooks/02` shows that without the review text the model barely beats "
+        "predicting the mean, so it cannot tell you how someone will rate a product "
+        "they have not reviewed yet."
     )
     col1, col2 = st.columns(2)
     with col1:

@@ -78,11 +78,6 @@ def build_explainer(model: HistGradientBoostingRegressor):
     return shap.TreeExplainer(model)
 
 
-def explain(model: HistGradientBoostingRegressor, x: pd.DataFrame):
-    """Returns a shap.Explanation for the given feature rows."""
-    return build_explainer(model)(x[FEATURE_COLUMNS])
-
-
 def run_feature_ablation(train_df: pd.DataFrame, test_df: pd.DataFrame) -> pd.DataFrame:
     """How much of this model's accuracy survives if we remove signals derived from the
     review text? Compared against predicting the global mean, which is the real baseline

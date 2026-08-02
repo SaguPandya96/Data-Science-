@@ -90,8 +90,12 @@ def main() -> None:
     metrics_out = {
         "dataset": {
             "modeled_reviews": int(len(train_df) + len(test_df)),
-            "users": int(train_df["user_id"].nunique()),
-            "items": int(train_df["parent_asin"].nunique()),
+            # Counts over the full modeled set, not just the train split: 207 users have
+            # every review in the held-out split, so train-only counts understate both.
+            "users": int(pd.concat([train_df["user_id"], test_df["user_id"]]).nunique()),
+            "items": int(pd.concat([train_df["parent_asin"], test_df["parent_asin"]]).nunique()),
+            "users_in_train": int(train_df["user_id"].nunique()),
+            "items_in_train": int(train_df["parent_asin"].nunique()),
             "mean_train_interactions_per_user": round(
                 float(train_df["user_id"].value_counts().mean()), 2
             ),

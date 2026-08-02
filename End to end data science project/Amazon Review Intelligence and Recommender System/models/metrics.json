@@ -1,8 +1,10 @@
 {
   "dataset": {
     "modeled_reviews": 38945,
-    "users": 14846,
-    "items": 5593,
+    "users": 15053,
+    "items": 6026,
+    "users_in_train": 14846,
+    "items_in_train": 5593,
     "mean_train_interactions_per_user": 1.61
   },
   "rating_predictor": {
@@ -15,6 +17,28 @@
       "mae": 0.5251365895073619
     }
   },
+  "feature_ablation": [
+    {
+      "feature_set": "global mean (baseline)",
+      "test_rmse": 1.3087,
+      "test_mae": 1.0264
+    },
+    {
+      "feature_set": "pre-review features only",
+      "test_rmse": 1.2645,
+      "test_mae": 0.9607
+    },
+    {
+      "feature_set": "review text only (sentiment)",
+      "test_rmse": 0.8394,
+      "test_mae": 0.5526
+    },
+    {
+      "feature_set": "all features",
+      "test_rmse": 0.8238,
+      "test_mae": 0.5239
+    }
+  ],
   "ranker_comparison": [
     {
       "ranker": "random",
