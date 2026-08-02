@@ -1,0 +1,12 @@
+{
+  "generated_at_utc": "2026-07-31T22:49:00.324705+00:00",
+  "rows": 1642,
+  "date_min": "2022-01-01 00:00:00+00:00",
+  "date_max": "2026-06-30 00:00:00+00:00",
+  "news_rows": 304,
+  "final_feature_group": "market_only",
+  "final_model": "logistic_regression",
+  "alternative_training_coverage": 0.0,
+  "test_start": "2025-08-12 00:00:00+00:00",
+  "test_end": "2026-06-30 00:00:00+00:00"
+}

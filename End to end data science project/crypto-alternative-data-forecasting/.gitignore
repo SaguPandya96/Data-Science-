@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+pytest-cache-files-*/
+.ipynb_checkpoints/
+.venv/
+vendor/
+.tmp/
+.mpl/
+*.pyc
+models/*.tmp
+models/champion_model.joblib

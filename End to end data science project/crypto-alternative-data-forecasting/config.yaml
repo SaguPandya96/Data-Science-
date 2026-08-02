@@ -1,0 +1,22 @@
+seed: 42
+data:
+  start_date: '2022-01-01'
+  end_date: '2026-07-01'
+  ticker: BTC-USD
+  news_query: '(bitcoin OR BTC) sourcelang:english'
+  news_cutoff_utc_hour: 23
+  gdelt_chunk_days: 30
+  gdelt_max_records: 250
+model:
+  test_fraction: 0.20
+  validation_fraction: 0.20
+  probability_threshold: 0.55
+  transaction_cost_bps: 10
+  slippage_bps: 5
+  min_train_days: 365
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed
+  figures: reports/figures
+  models: models
