@@ -1,0 +1,49 @@
+name: Store revenue forecasting tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "End to end data science project/store-level-revenue-forecasting/**"
+      - ".github/workflows/store-revenue-forecasting-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/store-level-revenue-forecasting/**"
+      - ".github/workflows/store-revenue-forecasting-tests.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: "End to end data science project/store-level-revenue-forecasting"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/store-level-revenue-forecasting/requirements.txt"
+
+      - name: Install project and development dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+
+      - name: Build deterministic sample data
+        run: python scripts/generate_sample_data.py
+
+      - name: Run sample pipeline
+        run: python run_pipeline.py --config config.sample.yaml
+
+      - name: Lint source and tests
+        run: python -m ruff check .
+
+      - name: Run tests
+        run: python -m pytest
