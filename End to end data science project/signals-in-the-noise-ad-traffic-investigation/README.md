@@ -1,5 +1,7 @@
 # Signals in the Noise
 
+[Back to the project index](../../README.md)
+
 [![Signals in the Noise tests](https://github.com/SaguPandya96/Data-Science-/actions/workflows/signals-in-the-noise-tests.yml/badge.svg)](https://github.com/SaguPandya96/Data-Science-/actions/workflows/signals-in-the-noise-tests.yml)
 
 ### A personal investigation of unusual patterns in advertising event data
