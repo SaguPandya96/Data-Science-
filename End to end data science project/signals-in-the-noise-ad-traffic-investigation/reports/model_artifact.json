@@ -1,0 +1,81 @@
+{
+  "model": "class-weighted logistic regression implemented with NumPy",
+  "features": [
+    "log_impressions",
+    "log_clicks",
+    "ctr",
+    "conversion_per_click",
+    "repeat_event_share",
+    "top_source_share",
+    "active_click_minute_share",
+    "clicks_per_unique_user",
+    "log_total_cost_units"
+  ],
+  "feature_mean": [
+    2.903168701266017,
+    1.866393012785525,
+    0.33879724809264056,
+    0.12398700485882196,
+    0.1274050596244129,
+    0.47861533714231524,
+    0.22114718614718581,
+    0.37444090084308523,
+    0.008298306015632122
+  ],
+  "feature_standard_deviation": [
+    0.8999849784783772,
+    0.9677688434611964,
+    0.1726350563242037,
+    0.21025369371252686,
+    0.14312678779960294,
+    0.1711724566770093,
+    0.21162154131595123,
+    0.23976311042170548,
+    0.0171898741618745
+  ],
+  "intercept": -3.972571622594391,
+  "coefficients": {
+    "log_impressions": 0.6099635723811228,
+    "log_clicks": 0.04111893493933115,
+    "ctr": -0.434239035705574,
+    "conversion_per_click": -0.027627956334175457,
+    "repeat_event_share": 0.4160375969369374,
+    "top_source_share": -0.1026038217550493,
+    "active_click_minute_share": 0.0340195622410251,
+    "clicks_per_unique_user": 0.1918399392626676,
+    "log_total_cost_units": 0.10067076284024506
+  },
+  "anomaly_model": {
+    "median": [
+      2.70805020110221,
+      1.791759469228055,
+      0.3333333333333333,
+      0.0,
+      0.1,
+      0.46153846153846156,
+      0.13333333333333333,
+      0.35,
+      0.00305507630073049
+    ],
+    "robust_scale": [
+      0.9167995753513171,
+      0.9631452810454121,
+      0.15756885579942917,
+      0.13477997169620595,
+      0.14825796886582654,
+      0.17328853503797909,
+      0.1729676303434643,
+      0.17984768249487063,
+      0.005094371435723487
+    ],
+    "reference_distance_p99": 12.053906275950634
+  },
+  "hybrid_formula": "0.70 * supervised_score + 0.30 * empirical_anomaly_percentile",
+  "thresholds": {
+    "anomaly": 0.99,
+    "supervised": 0.44000000000000006,
+    "review": 0.61,
+    "temporary_throttle_candidate": 0.75,
+    "escalate_for_manual_decision": 0.9
+  }
+}

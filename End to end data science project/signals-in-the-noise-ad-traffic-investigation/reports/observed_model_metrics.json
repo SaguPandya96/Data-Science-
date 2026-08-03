@@ -1,0 +1,29 @@
+{
+  "data_split": {
+    "cutoff_timestamp": 51660,
+    "train_windows": 9229,
+    "test_windows": 5902,
+    "train_campaigns": 605,
+    "test_campaigns": 611
+  },
+  "expected_click_rate_test": {
+    "weighted_log_loss": 0.6312214508466909,
+    "weighted_brier_score": 0.007769259503539596,
+    "weighted_mean_absolute_error": 0.06375924340829683,
+    "observed_rate": 0.35002742542015247,
+    "mean_expected_rate": 0.3559580455235351
+  },
+  "expected_conversion_rate_test": {
+    "weighted_log_loss": 0.1754894279627465,
+    "weighted_brier_score": 0.0015351925012790743,
+    "weighted_mean_absolute_error": 0.02655410776148826,
+    "observed_rate": 0.048204499745511865,
+    "mean_expected_rate": 0.04972031930540742
+  },
+  "review_queue": {
+    "threshold": 0.99,
+    "eligible_test_windows": 5902,
+    "windows_at_or_above_threshold": 11,
+    "maximum_published_windows": 30
+  }
+}
