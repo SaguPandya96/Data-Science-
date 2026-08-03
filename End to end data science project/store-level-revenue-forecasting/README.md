@@ -1,5 +1,7 @@
 # Store-Level Revenue Forecasting and Scenario Planning
 
+[Back to the project index](../../README.md)
+
 An end-to-end forecasting project that turns the original analysis notebook into a reproducible pipeline for store-level daily sales planning. It downloads and validates Rossmann data, creates point-in-time features, uses a chronological holdout, compares planning baselines, trains a configurable production model, generates what-if scenarios, and saves model and monitoring artifacts.
 
 The Rossmann field is named `Sales` and represents daily turnover. This project treats it as a revenue proxy; the source does not provide margin, costs, or a documented currency.
