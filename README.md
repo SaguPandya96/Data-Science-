@@ -70,23 +70,6 @@ The result was published unchanged. Adjusting settings until some version looks 
 
 ---
 
-### Adversarial Robustness of a Toxicity Classifier
-
-**The question:** does an automated comment moderator still work when someone deliberately disguises what they wrote?
-
-**The answer: it breaks, and the worse problem was somewhere else entirely.** Swapping eight Latin letters for Cyrillic ones that look identical on screen cut the share of toxic comments caught from **78% to 30%**. A Unicode cleanup step applied before the model fixed that completely, with no retraining and no new data.
-
-The bigger finding came from testing the other half. Running ordinary, non-toxic comments through the same disguises showed that four of them were never evading the model at all. They push its score up on anything. Spacing out the letters made it flag **99%** of perfectly normal comments, against 1% untouched. The model is reacting to unusual formatting rather than to what a comment actually says, which means removing posts from people who have done nothing wrong. Cleanup does not help there, because nothing is being hidden.
-
-The first version of this measurement concluded the model was fine. It used a threshold set to catch 95% of toxic comments, which sat so low that almost nothing was rejected and the number could barely move, and it scored only toxic examples so the false positive problem was invisible. Both mistakes are written up rather than quietly corrected.
-
-*Built with:* Python, PyTorch, Hugging Face Transformers, bootstrap confidence intervals, 46 tests.
-*Technical detail:* unitary/toxic-bert on 300 toxic and 300 benign civil_comments; at a 1% false positive threshold recall falls 0.780 to 0.303 under homoglyph substitution and returns to 0.780 with NFKC normalization; benign false positive rate rises 0.010 to 0.990 under character spacing, 0.960 under vowel repetition.
-
-[Open the project](End%20to%20end%20data%20science%20project/evasion-gap/)
-
----
-
 ## How these were built
 
 - **Always compare against something simple.** Best-sellers, a coin flip, the supplier's promised date. A number means nothing on its own.
