@@ -1,0 +1,30 @@
+model_id: unitary/toxic-bert
+
+dataset:
+  name: google/civil_comments
+  n_toxic: 300
+  n_benign: 300
+  toxic_min: 0.8
+  benign_max: 0.1
+
+eval:
+  batch_size: 32
+  max_length: 256
+
+  # Two operating points, because they answer different questions.
+  #
+  # Pinning on recall is the intuitive choice and is actively misleading here: the
+  # toxic score distribution has a long left tail, so a 0.95 target drives the
+  # threshold to ~0.02 and recall stops responding to anything the attack does.
+  #
+  # Pinning on the false-positive budget is what a platform actually ships, and it
+  # is where evasion shows up.
+  operating_points:
+    - name: high_recall
+      pin: recall
+      value: 0.95
+    - name: fpr_1pct
+      pin: fpr
+      value: 0.01
+
+seed: 42

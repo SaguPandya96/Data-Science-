@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+.venv/
+venv/
+env/
+
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+
+data/*
+!data/.gitkeep
+
+# Results are committed on purpose -- the numbers are the deliverable.
+# Model/dataset caches are not.
+.cache/
+*.pt
+*.bin
+*.safetensors
+
+.DS_Store
+.idea/
+.vscode/
