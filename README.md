@@ -39,6 +39,21 @@ Two decisions matter as much as the result. A more complex model was tested and 
 
 ---
 
+### Store-Level Revenue Forecasting and Scenario Planning
+
+**The question:** can a store team forecast tomorrow's sales more accurately than using the recent seven-day average, while keeping every feature available at forecast time?
+
+**The answer: yes, on the executed notebook's final six-week holdout.** An XGBoost model reduced RMSE by **69.7%** against the seven-day rolling baseline and by **32.3%** against linear regression. Its WAPE was **10.50%**, with **2.03%** forecast bias. The project also turns the model into a reproducible one-day-ahead pipeline and tests no-promotion, full-promotion, and demand-drop scenarios.
+
+I excluded customer count because it would not normally be known when the forecast is made. Promotion scenarios are model sensitivities, not causal estimates, and Rossmann `Sales` is treated as a revenue proxy rather than a documented currency or profit measure.
+
+*Built with:* Python, XGBoost, scikit-learn, time-aware validation, scenario planning, reproducible pipeline, monitoring and CI.
+*Technical detail:* final six-week holdout; XGBoost RMSE 966.49, MAE 630.54, WAPE 10.50%, forecast bias 2.03%, R² 0.933; seven-day baseline RMSE 3,188.93 and WAPE 36.52%.
+
+[Open the project](End%20to%20end%20data%20science%20project/store-level-revenue-forecasting/)
+
+---
+
 ### Amazon Review Intelligence and Recommender System
 
 **The question:** can 700,000 product reviews tell us what each shopper likes, so we can show them products picked for them?
