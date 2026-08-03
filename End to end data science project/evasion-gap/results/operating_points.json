@@ -40,7 +40,8 @@
           "pin": "fpr",
           "value": 0.01
         }
-      ]
+      ],
+      "reporting_operating_point": "fpr_1pct"
     },
     "seed": 42
   }

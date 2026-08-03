@@ -8,6 +8,22 @@ Every project starts from a real question, and every model is measured against a
 
 ## The projects
 
+### Signals in the Noise: Advertising Traffic Investigation
+
+**The question:** when an advertising campaign suddenly looks unusual, is there enough evidence to send it for review without treating every anomaly as fraud?
+
+**The answer: this produced a useful review workflow, with an important boundary.** I modeled the click and conversion behavior each campaign was expected to show based only on its earlier history, then ranked the largest unexplained changes for human review. In a 500,000-row chronological replay, the workflow reduced 5,902 held-out campaign windows to **11 evidence-rich review cases**. It recommends investigation, not automatic enforcement, because the public data does not contain real invalid-traffic labels.
+
+The project also includes a separate controlled stress test for concentrated click bursts, low-and-slow activity, and impression floods, plus a benign popularity spike to test false alarms. The more complicated hybrid score did not beat the supervised baseline, so I did not promote it as the final model.
+
+*Built with:* Python, SQL, SQLite, NumPy, chronological validation, reproducible pipeline, automated tests and CI.
+
+*Technical detail:* 500,000 source rows covering the first 0.85 days; 15,131 observed campaign windows, 9,229 for training and 5,902 held out; held-out click rate 35.00% observed vs 35.60% expected, conversion-linked impression rate 4.82% observed vs 4.97% expected; 11 cases at the 99th-percentile review threshold.
+
+[Open the project](End%20to%20end%20data%20science%20project/signals-in-the-noise-ad-traffic-investigation/)
+
+---
+
 ### SupplyLens: Supplier Delivery Risk
 
 **The question:** a team receives far more shipments than it can possibly check. Which ones should it look at first?
@@ -17,6 +33,7 @@ Every project starts from a real question, and every model is measured against a
 Two decisions matter as much as the result. A more complex model was tested and **rejected** for not beating the simpler one by enough to justify itself. A second model predicting delivery times was **thrown out entirely** once it proved worse than just reading the supplier's promised date.
 
 *Built with:* Python, scikit-learn, calibrated probabilities, reproducible pipeline, monitoring.
+
 *Technical detail:* ROC-AUC 0.696, PR-AUC 0.166 at 10.8% prevalence; top-20% policy reviewed 296 of 1,479 shipments, captured 56 severe delays, 1.76x lift; Brier 0.096 after isotonic calibration.
 
 [Open the project](End%20to%20end%20data%20science%20project/SupplyLens/)
@@ -25,31 +42,17 @@ Two decisions matter as much as the result. A more complex model was tested and 
 
 ### Store-Level Revenue Forecasting and Scenario Planning
 
-**The question:** can a finance team forecast tomorrow's store sales better than a recent-demand planning rule, then use the model to test operating assumptions?
+**The question:** can a store team forecast tomorrow's sales more accurately than using the recent seven-day average, while keeping every feature available at forecast time?
 
-**The answer: yes, for the rolling one-day-ahead decision tested here.** XGBoost cut RMSE by **69.5%** versus the seven-day demand baseline and **31.8%** versus linear regression on the final six-week holdout. It reached **10.51% WAPE** across 46,830 store-days.
+**The answer: yes, on the executed notebook's final six-week holdout.** An XGBoost model reduced RMSE by **69.7%** against the seven-day rolling baseline and by **32.3%** against linear regression. Its WAPE was **10.50%**, with **2.03%** forecast bias. The project also turns the model into a reproducible one-day-ahead pipeline and tests no-promotion, full-promotion, and demand-drop scenarios.
 
-The useful part is not only the model. The project turns promotion and demand assumptions into explicit planning ranges, adds checksum-pinned data, saves a reusable pipeline, and scores a real next-day operating plan. It also says where the answer stops: scenario changes are model sensitivities, not causal promotion ROI.
+I excluded customer count because it would not normally be known when the forecast is made. Promotion scenarios are model sensitivities, not causal estimates, and Rossmann `Sales` is treated as a revenue proxy rather than a documented currency or profit measure.
 
-*Built with:* Python, pandas, scikit-learn, XGBoost, time-aware validation, scenario planning, automated tests and CI.
-*Technical detail:* 1,017,209 daily observations, 1,115 stores; XGBoost RMSE 973.81, WAPE 10.51%, bias 1.65%, R² 0.932; no-promotion scenario −13.50%, full-promotion scenario +16.48% versus baseline.
+*Built with:* Python, XGBoost, scikit-learn, time-aware validation, scenario planning, reproducible pipeline, monitoring and CI.
+
+*Technical detail:* final six-week holdout; XGBoost RMSE 966.49, MAE 630.54, WAPE 10.50%, forecast bias 2.03%, R² 0.933; seven-day baseline RMSE 3,188.93 and WAPE 36.52%.
 
 [Open the project](End%20to%20end%20data%20science%20project/store-level-revenue-forecasting/)
-
----
-
-### The Evasion Gap: Adversarial Toxicity Testing
-
-**The question:** does an off-the-shelf toxicity classifier survive simple text obfuscation at the operating point a real platform would ship?
-
-**The answer: not reliably.** At a 1% false-positive budget, swapping eight Latin characters for visually similar Cyrillic characters cut recall from **0.780 to 0.303**. At a threshold chosen to preserve 95% recall, the same failure looked almost harmless. The operating point changed the conclusion.
-
-That disagreement is the result. The project fixes thresholds on clean data, keeps them fixed during attacks, reports bootstrap intervals, and explains why a metric pinned near its floor can hide a severe robustness failure.
-
-*Built with:* Python, Transformers, adversarial string transforms, operating-point analysis, bootstrap confidence intervals.
-*Technical detail:* 300 toxic and 300 benign comments, seven attacks, 2,000 bootstrap resamples; homoglyph recall loss 0.477 at a 1% false-positive budget.
-
-[Open the project](End%20to%20end%20data%20science%20project/evasion-gap/)
 
 ---
 
@@ -97,6 +100,24 @@ The result was published unchanged. Adjusting settings until some version looks 
 *Technical detail:* 1,642 daily BTC-USD observations (2022-01-01 to 2026-06-30), 304 GDELT headlines; market-only model below chance out of sample, combined model no better.
 
 [Open the project](End%20to%20end%20data%20science%20project/crypto-alternative-data-forecasting/)
+
+---
+
+### Adversarial Robustness of a Toxicity Classifier
+
+**The question:** does an automated comment moderator still work when someone deliberately disguises what they wrote?
+
+**The answer: it breaks, and the worse problem was somewhere else entirely.** Swapping eight Latin letters for Cyrillic ones that look identical on screen cut the share of toxic comments caught from **78% to 30%**. A Unicode cleanup step applied before the model fixed that completely, with no retraining and no new data.
+
+The bigger finding came from testing the other half. Running ordinary, non-toxic comments through the same disguises showed that four of them were never evading the model at all. They push its score up on anything. Spacing out the letters made it flag **99%** of perfectly normal comments, against 1% untouched. The model is reacting to unusual formatting rather than to what a comment actually says, which means removing posts from people who have done nothing wrong. Cleanup does not help there, because nothing is being hidden.
+
+The first version of this measurement concluded the model was fine. It used a threshold set to catch 95% of toxic comments, which sat so low that almost nothing was rejected and the number could barely move, and it scored only toxic examples so the false positive problem was invisible. Both mistakes are written up rather than quietly corrected.
+
+*Built with:* Python, PyTorch, Hugging Face Transformers, bootstrap confidence intervals, 46 tests.
+
+*Technical detail:* unitary/toxic-bert on 300 toxic and 300 benign civil_comments; at a 1% false positive threshold recall falls 0.780 to 0.303 under homoglyph substitution and returns to 0.780 with NFKC normalization; benign false positive rate rises 0.010 to 0.990 under character spacing, 0.960 under vowel repetition.
+
+[Open the project](End%20to%20end%20data%20science%20project/evasion-gap/)
 
 ---
 

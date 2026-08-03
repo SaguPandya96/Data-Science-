@@ -1,9 +1,4 @@
-"""Model wrapper.
-
-`unitary/toxic-bert` is multi-label (toxic, severe_toxic, obscene, threat, insult,
-identity_hate). Everything downstream wants one number, so this collapses it to the
-`toxic` head's probability.
-"""
+"""Wrapper around the toxicity classifier."""
 
 from typing import List
 
@@ -15,7 +10,12 @@ DEFAULT_MODEL_ID = "unitary/toxic-bert"
 
 
 class Scorer:
-    """Batched toxicity scoring over a list of strings."""
+    """Score text for toxicity.
+
+    unitary/toxic-bert has six output heads (toxic, severe_toxic, obscene, threat,
+    insult, identity_hate). Only the toxic head is used here, so that every
+    downstream metric refers to a single probability.
+    """
 
     def __init__(
         self,
@@ -38,7 +38,7 @@ class Scorer:
 
     @torch.no_grad()
     def __call__(self, texts: List[str]) -> np.ndarray:
-        """Return P(toxic) for each input."""
+        """Return P(toxic) for each input string."""
         scores: List[float] = []
         for start in range(0, len(texts), self.batch_size):
             batch = texts[start : start + self.batch_size]

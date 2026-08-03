@@ -1,0 +1,38 @@
+{
+  "source_rows": 500000,
+  "combined_events": 512470,
+  "campaign_windows": 15157,
+  "review_queue_windows": 17,
+  "test_metrics": {
+    "threshold": 0.61,
+    "true_positives": 5,
+    "false_positives": 4,
+    "true_negatives": 5902,
+    "false_negatives": 6,
+    "precision": 0.5555555555555556,
+    "recall": 0.45454545454545453,
+    "f1": 0.5,
+    "false_positive_rate": 0.0006772773450728074,
+    "average_precision": 0.4592584728776333,
+    "roc_auc": 0.9934735092202075,
+    "precision_at_positive_count": 0.5454545454545454
+  },
+  "observed_only_windows": 15131,
+  "observed_review_queue_windows": 11,
+  "observed_click_model_test": {
+    "weighted_log_loss": 0.6312214508466909,
+    "weighted_brier_score": 0.007769259503539596,
+    "weighted_mean_absolute_error": 0.06375924340829683,
+    "observed_rate": 0.35002742542015247,
+    "mean_expected_rate": 0.3559580455235351
+  },
+  "observed_conversion_model_test": {
+    "weighted_log_loss": 0.1754894279627465,
+    "weighted_brier_score": 0.0015351925012790743,
+    "weighted_mean_absolute_error": 0.02655410776148826,
+    "observed_rate": 0.048204499745511865,
+    "mean_expected_rate": 0.04972031930540742
+  },
+  "reports_directory": "reports",
+  "database": "<data-dir>/traffic.db"
+}

@@ -1,5 +1,7 @@
 # GitHub Open-Source Repository Recommendation System
 
+[Back to the project index](../../README.md)
+
 [Open the fully executed notebook](github_repository_recommender.ipynb)
 
 I built this project to answer a practical question: can a developer's public GitHub history find relevant open-source repositories that popularity alone would miss? The result is a complete recommendation workflow built from real public data, with chronological evaluation, seen-item filtering, model comparisons, explainable rankings, and reproducible artifacts.

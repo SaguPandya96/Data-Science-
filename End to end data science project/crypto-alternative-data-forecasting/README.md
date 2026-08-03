@@ -1,5 +1,7 @@
 # Bitcoin Direction Forecasting with News Sentiment
 
+[Back to the project index](../../README.md)
+
 This repository documents a simple question that turned out to have an inconvenient answer: does adding Bitcoin-news sentiment improve a next-day direction model built from market data?
 
 For the data available here, it does not. The market model was below chance on the held-out period, the combined model did not improve it, and the available GDELT history was too short to support a serious multi-year sentiment test. I kept that result rather than tuning until the conclusion changed.

@@ -1,0 +1,13 @@
+episode_id,scenario,evaluation_label,start_timestamp,end_timestamp,campaign,rows_added,reason_for_inclusion
+E01_click_burst,click_burst,1,13295,14151,10341182,900,documented abuse stress test
+E02_impression_flood,impression_flood,1,19938,22520,31772643,1400,documented abuse stress test
+E03_click_burst,click_burst,1,26583,27442,28351001,900,documented abuse stress test
+E04_clean_popularity_spike,clean_popularity_spike,0,33229,35812,29427842,1050,negative control: unusual volume with ordinary behavior
+E05_impression_flood,impression_flood,1,39136,41719,32452111,1400,documented abuse stress test
+E06_click_burst,click_burst,1,45782,46640,24378636,900,documented abuse stress test
+E07_click_burst,click_burst,1,54644,55502,2576437,900,documented abuse stress test
+E08_adaptive_low_and_slow,adaptive_low_and_slow,1,58336,63499,14661605,760,documented abuse stress test
+E09_clean_popularity_spike,clean_popularity_spike,0,62028,64606,23817046,1050,negative control: unusual volume with ordinary behavior
+E10_impression_flood,impression_flood,1,64981,67562,7121544,1400,documented abuse stress test
+E11_adaptive_low_and_slow,adaptive_low_and_slow,1,67948,73094,2865314,760,documented abuse stress test
+E12_clean_popularity_spike,clean_popularity_spike,0,70890,73466,28874676,1050,negative control: unusual volume with ordinary behavior

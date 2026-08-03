@@ -1,0 +1,11 @@
+data/raw/*
+data/processed/*
+data/*.db
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+__pycache__/
+*.py[cod]
+.venv/
+tests/runtime/*
+tmp*/
+.DS_Store

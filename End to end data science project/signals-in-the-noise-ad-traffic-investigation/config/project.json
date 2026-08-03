@@ -1,0 +1,12 @@
+{
+  "random_seed": 42,
+  "window_seconds": 1800,
+  "train_fraction": 0.70,
+  "review_threshold": 0.55,
+  "throttle_threshold": 0.75,
+  "escalate_threshold": 0.90,
+  "observed_review_quantile": 0.99,
+  "observed_review_limit": 30,
+  "campaign_history_windows": 20,
+  "source_sample_rows": 500000
+}
