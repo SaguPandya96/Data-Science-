@@ -1,0 +1,40 @@
+name: Evasion Gap tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "End to end data science project/evasion-gap/**"
+      - ".github/workflows/evasion-gap-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/evasion-gap/**"
+      - ".github/workflows/evasion-gap-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: "End to end data science project/evasion-gap"
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/evasion-gap/requirements.txt"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest tests -q

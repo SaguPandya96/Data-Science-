@@ -36,9 +36,9 @@ flowchart LR
 
 ### Main operational outputs
 
-- `reports/tables/shipment_intervention_queue.csv` — ranked final-test queue with review flags and local contributors for the highest ranks.
-- `reports/tables/supplier_scorecard.csv` — test-period supplier decision support with minimum-volume eligibility.
-- `reports/tables/replenishment_risk_indicators.csv` — historical quantity and lead-time variability scenarios, not inventory recommendations.
+- `reports/tables/shipment_intervention_queue.csv` - ranked final-test queue with review flags and local contributors for the highest ranks.
+- `reports/tables/supplier_scorecard.csv` - test-period supplier decision support with minimum-volume eligibility.
+- `reports/tables/replenishment_risk_indicators.csv` - historical quantity and lead-time variability scenarios, not inventory recommendations.
 
 **Technology:** Python 3.11 · pandas · scikit-learn · NumPy · SciPy · Matplotlib · Seaborn · Plotly · Streamlit · pytest · Jupyter
 

@@ -18,7 +18,7 @@ The committed no-token run contains **5 public developers, 796 public repositori
 | Content based | 0.0400 | 0.0800 | 0.2000 | 0.0180 | 0.0476 | 0.0599 | 0.4081 | 0.6959 |
 | Hybrid | 0.0400 | 0.0400 | 0.2000 | 0.0133 | 0.0339 | 0.0730 | 0.7506 | 0.5238 |
 
-The honest result is that the **language-only baseline won**, with NDCG@10 of `0.1357` and Hit Rate@10 of `0.40`. Content beat random, but not popularity or language-only. The tuned hybrid also did not win. That is not a failure to hide—it is evidence that primary language is the most dependable signal in this small sample and that richer ranking needs more users and more complete metadata.
+The honest result is that the **language-only baseline won**, with NDCG@10 of `0.1357` and Hit Rate@10 of `0.40`. Content beat random, but not popularity or language-only. The tuned hybrid also did not win. That is not a failure to hide-it is evidence that primary language is the most dependable signal in this small sample and that richer ranking needs more users and more complete metadata.
 
 These numbers describe five selected users; they are not population-level performance claims.
 
