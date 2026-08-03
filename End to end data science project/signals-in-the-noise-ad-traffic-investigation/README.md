@@ -120,6 +120,17 @@ pip install -r requirements.txt
 
 The first run downloads the public source. Pass `-Rows 0` to process the complete file, but expect substantially more time, memory, and disk usage.
 
+### Open the notebook
+
+The executed notebook contains the same 500,000-row results committed with the project, so it can be read directly on GitHub. To rerun it locally:
+
+```powershell
+pip install -r requirements-notebook.txt
+jupyter lab notebooks/01_observed_traffic_quality_walkthrough.ipynb
+```
+
+On a fresh clone, the notebook recreates missing pipeline artifacts automatically. Set `SIGNALS_DATA_DIR` before starting Jupyter if raw and processed data should live outside the repository.
+
 To run the tests:
 
 ```powershell
@@ -128,6 +139,7 @@ python -m unittest discover -s tests -v
 
 ## Outputs worth opening first
 
+- `notebooks/01_observed_traffic_quality_walkthrough.ipynb` - executed, step-by-step analysis with tables and charts
 - `reports/observed_quality_report.md` - my observed-only investigation and conclusions
 - `reports/observed_quality_dashboard.html` - calibration and the first review cases
 - `reports/observed_review_queue.csv` - neutral analyst-facing queue from held-out observed windows
@@ -145,6 +157,7 @@ The repository includes compact reports from a 500,000-row run. Raw events, the 
 config/                       thresholds and reproducibility settings
 data/                         ignored raw and processed runtime data
 docs/                         data dictionary and my decision log
+notebooks/                    executed investigation walkthrough
 reports/                      generated findings, dashboards, and cases
 sql/                          feature, history, trend, and triage queries
 src/download_data.py          source acquisition and validation
