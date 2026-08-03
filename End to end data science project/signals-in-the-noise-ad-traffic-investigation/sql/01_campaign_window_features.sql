@@ -75,6 +75,7 @@ SELECT
     CAST(u.repeated_events AS REAL) / w.impressions AS repeat_event_share,
     CAST(s.top_source_events AS REAL) / w.impressions AS top_source_share,
     CAST(w.clicks AS REAL) / w.impressions AS ctr,
+    CAST(w.conversions AS REAL) / w.impressions AS conversion_rate,
     CASE WHEN w.clicks = 0 THEN 0 ELSE CAST(w.conversions AS REAL) / w.clicks END AS conversion_per_click,
     CAST(w.active_click_minutes AS REAL) / 30.0 AS active_click_minute_share,
     CAST(w.clicks AS REAL) / MAX(u.unique_users, 1) AS clicks_per_unique_user,

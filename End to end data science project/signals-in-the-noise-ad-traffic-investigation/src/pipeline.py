@@ -4,9 +4,17 @@ import argparse
 import json
 from pathlib import Path
 
-from src.database import build_database, build_feature_table, save_scores
+from src.database import (
+    build_database,
+    build_feature_table,
+    build_query_table,
+    save_observed_quality_scores,
+    save_scores,
+)
 from src.download_data import download_sample
 from src.modeling import score_campaign_windows
+from src.quality_modeling import score_observed_quality
+from src.quality_reporting import generate_observed_quality_reports
 from src.reporting import generate_reports
 from src.simulate_abuse import add_experimental_scenarios, load_observed
 
@@ -76,12 +84,35 @@ def run(rows: int, data_dir_value: str, force_download: bool = False) -> dict:
     print("Writing the investigation report, dashboard, and case notes ...")
     generate_reports(reports_dir, metadata, manifest, features, result)
 
+    print("Building observed-only campaign history and expected-behavior features ...")
+    observed_features = build_query_table(
+        database_path=database_path,
+        sql_path=project_root / "sql" / "04_observed_campaign_quality.sql",
+        output_csv=processed_dir / "observed_campaign_quality.csv",
+        table_name="observed_campaign_quality_features",
+        index_column="window_start",
+    )
+    print("Fitting expected click and conversion behavior on the earlier period ...")
+    quality_result = score_observed_quality(observed_features, config, processed_dir)
+    save_observed_quality_scores(database_path, quality_result["scored"])
+
+    print("Writing the observed traffic quality report and review cases ...")
+    generate_observed_quality_reports(
+        reports_dir, metadata, observed_features, quality_result
+    )
+
     summary = {
         "source_rows": metadata["sample_rows"],
         "combined_events": len(events),
         "campaign_windows": len(features),
         "review_queue_windows": len(result["review_queue"]),
         "test_metrics": result["metrics"]["hybrid_test"],
+        "observed_only_windows": len(observed_features),
+        "observed_review_queue_windows": len(quality_result["review_queue"]),
+        "observed_click_model_test": quality_result["metrics"]["expected_click_rate_test"],
+        "observed_conversion_model_test": quality_result["metrics"][
+            "expected_conversion_rate_test"
+        ],
         "reports_directory": "reports",
         "database": "<data-dir>/traffic.db",
     }

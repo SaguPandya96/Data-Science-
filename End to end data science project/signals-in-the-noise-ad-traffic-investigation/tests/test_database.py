@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.database import build_database, build_feature_table
+from src.database import build_database, build_feature_table, build_query_table
 
 
 class DatabaseTests(unittest.TestCase):
@@ -39,6 +39,79 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(int(row["clicks"]), 2)
         self.assertEqual(int(row["unique_users"]), 4)
         self.assertEqual(int(row["abuse_label"]), 1)
+
+    def test_observed_quality_query_excludes_simulation_touched_windows(self) -> None:
+        rows = []
+        for index in range(5):
+            rows.append(
+                [
+                    10 + index,
+                    100 + index,
+                    21,
+                    0,
+                    int(index == 0),
+                    0.1,
+                    -1,
+                    8,
+                    "observed",
+                    0,
+                    "observed",
+                    "observed",
+                ]
+            )
+            rows.append(
+                [
+                    20 + index,
+                    200 + index,
+                    22,
+                    0,
+                    int(index == 0),
+                    0.1,
+                    -1,
+                    9,
+                    "observed",
+                    0,
+                    "observed",
+                    "observed",
+                ]
+            )
+        rows.append(
+            [30, 999, 21, 0, 1, 0.1, -1, 8, "simulation", 1, "click_burst", "E02"]
+        )
+        events = pd.DataFrame(
+            rows,
+            columns=[
+                "timestamp",
+                "uid",
+                "campaign",
+                "conversion",
+                "click",
+                "cost",
+                "time_since_last_click",
+                "source_id",
+                "event_origin",
+                "is_simulated_abuse",
+                "scenario",
+                "episode_id",
+            ],
+        )
+        project_root = Path(__file__).resolve().parents[1]
+        folder = project_root / "tests" / "runtime"
+        database = folder / "observed_only.db"
+        build_database(events, database)
+        build_feature_table(
+            database,
+            project_root / "sql" / "01_campaign_window_features.sql",
+            folder / "combined_features.csv",
+        )
+        observed = build_query_table(
+            database,
+            project_root / "sql" / "04_observed_campaign_quality.sql",
+            folder / "observed_features.csv",
+            table_name="observed_campaign_quality_features",
+            index_column="window_start",
+        )
+        self.assertEqual(observed["campaign"].tolist(), [22])
 
 
 if __name__ == "__main__":
