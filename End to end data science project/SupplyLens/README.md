@@ -1,5 +1,7 @@
 # SupplyLens: Supplier Delivery Risk and Operational Decision Intelligence
 
+[Back to the project index](../../README.md)
+
 **SupplyLens ranks public-health commodity shipments by the calibrated probability of arriving more than seven days late, enabling scarce operational review capacity to focus on the highest-risk cases.**
 
 The business problem is a constrained decision: operations teams cannot investigate every shipment, so a useful model must capture more severe delays than a volume-matched review policy while preserving calibrated risk and a reproducible handoff.
