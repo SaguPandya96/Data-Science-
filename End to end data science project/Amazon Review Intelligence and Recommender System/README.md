@@ -1,5 +1,7 @@
 # Amazon Review Intelligence & Recommender System
 
+[Back to the project index](../../README.md)
+
 An end-to-end data science project on the [Amazon Reviews 2023](https://amazon-reviews-2023.github.io/) dataset (McAuley Lab, UCSD): 701,528 reviews across 112,565 beauty products.
 
 It covers the full lifecycle: ingestion → EDA → feature engineering → NLP → recommender systems → explainability → a served API and demo UI, with tests and CI.
