@@ -1,16 +1,17 @@
-"""Corpus loading.
+"""Loading and caching of the evaluation corpus."""
 
-The toxic set drives recall; the benign set is what makes the threshold mean
-something. Recall without a paired false-positive rate is not an operating point.
-"""
-
+import hashlib
+import json
 import logging
+from pathlib import Path
 from typing import List, Tuple
 
 logger = logging.getLogger(__name__)
 
-# Smoke-test fallback so a stalled download never blocks a run. Mild by design --
-# numbers produced from this set are a pipeline check, not a result.
+CACHE_DIR = Path(__file__).resolve().parents[2] / "data"
+
+# Used when the dataset cannot be reached, so that a run still completes.
+# Results produced from this sample are only a check that the code runs.
 FALLBACK_TOXIC = [
     "you are such an idiot and everyone knows it",
     "shut up you moron nobody asked",
@@ -34,6 +35,11 @@ FALLBACK_BENIGN = [
 ]
 
 
+def _cache_path(params: dict) -> Path:
+    key = hashlib.sha1(json.dumps(params, sort_keys=True).encode()).hexdigest()[:12]
+    return CACHE_DIR / f"corpus_{key}.json"
+
+
 def load_corpus(
     name: str = "google/civil_comments",
     n_toxic: int = 300,
@@ -41,12 +47,29 @@ def load_corpus(
     toxic_min: float = 0.8,
     benign_max: float = 0.1,
     max_chars: int = 1000,
+    use_cache: bool = True,
 ) -> Tuple[List[str], List[str]]:
-    """Stream a labelled comment corpus and pull a balanced toxic/benign sample.
+    """Return a toxic and a benign sample of comments.
 
-    Streamed rather than downloaded: the full corpus is several hundred MB and we
-    need a few hundred rows. Falls back to a built-in sample on any load failure.
+    The dataset is streamed rather than downloaded in full, since only a few
+    hundred rows are needed. Comments above the toxicity cutoff are rare, so the
+    stream reads a large number of rows and the result is cached to data/.
     """
+    params = {
+        "name": name,
+        "n_toxic": n_toxic,
+        "n_benign": n_benign,
+        "toxic_min": toxic_min,
+        "benign_max": benign_max,
+        "max_chars": max_chars,
+    }
+    cache = _cache_path(params)
+
+    if use_cache and cache.exists():
+        payload = json.loads(cache.read_text(encoding="utf-8"))
+        logger.info("Loaded corpus from cache %s", cache.name)
+        return payload["toxic"], payload["benign"]
+
     try:
         from datasets import load_dataset
 
@@ -68,9 +91,16 @@ def load_corpus(
 
         if toxic and benign:
             logger.info("Loaded %d toxic / %d benign from %s", len(toxic), len(benign), name)
+            if use_cache:
+                CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                cache.write_text(
+                    json.dumps({"params": params, "toxic": toxic, "benign": benign}),
+                    encoding="utf-8",
+                )
             return toxic, benign
-        logger.warning("Stream returned too few rows; falling back to built-in sample.")
-    except Exception as exc:  # noqa: BLE001 - any load failure degrades to the fallback
-        logger.warning("Dataset load failed (%s); falling back to built-in sample.", exc)
+
+        logger.warning("Stream returned too few rows, using the built-in sample.")
+    except Exception as exc:  # noqa: BLE001 - a load failure should not stop the run
+        logger.warning("Dataset load failed (%s), using the built-in sample.", exc)
 
     return list(FALLBACK_TOXIC), list(FALLBACK_BENIGN)

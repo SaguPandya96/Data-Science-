@@ -1,4 +1,4 @@
-"""CLI entrypoint: run the full sweep and write results to disk.
+"""Run the evaluation and write results to disk.
 
     python scripts/run_experiment.py --config config.yaml
 """
@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from evasion_gap.pipeline import run_experiment  # noqa: E402
-from evasion_gap.plots import plot_robustness  # noqa: E402
+from evasion_gap.plots import plot_defense_effect, plot_recall_by_threshold  # noqa: E402
 
 
 def main() -> None:
@@ -41,18 +41,24 @@ def main() -> None:
             indent=2,
         )
     )
-    plot_robustness(
-        result.sweep,
-        result.operating_points,
-        outfile=args.output_dir / "robustness.png",
+
+    shipping = config["eval"]["reporting_operating_point"]
+    plot_recall_by_threshold(
+        result.sweep, result.operating_points, outfile=args.output_dir / "recall_by_threshold.png"
+    )
+    plot_defense_effect(
+        result.sweep, shipping, outfile=args.output_dir / "defense_effect.png"
     )
 
     for op in result.operating_points:
-        sub = result.sweep[result.sweep["operating_point"] == op.name]
-        print(f"\n### {op.name}  (threshold={op.threshold:.4f}, FPR={op.benign_fpr:.1%})\n")
-        print(
-            sub.drop(columns=["operating_point"]).to_markdown(index=False, floatfmt=".3f")
-        )
+        print(f"\n### {op.name}  threshold={op.threshold:.4f}  benign FPR={op.benign_fpr:.1%}")
+        for split in ["toxic", "benign"]:
+            sub = result.sweep[
+                (result.sweep["operating_point"] == op.name) & (result.sweep["split"] == split)
+            ]
+            table = sub.pivot(index="attack", columns="defense", values="rate")
+            print(f"\n{split}:")
+            print(table.to_markdown(floatfmt=".3f"))
 
     print(f"\nWrote results to {args.output_dir}")
 

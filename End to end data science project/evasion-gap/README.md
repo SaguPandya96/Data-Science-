@@ -1,124 +1,204 @@
-# The evasion gap
+# Adversarial robustness of a toxicity classifier
 
-**Does an off-the-shelf toxicity classifier survive trivial obfuscation?**
+An evaluation of how `unitary/toxic-bert` behaves when comment text is obfuscated in
+ways that a person can still read. The project measures both failure directions,
+identifies the cause of each, tests a fix, and reports what the fix does and does not
+cover.
 
-Yes at the operating point most write-ups measure at, and no at the one a platform
-actually ships. The gap between those two answers is the project.
-
-`unitary/toxic-bert` · 300 toxic + 300 benign comments from `civil_comments` ·
-7 evasion transforms · bootstrap CIs over 2000 resamples
-
----
-
-## Result
-
-> **Swapping eight Latin characters for Cyrillic lookalikes cuts recall from 0.780 to
-> 0.303 — a 61% relative loss.** The text is unchanged to a human reader. The attack is a
-> 9-line dictionary lookup.
-
-### At a 1% false-positive budget — what ships
-
-Threshold 0.2305, benign FPR 1.0%.
-
-| attack | recall | 95% CI | recall drop |
-|---|---|---|---|
-| **homoglyph** | **0.303** | [0.253, 0.357] | **0.477** |
-| leetspeak | 0.757 | [0.710, 0.803] | 0.023 |
-| clean | 0.780 | [0.733, 0.823] | — |
-| zero_width | 0.780 | [0.733, 0.823] | 0.000 |
-| devowel | 0.800 | [0.753, 0.843] | −0.020 |
-| repeated | 0.983 | [0.970, 0.997] | −0.203 |
-| spaced | 0.997 | [0.990, 1.000] | −0.217 |
-
-### At a threshold pinned to 95% recall — what hides the problem
-
-Threshold 0.0213, benign FPR 7.0%.
-
-| attack | recall | 95% CI | recall drop |
-|---|---|---|---|
-| homoglyph | 0.933 | [0.907, 0.960] | 0.017 |
-| clean | 0.950 | [0.923, 0.973] | — |
-| zero_width | 0.950 | [0.923, 0.973] | 0.000 |
-| devowel | 0.950 | [0.923, 0.973] | 0.000 |
-| leetspeak | 0.967 | [0.947, 0.987] | −0.017 |
-| repeated | 0.997 | [0.990, 1.000] | −0.047 |
-| spaced | 1.000 | [1.000, 1.000] | −0.050 |
-
-![robustness](results/robustness.png)
+**Summary of what was found:** one of the six transformations is a genuine evasion, and
+it can be fixed entirely in preprocessing. The other four are a different problem that
+had not been visible: they cause the model to flag ordinary, non-toxic comments at up to
+99 percent, because the model is reacting to unusual character patterns rather than to
+what the comment says.
 
 ---
 
-## Findings
+## Why this project
 
-**1. Homoglyph substitution is the only attack that works — and it works completely.**
-Recall 0.780 → 0.303 at a shipping threshold. Mean score collapses 0.605 → 0.214. Cyrillic
-`а е о` are distinct codepoints from Latin `a e o`, so every token containing one falls out
-of vocabulary and the model scores what is effectively a different language.
+Automated moderation runs at a threshold, and that threshold is chosen on clean data.
+People who want to post abusive content do not send clean data. The practical question
+for anyone operating such a system is not how accurate the model is on a benchmark, but
+how much of its measured performance survives contact with someone actively trying to
+get around it, and what it costs to close the gap.
 
-**2. The operating point decides whether you can see the problem at all.**
-The same attack on the same data reads as a **0.017** drop at a 95%-recall threshold and a
-**0.477** drop at a 1%-FPR threshold — a 28× difference in apparent severity.
+The transformations used here need no model access and no machine learning. Each is a
+few lines of string manipulation, which is what makes them worth testing: they represent
+the cheapest thing an adversary can do, so anything that fails against them will fail in
+production.
 
-Pinning the threshold on recall is the intuitive choice and it is actively misleading here.
-The toxic score distribution has a long left tail, so a 0.95 target drives the threshold to
-**0.021**, essentially the floor. At that point almost nothing is rejected, recall becomes
-insensitive to anything the attack does, and the FPR is 7% — which no platform would run.
-This is the reason to pick the operating point from the false-positive budget first.
+## Question
 
-*My first run measured only at the 95%-recall point and concluded the model was robust. It
-isn't. The tell was `homoglyph` showing a 0.017 recall drop while its mean score fell by
-two-thirds — a metric that cannot move is not evidence of safety.*
+At a threshold a moderation system would actually run at, how much does obfuscation
+change the model's behaviour, in both directions, and can it be corrected without
+retraining?
 
-**3. `zero_width` is not defended, it is deleted.**
-Its scores are identical to clean at three decimals, which is too clean to be robustness.
-BERT's text cleaning strips category-`Cf` codepoints before tokenization, so the zero-width
-spaces never reach the model. A defense exists — it is just incidental, inherited from a
-2018 preprocessing decision rather than chosen. Nothing guarantees the next tokenizer keeps it.
-
-**4. `spaced` and `repeated` make the model *more* confident, and that is a defect.**
-Recall rises to 0.997 and 0.983, well above clean. The model appears to treat character
-fragmentation and vowel repetition as toxicity signals in themselves — plausibly learned
-from Jigsaw, where `s o   a n g r y` and `whyyyy` correlate with abusive comments. That is
-not robustness. It predicts that emphatic-but-benign text gets over-flagged, which is a
-false-positive problem affecting real users. Measuring it is the next experiment (below).
+Measuring both directions matters. Content that slips past the filter and content that
+is wrongly removed are different failures with different costs, and an evaluation that
+only scores toxic examples cannot see the second one.
 
 ---
 
-## Why this framing
+## Results
 
-| Conventional | Here |
-|---|---|
-| Accuracy / F1 / ROC-AUC | Recall at thresholds pinned to an explicit budget |
-| One threshold, usually 0.5 | Two operating points, because they disagree |
-| Point estimates | Bootstrap CIs — 300 rows carries real noise |
-| Confusion matrix | Which *kind* of obfuscation wins, and what it did to the tokenizer |
+Measured at a threshold set to a 1 percent false positive budget on clean benign text
+(threshold 0.2305). 300 toxic and 300 benign comments from `civil_comments`, with
+bootstrap confidence intervals over 2000 resamples.
 
-Thresholds never move between attacks. That is the experiment: an operating point chosen
-on clean data is what actually ships.
+### Recall on toxic content
 
----
-
-## Threat model
-
-The adversary wants abusive text to stay readable to humans while scoring below the
-moderation threshold. No model access, no gradients, no ML — a keyboard and a Unicode
-table. Every attack is a pure string transform under ten lines.
-
-| attack | transformation | example |
+| transformation | no defense | with normalization |
 |---|---|---|
-| `homoglyph` | Latin → visually identical Cyrillic | `idiot` → `іdіоt` |
-| `leetspeak` | `a→4 e→3 i→1 o→0 s→5 t→7` | `idiot` → `1d107` |
-| `zero_width` | zero-width space between every character | `idiot` → `i​d​i​o​t` |
-| `spaced` | character spacing | `idiot` → `i d i o t` |
-| `repeated` | vowel repetition | `idiot` → `iiidiiiooot` |
-| `devowel` | drop vowels after each word's first char | `idiot` → `idt` |
+| clean (baseline) | 0.780 | 0.780 |
+| **homoglyph** | **0.303** | **0.780** |
+| leetspeak | 0.757 | 0.757 |
+| zero_width | 0.780 | 0.780 |
+| devowel | 0.800 | 0.800 |
+| repeated | 0.983 | 0.983 |
+| spaced | 0.997 | 0.997 |
 
-Readability is a hard constraint, enforced in `tests/`. A transform that mangles text past
-human comprehension is not an evasion — it is noise, and it does not belong in the suite.
+### False positive rate on benign content
+
+| transformation | no defense | with normalization |
+|---|---|---|
+| clean (baseline) | 0.010 | 0.010 |
+| zero_width | 0.010 | 0.010 |
+| **homoglyph** | **0.207** | **0.010** |
+| devowel | 0.713 | 0.713 |
+| leetspeak | 0.743 | 0.743 |
+| repeated | 0.960 | 0.960 |
+| **spaced** | **0.990** | **0.990** |
+
+![effect of normalization](results/defense_effect.png)
+
+### Finding 1: homoglyph substitution defeats the model, and normalization fixes it
+
+Replacing eight Latin characters with Cyrillic characters that look identical drops
+recall from 0.780 to 0.303, a 61 percent relative loss. The Cyrillic characters are
+different codepoints, so the affected tokens are out of vocabulary and the model is
+scoring text it has effectively never seen.
+
+A Unicode normalization pass applied before the model restores recall to 0.780 exactly,
+and brings the benign false positive rate back from 0.207 to 0.010. This requires no
+retraining, no new labelled data, and no change to the served model.
+
+### Finding 2: four of the transformations are not evasions, they are false positive triggers
+
+This only became visible after scoring the benign split, which the first version of this
+evaluation did not do.
+
+Spacing out characters raises the false positive rate on ordinary, non-toxic comments
+from 1 percent to 99 percent. Vowel repetition raises it to 96 percent, leetspeak to 74
+percent, and vowel removal to 71 percent. The recall numbers for these transformations
+look fine, and in isolation they suggest robustness. They are not measuring robustness.
+The model raises its score for these inputs regardless of what the comment actually
+says.
+
+The likely cause is the training data. Jigsaw-style comment corpora contain a
+correlation between unusual formatting and abusive content, and the model appears to
+have learned the formatting itself as a signal. The practical consequence is that users
+who write emphatically get their comments removed.
+
+Normalization does not help here, and should not be expected to: nothing is being
+disguised. This needs a training-data intervention rather than a preprocessing one.
+
+### Finding 3: the threshold determines whether any of this is visible
+
+The same homoglyph attack reads as a 0.017 recall drop when the threshold is set to
+achieve 95 percent recall, and a 0.477 drop when it is set to a 1 percent false positive
+budget.
+
+The reason is that the toxic score distribution has a long lower tail, so targeting 95
+percent recall drives the threshold to 0.021. At that threshold almost nothing is
+rejected, the measured rate barely responds to the input, and the false positive rate is
+7 percent, which is far outside what a moderation system would accept.
+
+The first version of this evaluation used only the recall-pinned threshold and concluded
+that the model was robust. That conclusion was wrong. The signal that something was off
+was that homoglyph showed a 0.017 recall drop while its mean score fell from 0.605 to
+0.214: a large change in the model's output that the metric was not registering.
+
+![recall at both thresholds](results/recall_by_threshold.png)
 
 ---
 
-## Quickstart
+## What this means in operation
+
+The figures below are an illustration using stated assumptions, not a measurement of any
+real platform. Assume 1,000,000 comments per day, 2 percent of them genuinely toxic, and
+the 1 percent false positive threshold above.
+
+**Evasion.** On clean traffic the model catches 15,600 of the 20,000 toxic comments and
+misses 4,400. If an adversary applies homoglyph substitution, it catches 6,060 and misses
+13,940. That is roughly 9,500 additional harmful comments per day getting through, from a
+change that costs the adversary nothing.
+
+**False positives.** If 1 percent of benign comments are written in an emphatic style
+with spaced or repeated characters, that is 9,800 comments per day. At the baseline rate
+98 of them would be wrongly flagged. At the measured 99 percent rate, 9,702 are. That is
+roughly 9,600 additional wrongful removals per day, affecting users who have done nothing
+wrong.
+
+The two failures are comparable in size and only one of them is an attack.
+
+---
+
+## Recommendation
+
+1. **Add Unicode normalization to the preprocessing path.** It fully resolves the
+   homoglyph evasion and the associated false positives, costs microseconds per comment,
+   requires no retraining, and can be reverted independently of the model.
+2. **Do not treat the remaining recall numbers as evidence of robustness.** They are
+   produced by a model that raises its score for unusual formatting, which is why the
+   same transformations are catastrophic on benign text.
+3. **Address the formatting sensitivity in training rather than preprocessing.** The
+   model needs benign examples that use emphatic formatting, so that character patterns
+   stop acting as a proxy for abuse.
+4. **Set the evaluation threshold from the false positive budget, and score both
+   splits.** Neither finding here is visible under a recall-pinned threshold on toxic
+   examples alone.
+
+---
+
+## Data
+
+`civil_comments` via streaming, filtered to human-rated toxicity of at least 0.8 for the
+toxic split and at most 0.1 for the benign split, 300 comments each, capped at 1000
+characters. The corpus is cached to `data/` after the first run.
+
+The benign split is not optional. It sets the threshold, and it is where the second
+finding came from.
+
+## Method
+
+1. Score both clean splits and use the distributions to set two thresholds, one pinned to
+   95 percent recall and one pinned to a 1 percent false positive budget.
+2. Apply each of the six transformations to both splits.
+3. Score each variant twice, once as-is and once through the normalization pass.
+4. Measure the rate above each threshold, with bootstrap confidence intervals.
+
+Thresholds are held fixed across every condition, since a threshold chosen on clean data
+is what a deployed system would be using.
+
+### Transformations tested
+
+| name | change | example |
+|---|---|---|
+| `homoglyph` | Latin to Cyrillic look-alikes | `idiot` to `іdіоt` |
+| `leetspeak` | letters to digits | `idiot` to `1d107` |
+| `zero_width` | zero-width space between characters | `idiot` to `i​d​i​o​t` |
+| `spaced` | characters separated by spaces | `idiot` to `i d i o t` |
+| `repeated` | vowels repeated | `idiot` to `iiidiiiooot` |
+| `devowel` | vowels removed after first character | `idiot` to `idt` |
+
+`zero_width` has no effect on the model in either direction. Its scores are identical to
+clean text because BERT's tokenizer removes Unicode category Cf characters before
+tokenization, so the inserted characters never reach the model. The protection is real
+but incidental, and it depends on a tokenizer preprocessing detail rather than on a
+deliberate decision.
+
+---
+
+## Reproducing
 
 ```bash
 pip install -r requirements.txt
@@ -128,62 +208,67 @@ pip install -r requirements.txt
 python scripts/run_experiment.py --config config.yaml
 ```
 
-Writes `results/sweep.csv`, `results/operating_points.json`, `results/robustness.png`.
-CPU is fine. The corpus is streamed rather than downloaded, which is the slow step
-(~5 min to find 300 rows above the toxicity cutoff); on stream failure the loader degrades
-to a small built-in sample so a run always completes, and numbers from that fallback are a
-pipeline check, not a result.
-
-Narrative version, with score distributions, tokenizer inspection, and a normalization defense:
+Writes `sweep.csv`, `operating_points.json` and two charts to `results/`. Runs on CPU.
+The first run streams the corpus, which takes about five minutes because comments above
+the toxicity cutoff are rare; later runs use the cache in `data/`.
 
 ```bash
 jupyter lab notebooks/01_evasion_gap.ipynb
 ```
 
+The notebook covers the same run with the score distributions, the tokenizer comparison
+behind finding 1, and the threshold analysis behind finding 3.
+
 ```bash
 pytest -q
 ```
 
----
+46 tests, covering the properties of each transformation, the threshold functions, and
+the claim that normalization reverses the homoglyph and zero-width transformations.
 
 ## Layout
 
 ```
-├── config.yaml                    # model, corpus, both operating points
-├── src/evasion_gap/
-│   ├── attacks.py                 # the evasion transforms
-│   ├── data.py                    # streamed corpus loading + fallback
-│   ├── model.py                   # multi-label model → single P(toxic)
-│   ├── metrics.py                 # threshold-at-recall, threshold-at-FPR, bootstrap CI
-│   ├── pipeline.py                # operating points → sweep orchestration
-│   └── plots.py                   # side-by-side result chart
-├── scripts/run_experiment.py      # reproducible headless entrypoint
-├── notebooks/01_evasion_gap.ipynb # narrative + failure inspection
-├── tests/                         # readability + metric invariants
-└── results/                       # committed — the numbers are the deliverable
+config.yaml                      model, corpus and threshold settings
+src/evasion_gap/
+    attacks.py                   the six transformations
+    defense.py                   Unicode normalization pass
+    data.py                      corpus streaming and caching
+    model.py                     classifier wrapper
+    metrics.py                   threshold selection, rates, bootstrap intervals
+    pipeline.py                  sweep orchestration
+    plots.py                     charts
+scripts/run_experiment.py        command line entry point
+notebooks/01_evasion_gap.ipynb   analysis with commentary
+tests/                           46 tests
+results/                         committed output
 ```
-
----
 
 ## Limitations
 
-Single model, single dataset, English only. 300 examples per condition, so recall carries
-roughly ±4pp (bootstrap CIs are reported throughout, not hidden). Attacks are hand-written
-rather than searched, making these a **lower bound** on what a real adversary achieves.
-`civil_comments` toxicity labels are crowd-sourced and carry annotator bias that propagates
-into the baseline. The homoglyph map covers 8 characters; a fuller map would likely be worse.
+One model, one dataset, English only. 300 examples per condition gives roughly plus or
+minus 4 percentage points on each rate; confidence intervals are in `results/sweep.csv`.
 
----
+The transformations are hand-written rather than searched, so the recall loss reported
+here is a lower bound on what an adversary could achieve. The homoglyph map covers eight
+characters and a fuller one would likely do more damage.
 
-## Roadmap
+`civil_comments` toxicity labels are crowd-sourced and carry annotator bias, which
+propagates into the thresholds since they are derived from that labelling.
 
-- [ ] **Apply the attacks to the benign set** and measure FPR shift — directly tests finding 4, and is the most load-bearing gap in the current result
-- [ ] Unicode normalization (NFKC + homoglyph reversal) as a defense layer; re-measure
-- [ ] Adversarial fine-tuning on generated variants, and the clean-FPR cost it incurs
-- [ ] Composed attacks (homoglyph + spacing) rather than one transform at a time
-- [ ] Text rendered as an image, which defeats the text path entirely
-- [ ] Latency and cost per million requests for a normalize → classify cascade
+The operational figures are an illustration under stated assumptions. Real traffic mix,
+toxicity base rate and adoption of any given obfuscation would all change them.
+
+## Next steps
+
+- Search for transformations rather than hand-writing them, to get a tighter bound on the
+  evasion risk
+- Retrain with emphatically formatted benign examples and measure whether the formatting
+  sensitivity in finding 2 goes away
+- Test transformations in combination rather than one at a time
+- Measure text rendered as an image, which bypasses the text path completely
+- Measure added latency and cost per million comments for the normalization step
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

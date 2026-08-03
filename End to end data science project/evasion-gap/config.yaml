@@ -11,14 +11,10 @@ eval:
   batch_size: 32
   max_length: 256
 
-  # Two operating points, because they answer different questions.
-  #
-  # Pinning on recall is the intuitive choice and is actively misleading here: the
-  # toxic score distribution has a long left tail, so a 0.95 target drives the
-  # threshold to ~0.02 and recall stops responding to anything the attack does.
-  #
-  # Pinning on the false-positive budget is what a platform actually ships, and it
-  # is where evasion shows up.
+  # Two thresholds are evaluated because they give different answers.
+  # Pinning on recall is common in write-ups but pushes the threshold near zero
+  # when the score distribution has a long lower tail. Pinning on the false
+  # positive budget is closer to how a moderation system is configured.
   operating_points:
     - name: high_recall
       pin: recall
@@ -26,5 +22,8 @@ eval:
     - name: fpr_1pct
       pin: fpr
       value: 0.01
+
+  # Threshold used for the headline numbers and the defense chart.
+  reporting_operating_point: fpr_1pct
 
 seed: 42
