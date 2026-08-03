@@ -1,0 +1,12 @@
+{
+  "observed_rows": 500000,
+  "combined_rows": 512470,
+  "simulated_rows": 12470,
+  "simulated_abuse_rows": 9320,
+  "null_cells": 0,
+  "timestamp_min": 0,
+  "timestamp_max": 73843,
+  "campaigns": 662,
+  "source_groups": 486,
+  "observed_rows_mutated": false
+}

@@ -1,0 +1,22 @@
+{
+  "source_rows": 500000,
+  "combined_events": 512470,
+  "campaign_windows": 15157,
+  "review_queue_windows": 17,
+  "test_metrics": {
+    "threshold": 0.61,
+    "true_positives": 5,
+    "false_positives": 4,
+    "true_negatives": 5902,
+    "false_negatives": 6,
+    "precision": 0.5555555555555556,
+    "recall": 0.45454545454545453,
+    "f1": 0.5,
+    "false_positive_rate": 0.0006772773450728074,
+    "average_precision": 0.4592584728776333,
+    "roc_auc": 0.9934735092202075,
+    "precision_at_positive_count": 0.5454545454545454
+  },
+  "reports_directory": "reports",
+  "database": "<data-dir>/traffic.db"
+}
