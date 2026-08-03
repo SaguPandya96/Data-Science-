@@ -1,5 +1,7 @@
 # Adversarial robustness of a toxicity classifier
 
+[Back to the project index](../../README.md)
+
 An evaluation of how `unitary/toxic-bert` behaves when comment text is obfuscated in
 ways that a person can still read. The project measures both failure directions,
 identifies the cause of each, tests a fix, and reports what the fix does and does not
