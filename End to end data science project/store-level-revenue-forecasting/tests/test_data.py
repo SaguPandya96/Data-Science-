@@ -3,7 +3,13 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from store_revenue_forecasting.data import DataValidationError, merge_inputs, validate_inputs
+from store_revenue_forecasting.data import (
+    DataValidationError,
+    merge_inputs,
+    sha256_file,
+    validate_inputs,
+    verify_checksum,
+)
 
 
 def test_validation_and_merge_accept_well_formed_inputs(rossmann_frames) -> None:
@@ -22,3 +28,14 @@ def test_duplicate_store_date_is_rejected(rossmann_frames) -> None:
 
     with pytest.raises(DataValidationError, match="duplicate Store/Date"):
         validate_inputs(duplicated, stores)
+
+
+def test_checksum_verification_detects_source_changes(tmp_path) -> None:
+    source = tmp_path / "source.csv"
+    source.write_bytes(b"Store,Sales\n1,100\n")
+    expected = sha256_file(source)
+    verify_checksum(source, expected)
+
+    source.write_bytes(b"Store,Sales\n1,999\n")
+    with pytest.raises(DataValidationError, match="Checksum mismatch"):
+        verify_checksum(source, expected)

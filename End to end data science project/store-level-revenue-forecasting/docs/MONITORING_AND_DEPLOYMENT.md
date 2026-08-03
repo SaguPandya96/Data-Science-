@@ -4,12 +4,21 @@
 
 1. Validate that sales actuals are complete through the declared cutoff.
 2. Load approved store metadata and future-known operating, holiday, and promotion inputs.
-3. Build shifted lag features and score the saved pipeline.
+3. Build shifted lag features and score the saved pipeline with `score_forecast.py`.
 4. Check row counts, missingness, category coverage, and non-negative output.
 5. Publish forecasts with model version, forecast origin, target date, and scenario name.
 6. Join actuals later and calculate rolling accuracy and bias.
 
 The serialized joblib file must only be loaded from a trusted build. Treat it as executable code, retain the training environment lock, and roll back by model version rather than overwriting artifacts in place.
+
+Example batch command:
+
+```bash
+python score_forecast.py \
+  --config config.yaml \
+  --future path/to/future_plan.csv \
+  --output data/processed/future_predictions.csv
+```
 
 ## Monitoring signals
 

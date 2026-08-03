@@ -45,9 +45,7 @@ def build_sample() -> tuple[pd.DataFrame, pd.DataFrame]:
             promo = int(day_of_week in {1, 5} and (date.dayofyear + store) % 2 == 0)
             state_holiday = "a" if date in holiday_dates else "0"
             school_holiday = int(date.dayofyear % 45 in {0, 1, 2})
-            weekly_effect = {1: 500, 2: 100, 3: 0, 4: 150, 5: 650, 6: 300, 7: -400}[
-                day_of_week
-            ]
+            weekly_effect = {1: 500, 2: 100, 3: 0, 4: 150, 5: 650, 6: 300, 7: -400}[day_of_week]
             seasonal_effect = 300 * np.sin(2 * np.pi * date.dayofyear / 90)
             expected = (
                 4200
@@ -75,14 +73,35 @@ def build_sample() -> tuple[pd.DataFrame, pd.DataFrame]:
     return pd.DataFrame(rows), stores
 
 
+def build_future_plan(sales: pd.DataFrame, stores: pd.DataFrame) -> pd.DataFrame:
+    """Create a one-day operating plan immediately after the sample history."""
+    forecast_date = pd.to_datetime(sales["Date"]).max() + pd.Timedelta(days=1)
+    day_of_week = forecast_date.dayofweek + 1
+    return pd.DataFrame(
+        {
+            "Store": stores["Store"],
+            "Date": forecast_date.date().isoformat(),
+            "Open": [int(day_of_week != 7 or store in {3, 6}) for store in stores["Store"]],
+            "Promo": [int(day_of_week in {1, 5} and store % 2 == 0) for store in stores["Store"]],
+            "StateHoliday": "0",
+            "SchoolHoliday": 0,
+        }
+    )
+
+
 def main() -> None:
     project_root = Path(__file__).resolve().parents[1]
     output = project_root / "data" / "sample"
     output.mkdir(parents=True, exist_ok=True)
     sales, stores = build_sample()
+    future = build_future_plan(sales, stores)
     sales.to_csv(output / "train.csv", index=False)
     stores.to_csv(output / "store.csv", index=False)
-    print(f"Wrote {len(sales):,} sales rows and {len(stores):,} stores to {output}")
+    future.to_csv(output / "future.csv", index=False)
+    print(
+        f"Wrote {len(sales):,} sales rows, {len(stores):,} stores, "
+        f"and a {len(future):,}-row future plan to {output}"
+    )
 
 
 if __name__ == "__main__":

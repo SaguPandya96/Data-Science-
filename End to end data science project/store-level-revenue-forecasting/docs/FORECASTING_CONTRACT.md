@@ -26,6 +26,8 @@ For a forecast created once and consumed for several future weeks, use one of th
 
 `Open`, promotion plans, and holiday fields are treated as known future inputs. Before deployment, their upstream systems need freshness checks and a fallback policy. `Customers` is explicitly excluded because realized traffic is not available at prediction time.
 
+The implemented scoring command enforces one future date, requires history for every forecast store, and rebuilds shifted lag features from actuals. See [SCORING_CONTRACT.md](SCORING_CONTRACT.md).
+
 ## Output semantics
 
 The target is the source `Sales` field, described by the Rossmann data as turnover. The project uses “forecasted revenue” as planning shorthand, but it does not forecast profit, margin, units, or cash receipts.

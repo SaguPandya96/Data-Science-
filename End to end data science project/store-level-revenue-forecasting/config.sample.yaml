@@ -39,3 +39,4 @@ paths:
   models: models
   metrics: reports/metrics
   tables: reports/tables
+  figures: reports/figures

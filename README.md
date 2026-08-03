@@ -23,6 +23,36 @@ Two decisions matter as much as the result. A more complex model was tested and 
 
 ---
 
+### Store-Level Revenue Forecasting and Scenario Planning
+
+**The question:** can a finance team forecast tomorrow's store sales better than a recent-demand planning rule, then use the model to test operating assumptions?
+
+**The answer: yes, for the rolling one-day-ahead decision tested here.** XGBoost cut RMSE by **69.5%** versus the seven-day demand baseline and **31.8%** versus linear regression on the final six-week holdout. It reached **10.51% WAPE** across 46,830 store-days.
+
+The useful part is not only the model. The project turns promotion and demand assumptions into explicit planning ranges, adds checksum-pinned data, saves a reusable pipeline, and scores a real next-day operating plan. It also says where the answer stops: scenario changes are model sensitivities, not causal promotion ROI.
+
+*Built with:* Python, pandas, scikit-learn, XGBoost, time-aware validation, scenario planning, automated tests and CI.
+*Technical detail:* 1,017,209 daily observations, 1,115 stores; XGBoost RMSE 973.81, WAPE 10.51%, bias 1.65%, R² 0.932; no-promotion scenario −13.50%, full-promotion scenario +16.48% versus baseline.
+
+[Open the project](End%20to%20end%20data%20science%20project/store-level-revenue-forecasting/)
+
+---
+
+### The Evasion Gap: Adversarial Toxicity Testing
+
+**The question:** does an off-the-shelf toxicity classifier survive simple text obfuscation at the operating point a real platform would ship?
+
+**The answer: not reliably.** At a 1% false-positive budget, swapping eight Latin characters for visually similar Cyrillic characters cut recall from **0.780 to 0.303**. At a threshold chosen to preserve 95% recall, the same failure looked almost harmless. The operating point changed the conclusion.
+
+That disagreement is the result. The project fixes thresholds on clean data, keeps them fixed during attacks, reports bootstrap intervals, and explains why a metric pinned near its floor can hide a severe robustness failure.
+
+*Built with:* Python, Transformers, adversarial string transforms, operating-point analysis, bootstrap confidence intervals.
+*Technical detail:* 300 toxic and 300 benign comments, seven attacks, 2,000 bootstrap resamples; homoglyph recall loss 0.477 at a 1% false-positive budget.
+
+[Open the project](End%20to%20end%20data%20science%20project/evasion-gap/)
+
+---
+
 ### Amazon Review Intelligence and Recommender System
 
 **The question:** can 700,000 product reviews tell us what each shopper likes, so we can show them products picked for them?

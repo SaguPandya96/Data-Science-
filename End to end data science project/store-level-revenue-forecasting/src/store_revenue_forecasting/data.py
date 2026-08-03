@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -33,9 +34,36 @@ class DataValidationError(ValueError):
     """Raised when source data violates the pipeline contract."""
 
 
-def download_file(url: str, destination: Path, force: bool = False) -> Path:
-    """Download a source file atomically, preserving an existing cache by default."""
+def sha256_file(path: Path) -> str:
+    """Return the SHA-256 digest of a file without loading it all into memory."""
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def verify_checksum(path: Path, expected_sha256: str | None) -> None:
+    """Fail loudly when a configured source snapshot has changed."""
+    if not expected_sha256:
+        return
+    actual = sha256_file(path)
+    if actual.lower() != expected_sha256.lower():
+        raise DataValidationError(
+            f"Checksum mismatch for {path}. Expected {expected_sha256}, found {actual}. "
+            "Remove the file or use --force-download only after reviewing the source change."
+        )
+
+
+def download_file(
+    url: str,
+    destination: Path,
+    force: bool = False,
+    expected_sha256: str | None = None,
+) -> Path:
+    """Download and checksum a source file atomically, preserving valid caches."""
     if destination.exists() and not force:
+        verify_checksum(destination, expected_sha256)
         return destination
 
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +79,12 @@ def download_file(url: str, destination: Path, force: bool = False) -> Path:
             for chunk in response.iter_content(chunk_size=1024 * 1024):
                 if chunk:
                     output.write(chunk)
-    temporary.replace(destination)
+    try:
+        verify_checksum(temporary, expected_sha256)
+        temporary.replace(destination)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
     return destination
 
 
@@ -109,12 +142,22 @@ def load_inputs(
         url = data_config.get("train_url")
         if not url:
             raise FileNotFoundError(f"No train file or train_url is available: {train_path}")
-        download_file(url, train_path, force=force_download)
+        download_file(
+            url,
+            train_path,
+            force=force_download,
+            expected_sha256=data_config.get("train_sha256"),
+        )
     if force_download or (download_if_missing and not store_path.exists()):
         url = data_config.get("store_url")
         if not url:
             raise FileNotFoundError(f"No store file or store_url is available: {store_path}")
-        download_file(url, store_path, force=force_download)
+        download_file(
+            url,
+            store_path,
+            force=force_download,
+            expected_sha256=data_config.get("store_sha256"),
+        )
 
     if not train_path.exists() or not store_path.exists():
         raise FileNotFoundError(
@@ -122,6 +165,8 @@ def load_inputs(
             f"Expected {train_path} and {store_path}."
         )
 
+    verify_checksum(train_path, data_config.get("train_sha256"))
+    verify_checksum(store_path, data_config.get("store_sha256"))
     sales, stores = read_inputs(train_path, store_path)
     return sales, stores, train_path, store_path
 

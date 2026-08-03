@@ -20,13 +20,12 @@ from .features import (
 )
 from .modeling import feature_importance, fit_candidate_models
 from .monitoring import build_monitoring_baseline
+from .reporting import save_report_figures
 from .scenarios import run_scenarios
 
 
 def _prepare_output_paths(config: dict[str, Any], project_root: Path) -> dict[str, Path]:
-    paths = {
-        name: resolve_path(project_root, value) for name, value in config["paths"].items()
-    }
+    paths = {name: resolve_path(project_root, value) for name, value in config["paths"].items()}
     for path in paths.values():
         path.mkdir(parents=True, exist_ok=True)
     return paths
@@ -50,9 +49,7 @@ def run_pipeline(
     lag_windows = [int(value) for value in config["features"]["lag_windows"]]
     featured = build_features(merged, lag_windows)
 
-    train, test, cutoff = chronological_split(
-        featured, int(config["validation"]["holdout_weeks"])
-    )
+    train, test, cutoff = chronological_split(featured, int(config["validation"]["holdout_weeks"]))
     numeric = numeric_feature_columns(lag_windows)
     categorical = list(CATEGORICAL_FEATURES)
     columns = feature_columns(lag_windows)
@@ -96,15 +93,16 @@ def run_pipeline(
     holdout["Predicted"] = predictions
     holdout_path = output_paths["processed"] / "holdout_predictions.csv"
     holdout.to_csv(holdout_path, index=False)
+    figure_paths = save_report_figures(
+        performance, scenario_summary, holdout, output_paths["figures"]
+    )
 
     store_error_path = output_paths["tables"] / "store_error.csv"
     segment_error(test, y_test, predictions, "Store").to_csv(store_error_path, index=False)
     promo_error_path = output_paths["tables"] / "promotion_error.csv"
     segment_error(test, y_test, predictions, "Promo").to_csv(promo_error_path, index=False)
     weekday_error_path = output_paths["tables"] / "day_of_week_error.csv"
-    segment_error(test, y_test, predictions, "DayOfWeek").to_csv(
-        weekday_error_path, index=False
-    )
+    segment_error(test, y_test, predictions, "DayOfWeek").to_csv(weekday_error_path, index=False)
 
     importance_path = output_paths["tables"] / "feature_importance.csv"
     feature_importance(model).to_csv(importance_path, index=False)
@@ -143,6 +141,10 @@ def run_pipeline(
         "scenario_daily": scenario_daily_path,
         "holdout_predictions": holdout_path,
         "store_error": store_error_path,
+        "promotion_error": promo_error_path,
+        "day_of_week_error": weekday_error_path,
+        "feature_importance": importance_path,
         "monitoring_baseline": monitoring_path,
         "run_metadata": metadata_path,
+        **figure_paths,
     }
