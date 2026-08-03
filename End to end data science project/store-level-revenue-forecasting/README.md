@@ -191,7 +191,3 @@ score_forecast.py        one-day-ahead scoring entry point
 - The GitHub data mirror is reproducible and checksum-pinned, but still not an approved production feed.
 
 Read [docs/MODEL_CARD.md](docs/MODEL_CARD.md) and [docs/MONITORING_AND_DEPLOYMENT.md](docs/MONITORING_AND_DEPLOYMENT.md) before using forecasts in staffing, inventory, or finance workflows.
-
-## Project history
-
-This project is the production-oriented migration of `Store_Level_Revenue_Forecasting_and_Scenario_Planning.ipynb` from the `Data-Science-Project-` repository. The original repository remains unchanged so its history and portfolio link stay valid.
