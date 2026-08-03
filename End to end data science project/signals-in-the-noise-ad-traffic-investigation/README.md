@@ -1,5 +1,7 @@
 # Signals in the Noise
 
+[![Signals in the Noise tests](https://github.com/SaguPandya96/Data-Science-/actions/workflows/signals-in-the-noise-tests.yml/badge.svg)](https://github.com/SaguPandya96/Data-Science-/actions/workflows/signals-in-the-noise-tests.yml)
+
 ### A personal investigation of unusual patterns in advertising event data
 
 I started this project with a question that sounded simple: **if a campaign suddenly looks unusual, how much evidence would I need before sending it for review?**
@@ -13,9 +15,18 @@ I ended up building two connected pieces of work:
 
 The observed-only analysis is the main investigation. The simulation is an evaluation tool, not a source of claims about the original traffic.
 
+## The short version
+
+- **Problem:** Find campaign behavior that deserves investigation without pretending that unusual traffic is automatically fraud.
+- **Approach:** Build 30-minute campaign features in SQL, learn expected clicks and conversion-linked impressions from earlier observed history, and rank the largest residual surprises. Keep a separate controlled stress test for measuring known experimental patterns.
+- **Result:** The published replay used 500,000 chronological source rows, produced 15,131 observed campaign windows, trained on 9,229, and evaluated on 5,902 later windows. At the 99th-percentile threshold, 11 windows entered the review queue. Held-out click rate was 35.00% observed versus 35.60% expected; conversion-linked impression rate was 4.82% observed versus 4.97% expected.
+- **Decision:** Use the score to prioritize a small number of cases for human review, not to block traffic. In the controlled stress test, the more complicated hybrid score did not beat the supervised baseline, so I kept that result instead of claiming complexity helped.
+
 ## The data
 
 I used the anonymized **Criteo Attribution Modeling for Bidding Dataset**. The source contains 30 days of advertising events, 16.5 million impressions, roughly 700 campaigns, clicks, conversion-linked impressions, and transformed cost fields. It does **not** contain invalid-traffic labels.
+
+The committed portfolio replay uses the first **500,000 chronological rows**, covering about **0.85 days**. The results below describe that reproducible sample, not the full 30-day population. Processing all 16.5 million impressions is the next scale test.
 
 That missing label shaped the whole project. I do not call an original row fraudulent, train a real-fraud classifier, or report detection precision on observed traffic. I ask whether outcomes were expected, document what the score can see, and stop at a review recommendation.
 
@@ -29,7 +40,7 @@ Source and license:
 
 ### 1. Get and validate the source
 
-The downloader streams a chronological sample directly from the public compressed file. It checks the schema, row count, timestamp order, basic outcome counts, and file hash. The default local run uses 500,000 rows so the project is practical to reproduce.
+The downloader streams a chronological sample directly from the public compressed file. It checks the schema, row count, timestamp order, basic outcome counts, and file hash. The default local run uses the first 500,000 rows, about 0.85 days of traffic, so the project is practical to reproduce.
 
 ### 2. Preserve observed rows
 
@@ -149,7 +160,7 @@ python -m unittest discover -s tests -v
 - `reports/model_card.md` - intended use, limits, metrics, and safeguards
 - `data/traffic.db` - local SQLite database for follow-up queries
 
-The repository includes compact reports from a 500,000-row run. Raw events, the processed feature tables, and the SQLite database remain untracked and can be recreated.
+The repository includes compact reports from a 500,000-row, 0.85-day replay. Raw events, the processed feature tables, and the SQLite database remain untracked and can be recreated. A complete 30-day replay is the next step before making any full-period performance or scale claim.
 
 ## Repository map
 
