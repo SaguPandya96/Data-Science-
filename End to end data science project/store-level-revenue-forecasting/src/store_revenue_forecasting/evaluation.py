@@ -36,9 +36,7 @@ def regression_metrics(
     return {
         "RMSE": float(np.sqrt(mean_squared_error(y_true, y_pred))),
         "MAE": float(mean_absolute_error(y_true, y_pred)),
-        "WAPE": float(np.abs(y_true - y_pred).sum() / denominator)
-        if denominator
-        else float("nan"),
+        "WAPE": float(np.abs(y_true - y_pred).sum() / denominator) if denominator else float("nan"),
         "Forecast Bias": float((y_pred - y_true).sum() / denominator)
         if denominator
         else float("nan"),
@@ -71,7 +69,7 @@ def segment_error(
         .reset_index()
     )
     summary["WAPE"] = summary["Absolute Error"] / summary["Actual Sales"].replace(0, np.nan)
-    summary["Forecast Bias"] = (
-        summary["Predicted Sales"] - summary["Actual Sales"]
-    ) / summary["Actual Sales"].replace(0, np.nan)
+    summary["Forecast Bias"] = (summary["Predicted Sales"] - summary["Actual Sales"]) / summary[
+        "Actual Sales"
+    ].replace(0, np.nan)
     return summary.drop(columns="Absolute Error").sort_values("WAPE", ascending=False)

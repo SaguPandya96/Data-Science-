@@ -8,10 +8,7 @@ from store_revenue_forecasting.scenarios import run_scenarios
 
 class ScenarioModel:
     def predict(self, features: pd.DataFrame) -> np.ndarray:
-        return (
-            features["Sales_Lag_7_RollingAvg"].to_numpy()
-            + features["Promo"].to_numpy() * 100
-        )
+        return features["Sales_Lag_7_RollingAvg"].to_numpy() + features["Promo"].to_numpy() * 100
 
 
 def test_scenarios_are_compared_with_baseline_without_mutation() -> None:

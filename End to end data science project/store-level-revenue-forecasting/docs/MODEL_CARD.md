@@ -13,6 +13,10 @@ Support daily store-level sales planning, portfolio forecast review, and sensiti
 
 The final six weeks form a chronological holdout. Metrics include RMSE, MAE, WAPE, forecast bias, and R-squared.
 
+## Verified full-data result
+
+The default XGBoost configuration trained on 970,379 rows and was evaluated on 46,830 store-days from 2015-06-20 through 2015-07-31. It achieved RMSE 973.81, MAE 630.99, WAPE 10.51%, forecast bias 1.65%, and R² 0.932. The exact reference tables are checked into `reports/reference/`.
+
 ## Important controls
 
 - customer count is excluded to avoid hindsight leakage;
@@ -31,6 +35,7 @@ The final six weeks form a chronological holdout. Metrics include RMSE, MAE, WAP
 - The target is turnover and does not include margin, costs, cannibalization, stockouts, or inventory constraints.
 - No prediction intervals are included in version 1.
 - Cold-start lag values use zero and should be replaced with a governed prior for new stores.
+- The implemented scoring contract rejects stores without history and plans containing multiple future dates.
 
 ## Out-of-scope use
 

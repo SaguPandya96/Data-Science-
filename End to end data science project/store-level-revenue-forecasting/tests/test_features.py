@@ -24,8 +24,11 @@ def test_current_target_cannot_change_current_lag(rossmann_frames) -> None:
     changed_sales.loc[target_index, "Sales"] *= 10
     changed = build_features(merge_inputs(changed_sales, stores), [7])
 
-    row_mask = original["Store"].eq("1") & original["Date"].eq(changed_sales.loc[target_index, "Date"])
-    assert original.loc[row_mask, lag_column(7)].iloc[0] == changed.loc[
-        row_mask, lag_column(7)
-    ].iloc[0]
+    row_mask = original["Store"].eq("1") & original["Date"].eq(
+        changed_sales.loc[target_index, "Date"]
+    )
+    assert (
+        original.loc[row_mask, lag_column(7)].iloc[0]
+        == changed.loc[row_mask, lag_column(7)].iloc[0]
+    )
     assert "Customers" not in [column for column in original if column.startswith("Sales_Lag_")]

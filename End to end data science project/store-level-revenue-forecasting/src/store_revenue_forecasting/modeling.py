@@ -69,7 +69,9 @@ def fit_candidate_models(
     rows: list[dict[str, float | str]] = []
 
     naive_predictions = nonnegative_predictions(x_test[naive_column])
-    rows.append({"Model": "Naive recent-demand average", **regression_metrics(y_test, naive_predictions)})
+    rows.append(
+        {"Model": "Naive recent-demand average", **regression_metrics(y_test, naive_predictions)}
+    )
 
     linear = build_pipeline(LinearRegression(), numeric_features, categorical_features)
     linear.fit(x_train, y_train)

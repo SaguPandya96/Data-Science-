@@ -6,6 +6,8 @@ data:
   store_path: data/raw/store.csv
   train_url: https://raw.githubusercontent.com/dmi3kno/Kaggle-Rossmann/master/train.csv
   store_url: https://raw.githubusercontent.com/dmi3kno/Kaggle-Rossmann/master/store.csv
+  train_sha256: f6e4597c142d7d909a13d53b68a8e85c00b9a4c7b5ff40adbb37d6829cc1f4cc
+  store_sha256: f56bd124a2849489e6bbb5c000f5fc9640204355e316475c918ae4d089afb344
   download_if_missing: true
 
 validation:
@@ -44,3 +46,4 @@ paths:
   models: models
   metrics: reports/metrics
   tables: reports/tables
+  figures: reports/figures

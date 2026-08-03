@@ -79,8 +79,7 @@ def build_features(merged: pd.DataFrame, lag_windows: Sequence[int]) -> pd.DataF
 
     frame["StateHolidayFlag"] = frame["StateHoliday"].ne("0").astype(int)
     frame["HolidayFlag"] = (
-        frame["StateHolidayFlag"].eq(1)
-        | frame["SchoolHoliday"].fillna(0).astype(int).eq(1)
+        frame["StateHolidayFlag"].eq(1) | frame["SchoolHoliday"].fillna(0).astype(int).eq(1)
     ).astype(int)
 
     grouped_sales = frame.groupby("Store", sort=False)[TARGET_COLUMN]

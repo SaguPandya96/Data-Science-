@@ -42,8 +42,18 @@ jobs:
       - name: Run sample pipeline
         run: python run_pipeline.py --config config.sample.yaml
 
+      - name: Score a future operating plan
+        run: python score_forecast.py --config config.sample.yaml --future data/sample/future.csv
+
+      - name: Check and execute the package walkthrough
+        run: |
+          python scripts/build_walkthrough_notebook.py --check
+          jupyter nbconvert --to notebook --execute notebooks/01_package_walkthrough.ipynb --output-dir /tmp --output store-revenue-walkthrough.ipynb --ExecutePreprocessor.timeout=180
+
       - name: Lint source and tests
-        run: python -m ruff check .
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
 
       - name: Run tests
         run: python -m pytest
