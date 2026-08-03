@@ -1,8 +1,6 @@
-# Sagar Pandya — Data Science, Risk Analytics and Trust & Safety
+# Data Science
 
-I investigate unusual behavior in complex data and turn the findings into practical review queues, forecasting systems, and risk controls.
-
-This repository contains my end-to-end data science projects and the study material behind them.
+End-to-end data science projects, plus the study material behind them.
 
 Every project starts from a real question, and every model is measured against a simple alternative to check it is actually adding value. Where the simple alternative wins, that is what gets published.
 
@@ -22,7 +20,7 @@ The project also includes a separate controlled stress test for concentrated cli
 
 *Technical detail:* 500,000 source rows covering the first 0.85 days; 15,131 observed campaign windows, 9,229 for training and 5,902 held out; held-out click rate 35.00% observed vs 35.60% expected, conversion-linked impression rate 4.82% observed vs 4.97% expected; 11 cases at the 99th-percentile review threshold.
 
-[Open the project](End%20to%20end%20data%20science%20project/signals-in-the-noise-ad-traffic-investigation/) · [Read the executed notebook](End%20to%20end%20data%20science%20project/signals-in-the-noise-ad-traffic-investigation/notebooks/01_observed_traffic_quality_walkthrough.ipynb) · [Read the investigation report](End%20to%20end%20data%20science%20project/signals-in-the-noise-ad-traffic-investigation/reports/observed_quality_report.md)
+[Open the project](End%20to%20end%20data%20science%20project/signals-in-the-noise-ad-traffic-investigation/)
 
 ---
 
@@ -115,4 +113,4 @@ The first version of this measurement concluded the model was fine. It used a th
 
 ## Study material
 
-[Python](Python%20For%20Data%20Science/) · [Statistics](Statistics%20for%20data%20science/) · [Feature engineering](Feature%20Engineering%20For%20Data%20Science/) · [Feature selection](Feature%20Selection%20For%20Data%20Science/) · [Machine learning](Machine%20Learning%20For%20Data%20Science/)
+Python · Statistics · Feature engineering · Feature selection · Machine learning
