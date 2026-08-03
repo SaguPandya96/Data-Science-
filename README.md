@@ -33,6 +33,7 @@ The project also includes a separate controlled stress test for concentrated cli
 Two decisions matter as much as the result. A more complex model was tested and **rejected** for not beating the simpler one by enough to justify itself. A second model predicting delivery times was **thrown out entirely** once it proved worse than just reading the supplier's promised date.
 
 *Built with:* Python, scikit-learn, calibrated probabilities, reproducible pipeline, monitoring.
+
 *Technical detail:* ROC-AUC 0.696, PR-AUC 0.166 at 10.8% prevalence; top-20% policy reviewed 296 of 1,479 shipments, captured 56 severe delays, 1.76x lift; Brier 0.096 after isotonic calibration.
 
 [Open the project](End%20to%20end%20data%20science%20project/SupplyLens/)
@@ -48,6 +49,7 @@ Two decisions matter as much as the result. A more complex model was tested and 
 I excluded customer count because it would not normally be known when the forecast is made. Promotion scenarios are model sensitivities, not causal estimates, and Rossmann `Sales` is treated as a revenue proxy rather than a documented currency or profit measure.
 
 *Built with:* Python, XGBoost, scikit-learn, time-aware validation, scenario planning, reproducible pipeline, monitoring and CI.
+
 *Technical detail:* final six-week holdout; XGBoost RMSE 966.49, MAE 630.54, WAPE 10.50%, forecast bias 2.03%, R² 0.933; seven-day baseline RMSE 3,188.93 and WAPE 36.52%.
 
 [Open the project](End%20to%20end%20data%20science%20project/store-level-revenue-forecasting/)
