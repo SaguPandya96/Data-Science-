@@ -8,6 +8,22 @@ Every project starts from a real question, and every model is measured against a
 
 ## The projects
 
+### Signals in the Noise: Advertising Traffic Investigation
+
+**The question:** when an advertising campaign suddenly looks unusual, is there enough evidence to send it for review without treating every anomaly as fraud?
+
+**The answer: this produced a useful review workflow, with an important boundary.** I modeled the click and conversion behavior each campaign was expected to show based only on its earlier history, then ranked the largest unexplained changes for human review. In a 500,000-row chronological replay, the workflow reduced 5,902 held-out campaign windows to **11 evidence-rich review cases**. It recommends investigation, not automatic enforcement, because the public data does not contain real invalid-traffic labels.
+
+The project also includes a separate controlled stress test for concentrated click bursts, low-and-slow activity, and impression floods, plus a benign popularity spike to test false alarms. The more complicated hybrid score did not beat the supervised baseline, so I did not promote it as the final model.
+
+*Built with:* Python, SQL, SQLite, NumPy, chronological validation, reproducible pipeline, automated tests and CI.
+
+*Technical detail:* 500,000 source rows covering the first 0.85 days; 15,131 observed campaign windows, 9,229 for training and 5,902 held out; held-out click rate 35.00% observed vs 35.60% expected, conversion-linked impression rate 4.82% observed vs 4.97% expected; 11 cases at the 99th-percentile review threshold.
+
+[Open the project](End%20to%20end%20data%20science%20project/signals-in-the-noise-ad-traffic-investigation/)
+
+---
+
 ### SupplyLens: Supplier Delivery Risk
 
 **The question:** a team receives far more shipments than it can possibly check. Which ones should it look at first?
@@ -81,6 +97,7 @@ The bigger finding came from testing the other half. Running ordinary, non-toxic
 The first version of this measurement concluded the model was fine. It used a threshold set to catch 95% of toxic comments, which sat so low that almost nothing was rejected and the number could barely move, and it scored only toxic examples so the false positive problem was invisible. Both mistakes are written up rather than quietly corrected.
 
 *Built with:* Python, PyTorch, Hugging Face Transformers, bootstrap confidence intervals, 46 tests.
+
 *Technical detail:* unitary/toxic-bert on 300 toxic and 300 benign civil_comments; at a 1% false positive threshold recall falls 0.780 to 0.303 under homoglyph substitution and returns to 0.780 with NFKC normalization; benign false positive rate rises 0.010 to 0.990 under character spacing, 0.960 under vowel repetition.
 
 [Open the project](End%20to%20end%20data%20science%20project/evasion-gap/)
