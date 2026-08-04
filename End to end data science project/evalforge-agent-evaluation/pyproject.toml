@@ -88,6 +88,8 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["ARG001", "ARG002"]
 "dashboard/**" = ["E402"]
+# Tool _execute methods take a ToolContext by interface contract; not every tool needs it.
+"src/evalforge/tools/*.py" = ["ARG002"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["evalforge"]

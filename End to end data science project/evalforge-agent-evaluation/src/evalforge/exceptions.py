@@ -121,3 +121,14 @@ class RegressionGateError(EvalForgeError):
     def __init__(self, violations: list[str]) -> None:
         self.violations = violations
         super().__init__("Regression gate failed:\n" + "\n".join(f"  - {v}" for v in violations))
+
+
+class ToolOutputError(ToolError):
+    """A tool produced a payload that failed its own output schema.
+
+    Modelled separately from :class:`ToolValidationError` because the remediation
+    differs: bad input is the agent's fault and retrying unchanged is pointless, while
+    a malformed backend response is worth one retry.
+    """
+
+    retryable = True
