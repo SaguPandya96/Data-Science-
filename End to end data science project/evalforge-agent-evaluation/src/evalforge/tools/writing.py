@@ -19,6 +19,12 @@ from evalforge.tools.base import BaseTool, ToolContext
 #: Sections a summary contains by default, in render order.
 DEFAULT_SECTIONS: tuple[str, ...] = ("objective", "timeline", "budget", "risks", "recommendation")
 
+#: Marker for the block that restates the user's own constraints. Excluded-topic
+#: filtering deliberately skips this block: an agent recording "do not include X" is
+#: honouring the instruction, not violating it, and filtering the block would delete the
+#: very sentence that demonstrates compliance.
+CONSTRAINT_BLOCK_PREFIX = "Risks and constraints:"
+
 
 class DraftExecutiveSummaryInput(BaseModel):
     """Arguments for ``draft_executive_summary``."""
@@ -75,8 +81,8 @@ def _section_text(name: str, plan: dict[str, Any]) -> str:
     if name == "risks":
         if constraints:
             joined = "; ".join(str(c) for c in constraints)
-            return f"Risks and constraints: the following remain in force: {joined}."
-        return "Risks and constraints: no constraints were recorded for this plan."
+            return f"{CONSTRAINT_BLOCK_PREFIX} the following remain in force: {joined}."
+        return f"{CONSTRAINT_BLOCK_PREFIX} no constraints were recorded for this plan."
     if name == "recommendation":
         return f"Recommendation: proceed with {project} as planned, subject to sponsor approval."
     return f"{name.title()}: not specified."
@@ -120,11 +126,14 @@ class DraftExecutiveSummaryTool(BaseTool[DraftExecutiveSummaryInput, DraftExecut
 
         text = "\n\n".join(parts)
 
-        # Excluded topics are removed sentence-wise rather than by deleting the token,
-        # so the output stays readable and a violation is unambiguous when it appears.
+        # Excluded topics are removed block-wise rather than by deleting the token, so
+        # the output stays readable and a violation is unambiguous when it appears. The
+        # constraint-restatement block is exempt, for the reason on CONSTRAINT_BLOCK_PREFIX.
         for topic in payload.excluded_topics:
             text = "\n\n".join(
-                block for block in text.split("\n\n") if topic.lower() not in block.lower()
+                block
+                for block in text.split("\n\n")
+                if block.startswith(CONSTRAINT_BLOCK_PREFIX) or topic.lower() not in block.lower()
             )
 
         words = text.split()
