@@ -647,6 +647,12 @@ class MockModelProvider:
             currency = remembered.get(FACT_CURRENCY, "USD")
             parts.append(f"Budget: {budget} {currency}.")
 
+        # Scenario-specific facts are restated too, so text-level and workspace-level
+        # retention checks stay independent signals rather than the same one twice.
+        for key, value in sorted(remembered.items()):
+            if key not in {FACT_PROJECT, FACT_LAUNCH, FACT_BUDGET, FACT_CURRENCY}:
+                parts.append(f"{key.replace('_', ' ').capitalize()}: {value}.")
+
         tracked = set(constraints)
         for constraint in state.scenario.constraints_active_at(state.turn.turn_index):
             if constraint.constraint_id in tracked:
