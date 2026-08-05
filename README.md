@@ -137,7 +137,7 @@ The part worth reading is what went wrong while building it. Seven genuine bugs 
 
 *Technical detail:* 150 generated scenarios across 8 failure categories at 5, 10, 15, 20 and 30 turns; reference agent 94.7% pass rate and 0 release-blocking failures vs degraded 31.3% and 155; 11 metrics beyond tolerance, Cliff's delta -0.87 on overall score; 21 deterministic checks kept separate from model-graded ones, Wilson and bootstrap intervals, Cohen's kappa and Krippendorff's alpha for human agreement.
 
-[Open the project](End%20to%20end%20data%20science%20project/evalforge-agent-evaluation/)
+[Open the project](End%20to%20end%20data%20science%20project/evalforge-agent-evaluation/) · [Try the live dashboard](https://evalforge-agent-evaluation.streamlit.app)
 
 ---
 

@@ -97,8 +97,16 @@ def run_options() -> dict[str, str]:
     if ensure_demo_data():
         list_runs.clear()
 
+    # Reference runs first, so a picker's default selection is the agent this suite is
+    # calibrated against rather than whichever run happens to sort first. Landing on the
+    # deliberately-degraded candidate makes the whole system look like it is reporting a
+    # failure, when a FAIL there is the correct and intended result.
+    def ordering(item: dict[str, Any]) -> tuple[int, str]:
+        label = (item["label"] or "").lower()
+        return (0 if label == "baseline" else 1, label)
+
     options: dict[str, str] = {}
-    for item in list_runs():
+    for item in sorted(list_runs(), key=ordering):
         label = (
             f"{item['label'] or 'run'} · {item['run_id']} · "
             f"{item['session_count']} sessions · {item['release_decision']}"

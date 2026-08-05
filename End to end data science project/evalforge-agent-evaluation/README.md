@@ -6,12 +6,15 @@
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Tests](https://img.shields.io/badge/tests-256%20passing-brightgreen)
+[![Live demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://evalforge-agent-evaluation.streamlit.app)
 
 EvalForge evaluates **complete agent sessions**, not isolated model responses. It
 generates adversarial multi-turn conversations, runs a productivity agent through them,
 records a full execution trace, and scores context retention, instruction adherence,
 tool reliability, failure recovery and prompt-injection resistance. Then it decides
 whether the agent revision is shippable.
+
+**[Try the live dashboard](https://evalforge-agent-evaluation.streamlit.app)** — it generates a small suite and evaluates two agent revisions on first load.
 
 > **Every number in this repository was produced by a deterministic simulated model.**
 > They characterise the *evaluation system*, not any language model's capability. This is
