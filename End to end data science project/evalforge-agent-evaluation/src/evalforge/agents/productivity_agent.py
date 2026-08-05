@@ -362,16 +362,19 @@ class ProductivityAgent:
         The model's ``remembered_facts`` *is* the agent's memory. Replacing rather than
         merging is the point: a fact the model no longer reports is a fact the agent has
         lost, and merging would quietly repair exactly the failure under test.
+
+        The replacement is driven by ``state_reported``, not by the dict being non-empty.
+        An empty report means "I am holding nothing" — total context loss, the most
+        severe retention failure — and treating it as "no update" would hide it entirely.
         """
-        if response.remembered_facts:
-            workspace.facts = dict(response.remembered_facts)
-        if response.active_constraints:
-            by_id = {c.constraint_id: c for c in scenario.active_constraints}
-            workspace.constraints = {
-                cid: by_id[cid] for cid in response.active_constraints if cid in by_id
-            }
-        elif response.remembered_facts:
-            workspace.constraints = {}
+        if not response.state_reported:
+            return
+
+        workspace.facts = dict(response.remembered_facts)
+        by_id = {c.constraint_id: c for c in scenario.active_constraints}
+        workspace.constraints = {
+            cid: by_id[cid] for cid in response.active_constraints if cid in by_id
+        }
 
     def _apply_turn_grants(
         self, turn: ConversationTurn, workspace: Workspace, scenario: Scenario

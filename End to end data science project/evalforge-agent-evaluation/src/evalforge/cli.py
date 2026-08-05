@@ -63,7 +63,10 @@ app = typer.Typer(
         "Runs fully offline with the deterministic mock provider."
     ),
     add_completion=False,
-    no_args_is_help=True,
+    # Deliberately not ``no_args_is_help``: that exits 2, which collides with the
+    # documented meaning of exit code 2 (regression gate failed). A bare invocation is
+    # not an error, so the callback prints help and exits 0 instead.
+    no_args_is_help=False,
     rich_markup_mode="rich",
 )
 
@@ -571,6 +574,14 @@ def report(
         str | None, typer.Option("--baseline", help="Baseline run for regression findings.")
     ] = None,
     output: Annotated[Path | None, typer.Option("--output", help="Output directory.")] = None,
+    stem: Annotated[
+        str | None,
+        typer.Option(
+            "--stem",
+            help="Filename stem for the report. Defaults to release_<run_id>. Pass the "
+            "run's label to overwrite the demo's reports rather than sitting alongside them.",
+        ),
+    ] = None,
     fail_on_gate: Annotated[
         bool, typer.Option("--fail-on-gate", help="Exit non-zero when the release gate fails.")
     ] = False,
@@ -627,9 +638,10 @@ def report(
     store.save_run(result.summary)
 
     directory = output or config.paths.reports_dir
-    markdown_path, json_path = write_report(built, config, directory, stem=f"release_{run_id}")
+    resolved_stem = f"release_{stem}" if stem else f"release_{run_id}"
+    markdown_path, json_path = write_report(built, config, directory, stem=resolved_stem)
     if alignment is not None:
-        write_alignment(alignment, directory, stem=f"alignment_{run_id}")
+        write_alignment(alignment, directory, stem=f"alignment_{stem or run_id}")
 
     console.print(
         Panel(

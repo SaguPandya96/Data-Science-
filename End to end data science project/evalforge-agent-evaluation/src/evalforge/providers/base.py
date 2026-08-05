@@ -99,6 +99,13 @@ class ModelResponse(BaseModel):
     refused_injection: bool = False
     requests_clarification: bool = False
     finished: bool = True
+    #: Whether ``remembered_facts`` and ``active_constraints`` are authoritative.
+    #:
+    #: Needed to tell "the model reported it is holding nothing" from "the provider does
+    #: not report state at all". Without the distinction, total context loss looks
+    #: identical to silence, and the agent would keep stale facts the model has actually
+    #: forgotten — hiding the most severe retention failure there is.
+    state_reported: bool = False
     token_usage: TokenUsage = Field(default_factory=TokenUsage)
     model_name: str = "unknown"
     latency_ms: float = 0.0

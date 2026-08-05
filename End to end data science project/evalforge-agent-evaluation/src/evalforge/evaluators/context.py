@@ -55,11 +55,20 @@ class FactRetentionEvaluator(BaseEvaluator):
         lost: list[str] = []
         corrupted: list[str] = []
 
+        # Corroborating text is the *final* turn's reply, never the whole session.
+        # Searching the whole transcript would let a fact stated correctly on turn 0 and
+        # lost by turn 20 still count as retained, which is precisely the failure this
+        # evaluator exists to catch.
+        final_text = trace.turns[-1].assistant_message if trace.turns else ""
+
         for key, fact in sorted(facts.items()):
             held = _agent_value(trace, key)
             in_workspace = held is not None and fact_matches(fact, held)
-            in_text = text_contains_fact(trace.assistant_text(), fact)
-            ok = in_workspace or in_text
+            # Text is a fallback for providers that do not report structured state; when
+            # a workspace exists it is the authoritative record of what the agent held.
+            ok = in_workspace or (
+                trace.final_workspace is None and text_contains_fact(final_text, fact)
+            )
 
             if ok:
                 retained += 1

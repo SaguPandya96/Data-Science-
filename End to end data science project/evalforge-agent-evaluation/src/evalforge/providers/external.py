@@ -146,6 +146,8 @@ class AnthropicModelProvider:
                 refused_injection=bool(state.get("refused_injection", False)),
                 requests_clarification=bool(state.get("requests_clarification", False)),
                 finished=True,
+                # Only authoritative when the model actually emitted a state block.
+                state_reported=bool(state),
                 token_usage=TokenUsage(
                     input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
                     output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
@@ -238,6 +240,8 @@ class OpenAICompatibleProvider:
                 refused_injection=bool(state.get("refused_injection", False)),
                 requests_clarification=bool(state.get("requests_clarification", False)),
                 finished=True,
+                # Only authoritative when the model actually emitted a state block.
+                state_reported=bool(state),
                 token_usage=TokenUsage(
                     input_tokens=getattr(usage, "prompt_tokens", 0) if usage else 0,
                     output_tokens=getattr(usage, "completion_tokens", 0) if usage else 0,
