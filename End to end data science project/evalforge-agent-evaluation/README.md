@@ -239,8 +239,10 @@ evalforge dashboard
 ```
 
 The dashboard also deploys as-is to Streamlit Community Cloud. Point it at
-`End to end data science project/evalforge-agent-evaluation/dashboard/app.py`; the
-dependencies beside that file are what Cloud installs.
+`End to end data science project/evalforge-agent-evaluation/dashboard/app.py`. Its
+dependencies live in `requirements.txt` at the *repository root*, not beside the app:
+Streamlit Cloud passes that path to pip unquoted, and every project here sits under a
+directory whose name contains spaces, which pip parses as separate arguments.
 
 Run data is regenerable from a seed and therefore not committed, so a fresh deployment
 has nothing to show. Rather than commit a fossilised database, the app generates a small

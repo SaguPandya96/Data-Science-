@@ -1,0 +1,32 @@
+# Dependencies for the hosted EvalForge dashboard (Streamlit Community Cloud).
+#
+# This lives at the repository root rather than beside the app because Streamlit Cloud
+# passes the requirements path to pip unquoted. Every project in this repository sits
+# under "End to end data science project/", and the spaces in that path get split into
+# separate arguments, so pip fails with "Invalid requirement". The repository root is the
+# only location with no spaces in its path.
+#
+# It mirrors the runtime dependencies in
+# "End to end data science project/evalforge-agent-evaluation/pyproject.toml" plus the
+# dashboard extra. The package itself is not installed; dashboard/data_access.py puts
+# src/ on sys.path so a bare clone works without a build step.
+#
+# Every other project in this repository keeps its own requirements.txt in its own
+# directory and is unaffected by this file.
+#
+# For local development, install the package properly instead:
+#     cd "End to end data science project/evalforge-agent-evaluation"
+#     pip install -e ".[dev,dashboard]"
+
+pydantic>=2.7,<3
+typer>=0.12,<1
+rich>=13.7
+pandas>=2.2
+numpy>=1.26
+scipy>=1.12
+scikit-learn>=1.4
+PyYAML>=6.0
+Jinja2>=3.1
+structlog>=24.1
+streamlit>=1.35
+altair>=5.3
