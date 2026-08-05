@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field
 
 from evalforge.schemas.common import (
     Dimension,
@@ -91,7 +91,9 @@ class EvaluationResult(BaseModel):
     created_at: datetime = Field(default_factory=_utc_now)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    @computed_field  # type: ignore[prop-decorator]
+    # A plain property, deliberately not a computed_field. A computed field would be
+    # written into model_dump_json() and then rejected on read by extra="forbid",
+    # making every persisted result unloadable. It is cheaply re-derived anyway.
     @property
     def is_critical_failure(self) -> bool:
         """Whether this result alone blocks release.

@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field
 
 from evalforge.schemas.common import EventType, InjectedFailureType, ToolName
 
@@ -28,7 +28,8 @@ class TokenUsage(BaseModel):
     input_tokens: int = Field(default=0, ge=0)
     output_tokens: int = Field(default=0, ge=0)
 
-    @computed_field  # type: ignore[prop-decorator]
+    # A plain property, not a computed_field: a computed field would be serialised and
+    # then rejected on read by extra="forbid", making stored traces unloadable.
     @property
     def total_tokens(self) -> int:
         """Sum of input and output tokens."""

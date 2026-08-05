@@ -68,8 +68,12 @@ app = typer.Typer(
 )
 
 
-def _bootstrap(log_level: str = "INFO") -> EvalForgeConfig:
+def _bootstrap(log_level: str | None = None) -> EvalForgeConfig:
     """Load configuration and configure logging.
+
+    The level comes from the configuration (and therefore from ``EVALFORGE_LOG_LEVEL``)
+    unless a caller overrides it, so ``EVALFORGE_LOG_LEVEL=ERROR evalforge demo``
+    actually quietens the run.
 
     Raises:
         typer.Exit: With :data:`EXIT_USER_ERROR` if the configuration is invalid.
@@ -79,7 +83,7 @@ def _bootstrap(log_level: str = "INFO") -> EvalForgeConfig:
     except EvalForgeError as exc:
         console.print(f"[red]Configuration error:[/red] {exc}")
         raise typer.Exit(EXIT_USER_ERROR) from exc
-    configure_logging(log_level, config.logging.format)
+    configure_logging(log_level or config.logging.level, config.logging.format)
     config.paths.ensure()
     return config
 
