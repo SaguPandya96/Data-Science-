@@ -73,6 +73,34 @@ class TestFullRun:
         ]
         assert first.critical_failure_count == second.critical_failure_count
 
+    def test_stored_decision_matches_the_report(
+        self, suite: list[Scenario], config: EvalForgeConfig, store: RunStore
+    ) -> None:
+        """The run summary's verdict must equal what the release report computes.
+
+        These were two independent code paths, and the stored one was a hardcoded FAIL
+        that only became correct if `evalforge report` happened to run afterwards. Any
+        reader of the store directly, the dashboard and `evalforge runs`, showed a
+        passing agent as failing.
+        """
+        from evalforge.reporting.release_readiness import build_report
+
+        result = run_evaluation(suite, config, store, label="baseline", profile="baseline")
+        report = build_report(
+            result.summary, result.metrics, result.session_summaries, result.results, config
+        )
+
+        assert result.summary.release_decision is report.decision
+        assert store.get_run(result.run_id).release_decision is report.decision
+
+    def test_a_clean_run_is_not_stored_as_failed(
+        self, suite: list[Scenario], config: EvalForgeConfig, store: RunStore
+    ) -> None:
+        """A baseline with no blocking failure must not be recorded as FAIL."""
+        result = run_evaluation(suite, config, store, label="baseline", profile="baseline")
+        assert result.critical_failure_count == 0
+        assert result.summary.release_decision is not ReleaseDecision.FAIL
+
     def test_reevaluation_needs_no_agent_rerun(
         self, suite: list[Scenario], config: EvalForgeConfig, store: RunStore
     ) -> None:

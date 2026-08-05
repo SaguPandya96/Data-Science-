@@ -9,10 +9,19 @@ implementation that quietly drifts.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import streamlit as st
+
+# Make the package importable from a bare checkout. Locally EvalForge is pip-installed,
+# but a hosted deploy (Streamlit Community Cloud) only clones the repository and installs
+# requirements.txt, so `src/` has to be put on the path before the imports below.
+_SRC = Path(__file__).resolve().parent.parent / "src"
+if _SRC.is_dir() and str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
 from evalforge.analytics.alignment import build_alignment_report
 from evalforge.analytics.metrics import RunMetrics, compute_metrics, failure_examples
@@ -37,6 +46,42 @@ def get_store() -> RunStore:
     return RunStore(config.paths.runs, config.storage.database_name)
 
 
+#: Scenarios generated when bootstrapping an empty store. Small on purpose: a hosted
+#: demo has to finish inside a page load, and the point is to show the pipeline working,
+#: not to reproduce the 150-scenario figures quoted in the README.
+BOOTSTRAP_SCENARIOS = 24
+
+
+@st.cache_resource(show_spinner=False)
+def ensure_demo_data() -> bool:
+    """Generate a small baseline/candidate pair if the store is empty.
+
+    Run data is regenerable from a seed and therefore deliberately not committed, which
+    leaves a fresh clone with nothing to display. Rather than ship a fossilised database,
+    the app builds its own on first load. Cached as a resource so it happens once per
+    server process, not once per page view.
+
+    Returns:
+        True if data was generated, False if the store already had runs.
+    """
+    store = get_store()
+    if store.list_runs():
+        return False
+
+    from evalforge.orchestration.pipeline import run_evaluation
+    from evalforge.scenarios.generator import generate_scenarios
+
+    config = get_config()
+    with st.spinner(
+        f"First load: generating {BOOTSTRAP_SCENARIOS} adversarial scenarios and "
+        "evaluating two agent revisions. This runs once and takes about a minute."
+    ):
+        scenarios = generate_scenarios(count=BOOTSTRAP_SCENARIOS, seed=42, config=config)
+        for label, profile in (("baseline", "baseline"), ("candidate", "candidate")):
+            run_evaluation(scenarios, config, store, label=label, profile=profile)
+    return True
+
+
 @st.cache_data(ttl=30)
 def list_runs() -> list[dict[str, Any]]:
     """Every stored run as plain dicts, so Streamlit can cache them."""
@@ -44,7 +89,14 @@ def list_runs() -> list[dict[str, Any]]:
 
 
 def run_options() -> dict[str, str]:
-    """``{display_label: run_id}`` for run pickers."""
+    """``{display_label: run_id}`` for run pickers.
+
+    Bootstraps demo data first, so landing directly on any page works rather than only
+    the overview. Every page reaches the store through here.
+    """
+    if ensure_demo_data():
+        list_runs.clear()
+
     options: dict[str, str] = {}
     for item in list_runs():
         label = (

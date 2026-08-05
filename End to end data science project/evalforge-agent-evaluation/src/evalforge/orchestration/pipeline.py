@@ -23,7 +23,7 @@ from evalforge.evaluators.registry import build_evaluators, evaluate_session
 from evalforge.ids import stable_id
 from evalforge.logging_config import bind_run_context, clear_run_context, get_logger
 from evalforge.providers.registry import build_provider
-from evalforge.schemas.common import ReleaseDecision
+from evalforge.reporting.release_readiness import decide_release, evaluate_thresholds
 from evalforge.schemas.evaluation import EvaluationResult, RunSummary, SessionSummary
 from evalforge.schemas.scenario import Scenario
 from evalforge.schemas.trace import SessionTrace
@@ -151,6 +151,14 @@ def run_evaluation(
 
     metrics = compute_metrics(resolved_run_id, session_summaries, all_results, seed=seed)
 
+    # Decide the release verdict here rather than defaulting it. Storing a placeholder
+    # and only correcting it when `evalforge report` happens to run left every freshly
+    # completed run recorded as FAIL, so anything reading the store directly (the
+    # dashboard, `evalforge runs`) reported a passing agent as failing. The report
+    # command calls the same two functions, so the two can no longer disagree.
+    threshold_checks = evaluate_thresholds(metrics, config)
+    decision, _ = decide_release(threshold_checks, int(metrics.get("critical_failures")))
+
     run_summary = RunSummary(
         run_id=resolved_run_id,
         label=label,
@@ -163,7 +171,7 @@ def run_evaluation(
         completed_at=datetime.now(UTC),
         session_count=len(session_summaries),
         metrics=dict(metrics.scalars),
-        release_decision=ReleaseDecision.FAIL,
+        release_decision=decision,
         config_digest=config.digest,
         metadata={
             "profile": profile,

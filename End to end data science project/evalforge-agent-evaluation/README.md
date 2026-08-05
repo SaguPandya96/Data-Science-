@@ -238,6 +238,15 @@ evalforge demo                                  # the whole demonstration
 evalforge dashboard
 ```
 
+The dashboard also deploys as-is to Streamlit Community Cloud. Point it at
+`End to end data science project/evalforge-agent-evaluation/dashboard/app.py`; the
+dependencies beside that file are what Cloud installs.
+
+Run data is regenerable from a seed and therefore not committed, so a fresh deployment
+has nothing to show. Rather than commit a fossilised database, the app generates a small
+suite (24 scenarios, two agent revisions) on first load and caches it for the life of the
+server process. Expect roughly a minute on a cold start and instant loads afterwards.
+
 | Page | Shows |
 |---|---|
 | **Overview** | Score, pass rate, critical failures, release decision, versions, length curve |
