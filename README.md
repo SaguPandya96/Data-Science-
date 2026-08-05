@@ -121,11 +121,31 @@ The first version of this measurement concluded the model was fine. It used a th
 
 ---
 
+### EvalForge: Evaluating Multi-Turn AI Agents
+
+**The question:** an AI assistant holds a conversation, remembers what you told it, and uses tools on your behalf. The usual way of testing one scores a single reply at a time. How do you catch the mistakes that only appear across a whole conversation?
+
+**The answer: this is a tool rather than a finding, and the honest caveat comes first.** Every number it reports here was produced by a deliberately simulated agent, not a real language model. The results measure whether the evaluation system works, not whether any AI is good.
+
+The mistakes it looks for are the ones a single-reply test cannot see. A budget mentioned in the first message and needed in the fourteenth. An instruction given once that has to hold for the rest of the conversation. A wrong figure picked up early that quietly corrupts a summary later. An assistant that sends an email because a document it read told it to.
+
+To show it works, the project runs two versions of the same assistant: a reliable one and one deliberately built to lose track of things. The reliable one passes **94.7%** of 150 adversarial conversations with no serious failures. The degraded one passes **31.3%**, with **155** failures serious enough to block release on their own, and the comparison step exits with an error so it would stop a real deployment pipeline.
+
+The part worth reading is what went wrong while building it. Seven genuine bugs surfaced in the checks themselves, and **three of them made the system report better results than reality**. The worst searched the entire conversation for a fact before deciding whether the assistant had remembered it, so a fact stated at the start and forgotten by the end still counted as remembered. That is precisely the failure the check existed to catch. All seven are written up rather than quietly fixed.
+
+*Built with:* Python, Pydantic, Streamlit, SQLite, seeded determinism, 255 automated tests and CI.
+
+*Technical detail:* 150 generated scenarios across 8 failure categories at 5, 10, 15, 20 and 30 turns; reference agent 94.7% pass rate and 0 release-blocking failures vs degraded 31.3% and 155; 11 metrics beyond tolerance, Cliff's delta -0.87 on overall score; 21 deterministic checks kept separate from model-graded ones, Wilson and bootstrap intervals, Cohen's kappa and Krippendorff's alpha for human agreement.
+
+[Open the project](End%20to%20end%20data%20science%20project/evalforge-agent-evaluation/)
+
+---
+
 ## How these were built
 
 - **Always compare against something simple.** Best-sellers, a coin flip, the supplier's promised date. A number means nothing on its own.
 - **Test the way the real world works.** Train on the past, predict the future, never the reverse.
-- **Question the test itself.** In the Amazon project the evaluation method turned out to be biased, which changed the conclusion.
+- **Question the test itself.** In the Amazon project the evaluation method turned out to be biased, which changed the conclusion. In EvalForge, three of the checks were quietly reporting better results than reality until they were tested against a case with a known answer.
 - **Publish what came out.** Reporting that a sophisticated approach did not help is more useful than tuning until it looks good.
 
 ## Study material
