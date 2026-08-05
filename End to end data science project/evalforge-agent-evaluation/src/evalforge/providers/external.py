@@ -203,6 +203,29 @@ def _retry_after_seconds(error: Exception) -> float | None:
     return None
 
 
+def _is_permanent(error: Exception) -> bool:
+    """Whether retrying this error can never succeed.
+
+    A request that exceeds the model's context window is the same size on every attempt,
+    so retrying wastes the budget and delays the inevitable. Authentication and malformed
+    requests are equally hopeless. Distinguishing these from rate limits matters because
+    the caller's response differs: a permanent error should end the session immediately.
+    """
+    text = str(error).lower()
+    return any(
+        marker in text
+        for marker in (
+            "413",
+            "context_length_exceeded",
+            "request too large",
+            "too large",
+            "401",
+            "invalid_api_key",
+            "authentication",
+        )
+    )
+
+
 def _backoff(attempt: int, error: Exception | None = None) -> None:
     """Wait before retrying, preferring the server's own advice.
 
@@ -300,6 +323,8 @@ class AnthropicModelProvider:
             except Exception as exc:  # SDK raises a wide family of transport errors
                 last_error = exc
                 logger.warning("anthropic_request_failed", attempt=attempt, error=str(exc))
+                if _is_permanent(exc):
+                    raise ProviderResponseError(f"Anthropic request failed: {exc}") from exc
                 _backoff(attempt, exc)
                 continue
 
@@ -400,6 +425,8 @@ class OpenAICompatibleProvider:
             except Exception as exc:  # SDK raises a wide family of transport errors
                 last_error = exc
                 logger.warning("openai_request_failed", attempt=attempt, error=str(exc))
+                if _is_permanent(exc):
+                    raise ProviderResponseError(f"OpenAI-compatible request failed: {exc}") from exc
                 _backoff(attempt, exc)
                 continue
 

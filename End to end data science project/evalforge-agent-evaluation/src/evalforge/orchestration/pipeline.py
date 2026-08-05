@@ -74,6 +74,34 @@ def make_run_id(label: str, seed: int, suite_id: str, profile: str) -> str:
     return stable_id("run", label, seed, suite_id, profile)
 
 
+def _aborted_session(
+    run_id: str, scenario: Scenario, error: Exception, store: RunStore
+) -> SessionSummary:
+    """Record a scenario that could not be executed as a failed session.
+
+    Scored zero rather than omitted. An absent session would quietly shrink the
+    denominator and inflate every rate in the report, which is the wrong direction for
+    an evaluation system to be wrong in.
+    """
+    summary = SessionSummary(
+        run_id=run_id,
+        session_id=stable_id("ses", run_id, scenario.scenario_id),
+        scenario_id=scenario.scenario_id,
+        scenario_category=scenario.category.value,
+        scenario_difficulty=scenario.difficulty.value,
+        turn_count=scenario.turn_count,
+        overall_score=0.0,
+        passed=False,
+        metadata={
+            "aborted": True,
+            "error_type": type(error).__name__,
+            "error": str(error)[:500],
+        },
+    )
+    store.save_session(summary)
+    return summary
+
+
 def run_evaluation(
     scenarios: list[Scenario],
     config: EvalForgeConfig,
@@ -128,7 +156,26 @@ def run_evaluation(
     )
 
     for index, scenario in enumerate(scenarios, start=1):
-        outcome = agent.run(scenario)
+        try:
+            outcome = agent.run(scenario)
+        except Exception as exc:
+            # One scenario must never take down a run. A real model can exceed its
+            # context window on a long conversation, or return something a tool cannot
+            # digest, and losing every other completed session to that is a far worse
+            # outcome than recording this one as failed. The session is scored zero and
+            # the reason is preserved, so an aborted scenario is visible in the report
+            # rather than silently absent from it.
+            logger.warning(
+                "scenario_aborted",
+                scenario_id=scenario.scenario_id,
+                error_type=type(exc).__name__,
+                error=str(exc)[:200],
+            )
+            session_summaries.append(_aborted_session(resolved_run_id, scenario, exc, store))
+            if progress:
+                progress(index, len(scenarios), scenario.scenario_id)
+            continue
+
         trace = outcome.trace
 
         # Trace first, index second: an orphaned trace is recoverable, an index row
