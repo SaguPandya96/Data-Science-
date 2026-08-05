@@ -95,7 +95,10 @@ ignore = [
 known-first-party = ["evalforge"]
 
 [tool.mypy]
-python_version = "3.11"
+# python_version is deliberately NOT pinned. Pinning it to 3.11 made mypy analyse the
+# *installed* dependencies' stubs under 3.11 rules even when running on 3.12, and numpy's
+# stubs use 3.12 `type` statements. Letting mypy follow the running interpreter is both
+# correct and what the CI matrix is actually testing.
 mypy_path = "src"
 packages = ["evalforge"]
 disallow_untyped_defs = true
@@ -125,6 +128,10 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
+# Puts the project root on sys.path so `from tests.conftest import ...` resolves.
+# Without it, `python -m pytest` works (it adds the CWD) but the bare `pytest` binary
+# does not — which is exactly how CI invokes it.
+pythonpath = ["."]
 addopts = "-q --strict-markers"
 markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
