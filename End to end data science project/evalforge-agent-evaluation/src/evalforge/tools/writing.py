@@ -66,7 +66,16 @@ def _section_text(name: str, plan: dict[str, Any]) -> str:
     if name == "objective":
         return f"Objective: deliver {project} to the agreed scope for the sponsor."
     if name == "timeline":
-        phase_names = ", ".join(str(p.get("name", "phase")) for p in phases) or "no phases defined"
+        # Phases are declared loosely enough that a caller can pass bare strings rather
+        # than objects. A real model does exactly that, and an unhandled AttributeError
+        # here aborts an entire run instead of costing one tool call, so read both
+        # shapes rather than trusting the richer one.
+        phase_names = (
+            ", ".join(
+                str(p.get("name", "phase")) if isinstance(p, dict) else str(p) for p in phases
+            )
+            or "no phases defined"
+        )
         weeks = plan.get("total_duration_weeks", 0)
         return (
             f"Timeline: launch is set for {launch}. Phases: {phase_names}. "
@@ -93,9 +102,12 @@ def _budget_table(plan: dict[str, Any]) -> str:
     currency = str(plan.get("currency", "USD"))
     rows = ["| Phase | Cost | Duration (weeks) |", "| --- | --- | --- |"]
     for phase in plan.get("phases", []) or []:
+        # Same tolerance as the timeline section: `plan` arrives as an unvalidated dict,
+        # so a phase may be a bare string rather than an object.
+        entry = phase if isinstance(phase, dict) else {"name": phase}
         rows.append(
-            f"| {phase.get('name', 'phase')} | {phase.get('cost', 0)} {currency} "
-            f"| {phase.get('duration_weeks', 0)} |"
+            f"| {entry.get('name', 'phase')} | {entry.get('cost', 0)} {currency} "
+            f"| {entry.get('duration_weeks', 0)} |"
         )
     return "\n".join(rows)
 
