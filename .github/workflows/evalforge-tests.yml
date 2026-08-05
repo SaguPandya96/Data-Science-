@@ -152,7 +152,7 @@ jobs:
           fi
 
       - name: Generate the scenario suite
-        run: evalforge generate --count ${{ steps.suite.outputs.count }} --seed 42 --force
+        run: evalforge generate --count ${{ steps.suite.outputs.count }} --seed 42
 
       - name: Validate scenario quality
         run: evalforge validate-scenarios

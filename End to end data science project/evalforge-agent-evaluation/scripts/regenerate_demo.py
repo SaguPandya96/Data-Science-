@@ -109,7 +109,12 @@ def main() -> int:
         runs = {item.label: item.run_id for item in store.list_runs()}
         baseline = runs.get("baseline")
         for label, run_id in runs.items():
-            command = [python, "-m", "evalforge.cli", "report", "--run-id", run_id]
+            # --stem writes over the demo's own report files rather than leaving a
+            # second, run-id-named copy of every report beside them.
+            command = [
+                python, "-m", "evalforge.cli", "report",
+                "--run-id", run_id, "--stem", label,
+            ]  # fmt: skip
             if label == "candidate" and baseline:
                 command += ["--baseline", baseline]
             _run(command)

@@ -433,10 +433,17 @@ def load_config(
     base["release"] = _read_yaml(directory / "release_thresholds.yaml")
     base["failure_injection"] = _read_yaml(directory / "failure_injection.yaml")
 
-    data_dir_env = os.environ.get("EVALFORGE_DATA_DIR")
     paths_payload: dict[str, Any] = {"config_dir": directory}
+    data_dir_env = os.environ.get("EVALFORGE_DATA_DIR")
+    reports_dir_env = os.environ.get("EVALFORGE_REPORTS_DIR")
     if data_dir_env:
         paths_payload["data_dir"] = Path(data_dir_env)
+        # Reports follow the data directory unless overridden. Without this, redirecting
+        # only the data directory leaves reports writing to the real project folder —
+        # which meant CLI tests were quietly polluting committed artifacts.
+        paths_payload["reports_dir"] = Path(data_dir_env).parent / "reports"
+    if reports_dir_env:
+        paths_payload["reports_dir"] = Path(reports_dir_env)
     base["paths"] = paths_payload
 
     merged = _deep_merge(base, _env_overrides())

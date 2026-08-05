@@ -76,15 +76,32 @@ class TestCliWorkflow:
 
     @pytest.fixture
     def workspace(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-        """Point EvalForge at a temporary data directory."""
+        """Point EvalForge at a temporary data *and* reports directory.
+
+        Both are redirected: writing reports into the real project folder would have
+        these tests silently modify committed artifacts.
+        """
         monkeypatch.setenv("EVALFORGE_DATA_DIR", str(tmp_path / "data"))
+        monkeypatch.setenv("EVALFORGE_REPORTS_DIR", str(tmp_path / "reports"))
         from evalforge.config import clear_config_cache
 
         clear_config_cache()
         return tmp_path
 
+    def test_reports_are_written_inside_the_workspace(self, workspace: Path) -> None:
+        """Guards the isolation the other CLI tests depend on."""
+        from evalforge.config import load_config
+
+        config = load_config()
+        assert workspace in config.paths.reports_dir.parents or (
+            config.paths.reports_dir == workspace / "reports"
+        )
+        assert workspace in config.paths.data_dir.parents or (
+            config.paths.data_dir == workspace / "data"
+        )
+
     def test_generate_and_validate(self, workspace: Path) -> None:
-        generated = runner.invoke(app, ["generate", "--count", "16", "--seed", "42", "--force"])
+        generated = runner.invoke(app, ["generate", "--count", "16", "--seed", "42"])
         assert generated.exit_code == 0, generated.output
         assert "16 scenarios" in generated.output
 
@@ -93,7 +110,7 @@ class TestCliWorkflow:
         assert "All scenarios valid" in validated.output
 
     def test_run_report_and_compare(self, workspace: Path) -> None:
-        assert runner.invoke(app, ["generate", "--count", "16", "--force"]).exit_code == 0
+        assert runner.invoke(app, ["generate", "--count", "16"]).exit_code == 0
 
         baseline = runner.invoke(app, ["run", "--label", "baseline", "--profile", "baseline"])
         assert baseline.exit_code == 0, baseline.output
@@ -141,7 +158,7 @@ class TestCliWorkflow:
         assert "Exported" in exported.output
 
     def test_inspect_drills_into_a_session(self, workspace: Path) -> None:
-        assert runner.invoke(app, ["generate", "--count", "16", "--force"]).exit_code == 0
+        assert runner.invoke(app, ["generate", "--count", "16"]).exit_code == 0
         assert runner.invoke(app, ["run", "--label", "baseline"]).exit_code == 0
 
         from evalforge.config import load_config

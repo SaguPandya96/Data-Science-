@@ -141,18 +141,27 @@ def generate(
     count: Annotated[int, typer.Option("--count", "-n", help="Scenarios to generate.")] = 150,
     seed: Annotated[int, typer.Option("--seed", "-s", help="Master seed.")] = 42,
     suite: Annotated[str, typer.Option("--suite", help="Suite name.")] = "core",
-    force: Annotated[
-        bool, typer.Option("--force", help="Overwrite an existing suite of this name.")
+    no_overwrite: Annotated[
+        bool,
+        typer.Option(
+            "--no-overwrite",
+            help="Fail instead of replacing an existing suite of this name.",
+        ),
     ] = False,
 ) -> None:
-    """Generate a deterministic adversarial scenario suite."""
+    """Generate a deterministic adversarial scenario suite.
+
+    Regenerating overwrites by default. That is safe because generation is fully
+    determined by ``--seed``: the same seed always reproduces the same suite, so
+    re-running the command is idempotent rather than destructive.
+    """
     config = _bootstrap()
     if count < 8:
         _fail("--count must be at least 8 so every category is represented.")
 
     directory = config.paths.generated_scenarios
-    if suite_exists(directory, suite) and not force:
-        _fail(f"Suite {suite!r} already exists. Pass --force to regenerate it.")
+    if suite_exists(directory, suite) and no_overwrite:
+        _fail(f"Suite {suite!r} already exists and --no-overwrite was given.")
 
     with console.status(f"Generating {count} scenarios (seed {seed})..."):
         built = generate_suite(count=count, seed=seed, config=config, name=suite)
