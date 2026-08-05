@@ -5,7 +5,7 @@
 [![EvalForge](https://github.com/SaguPandya96/Data-Science-/actions/workflows/evalforge-tests.yml/badge.svg)](https://github.com/SaguPandya96/Data-Science-/actions/workflows/evalforge-tests.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-255%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-256%20passing-brightgreen)
 
 EvalForge evaluates **complete agent sessions**, not isolated model responses. It
 generates adversarial multi-turn conversations, runs a productivity agent through them,
@@ -391,7 +391,7 @@ evalforge-agent-evaluation/
 
 ```bash
 make check          # lint + types + full suite, everything CI runs
-pytest -q           # 255 tests
+pytest -q           # 256 tests
 pytest tests/unit -q
 pytest tests/integration -q
 pytest tests/regression -q
