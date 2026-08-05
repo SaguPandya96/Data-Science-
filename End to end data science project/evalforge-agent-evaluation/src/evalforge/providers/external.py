@@ -13,8 +13,10 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import time
-from typing import Any
+from collections.abc import Sequence
+from typing import Any, cast
 
 from evalforge.exceptions import ProviderResponseError, ProviderUnavailableError
 from evalforge.logging_config import get_logger
@@ -23,6 +25,10 @@ from evalforge.schemas.common import ToolName
 from evalforge.schemas.trace import TokenUsage
 
 logger = get_logger(__name__)
+
+#: Retry backoff, seconds. Free-tier keys rate-limit hard, so the first retry waits.
+_BACKOFF_BASE_SECONDS = 2.0
+_BACKOFF_MAX_SECONDS = 30.0
 
 #: Instruction appended to the system prompt so an external model emits the structured
 #: state EvalForge's trace needs. Without it, remembered facts cannot be observed
@@ -71,6 +77,42 @@ def _strip_state_block(text: str) -> str:
     return text.strip()
 
 
+def _backoff(attempt: int) -> None:
+    """Sleep before retrying, with exponential growth and jitter.
+
+    Retrying instantly is worse than not retrying at all: a rate-limited request burns
+    every attempt inside a few milliseconds and then fails, which is precisely what a
+    free-tier key does. Jitter stops concurrent sessions retrying in lockstep.
+    """
+    delay = min(_BACKOFF_BASE_SECONDS * (2**attempt), _BACKOFF_MAX_SECONDS)
+    time.sleep(delay + random.uniform(0, delay * 0.25))
+
+
+def _alternating(messages: Sequence[Any]) -> list[dict[str, str]]:
+    """Normalise a transcript into strictly alternating user/assistant messages.
+
+    The Messages API rejects consecutive messages sharing a role and requires the first
+    to be ``user``. EvalForge transcripts satisfy neither by construction: one turn can
+    contribute a user message and then tool results also carried as user content.
+    Same-role neighbours are merged rather than dropped, so no context is lost.
+    """
+    normalised: list[dict[str, str]] = []
+    for message in messages:
+        content = getattr(message, "content", "")
+        if not content:
+            continue
+        role = "assistant" if message.role == "assistant" else "user"
+        if normalised and normalised[-1]["role"] == role:
+            normalised[-1]["content"] += "\n\n" + content
+        else:
+            normalised.append({"role": role, "content": content})
+
+    # A leading assistant message is not a valid conversation opener.
+    while normalised and normalised[0]["role"] == "assistant":
+        normalised.pop(0)
+    return normalised
+
+
 class AnthropicModelProvider:
     """Anthropic Messages API provider. Requires ``ANTHROPIC_API_KEY``."""
 
@@ -108,11 +150,7 @@ class AnthropicModelProvider:
         Raises:
             ProviderResponseError: If every attempt fails.
         """
-        messages = [
-            {"role": "assistant" if m.role == "assistant" else "user", "content": m.content}
-            for m in request.messages
-            if m.content
-        ]
+        messages = _alternating(request.messages)
         started = time.perf_counter()
         last_error: Exception | None = None
 
@@ -123,16 +161,20 @@ class AnthropicModelProvider:
                     max_tokens=request.max_tokens,
                     temperature=request.temperature,
                     system=request.system_prompt + STATE_PROTOCOL,
-                    messages=messages,
+                    # The SDK types this as Iterable[MessageParam]; our normaliser
+                    # produces exactly that shape as plain dicts.
+                    messages=cast("Any", messages),
                 )
             except Exception as exc:  # SDK raises a wide family of transport errors
                 last_error = exc
                 logger.warning("anthropic_request_failed", attempt=attempt, error=str(exc))
+                _backoff(attempt)
                 continue
 
-            text = "".join(
-                block.text for block in response.content if getattr(block, "type", "") == "text"
-            )
+            # A reply may contain thinking, tool-use and other block types alongside
+            # text. getattr rather than a type check keeps this working as the SDK adds
+            # block kinds, and keeps mypy happy without enumerating the whole union.
+            text = "".join(getattr(block, "text", "") or "" for block in response.content)
             state = _parse_state_block(text)
             usage = getattr(response, "usage", None)
             return ModelResponse(
@@ -217,7 +259,9 @@ class OpenAICompatibleProvider:
             try:
                 response = self._client.chat.completions.create(
                     model=self.model,
-                    messages=messages,
+                    # Typed as a union of per-role param types; ours are plain dicts of
+                    # exactly that shape.
+                    messages=cast("Any", messages),
                     temperature=request.temperature,
                     max_tokens=request.max_tokens,
                 )
