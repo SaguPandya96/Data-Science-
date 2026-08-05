@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import random
+import re
 import time
 from collections.abc import Sequence
 from functools import lru_cache
@@ -29,7 +30,7 @@ logger = get_logger(__name__)
 
 #: Retry backoff, seconds. Free-tier keys rate-limit hard, so the first retry waits.
 _BACKOFF_BASE_SECONDS = 2.0
-_BACKOFF_MAX_SECONDS = 30.0
+_BACKOFF_MAX_SECONDS = 120.0
 
 #: Instruction appended to the system prompt so an external model emits the structured
 #: state EvalForge's trace needs. Without it, remembered facts cannot be observed
@@ -173,13 +174,48 @@ def _strip_state_block(text: str) -> str:
     return text.strip()
 
 
-def _backoff(attempt: int) -> None:
-    """Sleep before retrying, with exponential growth and jitter.
+def _retry_after_seconds(error: Exception) -> float | None:
+    """Extract a server-advertised retry delay, if the error carries one.
 
-    Retrying instantly is worse than not retrying at all: a rate-limited request burns
-    every attempt inside a few milliseconds and then fails, which is precisely what a
-    free-tier key does. Jitter stops concurrent sessions retrying in lockstep.
+    Rate limiters know exactly when the next window opens and say so. Guessing with
+    exponential backoff instead means either waiting too long or, far worse, retrying
+    inside the same exhausted window and burning every attempt for nothing. Token-per-
+    minute limits in particular need waits measured in tens of seconds, which no
+    reasonable exponential schedule reaches before the attempts run out.
+
+    Both a ``retry-after`` header and a delay quoted in the message body are honoured,
+    since OpenAI-compatible servers are inconsistent about which they send.
     """
+    headers = getattr(getattr(error, "response", None), "headers", None)
+    if headers:
+        raw = headers.get("retry-after") or headers.get("x-ratelimit-reset-tokens")
+        if raw:
+            try:
+                return float(str(raw).rstrip("s"))
+            except ValueError:
+                pass
+
+    # e.g. "Please try again in 27.5s" / "try again in 1m12s"
+    match = re.search(r"try again in ((\d+)m)?([\d.]+)s", str(error))
+    if match:
+        minutes = float(match.group(2) or 0)
+        return minutes * 60 + float(match.group(3))
+    return None
+
+
+def _backoff(attempt: int, error: Exception | None = None) -> None:
+    """Wait before retrying, preferring the server's own advice.
+
+    Falls back to exponential growth with jitter when the error carries no delay.
+    Jitter stops concurrent sessions retrying in lockstep.
+    """
+    advised = _retry_after_seconds(error) if error else None
+    if advised is not None:
+        delay = min(advised, _BACKOFF_MAX_SECONDS)
+        logger.info("rate_limited_waiting", seconds=round(delay, 1), advised=True)
+        time.sleep(delay + 0.5)
+        return
+
     delay = min(_BACKOFF_BASE_SECONDS * (2**attempt), _BACKOFF_MAX_SECONDS)
     time.sleep(delay + random.uniform(0, delay * 0.25))
 
@@ -212,7 +248,7 @@ def _alternating(messages: Sequence[Any]) -> list[dict[str, str]]:
 class AnthropicModelProvider:
     """Anthropic Messages API provider. Requires ``ANTHROPIC_API_KEY``."""
 
-    def __init__(self, model: str = "claude-sonnet-5", max_retries: int = 2) -> None:
+    def __init__(self, model: str = "claude-sonnet-5", max_retries: int = 5) -> None:
         """Construct the provider.
 
         Raises:
@@ -264,7 +300,7 @@ class AnthropicModelProvider:
             except Exception as exc:  # SDK raises a wide family of transport errors
                 last_error = exc
                 logger.warning("anthropic_request_failed", attempt=attempt, error=str(exc))
-                _backoff(attempt)
+                _backoff(attempt, exc)
                 continue
 
             # A reply may contain thinking, tool-use and other block types alongside
@@ -307,7 +343,7 @@ class OpenAICompatibleProvider:
     who wants real inference without a paid key.
     """
 
-    def __init__(self, model: str = "gpt-4o-mini", max_retries: int = 2) -> None:
+    def __init__(self, model: str = "gpt-4o-mini", max_retries: int = 5) -> None:
         """Construct the provider.
 
         Raises:
@@ -364,6 +400,7 @@ class OpenAICompatibleProvider:
             except Exception as exc:  # SDK raises a wide family of transport errors
                 last_error = exc
                 logger.warning("openai_request_failed", attempt=attempt, error=str(exc))
+                _backoff(attempt, exc)
                 continue
 
             text = response.choices[0].message.content or ""
