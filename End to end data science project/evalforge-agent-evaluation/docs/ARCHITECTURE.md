@@ -72,7 +72,7 @@ after trace collection sees only what a real deployment would have logged.
 annotations) lives in SQLite. Full session traces live in newline-delimited JSON, one
 file per session, under `data/demonstration_runs/<run_id>/traces/`.
 
-**Why not everything in SQLite.** Traces are deep, ragged documents — nested tool
+**Why not everything in SQLite.** Traces are deep, ragged documents, nested tool
 arguments, variable-length event logs, arbitrary metadata. Forcing them into relational
 tables would mean either a dozen join tables or a single blob column that SQL cannot
 query usefully anyway. Storing them as JSONL keeps them diffable, greppable and
@@ -86,7 +86,7 @@ does it in milliseconds with zero infrastructure.
 **Why SQLite over DuckDB.** DuckDB is the better analytical engine, and for a suite two
 orders of magnitude larger it would be the right call. At the demonstration's scale
 (150 scenarios × 2 runs ≈ 300 sessions) the query workload is trivial and the deciding
-factor is that SQLite ships in the Python standard library — no dependency, no wheel
+factor is that SQLite ships in the Python standard library, no dependency, no wheel
 availability question in CI, no version skew. The storage layer is behind an interface
 (`storage/base.py`), so swapping in DuckDB is a single-module change if scale demands it.
 This is a scalability property of the design, not a claim that it has been run at scale.
@@ -115,8 +115,8 @@ regression deltas are only comparable between runs if the faults were identical.
 
 - `MockModelProvider` — **mandatory**, powers all tests, CI and the demo. Simulates
   agent competence and eleven degradation modes from a `BehaviorProfileConfig`.
-- `AnthropicModelProvider` — optional, activated by `ANTHROPIC_API_KEY`.
-- `OpenAICompatibleProvider` — optional, works against OpenAI, vLLM or Ollama.
+- `AnthropicModelProvider`, optional, activated by `ANTHROPIC_API_KEY`.
+- `OpenAICompatibleProvider`, optional, works against OpenAI, vLLM or Ollama.
 
 Absent credentials raise `ProviderUnavailableError` with a message naming the mock
 fallback, rather than failing deep inside a request.
@@ -125,12 +125,12 @@ fallback, rather than failing deep inside a request.
 
 Three evaluator families, kept separate and never averaged into one another (ADR-002):
 
-1. **Deterministic** — exact comparison against the scenario contract. Preferred
+1. **Deterministic**, exact comparison against the scenario contract. Preferred
    whenever a reliable expected value exists. Confidence is 1.0 by construction.
-2. **Semantic** — embedding-free lexical similarity by default (token-overlap and
+2. **Semantic**, embedding-free lexical similarity by default (token-overlap and
    sequence ratio), with an optional pluggable embedder. Degrades to a documented
    fallback rather than failing when no model is available.
-3. **LLM judge** — structured, schema-validated, evidence-required, multi-sample with
+3. **LLM judge**, structured, schema-validated, evidence-required, multi-sample with
    median aggregation. Records judge model and prompt version on every result.
 
 Deterministic results drive the release gate. Judge results are reported alongside and

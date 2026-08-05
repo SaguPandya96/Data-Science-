@@ -2,7 +2,7 @@
 
 What EvalForge does not establish, cannot measure, and gets wrong. This document exists
 because an evaluation system that does not state its own limits is asking to be
-misread — and the most common way to misuse an eval harness is to quote a number from it
+misread, and the most common way to misuse an eval harness is to quote a number from it
 without the sentence that qualifies the number.
 
 ---
@@ -13,7 +13,7 @@ without the sentence that qualifies the number.
 
 The demonstration runs use `MockModelProvider`, which produces the behaviour its
 configuration tells it to produce. It is not a language model and does not approximate
-one. Reported figures — pass rates, context-retention scores, injection resistance —
+one. Reported figures, pass rates, context-retention scores, injection resistance —
 characterise **the evaluation system**, not any model's capability.
 
 Concretely, this means:
@@ -83,7 +83,7 @@ workspace snapshots. Free-text self-contradiction is not detected without a lang
 model, and the evaluator is honest about only checking what it can check.
 
 **The goal-drift evaluator is conservative.** It fires when a turn with required tool
-activity produced none. Subtler drift — the agent doing *related but wrong* work — is
+activity produced none. Subtler drift, the agent doing *related but wrong* work, is
 not detected. This is the category where human/automated agreement is expected to be
 weakest, and the alignment analysis reports it separately for that reason.
 
@@ -100,8 +100,8 @@ qualitative claim ("the team is confident") passes unnoticed.
 ## 5. Judge limitations
 
 - **The default judge is a mock.** `MockJudge` derives verdicts from trace properties
-  plus seeded noise. It exercises the full judging path — sampling, median aggregation,
-  evidence validation, low-confidence flagging — but it is *not a language model*, and
+  plus seeded noise. It exercises the full judging path, sampling, median aggregation,
+  evidence validation, low-confidence flagging, but it is *not a language model*, and
   its scores are not model judgements.
 - **Judge scores never gate a release** (ADR-002/ADR-004), and no judge result may carry
   critical severity. This is enforced and tested.
@@ -138,7 +138,7 @@ Real numbers require `evalforge annotate` and real annotators. Beyond that:
 - **All tools are simulated.** No email is sent, no file outside the run directory is
   written, no network call is made. Real tool integration would introduce latency
   variance, partial failures and auth edge cases that this harness does not model.
-- **The document corpus is small** — twelve fictional documents. Retrieval quality is not
+- **The document corpus is small**, twelve fictional documents. Retrieval quality is not
   what is under evaluation, and the search implementation is deliberately simple and
   deterministic rather than good.
 - **Latency is simulated**, so latency percentiles measure tool-choice cost, not real
@@ -150,7 +150,7 @@ Real numbers require `evalforge annotate` and real annotators. Beyond that:
 
 EvalForge has been run at 150 scenarios × 2 runs ≈ 300 sessions. The architecture is
 designed to scale further — SQLite is behind a storage interface, scenario execution is
-embarrassingly parallel because every fault is seeded independently — but **it has not
+embarrassingly parallel because every fault is seeded independently, but **it has not
 been run at larger scale, and no scaling claim is made**. At 10,000+ sessions, SQLite
 would likely want replacing with DuckDB and the runner would want actual parallelism.
 Both are single-module changes; neither has been done.
@@ -167,7 +167,7 @@ A PASS from EvalForge means exactly this:
 It does **not** mean the agent is safe, correct, or ready for production. The suite is
 finite and adversarial by construction; it cannot establish the absence of failure modes
 nobody wrote a scenario for. Reports state this explicitly and no report language claims
-otherwise — there is a test that enforces it
+otherwise, there is a test that enforces it
 (`test_report_never_claims_general_safety`).
 
 ---

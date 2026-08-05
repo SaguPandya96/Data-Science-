@@ -11,8 +11,8 @@ An evaluation harness that requires paid API credentials to run has three proble
 1. **It cannot gate CI.** Secrets in pull-request workflows are a supply-chain risk, and
    a test suite that costs money per run will be disabled the first time someone
    notices the bill.
-2. **It cannot be reviewed.** Anyone cloning the repository — a reviewer, an
-   interviewer, a future maintainer — hits a wall before seeing anything work.
+2. **It cannot be reviewed.** Anyone cloning the repository — a code reviewer, a new
+   team member, a future maintainer — hits a wall before seeing anything work.
 3. **It cannot support a regression gate.** Comparing baseline against candidate
    requires that the *only* thing that changed is the thing under test. Sampling noise
    from a real model makes a 3-point regression tolerance meaningless.

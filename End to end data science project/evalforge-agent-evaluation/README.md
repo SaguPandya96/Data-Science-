@@ -10,13 +10,13 @@
 EvalForge evaluates **complete agent sessions**, not isolated model responses. It
 generates adversarial multi-turn conversations, runs a productivity agent through them,
 records a full execution trace, and scores context retention, instruction adherence,
-tool reliability, failure recovery and prompt-injection resistance — then decides whether
-the agent revision is shippable.
+tool reliability, failure recovery and prompt-injection resistance. Then it decides
+whether the agent revision is shippable.
 
 > **Every number in this repository was produced by a deterministic simulated model.**
 > They characterise the *evaluation system*, not any language model's capability. This is
 > deliberate (see [ADR-003](docs/adr/ADR-003-offline-deterministic-provider.md)) and is
-> stated on every generated report. See [LIMITATIONS.md](docs/LIMITATIONS.md).
+> stated on every generated report. Full detail in [LIMITATIONS.md](docs/LIMITATIONS.md).
 
 ---
 
@@ -30,7 +30,7 @@ the agent revision is shippable.
 - [Human alignment](#human-alignment) · [Regression testing](#regression-testing)
 - [Sample results](#sample-results) · [Repository structure](#repository-structure)
 - [Testing](#testing) · [CI](#continuous-integration) · [Limitations](#limitations)
-- [Roadmap](#roadmap) · [Interview talking points](#interview-talking-points)
+- [Roadmap](#roadmap)
 
 ---
 
@@ -82,11 +82,11 @@ a retrieved document told it to is a security incident, not a quality regression
 
 The product questions EvalForge is built to answer are:
 
-- **Can we ship this revision?** — a release-readiness decision with named blockers.
-- **Did this change make things worse?** — a regression gate with configured tolerances.
-- **Where exactly does it break?** — failure localised to a turn, with trace evidence.
-- **How long can a conversation get before it degrades?** — the length-sweep analysis.
-- **Do our automated evaluators agree with people?** — human alignment statistics.
+- **Can we ship this revision?** A release-readiness decision with named blockers.
+- **Did this change make things worse?** A regression gate with configured tolerances.
+- **Where exactly does it break?** Failure localised to a turn, with trace evidence.
+- **How long can a conversation get before it degrades?** The length-sweep analysis.
+- **Do our automated evaluators agree with people?** Human alignment statistics.
 
 ---
 
@@ -114,7 +114,7 @@ flowchart TD
     style F fill:#e6f4ea,stroke:#34a853
 ```
 
-Data flows one way. The `SessionTrace` is the single source of truth: a stored run can be
+Data flows one way. The `SessionTrace` is the single source of truth. A stored run can be
 re-scored months later by newer evaluators without re-invoking a model, and a human
 annotator and an automated evaluator judge exactly the same evidence.
 
@@ -154,8 +154,8 @@ Full detail in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Failure taxonomy
 
-30 categories across seven families. Six are **critical** — one occurrence blocks release
-regardless of score.
+30 categories across seven families. Six are **critical**, meaning one occurrence blocks
+release regardless of score.
 
 | Family | Categories | Critical members |
 |---|---|---|
@@ -229,7 +229,7 @@ evalforge annotate                              # blind annotation interface
 evalforge demo                                  # the whole demonstration
 ```
 
-**Exit codes:** `0` success · `1` user error · `2` regression gate failed ·
+**Exit codes:** `0` success, `1` user error, `2` regression gate failed,
 `3` release gate failed. Expected errors print a sentence, never a traceback.
 
 ## Dashboard
@@ -249,7 +249,7 @@ evalforge dashboard
 | **Human annotation** | Blind rubric scoring; automated scores hidden until submission |
 | **Trace explorer** | One session end to end: conversation, tool calls, agent state, every verdict |
 
-The dashboard contains **no business logic** — every number is computed by
+The dashboard contains **no business logic**. Every number is computed by
 `evalforge.analytics`, so what you see on screen is what the release report prints.
 
 ---
@@ -266,32 +266,32 @@ next to each number):
 | Instruction adherence | 15% | | Efficiency | 5% |
 | Tool reliability | 15% | | Safety | 5%¹ |
 
-¹ Safety carries a small weight *on purpose*: it is enforced by hard override, not by
-weight. A single critical safety failure blocks release regardless of the average.
+¹ Safety carries a small weight on purpose. It is enforced by hard override rather than
+by weight, so a single critical safety failure blocks release regardless of the average.
 
 **Scoring.** Each dimension is the mean of its evaluators' roll-up scores minus a
 severity-scaled penalty for each failure. The penalty exists because a plain mean is too
-forgiving — nine passes and one dropped deadline averages to 0.90, a comfortable number
-for a broken session. A critical failure zeroes its dimension and fails the session
-outright.
+forgiving: nine passes and one dropped deadline averages to 0.90, which is a comfortable
+number for a broken session. A critical failure zeroes its dimension and fails the
+session outright.
 
 **Statistics.** Wilson intervals for proportions (well-behaved near 0 and 1, where
 injection resistance lives); seeded percentile bootstrap for means; Cohen's *h* and
 Cliff's delta for effect sizes; Spearman for ordinal correlation. **No p-values are
-reported** — ~25 metrics with no multiple-comparison correction means these are
-descriptive diagnostics, not hypothesis tests.
+reported.** With roughly 25 metrics and no multiple-comparison correction, these are
+descriptive diagnostics rather than hypothesis tests.
 
 Full rationale, including why each test was chosen, in
 [EVALUATION_METHODOLOGY.md](docs/EVALUATION_METHODOLOGY.md).
 
 ## Human alignment
 
-Two annotators independently score a stratified subsample through a **blind** interface —
-automated scores are hidden until submission, and each annotation records whether it was
+Two annotators independently score a stratified subsample through a **blind** interface.
+Automated scores stay hidden until submission, and each annotation records whether it was
 collected blind. Non-blind annotations are excluded from agreement statistics entirely.
 
 Four comparisons are computed, starting with human-vs-human because it establishes the
-**ceiling**: no automated evaluator should be expected to agree with humans more than
+**ceiling**. No automated evaluator should be expected to agree with humans more than
 humans agree with each other.
 
 Bias analyses cover verbosity bias, position bias, over-penalisation of concise answers,
@@ -348,9 +348,9 @@ measure the evaluation system.
 | Baseline | 85.7% | 97.1% | 100% | 94.6% | 91.3% |
 | Candidate | 47.6% | 42.9% | 26.5% | 29.7% | **8.7%** |
 
-The candidate degrades steadily and collapses at 30 turns — exactly the profile
-of an agent whose context handling degrades with conversation length, and precisely what
-a single-turn benchmark would report as "fine".
+The candidate degrades steadily and then collapses at 30 turns. That is the profile of an
+agent whose context handling falls apart as a conversation grows, and precisely what a
+single-turn benchmark would report as "fine".
 
 **Regression gate:** 11 metrics beyond tolerance, all large effect sizes
 (Cliff's delta on overall score: -0.874, large). Gate **FAILED**, exit code `2`.
@@ -400,11 +400,11 @@ make cov            # coverage report
 
 The two most important tests bound the evaluators from both sides:
 
-- `test_perfect_agent_has_no_failures` — a flawless session must produce **zero**
-  failures. Guards against false positives.
-- `test_broken_agent_is_caught` — a pathological session must be caught. Guards against
-  false negatives, the failure that makes an eval harness look green while measuring
-  nothing.
+- `test_perfect_agent_has_no_failures`. A flawless session must produce **zero**
+  failures, which guards against false positives.
+- `test_broken_agent_is_caught`. A pathological session must be caught, which guards
+  against false negatives. That is the failure mode that makes an eval harness look green
+  while measuring nothing.
 
 Nine golden fixtures pin one specific failure mode each to a specific expected verdict.
 
@@ -412,7 +412,7 @@ Nine golden fixtures pin one specific failure mode each to a specific expected v
 
 [`.github/workflows/evalforge-tests.yml`](../../.github/workflows/evalforge-tests.yml)
 runs on every push and pull request touching the project. **No secrets, no API keys, no
-network** — everything uses the deterministic mock provider.
+network.** Everything uses the deterministic mock provider.
 
 | Job | Does |
 |---|---|
@@ -421,9 +421,9 @@ network** — everything uses the deterministic mock provider.
 | **evaluation** | Generates a suite, runs baseline and candidate, gates the baseline report on its blocking thresholds, then runs the regression comparison |
 | **demo** | Full 150-scenario demonstration, `workflow_dispatch` only |
 
-The evaluation job asserts an **inverted** condition: because the candidate is
-deliberately degraded, a *passing* regression gate fails the build — that would mean the
-gate stopped detecting real degradation.
+The evaluation job asserts an **inverted** condition. Because the candidate is
+deliberately degraded, a *passing* regression gate fails the build. That would mean the
+gate had stopped detecting real degradation.
 
 The workflow file lives at the repository root because GitHub requires it there; it is
 the only EvalForge file outside the project directory.
@@ -438,41 +438,25 @@ The short version, in order of importance:
    not any LLM.
 2. **The committed alignment statistics use synthetic annotations**, clearly labelled.
 3. **n = 150** is small; subgroups fall below n = 20 where estimates are noisy.
-4. **The mock can only exhibit failures someone implemented** — the taxonomy and the
+4. **The mock can only exhibit failures someone implemented.** The taxonomy and the
    simulator share an author.
 5. **Scenarios are adversarial by construction** and are not a sample of production
    traffic, so pass rates here are not real-world pass rates.
 
 A PASS decision means *this revision, on this suite, under this configuration, exhibited
 no critical failure and cleared every blocking threshold.* It does not mean the agent is
-safe or production-ready — and a test enforces that no report ever says otherwise.
+safe or production-ready, and a test enforces that no report ever says otherwise.
 
 Full detail: [LIMITATIONS.md](docs/LIMITATIONS.md).
 
 ## Roadmap
 
-1. Run against a real model — the provider layer supports it; these results do not use it
+1. Run against a real model. The provider layer supports it; these results do not use it
 2. Collect real human annotations to replace the synthetic ones
 3. Plug in a real embedder so semantic evaluation stops being a lexical proxy
 4. Mine production traces for failure modes the taxonomy is missing
 5. Parallel execution and DuckDB if the suite grows an order of magnitude
 6. Trace schema migrations before anything depends on backward compatibility
-
-## Interview talking points
-
-- **Why sessions, not turns** — the failures that matter are temporal, and averaging turn
-  scores understates them: 29 good turns and one dropped deadline averages to 0.97
-- **Why deterministic checks gate releases and judges never do** — judge drift must not be
-  able to move the release bar
-- **Why critical failures are categorical** — an agent that obeys an injection 2% of the
-  time is not 98% safe
-- **Why determinism is a correctness property, not a convenience** — a 3-point regression
-  tolerance is meaningless against sampling noise
-- **Three real bugs found in my own evaluators**, including one where fact retention
-  searched the whole transcript and so never detected the loss it existed to catch
-
-Prepared answers to architecture, methodology and statistics questions, with the
-trade-offs and their costs, are in [INTERVIEW_GUIDE.md](docs/INTERVIEW_GUIDE.md).
 
 ---
 
