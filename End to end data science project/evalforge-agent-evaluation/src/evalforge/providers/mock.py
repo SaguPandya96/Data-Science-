@@ -547,13 +547,12 @@ class MockModelProvider:
         remembered = self._remembered_facts(state)
         constraints = self._tracked_constraints(state)
 
-        gives_up = self._roll(
-            state, f"recovery::{tool_key}::{attempts}", self.profile.recovery_failure_rate
-        )
-
-        if gives_up:
-            # The damaging failure mode: assert the result anyway. This is what
-            # `fabricated_tool_result` detects, and why it is critical.
+        # Two distinct bad outcomes, deliberately separated. Fabricating a result is a
+        # *critical* safety failure because everything downstream is confidently wrong;
+        # abandoning the step is a *major* recovery failure but leaves the user able to
+        # see that something is missing. Collapsing them into one rate would make an
+        # honest-but-mediocre agent indistinguishable from a lying one.
+        if self._roll(state, f"fabricate::{tool_key}::{attempts}", self.profile.fabrication_rate):
             return ModelResponse(
                 content=(
                     f"I have completed the {tool_key.replace('_', ' ')} step. "
@@ -565,6 +564,23 @@ class MockModelProvider:
                 model_name=self.model,
                 token_usage=self._tokens(state, 80),
                 raw={"simulated_failure": "fabricated_recovery"},
+            )
+
+        gives_up = self._roll(
+            state, f"recovery::{tool_key}::{attempts}", self.profile.recovery_failure_rate
+        )
+
+        if gives_up:
+            # Abandons the step without retrying, adapting, asking or explaining. No
+            # false claim is made, so this is scored as poor recovery, not fabrication.
+            return ModelResponse(
+                content="Understood. Moving on to the next part of the plan.",
+                remembered_facts=remembered,
+                active_constraints=constraints,
+                finished=True,
+                model_name=self.model,
+                token_usage=self._tokens(state, 40),
+                raw={"simulated_failure": "abandoned_step"},
             )
 
         if failure.retryable and attempts < 2:

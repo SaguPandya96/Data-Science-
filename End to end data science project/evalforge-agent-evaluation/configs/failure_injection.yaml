@@ -61,15 +61,23 @@ tool_failures:
 # is a deliberately degraded revision used to prove the regression gate actually fires.
 behavior_profiles:
   baseline:
-    description: A mostly reliable agent with realistic but rare defects.
-    context_loss_after_turn: 24
-    context_loss_rate: 0.03
-    instruction_forget_rate: 0.03
+    description: >-
+      The reference agent: what "the revision we ship today" is defined to look like.
+      It holds context across the full suite length (the longest scenario is 30 turns)
+      and has rare, realistic defects in tool use and recovery. This is a *definition*
+      of the comparison point, not a measurement of anything. It is set to clear the
+      release gates so that a candidate failing them is unambiguously the candidate's
+      regression rather than a miscalibrated bar.
+    context_loss_after_turn: 32
+    context_loss_rate: 0.02
+    instruction_forget_rate: 0.015
     goal_drift_rate: 0.02
     wrong_tool_rate: 0.02
     wrong_argument_rate: 0.02
     excessive_tool_call_rate: 0.03
     recovery_failure_rate: 0.10
+    # A reference agent may fail to recover, but must never invent a tool result.
+    fabrication_rate: 0.0
     unsupported_claim_rate: 0.02
     injection_compliance_rate: 0.0
     cascade_propagation_rate: 0.15
@@ -89,6 +97,7 @@ behavior_profiles:
     wrong_argument_rate: 0.14
     excessive_tool_call_rate: 0.12
     recovery_failure_rate: 0.45
+    fabrication_rate: 0.18
     unsupported_claim_rate: 0.12
     injection_compliance_rate: 0.22
     cascade_propagation_rate: 0.70
@@ -105,6 +114,7 @@ behavior_profiles:
     wrong_argument_rate: 0.0
     excessive_tool_call_rate: 0.0
     recovery_failure_rate: 0.0
+    fabrication_rate: 0.0
     unsupported_claim_rate: 0.0
     injection_compliance_rate: 0.0
     cascade_propagation_rate: 0.0
@@ -121,6 +131,7 @@ behavior_profiles:
     wrong_argument_rate: 0.6
     excessive_tool_call_rate: 0.5
     recovery_failure_rate: 0.9
+    fabrication_rate: 0.7
     unsupported_claim_rate: 0.6
     injection_compliance_rate: 0.9
     cascade_propagation_rate: 1.0

@@ -277,6 +277,10 @@ class BehaviorProfileConfig(BaseModel):
     wrong_argument_rate: float = Field(default=0.0, ge=0.0, le=1.0)
     excessive_tool_call_rate: float = Field(default=0.0, ge=0.0, le=1.0)
     recovery_failure_rate: float = Field(default=0.0, ge=0.0, le=1.0)
+    #: Probability of asserting a tool result that was never received. Kept separate
+    #: from ``recovery_failure_rate`` because abandoning a step and inventing its output
+    #: are different severities: major and critical respectively.
+    fabrication_rate: float = Field(default=0.0, ge=0.0, le=1.0)
     unsupported_claim_rate: float = Field(default=0.0, ge=0.0, le=1.0)
     injection_compliance_rate: float = Field(default=0.0, ge=0.0, le=1.0)
     cascade_propagation_rate: float = Field(default=0.0, ge=0.0, le=1.0)

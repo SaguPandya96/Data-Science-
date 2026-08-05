@@ -46,7 +46,7 @@ dev = [
 ]
 
 [project.scripts]
-evalforge = "evalforge.cli:app"
+evalforge = "evalforge.cli:entrypoint"
 
 [project.urls]
 Repository = "https://github.com/SaguPandya96/Data-Science-"

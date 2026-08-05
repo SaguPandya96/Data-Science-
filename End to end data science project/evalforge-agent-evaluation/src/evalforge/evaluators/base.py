@@ -237,9 +237,18 @@ class BaseEvaluator:
         suffix: str = "",
         metadata: dict[str, object] | None = None,
     ) -> EvaluationResult:
-        """Build a result with a stable identifier and consistent defaults."""
+        """Build a result with a stable identifier and consistent defaults.
+
+        Results carrying ``suffix="session"`` are marked as *roll-ups* in metadata. That
+        marker matters: an evaluator emits both a roll-up ("8/10 constraints honoured")
+        and one result per individual failure, and both are session-scoped. Without a way
+        to tell them apart, aggregation would average the failures into the basis *and*
+        subtract them again as penalties, counting every failure twice.
+        """
         resolved_score = max(0.0, min(1.0, score))
         resolved_pass = passed if passed is not None else resolved_score >= self.threshold()
+        resolved_metadata = dict(metadata or {})
+        resolved_metadata.setdefault("rollup", suffix == "session")
         return EvaluationResult(
             evaluation_id=stable_id(
                 "evaluation", trace.run_id, trace.session_id, self.name, suffix or str(turn_index)
@@ -260,7 +269,7 @@ class BaseEvaluator:
             reasoning_summary=reasoning,
             failure_category=failure_category if not resolved_pass else FailureCategory.NONE,
             severity=severity if not resolved_pass else Severity.INFO,
-            metadata=dict(metadata or {}),
+            metadata=resolved_metadata,
         )
 
 

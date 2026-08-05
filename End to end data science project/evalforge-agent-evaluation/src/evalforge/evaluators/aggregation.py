@@ -81,8 +81,11 @@ def score_dimension(
             failed_count=sum(1 for r in results if not r.passed),
         )
 
-    session_level = [r for r in results if r.evaluation_level.value == "session"]
-    basis = session_level or results
+    # The basis is the evaluators' roll-up results only. Individual failure results are
+    # session-scoped too, and including them here would count each failure twice: once
+    # as a 0.0 dragging the mean down, and again as a severity penalty below.
+    rollups = [r for r in results if r.metadata.get("rollup") is True]
+    basis = rollups or [r for r in results if r.evaluation_level.value == "session"] or results
     base = sum(result.score for result in basis) / len(basis)
 
     penalties = config.rubric.severity_penalties
