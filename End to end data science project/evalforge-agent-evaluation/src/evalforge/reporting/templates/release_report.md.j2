@@ -1,0 +1,245 @@
+{# Release-readiness report. Rendered by evalforge.reporting.render. #}
+# EvalForge Release-Readiness Report
+
+> **{{ report.result_label }}**
+
+| | |
+|---|---|
+| **Decision** | **{{ report.decision.value | upper | replace('_', ' ') }}** |
+| Run | `{{ report.run_id }}` |
+| Generated | {{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }} |
+{%- if report.run_summary %}
+| Label | {{ report.run_summary.label }} |
+| Provider / model | {{ report.run_summary.provider_name }} / {{ report.run_summary.model_name }} |
+| Prompt version | {{ report.run_summary.prompt_version }} |
+| Agent version | {{ report.run_summary.agent_version }} |
+| Sessions evaluated | {{ report.run_summary.session_count }} |
+{%- endif %}
+| Config digest | `{{ report.metadata.config_digest }}` |
+| Rubric / thresholds | v{{ report.metadata.rubric_version }} / v{{ report.metadata.thresholds_version }} |
+
+---
+
+## 1. Executive summary
+
+{{ report.executive_summary }}
+
+{% if report.release_blockers -%}
+### Release blockers
+
+{% for blocker in report.release_blockers -%}
+- {{ blocker }}
+{% endfor %}
+{%- else -%}
+No release blockers were recorded.
+{%- endif %}
+
+---
+
+## 2. Evaluation configuration
+
+Scoring policy is versioned in `configs/` and identified by the digest above, so this
+decision can be reproduced exactly (ADR-005).
+
+| Setting | Value |
+|---|---|
+| Session pass threshold | {{ config.rubric.session_pass_threshold }} |
+| Judge samples / aggregation | {{ config.evaluation.judge_samples }} / {{ config.evaluation.judge_aggregation }} |
+| Max tool retries | {{ config.agent.max_tool_retries }} |
+| Latency threshold | {{ config.evaluation.latency_threshold_ms }} ms |
+
+**Dimension weights**
+
+| Dimension | Weight |
+|---|---:|
+{% for name, weight in config.rubric.weights.items() -%}
+| {{ name.replace('_', ' ') | title }} | {{ '%.0f' | format(weight * 100) }}% |
+{% endfor %}
+
+---
+
+## 3. Scenario composition
+
+{% if report.scenario_composition -%}
+| Category | Scenarios |
+|---|---:|
+{% for name, count in report.scenario_composition.items() -%}
+| {{ name.replace('_', ' ') | title }} | {{ count }} |
+{% endfor %}
+{%- else -%}
+Composition was not recorded for this run.
+{%- endif %}
+
+---
+
+## 4. Threshold checks
+
+| Gate | Observed | Required | Blocking | Result |
+|---|---:|---:|:---:|:---:|
+{% for check in report.threshold_checks -%}
+| {{ check.name.replace('_', ' ') }} | {{ '%.4f' | format(check.observed) }} | {{ '>=' if check.comparison == 'gte' else '<=' }} {{ '%.4f' | format(check.threshold) }} | {{ 'yes' if check.blocking else 'no' }} | {{ 'PASS' if check.passed else 'FAIL' }} |
+{% endfor %}
+
+{% for check in report.threshold_checks -%}
+{%- if check.note %}
+- **{{ check.name }}** — {{ check.note }}
+{%- endif %}
+{%- endfor %}
+
+---
+
+## 5. Overall metrics
+
+| Metric | Value |
+|---|---:|
+{% for name, value in headline_metrics.items() -%}
+| {{ name.replace('_', ' ') | title }} | {{ '%.4f' | format(value) }} |
+{% endfor %}
+
+{% if intervals -%}
+**Uncertainty.** Proportions use Wilson score intervals; means use seeded percentile
+bootstrap (10,000 resamples). Intervals are suppressed below n=10 rather than shown at a
+width that would not mean anything.
+
+| Metric | Estimate | 95% interval | n | Method |
+|---|---:|:---:|---:|---|
+{% for name, interval in intervals.items() -%}
+| {{ name.replace('_', ' ') }} | {{ '%.4f' | format(interval.point) }} | {% if interval.lower is not none %}[{{ '%.4f' | format(interval.lower) }}, {{ '%.4f' | format(interval.upper) }}]{% else %}suppressed{% endif %} | {{ interval.n }} | {{ interval.method }} |
+{% endfor %}
+{%- endif %}
+
+---
+
+## 6. Metrics by category
+
+| Category | n | Pass rate | Score | Context | Instructions | Critical |
+|---|---:|---:|---:|---:|---:|---:|
+{% for name, values in report.metrics_by_category.items() -%}
+| {{ name.replace('_', ' ') }} | {{ values.n | int }} | {{ '%.1f' | format(values.pass_rate * 100) }}% | {{ '%.3f' | format(values.overall_score) }} | {{ '%.3f' | format(values.context_retention) }} | {{ '%.3f' | format(values.instruction_adherence) }} | {{ values.critical_failures | int }} |
+{% endfor %}
+
+## 7. Metrics by difficulty
+
+| Difficulty | n | Pass rate | Score | Critical |
+|---|---:|---:|---:|---:|
+{% for name, values in report.metrics_by_difficulty.items() -%}
+| {{ name }} | {{ values.n | int }} | {{ '%.1f' | format(values.pass_rate * 100) }}% | {{ '%.3f' | format(values.overall_score) }} | {{ values.critical_failures | int }} |
+{% endfor %}
+
+## 8. Metrics by conversation length
+
+This is the headline diagnostic for multi-turn degradation: where context retention
+starts to fall is visible here as a curve rather than a single number.
+
+| Turns | n | Pass rate | Score | Context retention | Instructions |
+|---:|---:|---:|---:|---:|---:|
+{% for name, values in length_rows -%}
+| {{ name }} | {{ values.n | int }} | {{ '%.1f' | format(values.pass_rate * 100) }}% | {{ '%.3f' | format(values.overall_score) }} | {{ '%.3f' | format(values.context_retention) }} | {{ '%.3f' | format(values.instruction_adherence) }} |
+{% endfor %}
+
+---
+
+## 9. Tool reliability
+
+| Measure | Value |
+|---|---:|
+{% for name, value in report.tool_reliability.items() -%}
+| {{ name.replace('_', ' ') | title }} | {{ '%.4f' | format(value) }} |
+{% endfor %}
+
+{% if report.metadata.cascade -%}
+**Cascading errors.** Propagation depth counts dependent steps that carried a corrupted
+upstream value; downstream impact is the fraction of dependent work affected.
+
+| Measure | Value |
+|---|---:|
+{% for name, value in report.metadata.cascade.items() -%}
+| {{ name.replace('_', ' ') | title }} | {{ '%.3f' | format(value) }} |
+{% endfor %}
+{%- endif %}
+
+---
+
+## 10. Critical failures
+
+{% if report.critical_failures -%}
+{{ report.critical_failures | length }} session(s) recorded a release-blocking failure.
+
+| Session | Scenario | Category | Turns | Score | Failure |
+|---|---|---|---:|---:|---|
+{% for item in report.critical_failures[:20] -%}
+| `{{ item.session_id[:16] }}` | `{{ item.scenario_id[:16] }}` | {{ item.category }} | {{ item.turn_count }} | {{ '%.3f' | format(item.overall_score) }} | {{ item.failures | join('; ') }} |
+{% endfor %}
+{%- else -%}
+No critical failures were recorded.
+{%- endif %}
+
+## 11. Failure distribution
+
+{% if report.metadata.failure_counts -%}
+| Failure category | Sessions affected |
+|---|---:|
+{% for name, count in report.metadata.failure_counts.items() -%}
+| {{ name.replace('_', ' ') }} | {{ count }} |
+{% endfor %}
+{%- else -%}
+No failures were recorded.
+{%- endif %}
+
+---
+
+## 12. Regression findings
+
+{% if report.regression_findings -%}
+{% for finding in report.regression_findings -%}
+- {{ finding }}
+{% endfor %}
+{%- else -%}
+No baseline comparison was performed for this run.
+{%- endif %}
+
+---
+
+## 13. Human-evaluator alignment
+
+{% if report.alignment_summary -%}
+Agreement between blind human annotations and the automated verdicts. Human-versus-human
+agreement is the ceiling: no automated evaluator should be expected to exceed it.
+
+| Statistic | Value |
+|---|---:|
+{% for name, value in report.alignment_summary.items() -%}
+| {{ name }} | {{ '%.4f' | format(value) }} |
+{% endfor %}
+{%- else -%}
+No human annotations were available for this run, so evaluator alignment is unverified.
+Collect annotations with `evalforge annotate`.
+{%- endif %}
+
+---
+
+## 14. Recommended remediation
+
+{% if report.remediation -%}
+Ordered by how often each failure category occurred.
+
+{% for item in report.remediation -%}
+{{ loop.index }}. {{ item }}
+{% endfor %}
+{%- else -%}
+No remediation is required for the failures observed.
+{%- endif %}
+
+---
+
+## 15. Known limitations
+
+{% for item in report.limitations -%}
+- {{ item }}
+{% endfor %}
+
+---
+
+*Generated by EvalForge. This report assesses one agent revision against one adversarial
+suite under one configuration. It is not a general statement about model safety or
+production readiness.*
