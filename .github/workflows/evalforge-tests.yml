@@ -1,0 +1,265 @@
+# EvalForge quality and regression workflow.
+#
+# The project is nested inside this multi-project repository, so every step sets its
+# working directory explicitly. Workflow files must live at the repository root, which
+# is why this is the only EvalForge file outside the project folder.
+#
+# No secrets are used. Everything runs against the deterministic mock provider (ADR-003),
+# which is what makes a regression gate meaningful here: baseline and candidate differ
+# only in the agent under test, never in sampling noise.
+
+name: EvalForge
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "End to end data science project/evalforge-agent-evaluation/**"
+      - ".github/workflows/evalforge-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/evalforge-agent-evaluation/**"
+      - ".github/workflows/evalforge-tests.yml"
+  workflow_dispatch:
+    inputs:
+      scenario_count:
+        description: "Scenarios to generate for the evaluation suite"
+        required: false
+        default: "150"
+      run_full_suite:
+        description: "Run the full demonstration instead of the CI-sized suite"
+        type: boolean
+        required: false
+        default: true
+
+env:
+  # Directory every step operates in. Quoted because the path contains spaces.
+  PROJECT_DIR: "End to end data science project/evalforge-agent-evaluation"
+  EVALFORGE_PROVIDER: mock
+  EVALFORGE_LOG_FORMAT: json
+  EVALFORGE_LOG_LEVEL: WARNING
+  PYTHONUTF8: "1"
+
+defaults:
+  run:
+    working-directory: "End to end data science project/evalforge-agent-evaluation"
+
+jobs:
+  quality:
+    name: Lint, types and unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: "End to end data science project/evalforge-agent-evaluation/pyproject.toml"
+
+      - name: Install EvalForge
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,dashboard]"
+
+      - name: Verify the package imports from the installed distribution
+        run: python -c "import evalforge; print('EvalForge', evalforge.__version__)"
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: mypy
+        run: mypy src
+
+      - name: Unit tests
+        run: pytest tests/unit -q --cov=evalforge --cov-report=xml --cov-report=term
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: "End to end data science project/evalforge-agent-evaluation/coverage.xml"
+          if-no-files-found: warn
+
+  integration:
+    name: Integration and regression tests
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/evalforge-agent-evaluation/pyproject.toml"
+
+      - name: Install EvalForge
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,dashboard]"
+
+      - name: Integration tests with the mock provider
+        run: pytest tests/integration -q
+
+      - name: Golden-fixture regression tests
+        run: pytest tests/regression -q
+
+  evaluation:
+    name: Evaluation suite and regression gate
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/evalforge-agent-evaluation/pyproject.toml"
+
+      - name: Install EvalForge
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Choose the suite size
+        id: suite
+        run: |
+          # Ordinary pushes and pull requests run a small deterministic suite so the
+          # workflow stays fast; the full 150-scenario suite is available on demand.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "count=${{ github.event.inputs.scenario_count || 150 }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "count=40" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate the scenario suite
+        run: evalforge generate --count ${{ steps.suite.outputs.count }} --seed 42
+
+      - name: Validate scenario quality
+        run: evalforge validate-scenarios
+
+      - name: Run the baseline agent
+        run: evalforge run --label baseline --profile baseline --seed 42
+
+      - name: Run the degraded candidate agent
+        run: evalforge run --label candidate --profile candidate --seed 42
+
+      - name: Resolve run ids
+        id: runs
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          from evalforge.config import load_config
+          from evalforge.storage.store import RunStore
+
+          config = load_config()
+          store = RunStore(config.paths.runs, config.storage.database_name)
+          runs = {item.label: item.run_id for item in store.list_runs()}
+          print(f"baseline={runs['baseline']}")
+          print(f"candidate={runs['candidate']}")
+          PY
+
+      - name: Release-readiness report for the baseline
+        # --fail-on-gate: the reference agent must clear its own blocking thresholds.
+        # If it cannot, a candidate failing later is ambiguous — agent, or miscalibrated bar?
+        run: >-
+          evalforge report
+          --run-id ${{ steps.runs.outputs.baseline }}
+          --stem baseline
+          --fail-on-gate
+
+      - name: Release-readiness report for the candidate
+        # No --fail-on-gate here: the candidate is *expected* to fail, and the
+        # regression gate below is what decides the build.
+        run: >-
+          evalforge report
+          --run-id ${{ steps.runs.outputs.candidate }}
+          --baseline ${{ steps.runs.outputs.baseline }}
+          --stem candidate
+
+      - name: Regression comparison
+        id: regression
+        continue-on-error: true
+        run: >-
+          evalforge compare
+          --baseline ${{ steps.runs.outputs.baseline }}
+          --candidate ${{ steps.runs.outputs.candidate }}
+
+      - name: Confirm the regression gate detected the degraded candidate
+        # The candidate is deliberately degraded, so a *passing* gate means the gate
+        # itself is broken. This step asserts the failure, inverting the usual polarity.
+        run: |
+          if [ "${{ steps.regression.outcome }}" = "success" ]; then
+            echo "::error::The regression gate passed against a deliberately degraded"
+            echo "::error::candidate. The gate is not detecting real degradation."
+            exit 1
+          fi
+          echo "Regression gate correctly rejected the degraded candidate."
+
+      - name: Upload evaluation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-reports
+          path: |
+            End to end data science project/evalforge-agent-evaluation/reports/
+            End to end data science project/evalforge-agent-evaluation/data/generated_scenarios/*_manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  demo:
+    name: Full demonstration
+    runs-on: ubuntu-latest
+    needs: [quality, integration]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_full_suite == 'true'
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/evalforge-agent-evaluation/pyproject.toml"
+
+      - name: Install EvalForge
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run the complete offline demonstration
+        run: evalforge demo --count ${{ github.event.inputs.scenario_count || 150 }} --seed 42
+
+      - name: Generate synthetic annotations for the alignment analysis
+        # Clearly labelled as synthetic wherever they appear; see the script's docstring.
+        run: python scripts/simulate_annotations.py --all-runs --sessions 60
+
+      - name: Upload demonstration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demonstration-artifacts
+          path: |
+            End to end data science project/evalforge-agent-evaluation/reports/
+          if-no-files-found: warn
+          retention-days: 30

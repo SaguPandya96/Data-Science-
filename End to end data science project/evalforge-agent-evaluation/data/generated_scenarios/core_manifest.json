@@ -1,0 +1,32 @@
+{
+  "suite_id": "scn_321213714ea1",
+  "name": "core",
+  "description": "Deterministic adversarial suite of 150 multi-turn scenarios across 8 categories, seed 42.",
+  "generator_version": "1.0.0",
+  "seed": 42,
+  "scenario_count": 150,
+  "scenarios_file": "core_scenarios.jsonl",
+  "categories": [
+    "cascading_errors",
+    "context_degradation",
+    "failure_recovery",
+    "goal_drift",
+    "instruction_forgetting",
+    "long_session_stress",
+    "prompt_injection",
+    "tool_reliability"
+  ],
+  "difficulties": [
+    "easy",
+    "extreme",
+    "hard",
+    "medium"
+  ],
+  "lengths": [
+    5,
+    10,
+    15,
+    20,
+    30
+  ]
+}

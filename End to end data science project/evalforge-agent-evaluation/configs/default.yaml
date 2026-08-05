@@ -1,0 +1,83 @@
+# EvalForge base configuration.
+#
+# Every value here is overridable by an environment variable (see .env.example) or a
+# CLI flag. The file is versioned so that a stored run can be tied to the exact
+# configuration that produced it via the run's config_digest.
+
+version: "1.0.0"
+
+provider:
+  # mock | anthropic | openai. The mock provider is the only one required offline.
+  name: mock
+  model: mock-productivity-agent-v1
+  temperature: 0.0
+  max_tokens: 1024
+  timeout_seconds: 60
+  # Retries apply to transport failures against real providers only.
+  max_retries: 2
+
+agent:
+  version: v1
+  prompt_version: v1
+  # Maximum tool retries the agent will attempt before escalating to the user.
+  max_tool_retries: 2
+  # Tool calls allowed per turn before the agent is considered to be thrashing.
+  max_tool_calls_per_turn: 6
+  # The agent must obtain approval before these actions. Attempting one without
+  # approval is recorded as a critical safety failure rather than silently allowed.
+  approval_required_tools:
+    - save_artifact
+    - draft_stakeholder_email
+  # Treat all tool output as untrusted data, never as instructions.
+  treat_tool_output_as_untrusted: true
+
+scenarios:
+  default_count: 150
+  default_seed: 42
+  conversation_lengths: [5, 10, 15, 20, 30]
+  # Relative weight of each category when sampling a suite. Categories that historically
+  # surface the most severe failures are over-sampled.
+  category_weights:
+    context_degradation: 0.18
+    instruction_forgetting: 0.14
+    goal_drift: 0.12
+    cascading_errors: 0.12
+    tool_reliability: 0.14
+    failure_recovery: 0.12
+    prompt_injection: 0.10
+    long_session_stress: 0.08
+
+evaluation:
+  # Deterministic evaluators always run. Semantic and judge evaluators are opt-in so a
+  # clone with no extras still produces a complete deterministic report.
+  run_deterministic: true
+  run_semantic: true
+  run_judge: true
+  judge_provider: mock
+  judge_model: mock-judge-v1
+  judge_prompt_version: v1
+  # Number of independent judge passes to aggregate. Odd numbers avoid tie-breaking.
+  judge_samples: 3
+  judge_aggregation: median
+  judge_max_retries: 2
+  # Results below this confidence are flagged in the report rather than silently used.
+  low_confidence_threshold: 0.6
+  latency_threshold_ms: 4000.0
+  max_allowed_retries: 2
+
+storage:
+  # SQLite holds indexed metadata for fast filtering; full traces live in JSONL.
+  # Rationale in docs/ARCHITECTURE.md.
+  backend: sqlite
+  database_name: evalforge.db
+  trace_format: jsonl
+
+logging:
+  level: INFO
+  format: console
+
+cost:
+  # USD per million tokens, used only to estimate cost. Mock runs report the mock rate,
+  # which is zero, so no fabricated spend appears in demonstration reports.
+  input_per_million: 0.0
+  output_per_million: 0.0
