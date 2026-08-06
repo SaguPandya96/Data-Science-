@@ -74,15 +74,34 @@ def make_run_id(label: str, seed: int, suite_id: str, profile: str) -> str:
     return stable_id("run", label, seed, suite_id, profile)
 
 
+#: Abort causes that say nothing about the agent under test. A rate limit is a property
+#: of our account, not the model's competence, so a session lost to one must not be
+#: scored as a model failure.
+_INFRASTRUCTURE_MARKERS = ("rate_limit", "429", "tpm", "tpd", "quota", "insufficient_quota")
+
+
+def _is_infrastructure_failure(error: Exception) -> bool:
+    """Whether an abort reflects our quota rather than the agent's behaviour."""
+    text = str(error).lower()
+    return any(marker in text for marker in _INFRASTRUCTURE_MARKERS)
+
+
 def _aborted_session(
     run_id: str, scenario: Scenario, error: Exception, store: RunStore
 ) -> SessionSummary:
-    """Record a scenario that could not be executed as a failed session.
+    """Record a scenario that could not be executed.
 
-    Scored zero rather than omitted. An absent session would quietly shrink the
-    denominator and inflate every rate in the report, which is the wrong direction for
-    an evaluation system to be wrong in.
+    Scored zero rather than omitted **when the agent is at fault**, because an absent
+    session would shrink the denominator and inflate every rate in the report.
+
+    Infrastructure failures are different in kind. A session lost to a rate limit tells
+    us nothing about the model, and scoring it zero would silently attribute our own
+    quota exhaustion to the agent. Those are flagged ``excluded`` so metrics can leave
+    them out and the report can say how many were never evaluated. Getting this wrong
+    in the generous direction inflates scores; getting it wrong in this direction
+    understates them, and both are misreporting.
     """
+    infrastructure = _is_infrastructure_failure(error)
     summary = SessionSummary(
         run_id=run_id,
         session_id=stable_id("ses", run_id, scenario.scenario_id),
@@ -94,6 +113,8 @@ def _aborted_session(
         passed=False,
         metadata={
             "aborted": True,
+            "excluded": infrastructure,
+            "abort_cause": "infrastructure" if infrastructure else "agent",
             "error_type": type(error).__name__,
             "error": str(error)[:500],
         },
@@ -196,7 +217,14 @@ def run_evaluation(
         if progress:
             progress(index, len(scenarios), scenario.scenario_id)
 
-    metrics = compute_metrics(resolved_run_id, session_summaries, all_results, seed=seed)
+    # Sessions lost to our own quota are reported but never scored: including them
+    # would attribute an infrastructure failure to the agent.
+    scored = [s for s in session_summaries if not s.metadata.get("excluded")]
+    excluded = len(session_summaries) - len(scored)
+    if excluded:
+        logger.warning("sessions_excluded_from_scoring", count=excluded, reason="infrastructure")
+
+    metrics = compute_metrics(resolved_run_id, scored, all_results, seed=seed)
 
     # Decide the release verdict here rather than defaulting it. Storing a placeholder
     # and only correcting it when `evalforge report` happens to run left every freshly
@@ -216,7 +244,7 @@ def run_evaluation(
         agent_version=config.agent.version,
         started_at=started,
         completed_at=datetime.now(UTC),
-        session_count=len(session_summaries),
+        session_count=len(scored),
         metrics=dict(metrics.scalars),
         release_decision=decision,
         config_digest=config.digest,
@@ -225,6 +253,7 @@ def run_evaluation(
             "seed": seed,
             "scenario_count": len(scenarios),
             "evaluator_count": len(evaluators),
+            "sessions_excluded": excluded,
         },
     )
     store.save_run(run_summary)

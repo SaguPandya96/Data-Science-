@@ -37,6 +37,17 @@ def main() -> int:
     parser.add_argument("--provider", default="openai", choices=["openai", "anthropic"])
     parser.add_argument("--model", default="llama-3.3-70b-versatile")
     parser.add_argument("--label", default=None)
+    parser.add_argument(
+        "--pace",
+        type=float,
+        default=20.0,
+        help=(
+            "Seconds to pause between scenarios. Free tiers meter tokens per minute, "
+            "and a suite run back-to-back exhausts that window even though the daily "
+            "budget is untouched. Pausing costs wall-clock time and buys sessions that "
+            "are actually scored."
+        ),
+    )
     args = parser.parse_args()
 
     label = args.label or args.model.split("/")[-1]
@@ -57,6 +68,8 @@ def main() -> int:
             f"{elapsed / 60:.1f}m elapsed, ~{rate * (total - done) / 60:.1f}m left",
             flush=True,
         )
+        if args.pace and done < total:
+            time.sleep(args.pace)
 
     result = run_evaluation(
         scenarios,
