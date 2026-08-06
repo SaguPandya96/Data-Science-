@@ -243,6 +243,26 @@ def _backoff(attempt: int, error: Exception | None = None) -> None:
     time.sleep(delay + random.uniform(0, delay * 0.25))
 
 
+#: Appended to the final user message every turn. The protocol also sits in the system
+#: prompt, but a system prompt is far away by the twentieth turn and smaller models
+#: attend most strongly to the last thing they read. Repeating the requirement here
+#: raises emission rates enough to matter: without it, a model that is in fact carrying
+#: every fact reports nothing, and context-retention scoring reads that as amnesia.
+STATE_REMINDER = (
+    "\n\n[Reminder: end your reply with the ```evalforge_state fenced JSON block, "
+    "restating every fact you are still carrying.]"
+)
+
+
+def _with_reminder(messages: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Append the protocol reminder to the last user message."""
+    for message in reversed(messages):
+        if message["role"] == "user":
+            message["content"] += STATE_REMINDER
+            break
+    return messages
+
+
 def _alternating(messages: Sequence[Any]) -> list[dict[str, str]]:
     """Normalise a transcript into strictly alternating user/assistant messages.
 
@@ -305,7 +325,7 @@ class AnthropicModelProvider:
         Raises:
             ProviderResponseError: If every attempt fails.
         """
-        messages = _alternating(request.messages)
+        messages = _with_reminder(_alternating(request.messages))
         started = time.perf_counter()
         last_error: Exception | None = None
 
@@ -404,11 +424,7 @@ class OpenAICompatibleProvider:
             ProviderResponseError: If every attempt fails.
         """
         messages = [{"role": "system", "content": _system_prompt(request.system_prompt)}]
-        messages.extend(
-            {"role": "assistant" if m.role == "assistant" else "user", "content": m.content}
-            for m in request.messages
-            if m.content
-        )
+        messages.extend(_with_reminder(_alternating(request.messages)))
         started = time.perf_counter()
         last_error: Exception | None = None
 
