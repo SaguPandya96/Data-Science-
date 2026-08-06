@@ -81,6 +81,13 @@ jobs:
       - name: mypy
         run: mypy src
 
+      - name: Documentation matches the code
+        # Guards against silent drift: the test-count badge went stale twice before
+        # this check existed. Runs only on one interpreter since it inspects the
+        # repository rather than runtime behaviour.
+        if: matrix.python-version == '3.11'
+        run: python scripts/audit_docs.py
+
       - name: Unit tests
         run: pytest tests/unit -q --cov=evalforge --cov-report=xml --cov-report=term
 

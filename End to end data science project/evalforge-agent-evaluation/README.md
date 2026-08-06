@@ -478,6 +478,7 @@ evalforge-agent-evaluation/
 
 ```bash
 make check          # lint + types + full suite, everything CI runs
+python scripts/audit_docs.py   # verify the docs still match the code
 pytest -q           # 258 tests
 pytest tests/unit -q
 pytest tests/integration -q
@@ -503,7 +504,7 @@ network.** Everything uses the deterministic mock provider.
 
 | Job | Does |
 |---|---|
-| **quality** | Ruff lint, format check, mypy, unit tests on Python 3.11 and 3.12, coverage upload |
+| **quality** | Ruff lint, format check, mypy, a documentation audit, unit tests on Python 3.11 and 3.12, coverage upload |
 | **integration** | Integration tests and golden-fixture regression tests |
 | **evaluation** | Generates a suite, runs baseline and candidate, gates the baseline report on its blocking thresholds, then runs the regression comparison |
 | **demo** | Full 150-scenario demonstration, `workflow_dispatch` only |
