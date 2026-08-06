@@ -5,7 +5,7 @@
 [![EvalForge](https://github.com/SaguPandya96/Data-Science-/actions/workflows/evalforge-tests.yml/badge.svg)](https://github.com/SaguPandya96/Data-Science-/actions/workflows/evalforge-tests.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-256%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-258%20passing-brightgreen)
 [![Live demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://evalforge-agent-evaluation.streamlit.app)
 
 EvalForge evaluates **complete agent sessions**, not isolated model responses. It
@@ -16,10 +16,12 @@ whether the agent revision is shippable.
 
 **[Try the live dashboard](https://evalforge-agent-evaluation.streamlit.app)** — it generates a small suite and evaluates two agent revisions on first load.
 
-> **Every number in this repository was produced by a deterministic simulated model.**
-> They characterise the *evaluation system*, not any language model's capability. This is
-> deliberate (see [ADR-003](docs/adr/ADR-003-offline-deterministic-provider.md)) and is
-> stated on every generated report. Full detail in [LIMITATIONS.md](docs/LIMITATIONS.md).
+> **Nearly every number here was produced by a deterministic simulated model**, and
+> characterises the *evaluation system* rather than any language model's capability. That
+> is deliberate (see [ADR-003](docs/adr/ADR-003-offline-deterministic-provider.md)) and is
+> stated on every generated report. The one exception is
+> [a first run against a real model](#a-first-run-against-a-real-model), which is
+> explicitly scoped and underpowered. Full detail in [LIMITATIONS.md](docs/LIMITATIONS.md).
 
 ---
 
@@ -31,7 +33,8 @@ whether the agent revision is shippable.
 - [Installation](#installation) · [Quick start](#quick-start) · [CLI](#cli)
 - [Dashboard](#dashboard) · [Evaluation methodology](#evaluation-methodology)
 - [Human alignment](#human-alignment) · [Regression testing](#regression-testing)
-- [Sample results](#sample-results) · [Repository structure](#repository-structure)
+- [Sample results](#sample-results) · [A first run against a real model](#a-first-run-against-a-real-model)
+- [Repository structure](#repository-structure)
 - [Testing](#testing) · [CI](#continuous-integration) · [Limitations](#limitations)
 - [Roadmap](#roadmap)
 
@@ -375,6 +378,76 @@ Full reports: [`reports/release_baseline.md`](reports/release_baseline.md) ·
 
 ---
 
+## A first run against a real model
+
+Everything above comes from the simulated agent. The harness also runs against real
+models, and this is what came back from the first attempt.
+
+**Llama 3.1 8B Instant, via Groq's free tier, 10 adversarial scenarios, n = 6 scored.**
+
+Two results are worth stating:
+
+- **It never passed a single adversarial scenario.** Pass rate 0.0%, across every
+  attempt, on every scenario it completed.
+- **It resisted every prompt injection.** Injection resistance 1.000, holding across
+  four separate runs.
+
+Everything else the run produced is real but underpowered, and is recorded here rather
+than headlined:
+
+| Metric | Score | |
+|---|---:|---|
+| Overall score | 0.453 | |
+| Context retention | 0.592 | |
+| Instruction adherence | 0.433 | |
+| Tool selection accuracy | 0.653 | |
+| Tool argument accuracy | 1.000 | |
+| Release decision | **FAIL** | |
+
+### Why n = 6, and why that number is stated rather than hidden
+
+Ten scenarios were attempted. One exceeded the model's context window on a 30-turn
+conversation, which is a genuine limitation and is scored as a failure. Four more were
+lost to Groq's free-tier token-per-minute ceiling, and those are **excluded from scoring
+entirely** — a session lost to my own quota says nothing about the model, and counting
+it as a failure would attribute my rate limit to Llama.
+
+Six scored sessions is far too few to characterise a model. `LIMITATIONS.md` treats
+subgroups below n = 20 as mostly noise, and n = 6 is well past that line. The two claims
+above survive because they are qualitative and consistent across every run; the table is
+not a characterisation of Llama 3.1 8B and should not be quoted as one.
+
+### What this cost to get right
+
+Four runs produced numbers before this one, and none of them were publishable:
+
+| Run | Reported | Why it was wrong |
+|---|---|---|
+| 1 | crashed at 2/40 | No backoff on the OpenAI path at all |
+| 2 | crashed at 2/10 | A tool crashed on a phase list of strings |
+| 3 | retention 0.438 | The model often never emitted the state block, so a model that was carrying its facts reported nothing and scored as amnesiac |
+| 4 | retention 0.068 | Daily quota exhausted; nine sessions scored zero for running out of tokens |
+
+Each looked like a finding. Each was an artifact of the harness. The fixes are in
+`docs/DEVELOPMENT_LOG.md`; the short version is that pointing an evaluation system at a
+real model found seven defects that a simulated one structurally could not.
+
+### Reproducing it
+
+```bash
+export OPENAI_API_KEY=...          # or ANTHROPIC_API_KEY
+export OPENAI_BASE_URL=https://api.groq.com/openai/v1
+python scripts/run_real_model.py --count 10 --model llama-3.1-8b-instant --pace 25
+```
+
+Check `state_block_missing` and the excluded-session count in the log **before** reading
+any score. If either is high, the numbers describe the harness rather than the model.
+
+A properly powered run needs a paid tier: roughly $1–3 buys n = 40 without rate limiting.
+That is the obvious next step and has not been done.
+
+---
+
 ## Repository structure
 
 ```text
@@ -405,7 +478,7 @@ evalforge-agent-evaluation/
 
 ```bash
 make check          # lint + types + full suite, everything CI runs
-pytest -q           # 256 tests
+pytest -q           # 258 tests
 pytest tests/unit -q
 pytest tests/integration -q
 pytest tests/regression -q
@@ -465,7 +538,8 @@ Full detail: [LIMITATIONS.md](docs/LIMITATIONS.md).
 
 ## Roadmap
 
-1. Run against a real model. The provider layer supports it; these results do not use it
+1. A properly powered real-model run. One underpowered run exists (n = 6); a paid tier
+   would give n = 40 without rate limiting
 2. Collect real human annotations to replace the synthetic ones
 3. Plug in a real embedder so semantic evaluation stops being a lexical proxy
 4. Mine production traces for failure modes the taxonomy is missing

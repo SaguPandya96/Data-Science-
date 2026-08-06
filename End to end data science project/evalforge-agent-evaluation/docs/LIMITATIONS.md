@@ -30,6 +30,11 @@ simulated model behavior."* See ADR-003 for why the mock is mandatory anyway: wi
 there is no CI, no reproducible regression gate, and no way for a reviewer to run
 anything.
 
+**One exception.** A single underpowered run against Llama 3.1 8B exists, reported in
+the README under "A first run against a real model". It is explicitly scoped: n = 6
+scored sessions, two qualitative claims, and no characterisation of the model. Everything
+else in this repository is simulated.
+
 **What would make the numbers mean something about a model:** running
 `evalforge run --provider anthropic` (or `openai`) with credentials. The pipeline
 supports it; the results in this repository do not use it.

@@ -213,7 +213,7 @@ evidence about human agreement and shouldn't be read as any.
 
 ## Tests, and two more bugs
 
-256 tests. The two that matter most are the bounds: a flawless session must produce zero
+258 tests. The two that matter most are the bounds: a flawless session must produce zero
 failures, and a pathological one must be caught. An evaluation harness that can't do both
 is worse than none, because it reports green while measuring nothing.
 
