@@ -9,7 +9,7 @@ without the sentence that qualifies the number.
 
 ## 1. The single most important limitation
 
-**Every number in this repository was produced by a simulated model.**
+**Nearly every number in this repository was produced by a simulated model.**
 
 The demonstration runs use `MockModelProvider`, which produces the behaviour its
 configuration tells it to produce. It is not a language model and does not approximate
@@ -35,9 +35,10 @@ the README under "A first run against a real model". It is explicitly scoped: n 
 scored sessions, two qualitative claims, and no characterisation of the model. Everything
 else in this repository is simulated.
 
-**What would make the numbers mean something about a model:** running
-`evalforge run --provider anthropic` (or `openai`) with credentials. The pipeline
-supports it; the results in this repository do not use it.
+**What would make the rest of the numbers mean something about a model:** a
+properly powered run through `scripts/run_real_model.py` on a tier without rate
+limiting. Roughly $1-3 buys n = 40. One underpowered run has been done; every headline
+demonstration figure still comes from the mock.
 
 ---
 
