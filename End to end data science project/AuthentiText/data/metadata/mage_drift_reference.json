@@ -1,0 +1,1124 @@
+{
+  "backtest": {
+    "domain_shift": {
+      "detected": 9,
+      "domains": 9,
+      "results": [
+        {
+          "investigation_required": true,
+          "name": "cmv",
+          "rows": 1655,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.222936
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.192526
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.178208
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.180346
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "eli5",
+          "rows": 2152,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.176692
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.113442
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.046305
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.072018
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "hswag",
+          "rows": 2072,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.193704
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.128011
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.377506
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.40849
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "roct",
+          "rows": 2134,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.179332
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.122789
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.30524
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.248226
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "sci_gen",
+          "rows": 1622,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.093617
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.061756
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.273649
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.277435
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "squad",
+          "rows": 1642,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.139491
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.097243
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.207804
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.180193
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "tldr",
+          "rows": 1668,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.159932
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.108174
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.208392
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.192381
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "xsum",
+          "rows": 2185,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.104141
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.095783
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.253943
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.259848
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "yelp",
+          "rows": 1732,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": true,
+              "threshold": 0.070703,
+              "total_variation": 0.352659
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.305692
+            },
+            "character_histogram": {
+              "flagged": true,
+              "threshold": 0.05224,
+              "total_variation": 0.114437
+            },
+            "token_histogram": {
+              "flagged": true,
+              "threshold": 0.048325,
+              "total_variation": 0.088195
+            }
+          }
+        }
+      ],
+      "sensitivity": 1.0
+    },
+    "false_alert_audit": {
+      "false_alert_rate": 0.05,
+      "flagged": 1,
+      "results": [
+        {
+          "investigation_required": false,
+          "name": "hash_window_40",
+          "rows": 922,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.044298
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.022305
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.020728
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.031957
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_41",
+          "rows": 825,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.054455
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.019511
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.010789
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.036327
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_42",
+          "rows": 805,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.064202
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.018242
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.016926
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.033154
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_43",
+          "rows": 823,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.055836
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.006791
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.052119
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.045015
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_44",
+          "rows": 883,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.039202
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.024229
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.034317
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.035349
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_45",
+          "rows": 841,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.039092
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.029125
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.024626
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.022521
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_46",
+          "rows": 855,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.053048
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.012855
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.023127
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.030586
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_47",
+          "rows": 760,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.057821
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.011247
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.0304
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.021819
+            }
+          }
+        },
+        {
+          "investigation_required": true,
+          "name": "hash_window_48",
+          "rows": 854,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.049007
+            },
+            "categories": {
+              "flagged": true,
+              "threshold": 0.045814,
+              "total_variation": 0.048155
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.01041
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.02202
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_49",
+          "rows": 857,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.040311
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.016877
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.024454
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.023665
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_50",
+          "rows": 861,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.04786
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.022542
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.029698
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.026075
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_51",
+          "rows": 863,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.029559
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.007297
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.014004
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.022817
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_52",
+          "rows": 824,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.04512
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.014967
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.013919
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.01902
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_53",
+          "rows": 826,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.028759
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.011614
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.020339
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.017423
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_54",
+          "rows": 868,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.035081
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.013653
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.02663
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.027791
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_55",
+          "rows": 879,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.043114
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.035853
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.021978
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.020701
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_56",
+          "rows": 832,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.042483
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.034906
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.014294
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.037497
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_57",
+          "rows": 788,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.04492
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.029677
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.019193
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.021543
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_58",
+          "rows": 849,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.04673
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.023055
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.026859
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.017642
+            }
+          }
+        },
+        {
+          "investigation_required": false,
+          "name": "hash_window_59",
+          "rows": 847,
+          "signals": {
+            "calibrated_score_histogram": {
+              "flagged": false,
+              "threshold": 0.070703,
+              "total_variation": 0.041593
+            },
+            "categories": {
+              "flagged": false,
+              "threshold": 0.045814,
+              "total_variation": 0.020223
+            },
+            "character_histogram": {
+              "flagged": false,
+              "threshold": 0.05224,
+              "total_variation": 0.010263
+            },
+            "token_histogram": {
+              "flagged": false,
+              "threshold": 0.048325,
+              "total_variation": 0.012352
+            }
+          }
+        }
+      ],
+      "windows": 20
+    }
+  },
+  "configuration": {
+    "audit_and_domain_records_disjoint_from_reference": true,
+    "automatic_action": false,
+    "distance": "total variation",
+    "false_alert_audit_windows": [
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59
+    ],
+    "hash_window_assignment": "sha256(record_id) first 64 bits modulo 60",
+    "investigation_rule": "flag when any signal distance is strictly above threshold",
+    "reference_windows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39
+    ],
+    "test_data_used": false,
+    "threshold_rule": "maximum leave-one-window-out threshold-selection distance per signal",
+    "threshold_selection_windows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39
+    ]
+  },
+  "drift_version": 1,
+  "identity": {
+    "dataset_id": "yaful/MAGE",
+    "model": {
+      "base_model_sha256": "474481ed4548f89c3d0308bb8389f114f1e1d55a4436c300e3e9fb08d4eb45dd",
+      "calibration_sha256": "ae50d3947e9a541163346e0fd38ad16cbe7a80a98b9b7ffa0036ce80cfea50d3",
+      "name": "word_tfidf_logistic_isotonic"
+    },
+    "predictions": {
+      "bytes": 2672174,
+      "relative_path": "word_tfidf_logistic.jsonl.gz",
+      "rows": 50509,
+      "sha256": "5eacbdbdb6f6cbccbe1bd215a36d4988c5fc2a00b2597e7de8bc989029a62fae"
+    },
+    "reference": {
+      "hash_windows": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "rows": 33647
+    },
+    "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+    "validation": {
+      "bytes": 26112831,
+      "relative_path": "validation.jsonl.gz",
+      "rows": 50509,
+      "sha256": "64a997db40e98059389fed9e1dd593015e45da68f2dddd22d67e098c6eadec39"
+    }
+  },
+  "reference_distribution": {
+    "calibrated_score_histogram": [
+      {
+        "count": 1603,
+        "upper_bound": 0.1
+      },
+      {
+        "count": 3024,
+        "upper_bound": 0.2
+      },
+      {
+        "count": 4993,
+        "upper_bound": 0.3
+      },
+      {
+        "count": 3588,
+        "upper_bound": 0.4
+      },
+      {
+        "count": 6389,
+        "upper_bound": 0.5
+      },
+      {
+        "count": 3319,
+        "upper_bound": 0.6
+      },
+      {
+        "count": 2639,
+        "upper_bound": 0.7
+      },
+      {
+        "count": 1196,
+        "upper_bound": 0.8
+      },
+      {
+        "count": 2633,
+        "upper_bound": 0.9
+      },
+      {
+        "count": 4263,
+        "upper_bound": 1.0
+      },
+      {
+        "count": 0,
+        "upper_bound": null
+      }
+    ],
+    "categories": {
+      "likely_human": 5314,
+      "likely_machine": 7949,
+      "uncertain": 20384
+    },
+    "character_histogram": [
+      {
+        "count": 272,
+        "upper_bound": 49
+      },
+      {
+        "count": 4288,
+        "upper_bound": 199
+      },
+      {
+        "count": 9786,
+        "upper_bound": 499
+      },
+      {
+        "count": 7913,
+        "upper_bound": 999
+      },
+      {
+        "count": 10611,
+        "upper_bound": 4999
+      },
+      {
+        "count": 771,
+        "upper_bound": 19999
+      },
+      {
+        "count": 6,
+        "upper_bound": 100000
+      },
+      {
+        "count": 0,
+        "upper_bound": null
+      }
+    ],
+    "rows": 33647,
+    "token_histogram": [
+      {
+        "count": 8990,
+        "upper_bound": 49
+      },
+      {
+        "count": 7365,
+        "upper_bound": 99
+      },
+      {
+        "count": 7812,
+        "upper_bound": 199
+      },
+      {
+        "count": 6377,
+        "upper_bound": 511
+      },
+      {
+        "count": 2940,
+        "upper_bound": 1023
+      },
+      {
+        "count": 157,
+        "upper_bound": 4095
+      },
+      {
+        "count": 6,
+        "upper_bound": 100000
+      },
+      {
+        "count": 0,
+        "upper_bound": null
+      }
+    ]
+  },
+  "schema_version": 1,
+  "thresholds": {
+    "minimum_observations": 760,
+    "total_variation": {
+      "calibrated_score_histogram": 0.070703386134,
+      "categories": 0.045813992952,
+      "character_histogram": 0.052239784889,
+      "token_histogram": 0.048325451015
+    }
+  },
+  "validation": {
+    "calibrator_link_verified": true,
+    "published_test_data_used": false,
+    "reference_and_audit_records_disjoint": true,
+    "source_files_hash_verified": true,
+    "status": "pass",
+    "threshold_and_audit_windows_disjoint": true,
+    "validation_prediction_ids_matched": true
+  }
+}

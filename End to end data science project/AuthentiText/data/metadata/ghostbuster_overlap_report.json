@@ -1,0 +1,148 @@
+{
+  "auditor_version": 1,
+  "configuration": {
+    "edge_token_blocks": 8,
+    "exact_key": "sha256(utf8(text))",
+    "external_scoring_policy": "exclude every listed external record before frozen scoring",
+    "max_candidate_pairs": 2000000,
+    "max_external_block_size": 100,
+    "near_scope": "population blocking across every development and external row",
+    "normalized_key": "sha256(utf8(collapse_whitespace(casefold(NFKC(text)))))",
+    "shingle_size": 5,
+    "similarity": "Jaccard over hashed word shingles",
+    "similarity_threshold": 0.8,
+    "sketch": "bottom-8 BLAKE2b-64 word-shingle hashes",
+    "tokenization": "Unicode word tokens after equality normalization"
+  },
+  "cross_dataset_exact": {
+    "conflicting_target_pairs": 0,
+    "distinct_external_records": 0,
+    "distinct_mage_records": 0,
+    "edges": [],
+    "pairs": 0
+  },
+  "cross_dataset_near": {
+    "blocks_retained": 195255,
+    "candidate_development_records": 19542,
+    "candidate_external_records": 6957,
+    "candidate_pairs": 100013,
+    "confirmed_pairs": 0,
+    "distinct_development_records": 0,
+    "distinct_external_records": 0,
+    "edges": [],
+    "maximum_similarity": null,
+    "minimum_similarity": null,
+    "normalized_equal_candidate_pairs_excluded": 0,
+    "skipped_block_memberships": 1146,
+    "skipped_oversize_blocks": 6,
+    "tokenless_development_records_not_blocked": 1,
+    "tokenless_external_records_not_blocked": 0
+  },
+  "cross_dataset_normalized": {
+    "conflicting_target_pairs": 0,
+    "distinct_external_records": 0,
+    "distinct_mage_records": 0,
+    "edges": [],
+    "normalization_only_pairs": 0,
+    "pairs": 0
+  },
+  "datasets": {
+    "development": {
+      "dataset_id": "yaful/MAGE",
+      "inputs": [
+        {
+          "bytes": 152640483,
+          "partition": "train",
+          "relative_path": "train.jsonl.gz",
+          "rows": 287843,
+          "sha256": "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918"
+        },
+        {
+          "bytes": 26112831,
+          "partition": "validation",
+          "relative_path": "validation.jsonl.gz",
+          "rows": 50509,
+          "sha256": "64a997db40e98059389fed9e1dd593015e45da68f2dddd22d67e098c6eadec39"
+        },
+        {
+          "bytes": 26065720,
+          "partition": "test",
+          "relative_path": "test.jsonl.gz",
+          "rows": 50567,
+          "sha256": "0fe309466be85f146e37bfdbf1fee30024286193b8756972a52a6d313827d44d"
+        }
+      ],
+      "partition_counts": {
+        "test": 50567,
+        "train": 287843,
+        "validation": 50509
+      },
+      "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+      "rows": 388919
+    },
+    "external": {
+      "bytes": 27319331,
+      "dataset_id": "vivek3141/ghostbuster-data",
+      "relative_path": "main.jsonl.gz",
+      "revision": "86ebd72590556a81622986fab736ab9227a948af",
+      "rows": 20994,
+      "sha256": "27238c202fd7f3b5a27620193cf0a8f24d5b5c034fe5547915eadd06cd3c0a66"
+    }
+  },
+  "exclusions": {
+    "external_records": 3,
+    "external_rows_after_exclusion": 20991,
+    "external_target_counts": {
+      "0": 2,
+      "1": 1
+    },
+    "records": [
+      {
+        "external_record_id": "36f55b5c7ff82b373f72fa4fd214ad647a3c6fe7bf972d824271c8f19543fadd",
+        "reasons": [
+          "internal_normalized_duplicate"
+        ]
+      },
+      {
+        "external_record_id": "91f26742e4e7dee723f6c93dcb880fa184ec1436c070c72930ccce413475f162",
+        "reasons": [
+          "internal_normalized_duplicate"
+        ]
+      },
+      {
+        "external_record_id": "d925b9cc18301d09c72cb303ec5946226f8983bba70c615ee9db9ffb6d534a39",
+        "reasons": [
+          "internal_normalized_duplicate"
+        ]
+      }
+    ]
+  },
+  "external_internal_overlap": {
+    "exact": {
+      "conflicting_target_groups": 0,
+      "duplicate_extra_rows": 1,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 2
+    },
+    "normalized": {
+      "conflicting_target_groups": 0,
+      "duplicate_extra_rows": 3,
+      "duplicate_groups": 3,
+      "rows_in_duplicate_groups": 6
+    }
+  },
+  "schema_version": 1,
+  "validation": {
+    "all_confirmed_overlap_resolved_by_external_exclusion": true,
+    "limitations": [
+      "Exact and normalized comparisons are population censuses; the near check uses bounded blocking and can miss pairs that share no retained block key.",
+      "Oversize external blocks are skipped and counted to bound candidate growth.",
+      "Nonblank records without Unicode word tokens participate in exact and normalized checks but not word-shingle blocking.",
+      "Word-shingle Jaccard measures lexical overlap, not semantic paraphrase."
+    ],
+    "model_scoring_performed": false,
+    "outcome_data_used_to_define_exclusions": false,
+    "raw_text_in_report": false,
+    "status": "pass"
+  }
+}

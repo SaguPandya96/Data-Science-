@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "dataset": "MAGE",
+  "dataset_id": "yaful/MAGE",
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "release_last_modified_utc": "2024-05-22T01:59:05Z",
+  "retrieved_at_utc": "2026-08-08T23:26:00Z",
+  "source": "https://huggingface.co/datasets/yaful/MAGE",
+  "license_note": "The repository and dataset card state Apache-2.0; upstream source terms still require review before redistribution.",
+  "intended_role": "Development-only OOD stress tests; never a final external test set.",
+  "label_semantics": {
+    "raw_to_semantic": {
+      "0": "machine_generated",
+      "1": "human_written"
+    },
+    "source_revision": "6d11f851184b9f04166f952ddc1f47727f36710f",
+    "source_url": "https://github.com/yafuly/MAGE/blob/6d11f851184b9f04166f952ddc1f47727f36710f/README.md#data-format",
+    "canonical_machine_positive_mapping": {
+      "0": 1,
+      "1": 0
+    }
+  },
+  "files": [
+    {
+      "name": "gpt_ood",
+      "relative_path": "mage/test_ood_set_gpt.csv",
+      "url": "https://huggingface.co/datasets/yaful/MAGE/resolve/342663f0a2b775455c023f5d36a1341ff0ec5402/test_ood_set_gpt.csv?download=true",
+      "size_bytes": 2191864,
+      "sha256": "b9fe1faaa45fbbad446f527da12d42e3e9e3bbd207f7ea054e81ec8e922016d2",
+      "source_git_blob_oid": "277fb168cc85d1be33f5d5aad7094ae2f77af8dd",
+      "expected_columns": [
+        "text",
+        "label",
+        "src"
+      ]
+    },
+    {
+      "name": "paraphrase_ood",
+      "relative_path": "mage/test_ood_set_gpt_para.csv",
+      "url": "https://huggingface.co/datasets/yaful/MAGE/resolve/342663f0a2b775455c023f5d36a1341ff0ec5402/test_ood_set_gpt_para.csv?download=true",
+      "size_bytes": 3614100,
+      "sha256": "a587909d155447ea2768cbd8f695a7febb65cdd7414da5c3b5ff6d6397463725",
+      "source_git_blob_oid": "14c2628d7823792386861e3cb400673d59905813",
+      "expected_columns": [
+        "text",
+        "label",
+        "src"
+      ]
+    }
+  ]
+}

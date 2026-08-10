@@ -1,0 +1,160 @@
+{
+  "auditor_version": 2,
+  "candidate_generation": {
+    "blocks": 142356,
+    "candidate_pairs": 5863,
+    "normalized_equal_candidate_pairs_excluded": 1,
+    "skipped_block_memberships": 104,
+    "skipped_oversize_blocks": 1
+  },
+  "configuration": {
+    "edge_token_blocks": 8,
+    "max_bucket_size": 100,
+    "max_candidate_pairs": 2000000,
+    "normalization": "NFKC, case-fold, collapse whitespace, Unicode word tokens",
+    "per_source": 20,
+    "scope": "sampled cross-partition high-overlap audit",
+    "selection": "lowest record IDs per partition/source stratum",
+    "shingle_size": 5,
+    "similarity": "Jaccard over hashed word shingles",
+    "similarity_threshold": 0.8,
+    "sketch": "bottom-8 BLAKE2b-64 word-shingle hashes"
+  },
+  "dataset_id": "yaful/MAGE",
+  "high_overlap_findings": {
+    "confirmed_edges": [
+      {
+        "first_record_id": "0095312b5ee1d39fe55094f1720290edae025c5e27cb9941c5e9d14b99e9e79d",
+        "partition_pair": "train|test",
+        "second_record_id": "33ee57bd09fc30791433ad135146c379ad04a65a826544cd23a75796ecbd522e",
+        "similarity": 0.83871
+      },
+      {
+        "first_record_id": "0269ff5a5af7e5f50a63f1c2eb13e241019e5be49e00a37a286b4da609fc3d80",
+        "partition_pair": "train|validation",
+        "second_record_id": "2579c8d7a879e7e21f743e47d7bde06fe5a2d532f16a6a19558972ecfe251ec2",
+        "similarity": 0.875
+      },
+      {
+        "first_record_id": "0793601ff298743f51892916aab364db4fc081057903148a466d22b678ee0622",
+        "partition_pair": "train|test",
+        "second_record_id": "33ee57bd09fc30791433ad135146c379ad04a65a826544cd23a75796ecbd522e",
+        "similarity": 0.964286
+      },
+      {
+        "first_record_id": "09853f5e281ecc5ee08bd29ab794295dcc0c1df69e9bc6f30546ecc6db3a82d1",
+        "partition_pair": "train|validation",
+        "second_record_id": "4492b1707519d9a6c1a52a5c7177e840343bfb7279301d0f48f172074e60702d",
+        "similarity": 0.8125
+      },
+      {
+        "first_record_id": "0a28aacc2f3cabb6b2dd4b273bee794c82be7de7537494d4d3d265a9a2be0c58",
+        "partition_pair": "train|test",
+        "second_record_id": "37a80f7169b6b9f811627c9a1f3f9e0403aeac2d6fcd05ce9f1d85c43224158a",
+        "similarity": 0.9
+      },
+      {
+        "first_record_id": "0a28aacc2f3cabb6b2dd4b273bee794c82be7de7537494d4d3d265a9a2be0c58",
+        "partition_pair": "train|test",
+        "second_record_id": "1c6b5135a049279f02a51b0fb27afb582aab424dbdaac29050039a3289ff841c",
+        "similarity": 0.870968
+      },
+      {
+        "first_record_id": "00e862247a1a6caaa7324903621e1cd2abf3552c2c787960f178b54d8f571d23",
+        "partition_pair": "train|test",
+        "second_record_id": "1e917fbf77298533c56bb67716d75609863f8d36e1359ddf46b09d6f1539dd4b",
+        "similarity": 0.870968
+      },
+      {
+        "first_record_id": "08df643ded6631bd59c063f8329f1e1ae427b5015074442b11dd8fdd78d3dc60",
+        "partition_pair": "train|test",
+        "second_record_id": "1dc40448c7fddf79edb9f78969425a27995282bdcc072de957d963c12e320753",
+        "similarity": 0.931034
+      },
+      {
+        "first_record_id": "1a9a5b203efa3e676773257e192656d310a4d4de6e2fec991c40a91cd5b50945",
+        "partition_pair": "validation|test",
+        "second_record_id": "0967789e57de6bd5c957ddfddf93e05c76e173cd704c09242861d868078331d2",
+        "similarity": 0.870968
+      },
+      {
+        "first_record_id": "048f12cdbc46e6de2ca6d1f41896879a27becfa4b0cee2fddefe0b7bde4d0efc",
+        "partition_pair": "validation|test",
+        "second_record_id": "22b306b7093841854c4cc9e1b77eb870f9e4cc6aee2d8a7ed32d54cfb9ba4f37",
+        "similarity": 0.8125
+      },
+      {
+        "first_record_id": "18feae64b0afcd6f43b7b70efd4da1af9fe0c7f4aa9f5fe334698e82e721f6e7",
+        "partition_pair": "validation|test",
+        "second_record_id": "3c3e8e3bc1a08dcc587dff7400447f3fde39dbf7da5edd5aacc86d376e43e951",
+        "similarity": 0.931034
+      },
+      {
+        "first_record_id": "1ebbd3518a6dfe7e36a5d3f9ea9dd95ffaadc435a055f4b8e8308d883d746e40",
+        "partition_pair": "validation|test",
+        "second_record_id": "0967789e57de6bd5c957ddfddf93e05c76e173cd704c09242861d868078331d2",
+        "similarity": 0.870968
+      }
+    ],
+    "confirmed_pairs": 12,
+    "conflicting_target_pairs": 0,
+    "groups": 9,
+    "largest_group_rows": 3,
+    "maximum_similarity": 0.964286,
+    "minimum_similarity": 0.8125,
+    "pair_partition_counts": {
+      "train|test": 6,
+      "train|validation": 2,
+      "validation|test": 4
+    },
+    "rows_in_groups": 21
+  },
+  "inputs": [
+    {
+      "bytes": 152657686,
+      "partition": "train",
+      "relative_path": "train.jsonl.gz",
+      "sha256": "6136394fda1e90e572ae553c2128543b0dd5af83dd5183a0fb9c189b4c2ce1bd"
+    },
+    {
+      "bytes": 26138157,
+      "partition": "validation",
+      "relative_path": "validation.jsonl.gz",
+      "sha256": "841d6bfe0e254b1a99430808340383941b764c9189452e72d2b6e4103d13b06c"
+    },
+    {
+      "bytes": 26070717,
+      "partition": "test",
+      "relative_path": "test.jsonl.gz",
+      "sha256": "95a363e67f17ad29eb3b0a4f7af770dcf603f420435889b65fa0963a43bdcabb"
+    }
+  ],
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "sample": {
+    "distinct_sources": 288,
+    "partition_counts": {
+      "test": 5760,
+      "train": 5760,
+      "validation": 5760
+    },
+    "partition_source_strata": 864,
+    "population_rows": 389073,
+    "record_id_fingerprint": "7fb584fc4b0fb31d1434b41a11b7da6a899869c0c1a4609dd625f3e05a673524",
+    "rows": 17280,
+    "target_counts": {
+      "0": 540,
+      "1": 16740
+    }
+  },
+  "schema_version": 1,
+  "validation": {
+    "limitations": [
+      "This is a deterministic source-balanced sample, not a population census.",
+      "The source-balanced sample is target-skewed and does not estimate a population rate.",
+      "Candidate blocking can miss pairs that share no retained block key.",
+      "Word-shingle Jaccard measures lexical overlap, not semantic paraphrase.",
+      "Oversize blocks are skipped and counted to bound pair growth."
+    ],
+    "status": "pass"
+  }
+}

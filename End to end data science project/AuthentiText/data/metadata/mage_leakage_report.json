@@ -1,0 +1,87 @@
+{
+  "analyzer_version": 1,
+  "configuration": {
+    "exact_key": "processed content_id = sha256(utf8(text))",
+    "near_duplicate_analysis": "not_run_in_this_report",
+    "normalized_key": "sha256(utf8(collapse_whitespace(casefold(NFKC(text)))))"
+  },
+  "dataset_id": "yaful/MAGE",
+  "exact": {
+    "conflicting_target_groups": 0,
+    "conflicting_target_partition_set_counts": {},
+    "cross_partition_groups": 52,
+    "cross_partition_set_counts": {
+      "validation|test": 52
+    },
+    "duplicate_extra_rows": 52,
+    "duplicate_groups": 52,
+    "rows_in_cross_partition_groups": 104,
+    "rows_in_duplicate_groups": 104,
+    "unique_values": 389021,
+    "within_partition_duplicate_groups": 0
+  },
+  "inputs": [
+    {
+      "bytes": 152657686,
+      "partition": "train",
+      "relative_path": "train.jsonl.gz",
+      "sha256": "6136394fda1e90e572ae553c2128543b0dd5af83dd5183a0fb9c189b4c2ce1bd"
+    },
+    {
+      "bytes": 26138157,
+      "partition": "validation",
+      "relative_path": "validation.jsonl.gz",
+      "sha256": "841d6bfe0e254b1a99430808340383941b764c9189452e72d2b6e4103d13b06c"
+    },
+    {
+      "bytes": 26070717,
+      "partition": "test",
+      "relative_path": "test.jsonl.gz",
+      "sha256": "95a363e67f17ad29eb3b0a4f7af770dcf603f420435889b65fa0963a43bdcabb"
+    }
+  ],
+  "normalized_exact": {
+    "conflicting_target_groups": 1,
+    "conflicting_target_partition_set_counts": {
+      "train": 1
+    },
+    "cross_partition_groups": 65,
+    "cross_partition_set_counts": {
+      "train|test": 6,
+      "train|validation": 6,
+      "validation|test": 53
+    },
+    "duplicate_extra_rows": 141,
+    "duplicate_groups": 141,
+    "normalization_only_cross_partition_groups": 13,
+    "rows_in_cross_partition_groups": 130,
+    "rows_in_duplicate_groups": 282,
+    "unique_values": 388932,
+    "within_partition_duplicate_groups": 76
+  },
+  "population": {
+    "partition_counts": {
+      "test": 50583,
+      "train": 287912,
+      "validation": 50578
+    },
+    "rows": 389073,
+    "unique_record_ids": 389073
+  },
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "schema_version": 1,
+  "source_overlap": {
+    "distinct_source_values": 288,
+    "partition_set_counts": {
+      "train|validation|test": 288
+    },
+    "sources_spanning_all_partitions": 288
+  },
+  "validation": {
+    "status": "pass",
+    "violations": [],
+    "warnings": [
+      "normalized duplicate groups have conflicting targets"
+    ]
+  }
+}

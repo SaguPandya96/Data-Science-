@@ -1,0 +1,113 @@
+{
+  "artifacts": [
+    {
+      "bytes": 106,
+      "configuration": {
+        "majority_class": 1,
+        "positive_probability": 0.697911709
+      },
+      "model_type": "majority",
+      "relative_path": "majority.joblib",
+      "sha256": "036b496c23f325ada27f2f173677eabb494dad9ba2541ae0ff9b5a615219f992"
+    },
+    {
+      "bytes": 928,
+      "configuration": {
+        "classifier": {
+          "C": 1.0,
+          "class_weight": "balanced",
+          "max_iter": 1000,
+          "solver": "lbfgs",
+          "tol": 1e-06
+        },
+        "features": [
+          "log1p_characters",
+          "log1p_whitespace_tokens"
+        ],
+        "n_iter": 13
+      },
+      "fit_seconds": 4.616,
+      "model_type": "length_logistic",
+      "relative_path": "length_logistic.joblib",
+      "sha256": "a181b668e26b09c15c1968422e4ee442a48f097acb4bf61aa0a59d22899c3705"
+    },
+    {
+      "bytes": 1578216,
+      "classifier_fit_seconds": 16.545,
+      "configuration": {
+        "classifier": {
+          "C": 1.0,
+          "class_weight": "balanced",
+          "max_iter": 50,
+          "random_state": 1729,
+          "solver": "saga",
+          "tol": 0.001
+        },
+        "vectorizer": {
+          "analyzer": "word",
+          "dtype": "float32",
+          "lowercase": true,
+          "max_df": 0.995,
+          "max_features": 100000,
+          "min_df": 5,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "norm": "l2",
+          "sublinear_tf": true
+        }
+      },
+      "convergence_warnings": [],
+      "model_type": "word_tfidf_logistic",
+      "n_iter": 16,
+      "relative_path": "word_tfidf_logistic.joblib",
+      "sha256": "474481ed4548f89c3d0308bb8389f114f1e1d55a4436c300e3e9fb08d4eb45dd",
+      "training_matrix": {
+        "density": 0.001936018,
+        "features": 100000,
+        "nonzero": 55726925,
+        "rows": 287843
+      },
+      "vectorizer_fit_transform_seconds": 141.768,
+      "vocabulary_size": 100000
+    }
+  ],
+  "baseline_version": 1,
+  "configuration": {
+    "machine_positive_target": 1,
+    "metadata_features_used": [],
+    "random_seed": 1729,
+    "test_data_used": false,
+    "validation_data_used": false
+  },
+  "dataset_id": "yaful/MAGE",
+  "environment": {
+    "joblib": "1.5.3",
+    "numpy": "2.5.1",
+    "python": "3.14.6",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "input": {
+    "bytes": 152640483,
+    "partition": "train",
+    "relative_path": "train.jsonl.gz",
+    "rows": 287843,
+    "sha256": "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918",
+    "target_counts": {
+      "0": 86954,
+      "1": 200889
+    }
+  },
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "schema_version": 1,
+  "timing": {
+    "training_data_load_seconds": 4.771
+  },
+  "validation": {
+    "artifacts_reload_and_score": true,
+    "status": "pass",
+    "tfidf_converged_without_warning": true
+  }
+}

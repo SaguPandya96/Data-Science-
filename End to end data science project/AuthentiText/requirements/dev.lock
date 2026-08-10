@@ -1,0 +1,5 @@
+-r runtime.lock
+httpcore2==2.9.1
+httpx2==2.9.1
+ruff==0.16.2
+truststore==0.10.4

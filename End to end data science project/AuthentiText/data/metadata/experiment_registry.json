@@ -1,0 +1,237 @@
+{
+  "experiments": [
+    {
+      "decision": "Retain all three fitted controls for evaluation.",
+      "evidence": {
+        "artifact_reload_verified": true,
+        "candidate_types": [
+          "majority",
+          "length_logistic",
+          "word_tfidf_logistic"
+        ],
+        "test_data_used": false,
+        "train_rows": 287843,
+        "validation_data_used": false,
+        "word_artifact_bytes": 1578216,
+        "word_artifact_sha256": "474481ed4548f89c3d0308bb8389f114f1e1d55a4436c300e3e9fb08d4eb45dd"
+      },
+      "experiment_id": "baseline_training_v1",
+      "kind": "training",
+      "milestone_commit": "23fe60c",
+      "report": {
+        "relative_path": "data/metadata/mage_baseline_training_report.json",
+        "sha256": "01952ddca55b8638ca0d318ba6d4fb259aeb64069128446b1ca7b2d5a031e23d"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Advance word TF-IDF; reject threshold 0.5 for product decisions.",
+      "evidence": {
+        "average_precision": 0.828215,
+        "candidates_evaluated": 3,
+        "human_false_machine_rate_at_0_5": 0.266089,
+        "records_per_second": 3334.271,
+        "roc_auc": 0.81407,
+        "rows": 50509
+      },
+      "experiment_id": "baseline_validation_v1",
+      "kind": "evaluation",
+      "milestone_commit": "5782059",
+      "report": {
+        "relative_path": "data/metadata/mage_baseline_validation_report.json",
+        "sha256": "3b9f409b9c28d91cb7db94debb3bfac608119ef6e900f08e0457bc3caa277608"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Select isotonic calibration and freeze a three-way abstaining policy.",
+      "evidence": {
+        "audit_coverage": 0.400464,
+        "audit_human_false_machine_rate": 0.050685,
+        "audit_machine_false_human_rate": 0.045665,
+        "audit_rows": 15070,
+        "fit_rows": 20135,
+        "human_threshold": 0.231884057971,
+        "machine_threshold": 0.717391304348,
+        "selected_method": "isotonic",
+        "selection_rows": 15304
+      },
+      "experiment_id": "calibration_policy_v1",
+      "kind": "calibration",
+      "milestone_commit": "614c59c",
+      "report": {
+        "relative_path": "data/metadata/mage_calibration_report.json",
+        "sha256": "892bf6b2bbd6ccfedda770d3c3be9f4f6279c41ab9dcf3c915ea1e61b2fa2885"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Preserve the test misses without threshold retuning.",
+      "evidence": {
+        "average_precision": 0.821832,
+        "brier_score": 0.177779,
+        "coverage": 0.429292,
+        "expected_calibration_error": 0.009833,
+        "human_false_machine_rate": 0.052391,
+        "machine_false_human_rate": 0.05988,
+        "retuning_allowed": false,
+        "roc_auc": 0.806435,
+        "rows": 50567,
+        "uncertain_rate": 0.570708
+      },
+      "experiment_id": "frozen_id_test_v1",
+      "kind": "final_in_distribution_evaluation",
+      "milestone_commit": "668d870",
+      "report": {
+        "relative_path": "data/metadata/mage_frozen_test_report.json",
+        "sha256": "e5ca7674805a5ce3f9db589aa5d164fc21a0811a22c288dc1e75d4a220da3f76"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Use aggregate flags for investigation only.",
+      "evidence": {
+        "audit_rows": 16862,
+        "automatic_action": false,
+        "domain_shifts_detected": 9,
+        "domain_shifts_tested": 9,
+        "false_alert_rate": 0.05,
+        "false_alert_windows": 20,
+        "false_alerts": 1,
+        "reference_rows": 33647,
+        "test_data_used": false,
+        "validation_rows": 50509
+      },
+      "experiment_id": "validation_drift_backtest_v1",
+      "kind": "operational_backtest",
+      "milestone_commit": "8fb484d",
+      "report": {
+        "relative_path": "data/metadata/mage_drift_reference.json",
+        "sha256": "62d14fb009f49286208b2f5f5acebc6c8133eebed518770ec4df8865b84fed67"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Retain the degraded OOD result and prohibit retuning from it.",
+      "evidence": {
+        "average_precision": 0.867506,
+        "brier_score": 0.225546,
+        "duplicate_extra_rows": 762,
+        "expected_calibration_error": 0.218292,
+        "human_false_machine_rate": 0.12336,
+        "machine_false_human_rate": 0.0375,
+        "published_test_data_used": false,
+        "raw_rows": 3924,
+        "roc_auc": 0.69737,
+        "uncertain_rate": 0.661607,
+        "unique_rows": 3162
+      },
+      "experiment_id": "mage_development_ood_v1",
+      "kind": "development_ood_evaluation",
+      "milestone_commit": "c8dcec2",
+      "report": {
+        "relative_path": "data/metadata/mage_ood_evaluation_report.json",
+        "sha256": "7d66fff310f5149a61a6e5f2846fa10209040845a6c9459b30a44e2d2555acbe"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Retain measured domain dependence and prohibit test-driven fold retuning.",
+      "evidence": {
+        "artifacts_and_predictions_verified": true,
+        "folds": 9,
+        "human_false_machine_rate_maximum": 0.230015,
+        "human_false_machine_rate_median": 0.134251,
+        "roc_auc_maximum": 0.790932,
+        "roc_auc_median": 0.702483,
+        "roc_auc_minimum": 0.625869,
+        "test_data_used_for_training_calibration_or_thresholds": false,
+        "uncertain_rate_median": 0.679364
+      },
+      "experiment_id": "mage_domain_holdout_v1",
+      "kind": "domain_generalization_evaluation",
+      "milestone_commit": "49c7fd8",
+      "report": {
+        "relative_path": "data/metadata/mage_domain_holdout_report.json",
+        "sha256": "962397388dbd834b837c7cae7efd1d7da20fe6bd8f42be344ffca277c9086a28"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Retain measured exact-generator dependence without family-level claims.",
+      "evidence": {
+        "artifacts_and_predictions_verified": true,
+        "expected_calibration_error_median": 0.311882,
+        "folds": 27,
+        "human_false_machine_rate_maximum": 0.073613,
+        "machine_false_human_rate_maximum": 0.187726,
+        "machine_prevalence_maximum": 0.071165,
+        "machine_prevalence_minimum": 0.023243,
+        "roc_auc_maximum": 0.906497,
+        "roc_auc_median": 0.803724,
+        "roc_auc_minimum": 0.636999,
+        "test_data_used_for_training_calibration_or_thresholds": false,
+        "uncertain_rate_median": 0.650098
+      },
+      "experiment_id": "mage_generator_holdout_v1",
+      "kind": "exact_generator_generalization_evaluation",
+      "milestone_commit": "1f5ae54",
+      "report": {
+        "relative_path": "data/metadata/mage_generator_holdout_report.json",
+        "sha256": "a924b87b487819c20110faff869fb096815044e590fffe970ceb0d3717703aa6"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Retain external calibration and human false-machine failures without retuning.",
+      "evidence": {
+        "average_precision": 0.962187,
+        "brier_score": 0.130866,
+        "claude_likely_machine_rate": 0.215,
+        "coverage": 0.57034,
+        "expected_calibration_error": 0.152084,
+        "external_records_excluded": 3,
+        "external_results_may_change_policy": false,
+        "human_false_machine_rate": 0.125334,
+        "machine_false_human_rate": 0.013001,
+        "machine_prevalence": 0.857463,
+        "prediction_file_verified": true,
+        "roc_auc": 0.828929,
+        "rows": 20991,
+        "student_essay_human_false_machine_rate": 0.247485,
+        "uncertain_rate": 0.42966
+      },
+      "experiment_id": "ghostbuster_external_evaluation",
+      "kind": "external_generalization_evaluation",
+      "milestone_commit": "deae0f0",
+      "report": {
+        "relative_path": "data/metadata/ghostbuster_evaluation_report.json",
+        "sha256": "d1b186b05762802fa1c25a80de6b938bfc8fe1fa081a9c74bbb8f980fc59bf2b"
+      },
+      "status": "complete"
+    }
+  ],
+  "not_run": [
+    {
+      "experiment_id": "transformer_candidate",
+      "reason": "Deferred on the audited CPU-only workstation; no model was trained."
+    },
+    {
+      "experiment_id": "raid_robustness_evaluation",
+      "reason": "No storage-safe source-group acquisition plan has been executed."
+    },
+    {
+      "experiment_id": "multilingual_evaluation",
+      "reason": "The first research cycle is English-only."
+    }
+  ],
+  "registry_version": 1,
+  "schema_version": 1,
+  "scope": "completed_local_experiments_and_explicitly_unrun_candidates",
+  "validation": {
+    "completed_experiments": 9,
+    "source_report_hashes_recorded": true,
+    "source_reports_validation_status_pass": true,
+    "status": "pass"
+  }
+}
