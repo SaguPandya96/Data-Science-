@@ -15,6 +15,10 @@
   "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
   "python": "3.11.15",
   "schema_version": 1,
+  "validation": {
+    "pip_check": "pass",
+    "status": "pass"
+  },
   "workflow": {
     "commit": "6a7e81670430d131732c68d5b3247b269984cac4",
     "run_id": 31907334363,

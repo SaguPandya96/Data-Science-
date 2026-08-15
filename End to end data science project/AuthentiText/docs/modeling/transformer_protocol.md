@@ -52,6 +52,21 @@ The exact transitive environment is committed as
 runner, framework, workflow, and artifact identities are recorded in
 [`transformer_environment_report.json`](../../data/metadata/transformer_environment_report.json).
 
+The remote probe acquires only the pinned 403,744,528-byte MAGE training file.
+It reproduces the canonical cleaned train file, applies the 69 text-free record
+exclusions in
+[`transformer_train_decisions.json`](../../data/metadata/transformer_train_decisions.json),
+and requires the final 287,843-row file to match its committed byte count and
+SHA-256. The workflow never downloads or opens the test partition.
+
+The throughput probe is fixed at seed 1729, sequence length 128, batch size 32,
+4 warm-up optimizer steps, and 60 measured optimizer steps over 2,048 training
+rows. It reports runtime and memory only. It does not report loss, accuracy, or
+any other candidate-performance metric, and it does not save the partially
+updated probe model. The viability estimate reserves 15 minutes for setup and
+requires a prespecified three-epoch full run to fit inside the six-hour hosted
+runner limit.
+
 The environment-resolution job is bounded to 30 minutes. The later full
 training job must stay within GitHub's six-hour hosted-runner limit; a measured
 throughput probe will decide whether that target is viable rather than assuming
