@@ -38,12 +38,13 @@ status means no transformer was trained and no performance metrics exist.
 ## Remote environment resolution
 
 The dedicated transformer workflow uses Python 3.11 and three reviewed direct
-pins from `requirements/transformer.in`. It performs no training and reads no
-dataset. The workflow runs `pip check`, captures the complete resolved
-environment with `pip freeze --all`, records the four framework versions, and
-uploads those files as a short-lived GitHub Actions artifact. The resolved lock
-must be reviewed and committed before the throughput probe or full training is
-allowed to run.
+pins from `requirements/transformer.in`. PyTorch is pinned to the official CPU
+wheel so the hosted CPU runner does not resolve an unused CUDA stack. The job
+performs no training and reads no dataset. It runs `pip check`, captures the
+complete resolved environment with `pip freeze --all`, records the four
+framework versions, and uploads those files as a short-lived GitHub Actions
+artifact. The resolved lock must be reviewed and committed before the
+throughput probe or full training is allowed to run.
 
 The environment-resolution job is bounded to 30 minutes. The later full
 training job must stay within GitHub's six-hour hosted-runner limit; a measured

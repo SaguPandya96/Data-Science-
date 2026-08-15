@@ -12,17 +12,18 @@ class TransformerEnvironmentWorkflowTests(unittest.TestCase):
         pins = {
             line.strip()
             for line in requirements.splitlines()
-            if line.strip() and not line.startswith("#")
+            if line.strip() and not line.startswith(("#", "--"))
         }
 
         self.assertEqual(
             pins,
             {
-                "torch==2.13.0",
+                "torch==2.13.0+cpu",
                 "transformers==5.14.1",
                 "accelerate==1.14.0",
             },
         )
+        self.assertIn("--extra-index-url https://download.pytorch.org/whl/cpu", requirements)
 
     def test_workflow_resolves_without_training_or_test_data(self) -> None:
         workflow = (REPO_ROOT / ".github" / "workflows" / "transformer-environment.yml").read_text(
