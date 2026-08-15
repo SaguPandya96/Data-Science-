@@ -1,0 +1,74 @@
+name: AuthentiText CI
+
+on:
+  push:
+    paths:
+      - "End to end data science project/AuthentiText/**"
+      - ".github/workflows/authentitext-ci.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/AuthentiText/**"
+      - ".github/workflows/authentitext-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: authentitext-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: End to end data science project/AuthentiText
+
+jobs:
+  quality:
+    name: Quality, tests, and container
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: |
+            End to end data science project/AuthentiText/requirements/runtime.lock
+            End to end data science project/AuthentiText/requirements/dev.lock
+
+      - name: Install locked development environment
+        run: |
+          python -m pip install --upgrade pip==26.1.2
+          python -m pip install -r requirements/dev.lock
+          python -m pip install --no-deps -e .
+
+      - name: Check dependency integrity
+        run: python -m pip check
+
+      - name: Check committed metadata
+        run: |
+          python scripts/build_experiment_registry.py --check
+          python scripts/check_committed_metadata.py
+          python scripts/check_model_card.py
+          python scripts/check_documentation.py
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Check formatting
+        run: python -m ruff format --check .
+
+      - name: Run unit and integration tests
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Build wheel
+        run: python -m pip wheel --no-deps --wheel-dir build/wheels .
+
+      - name: Build container image
+        run: docker build --tag authentitext:ci .
