@@ -1,14 +1,16 @@
 {
   "dataset_id": "yaful/MAGE",
   "expected_input": {
-    "bytes": 152657686,
-    "rows": 287912,
-    "sha256": "6136394fda1e90e572ae553c2128543b0dd5af83dd5183a0fb9c189b4c2ce1bd"
+    "content_sha256": "587c9a35e750f2c65af0f581ded98a63b8336e0c0c94273f40dfdc8a1ce46671",
+    "reference_gzip_bytes": 152657686,
+    "reference_gzip_sha256": "6136394fda1e90e572ae553c2128543b0dd5af83dd5183a0fb9c189b4c2ce1bd",
+    "rows": 287912
   },
   "expected_output": {
-    "bytes": 152640483,
-    "rows": 287843,
-    "sha256": "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918"
+    "content_sha256": "40af4c0a731ea8e26649e41d610dc74cc53ed40fececc90fb3ff5ed666d1da17",
+    "reference_gzip_bytes": 152640483,
+    "reference_gzip_sha256": "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918",
+    "rows": 287843
   },
   "partition": "train",
   "record_ids_to_drop": [
@@ -85,6 +87,7 @@
   "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
   "schema_version": 1,
   "validation": {
+    "content_identity_is_compression_independent": true,
     "record_ids_are_text_free": true,
     "rows_reconcile": true,
     "status": "pass"

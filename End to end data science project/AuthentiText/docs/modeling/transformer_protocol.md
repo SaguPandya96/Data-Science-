@@ -56,8 +56,11 @@ The remote probe acquires only the pinned 403,744,528-byte MAGE training file.
 It reproduces the canonical cleaned train file, applies the 69 text-free record
 exclusions in
 [`transformer_train_decisions.json`](../../data/metadata/transformer_train_decisions.json),
-and requires the final 287,843-row file to match its committed byte count and
-SHA-256. The workflow never downloads or opens the test partition.
+and requires the final 287,843-row decompressed canonical record stream to
+match its committed SHA-256. The original gzip byte identities remain recorded
+as provenance, but are not used as a cross-platform equality check because
+zlib output can differ by runtime. The workflow never downloads or opens the
+test partition.
 
 The throughput probe is fixed at seed 1729, sequence length 128, batch size 32,
 4 warm-up optimizer steps, and 60 measured optimizer steps over 2,048 training

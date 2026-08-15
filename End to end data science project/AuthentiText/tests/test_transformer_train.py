@@ -9,6 +9,7 @@ from authentitext.data.transformer_train import (
     TransformerTrainError,
     load_train_decisions,
     materialize_transformer_train,
+    sha256_gzip_content,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -25,7 +26,12 @@ def _write_records(path: Path, records: list[dict[str, object]]) -> None:
 
 
 def _identity(path: Path, rows: int) -> dict[str, object]:
-    return {"rows": rows, "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+    return {
+        "rows": rows,
+        "content_sha256": sha256_gzip_content(path),
+        "reference_gzip_bytes": path.stat().st_size,
+        "reference_gzip_sha256": sha256_file(path),
+    }
 
 
 class TransformerTrainTests(unittest.TestCase):

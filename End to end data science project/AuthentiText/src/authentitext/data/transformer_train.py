@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -48,12 +49,16 @@ def load_train_decisions(path: Path) -> dict[str, Any]:
             raise TransformerTrainError(f"Missing {identity_name} identity")
         if not isinstance(identity.get("rows"), int) or identity["rows"] <= 0:
             raise TransformerTrainError(f"Invalid {identity_name} row count")
-        if not isinstance(identity.get("bytes"), int) or identity["bytes"] <= 0:
-            raise TransformerTrainError(f"Invalid {identity_name} byte count")
-        if not isinstance(identity.get("sha256"), str) or not SHA256_PATTERN.fullmatch(
-            identity["sha256"]
+        if (
+            not isinstance(identity.get("reference_gzip_bytes"), int)
+            or identity["reference_gzip_bytes"] <= 0
         ):
-            raise TransformerTrainError(f"Invalid {identity_name} SHA-256")
+            raise TransformerTrainError(f"Invalid {identity_name} reference byte count")
+        for digest_name in ("content_sha256", "reference_gzip_sha256"):
+            if not isinstance(identity.get(digest_name), str) or not SHA256_PATTERN.fullmatch(
+                identity[digest_name]
+            ):
+                raise TransformerTrainError(f"Invalid {identity_name} {digest_name}")
 
     if (
         decisions["expected_input"]["rows"] - len(record_ids)
@@ -63,13 +68,15 @@ def load_train_decisions(path: Path) -> dict[str, Any]:
     return decisions
 
 
-def _verify_identity(path: Path, identity: dict[str, Any], label: str) -> None:
+def sha256_gzip_content(path: Path) -> str:
+    """Hash decompressed gzip bytes so identity is independent of zlib output."""
     if not path.is_file():
-        raise TransformerTrainError(f"Missing {label}: {path}")
-    if path.stat().st_size != identity["bytes"]:
-        raise TransformerTrainError(f"{label} byte count does not match the audited identity")
-    if sha256_file(path) != identity["sha256"]:
-        raise TransformerTrainError(f"{label} SHA-256 does not match the audited identity")
+        raise TransformerTrainError(f"Missing gzip file: {path}")
+    digest = hashlib.sha256()
+    with gzip.open(path, "rb") as handle:
+        while chunk := handle.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def materialize_transformer_train(
@@ -78,12 +85,14 @@ def materialize_transformer_train(
     decisions: dict[str, Any],
 ) -> dict[str, Any]:
     """Apply only prespecified train exclusions and verify the final identity."""
-    _verify_identity(cleaned_train_path, decisions["expected_input"], "cleaned train input")
+    if not cleaned_train_path.is_file():
+        raise TransformerTrainError(f"Missing cleaned train input: {cleaned_train_path}")
     drop_ids = set(decisions["record_ids_to_drop"])
     encountered_drop_ids: set[str] = set()
     seen_record_ids: set[str] = set()
     rows_seen = 0
     rows_written = 0
+    input_content_digest = hashlib.sha256()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = output_path.with_suffix(f"{output_path.suffix}.tmp")
 
@@ -92,6 +101,7 @@ def materialize_transformer_train(
             with open_deterministic_gzip(temporary_path) as destination:
                 for line_number, line in enumerate(source, start=1):
                     rows_seen += 1
+                    input_content_digest.update(line.encode("utf-8"))
                     try:
                         record = json.loads(line)
                     except json.JSONDecodeError as error:
@@ -132,6 +142,8 @@ def materialize_transformer_train(
             )
         if encountered_drop_ids != drop_ids:
             raise TransformerTrainError("Not every audited train exclusion was encountered")
+        if input_content_digest.hexdigest() != decisions["expected_input"]["content_sha256"]:
+            raise TransformerTrainError("Cleaned train content does not match the audited identity")
         if rows_written != decisions["expected_output"]["rows"]:
             raise TransformerTrainError("Materialized train row count does not match")
         temporary_path.replace(output_path)
@@ -139,7 +151,9 @@ def materialize_transformer_train(
         temporary_path.unlink(missing_ok=True)
         raise
 
-    _verify_identity(output_path, decisions["expected_output"], "materialized train output")
+    output_content_sha256 = sha256_gzip_content(output_path)
+    if output_content_sha256 != decisions["expected_output"]["content_sha256"]:
+        raise TransformerTrainError("Materialized train content does not match")
 
     return {
         "schema_version": 1,
@@ -149,8 +163,9 @@ def materialize_transformer_train(
         "rows_seen": rows_seen,
         "rows_dropped": len(encountered_drop_ids),
         "rows_written": rows_written,
-        "output_bytes": output_path.stat().st_size,
-        "output_sha256": sha256_file(output_path),
+        "output_content_sha256": output_content_sha256,
+        "output_gzip_bytes": output_path.stat().st_size,
+        "output_gzip_sha256": sha256_file(output_path),
         "test_data_read": False,
         "source_text_in_report": False,
         "status": "pass",

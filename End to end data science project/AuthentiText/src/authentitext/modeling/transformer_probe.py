@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from authentitext.data.cleaning import sha256_file
+from authentitext.data.transformer_train import sha256_gzip_content
 
 MODEL_ID = "google/bert_uncased_L-2_H-128_A-2"
 MODEL_REVISION = "30b0a37ccaaa32f332884b96992754e246e48c5f"
@@ -101,9 +102,8 @@ def run_probe(train_path: Path, checkpoint_dir: Path) -> dict[str, Any]:
     except ImportError as error:
         raise TransformerProbeError(f"Transformer probe dependency is missing: {error}") from error
 
-    if train_path.stat().st_size != 152640483 or sha256_file(train_path) != (
-        "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918"
-    ):
+    train_content_sha256 = sha256_gzip_content(train_path)
+    if train_content_sha256 != "40af4c0a731ea8e26649e41d610dc74cc53ed40fececc90fb3ff5ed666d1da17":
         raise TransformerProbeError("Training input does not match the audited sanitized partition")
 
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
@@ -187,8 +187,9 @@ def run_probe(train_path: Path, checkpoint_dir: Path) -> dict[str, Any]:
         "input": {
             "partition": "train",
             "rows": FULL_TRAIN_ROWS,
-            "bytes": train_path.stat().st_size,
-            "sha256": sha256_file(train_path),
+            "content_sha256": train_content_sha256,
+            "gzip_bytes": train_path.stat().st_size,
+            "gzip_sha256": sha256_file(train_path),
         },
         "measurement": {
             "measured_rows": measured_rows,
