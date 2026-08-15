@@ -160,6 +160,23 @@ strategy, and length results are preserved in
 The [MAGE OOD report](evaluation/mage_ood.md) documents further domain and
 paraphrase failures.
 
+The prespecified prefix-truncation stress test compares each eligible complete
+MAGE test record with a deterministic prefix under the unchanged frozen
+policy. Populations differ across budgets, but each row is paired within its
+condition.
+
+| Prefix budget | Paired rows | Original ROC AUC | Prefix ROC AUC | Original uncertain | Prefix uncertain | Category changed |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 50-token prefix | 36,965 | 0.878027 | 0.671298 | 50.8346% | 69.7849% | 36.0801% |
+| 100-token prefix | 25,887 | 0.923264 | 0.805082 | 45.3896% | 62.7187% | 30.0846% |
+| 200-token prefix | 14,228 | 0.945366 | 0.886284 | 39.5558% | 52.4670% | 23.1094% |
+
+At 50 tokens, human false-machine increases from 3.3848% to 6.7473% and
+machine false-human increases from 4.1176% to 9.5497%. This is evidence of
+prefix-removal sensitivity, not a claim about all naturally short or edited
+text. See the
+[truncation robustness report](evaluation/mage_truncation_robustness.md).
+
 ## Intended use
 
 Appropriate uses are limited to:

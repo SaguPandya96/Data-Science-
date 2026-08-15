@@ -324,3 +324,30 @@ are not comparable with balanced evaluations. Median ROC AUC is 0.803724,
 median ECE is 0.311882, and median uncertainty is 65.0098%. All five Flan-T5
 folds exceed a 10% machine false-human rate. These results reveal exact-source
 dependence but do not establish family-level or cross-dataset transfer.
+
+## 2026-08-14 â€” Prespecify paired prefix-truncation stress conditions
+
+**Context:** The first robustness cycle measured natural length bands and MAGE
+paraphrase conditions, but it did not isolate the effect of shortening the same
+document. The sanitized MAGE test and frozen artifacts are locally available.
+
+**Options considered:** Infer truncation effects from natural length bands;
+choose one cutoff after inspecting outcomes; transform the test and then tune
+thresholds; wait for a separate attack corpus; or prespecify multiple paired
+prefix conditions under the unchanged frozen policy.
+
+**Decision:** Evaluate 50-, 100-, and 200-token prefixes only for records
+strictly longer than each budget. Preserve bytes through the final character
+of the budget's last non-whitespace token, pair by stable record ID, retain all
+conditions, and prohibit model, calibration, or threshold changes from the
+result.
+
+**Reason:** Pairing separates the shortening intervention from population
+length differences. Fixing budgets before the real run prevents outcome-driven
+condition selection while the three sizes cover the existing short-text
+warning boundary and two larger prefixes.
+
+**Tradeoffs:** Conditions overlap and are not independent. Prefix deletion is
+only one edit and does not represent summaries, middle deletion, adaptive
+attacks, or naturally short prose. The measured degradation is a limitation
+of the frozen baseline, not a basis for post-test repair.

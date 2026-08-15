@@ -235,13 +235,18 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 9 and 10; a suitable robustness dataset.
 - **Validation:** Conditions and sample counts are traceable to source metadata;
   results are reported even when poor.
-- **Status:** In progress; MAGE's paraphrase stress set and existing length
-  bands are evaluated. Other documented edit and attack conditions remain
-  pending suitable data.
+- **Status:** Complete for the locally available first-cycle evidence: MAGE's
+  paraphrase stress set, natural length bands, and paired 50-, 100-, and
+  200-token prefix truncations are evaluated. Other documented edit, attack,
+  and decoding conditions are deferred pending suitable published data.
 - **Important decisions:** Keep the policy frozen and report original GPT-4,
   GPT-4 paraphrase, and machine-paraphrased-human outcomes separately. Do not
   claim paired effects because upstream supplies no stable pair identifier.
-  Deduplicate the 762 repeated human controls for combined metrics.
+  Deduplicate the 762 repeated human controls for combined metrics. For the
+  separate truncation intervention, preserve each stable test record ID and
+  compare the complete original with its deterministic prefix on the same
+  eligible row. Fix all budgets before viewing outcomes and prohibit result-
+  driven model, calibration, or threshold changes.
 
 ## Phase 13 — Calibration and uncertainty
 
