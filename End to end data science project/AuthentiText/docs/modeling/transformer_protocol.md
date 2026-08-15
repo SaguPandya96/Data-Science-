@@ -37,8 +37,10 @@ status means no transformer was trained and no performance metrics exist.
 
 ## Remote environment resolution
 
-The dedicated transformer workflow uses Python 3.11 and three reviewed direct
-pins from `requirements/transformer.in`. PyTorch is pinned to the official CPU
+The dedicated transformer workflow uses Python 3.11 and reviewed direct pins
+from `requirements/transformer.in`. The isolated environment includes the
+existing evaluation/calibration stack so the transformer is scored under the
+same validation policy as the baseline. PyTorch is pinned to the official CPU
 wheel so the hosted CPU runner does not resolve an unused CUDA stack. The job
 performs no training and reads no dataset. It runs `pip check`, captures the
 complete resolved environment with `pip freeze --all`, records the four
