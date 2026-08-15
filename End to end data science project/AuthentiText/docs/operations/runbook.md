@@ -8,9 +8,11 @@ authentication, TLS, multi-process aggregation, persistent monitoring,
 background alert delivery, model registry, or remote storage. Do not expose it
 to a public network.
 
-Docker is unavailable on the audited workstation, no image has been built, and
-no deployment target has been selected. This is therefore a local runbook, not
-a production operations or deployment claim.
+Docker is unavailable on the audited workstation, so the committed container
+configuration has not been built locally. No deployment target has been
+selected. This is therefore a local runbook, not a production operations or
+deployment claim. The separate [Docker workflow](../development/docker.md)
+defines the pending build and Compose validation boundary.
 
 ## Preflight
 

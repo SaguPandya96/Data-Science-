@@ -45,6 +45,7 @@ class CIConfigurationTests(unittest.TestCase):
             "python -m ruff format --check .",
             'python -m unittest discover -s tests -p "test_*.py"',
             "python -m pip wheel --no-deps --wheel-dir build/wheels .",
+            "docker build --tag authentitext:ci .",
         )
         for fragment in required:
             with self.subTest(fragment=fragment):

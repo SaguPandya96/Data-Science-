@@ -1,21 +1,31 @@
-name: CI
+name: AuthentiText CI
 
 on:
   push:
+    paths:
+      - "End to end data science project/AuthentiText/**"
+      - ".github/workflows/authentitext-ci.yml"
   pull_request:
+    paths:
+      - "End to end data science project/AuthentiText/**"
+      - ".github/workflows/authentitext-ci.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: authentitext-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: End to end data science project/AuthentiText
 
 jobs:
   quality:
-    name: Quality and tests
+    name: Quality, tests, and container
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Check out repository
@@ -29,8 +39,8 @@ jobs:
           python-version: "3.14"
           cache: pip
           cache-dependency-path: |
-            requirements/runtime.lock
-            requirements/dev.lock
+            End to end data science project/AuthentiText/requirements/runtime.lock
+            End to end data science project/AuthentiText/requirements/dev.lock
 
       - name: Install locked development environment
         run: |
