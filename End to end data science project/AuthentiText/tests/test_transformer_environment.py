@@ -31,6 +31,7 @@ class TransformerEnvironmentWorkflowTests(unittest.TestCase):
 
         self.assertIn("python -m pip check", workflow)
         self.assertIn("python -m pip freeze --all", workflow)
+        self.assertIn("cat build/transformer-environment/transformer.lock", workflow)
         self.assertIn("actions/upload-artifact@043fb46d", workflow)
         self.assertNotIn("train.jsonl", workflow)
         self.assertNotIn("test.jsonl", workflow)
