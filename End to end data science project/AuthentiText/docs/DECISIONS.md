@@ -351,3 +351,31 @@ warning boundary and two larger prefixes.
 only one edit and does not represent summaries, middle deletion, adaptive
 attacks, or naturally short prose. The measured degradation is a limitation
 of the frozen baseline, not a basis for post-test repair.
+
+## 2026-08-15 — Gate a full-train BERT-Tiny candidate with a preflight
+
+**Context:** Transformer evaluation is the first unfinished model dependency,
+but the workstation has no GPU, no installed deep-learning framework, and
+limited free disk. Python 3.11 is available separately from the application
+environment, and the full sanitized training partition is present.
+
+**Options considered:** Keep the phase deferred without an executable next
+step; train a reduced sample and compare it with the full-data lexical model;
+attempt a larger encoder without a resource measurement; or pin a small public
+checkpoint and make resource, dependency, weight, and data gates executable.
+
+**Decision:** Select Google's two-layer BERT-Tiny checkpoint at immutable
+revision `30b0a37ccaaa32f332884b96992754e246e48c5f`. Require the complete 287,843-row
+sanitized training partition, seed 1729, maximum sequence length 128, isolated
+Python 3.11 dependencies, and the existing model-selection gate. Treat any
+train-only throughput probe as operational evidence, not model performance.
+
+**Reason:** BERT-Tiny is a real pretrained transformer released for constrained
+research, but its 4.39 million parameters make a CPU experiment more plausible
+than the previously considered MiniLM candidate. An executable preflight stops
+missing packages or weights from being confused with a completed experiment.
+
+**Tradeoffs:** The candidate may underperform larger encoders and the lexical
+baseline. The current preflight is `not_ready` because PyTorch, Transformers,
+Tokenizers, Accelerate, and the pinned weights are unavailable in this
+workspace. No transformer metric or completion claim is made.

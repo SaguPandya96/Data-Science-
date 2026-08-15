@@ -31,7 +31,7 @@ real MAGE experiments, but the complete research roadmap is not finished.
 | Local product | Versioned inference, FastAPI, accessible dependency-free interface, aggregate monitoring, and drift checks working |
 | Experiment tracking | Ten completed runs and three explicitly unrun candidates in a deterministic hash-linked registry |
 | CI | Read-only workflow configured; every command passed in a fresh local clone; no hosted run observed |
-| Transformer | Deferred on the audited CPU-only workstation; no transformer was trained or evaluated |
+| Transformer | BERT-Tiny protocol and train-only preflight complete; dependency and weight downloads blocked, so no transformer was trained or evaluated |
 | External evaluation | Pinned Ghostbuster main corpus prepared; overlap-gated frozen evaluation complete on 20,991 records without retuning |
 | Docker and deployment | Docker unavailable, no image built, and no deployment target selected |
 

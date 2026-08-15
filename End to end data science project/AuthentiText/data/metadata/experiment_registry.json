@@ -274,7 +274,11 @@
   "not_run": [
     {
       "experiment_id": "transformer_candidate",
-      "reason": "Deferred on the audited CPU-only workstation; no model was trained."
+      "preflight_report": {
+        "relative_path": "data/metadata/transformer_preflight_report.json",
+        "sha256": "42f8a7f14e79dda919f11706f6534a1f8338dc43f36755034bb51d6dd686ef46"
+      },
+      "reason": "The train-only preflight selected and pinned BERT-Tiny, but framework dependencies and model weights are unavailable; no model was trained."
     },
     {
       "experiment_id": "raid_robustness_evaluation",

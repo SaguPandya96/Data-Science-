@@ -42,7 +42,7 @@ The registry also records these planned or considered experiments as unrun:
 
 | Experiment ID | Status and reason |
 | --- | --- |
-| `transformer_candidate` | Deferred on the audited CPU-only workstation; no transformer was trained or evaluated |
+| `transformer_candidate` | [Train-only preflight](../data/metadata/transformer_preflight_report.json) pins BERT-Tiny and verifies local resources; missing framework packages and weights block training, so no transformer was trained or evaluated |
 | `raid_robustness_evaluation` | No storage-safe source-group acquisition plan has run |
 | `multilingual_evaluation` | The first research cycle is English-only |
 

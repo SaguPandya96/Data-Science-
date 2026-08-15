@@ -344,7 +344,11 @@ def build_registry() -> dict[str, Any]:
         "not_run": [
             {
                 "experiment_id": "transformer_candidate",
-                "reason": "Deferred on the audited CPU-only workstation; no model was trained.",
+                "preflight_report": _report_identity("transformer_preflight_report.json"),
+                "reason": (
+                    "The train-only preflight selected and pinned BERT-Tiny, but framework "
+                    "dependencies and model weights are unavailable; no model was trained."
+                ),
             },
             {
                 "experiment_id": "raid_robustness_evaluation",

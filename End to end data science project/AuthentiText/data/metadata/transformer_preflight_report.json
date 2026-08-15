@@ -1,0 +1,78 @@
+{
+  "blockers": [
+    "dependencies_installed",
+    "model_revision_cached"
+  ],
+  "candidate": {
+    "architecture": {
+      "attention_heads": 2,
+      "family": "BERT-Tiny",
+      "hidden_size": 128,
+      "layers": 2,
+      "sequence_classifier_parameters": 4386178
+    },
+    "license": "Apache-2.0",
+    "model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "revision": "30b0a37ccaaa32f332884b96992754e246e48c5f"
+  },
+  "environment": {
+    "dependencies": {
+      "accelerate": null,
+      "tokenizers": null,
+      "torch": null,
+      "transformers": null
+    },
+    "free_disk_bytes": 6822772736,
+    "logical_cpus": 8,
+    "model_revision_cached": false,
+    "operating_system": "Windows",
+    "python": "3.11.2",
+    "total_memory_bytes": 16982163456
+  },
+  "gates": {
+    "dependencies_installed": false,
+    "free_disk_minimum_met": true,
+    "logical_cpu_minimum_met": true,
+    "memory_minimum_met": true,
+    "model_revision_cached": false,
+    "python_supported": true,
+    "training_input_verified": true
+  },
+  "generated_at_utc": "2026-08-15T18:34:22.103172+00:00",
+  "minimums": {
+    "free_disk_bytes": 3221225472,
+    "logical_cpus": 4,
+    "memory_bytes": 8589934592,
+    "windows_python_maximum": "3.12",
+    "windows_python_minimum": "3.9"
+  },
+  "schema_version": 1,
+  "status": "not_ready",
+  "training_input": {
+    "bytes": 152640483,
+    "dataset_id": "yaful/MAGE",
+    "partition": "train",
+    "relative_path": "data/processed/mage_splits/id/train.jsonl.gz",
+    "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+    "rows": 287843,
+    "sha256": "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918",
+    "test_data_read": false
+  },
+  "training_protocol": {
+    "full_training_partition_required": true,
+    "maximum_sequence_length": 128,
+    "random_seed": 1729,
+    "replacement_requires_full_model_selection_gate": true,
+    "test_data_allowed_before_freeze": false,
+    "throughput_probe_is_model_evidence": false,
+    "training_partition": "sanitized MAGE train",
+    "training_rows": 287843
+  },
+  "validation": {
+    "source_text_in_report": false,
+    "status": "pass",
+    "test_data_read": false,
+    "training_metrics_reported": false,
+    "transformer_trained": false
+  }
+}

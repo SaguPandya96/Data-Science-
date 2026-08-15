@@ -39,6 +39,7 @@ REQUIRED_FILES = {
     "mage_ood_profile.json",
     "mage_source_regimes.json",
     "mage_truncation_robustness_report.json",
+    "transformer_preflight_report.json",
 }
 MANIFEST_FILES = {"mage_development_manifest.json", "mage_ood_manifest.json"}
 
@@ -272,6 +273,35 @@ def check_metadata(metadata_dir: Path = DEFAULT_METADATA_DIR) -> list[str]:
         serialized = json.dumps(truncation, sort_keys=True)
         if '"text":' in serialized:
             errors.append("truncation robustness report contains source text")
+
+    transformer_preflight = reports.get("transformer_preflight_report.json")
+    if transformer_preflight is not None:
+        blockers = transformer_preflight.get("blockers")
+        status = transformer_preflight.get("status")
+        gates = transformer_preflight.get("gates")
+        if not isinstance(blockers, list) or not isinstance(gates, dict):
+            errors.append("transformer preflight gates and blockers must be structured")
+        elif blockers != [name for name, passed in gates.items() if passed is False]:
+            errors.append("transformer preflight blockers do not match failed gates")
+        if status not in {"ready", "not_ready"}:
+            errors.append("transformer preflight status is invalid")
+        elif (status == "ready") != (blockers == []):
+            errors.append("transformer preflight status does not match blockers")
+        if _nested(transformer_preflight, "training_input", "partition") != "train":
+            errors.append("transformer preflight must verify only the training partition")
+        if (
+            _nested(transformer_preflight, "training_protocol", "test_data_allowed_before_freeze")
+            is not False
+        ):
+            errors.append("transformer preflight must keep test data sealed")
+        for key in (
+            "source_text_in_report",
+            "test_data_read",
+            "training_metrics_reported",
+            "transformer_trained",
+        ):
+            if _nested(transformer_preflight, "validation", key) is not False:
+                errors.append(f"transformer preflight validation.{key} must be false")
 
     ghostbuster = reports.get("ghostbuster_main_manifest.json")
     if ghostbuster is not None:
