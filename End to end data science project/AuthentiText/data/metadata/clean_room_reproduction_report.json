@@ -1,0 +1,99 @@
+{
+  "audit_date": "2026-08-10",
+  "clean_room_reproduction_version": 1,
+  "environment": {
+    "implementation": "CPython",
+    "installed_distributions": 27,
+    "packages": {
+      "authentitext": "0.1.0",
+      "fastapi": "0.141.1",
+      "numpy": "2.5.1",
+      "pip": "26.1.2",
+      "ruff": "0.16.2",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.18.0",
+      "setuptools": "84.0.0"
+    },
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.6"
+  },
+  "installation": {
+    "commands": [
+      "python -m venv --without-pip .venv-clean",
+      ".venv-clean/Scripts/python.exe -m pip install -r requirements/dev.lock setuptools==84.0.0",
+      ".venv-clean/Scripts/python.exe -m pip install --no-deps --no-build-isolation -e ."
+    ],
+    "dependency_lock": "requirements/dev.lock",
+    "editable_project_installed": true,
+    "pip_check": "pass",
+    "sandbox_ensurepip_workaround": {
+      "reason": "CPython 3.14 temporary-directory ACL incompatibility in the audited workspace sandbox",
+      "required": true,
+      "scope": "pip bootstrap only; the dependency graph and project package were installed normally after bootstrap"
+    }
+  },
+  "limitations": {
+    "external_links_rechecked": false,
+    "frozen_experiment_replay_performed": false,
+    "hosted_ci_run_observed": false,
+    "ignored_model_artifacts_present": false,
+    "ignored_predictions_present": false,
+    "raw_or_processed_datasets_present": false,
+    "scope_statement": "This audit verifies a fresh checkout's committed evidence, tests, documentation, and packaging; it does not regenerate dataset-derived metrics or replace verification with the pinned ignored inputs and artifacts."
+  },
+  "schema_version": 1,
+  "scope": "fresh_local_clone_committed_evidence_tests_and_packaging",
+  "source": {
+    "clone_bytes_excluding_git": 5300169,
+    "clone_files_excluding_git": 151,
+    "commit": "d52a3baa43f5a681449f9623fa8782d5d3019a6b",
+    "evidence_worktree_line_endings": "lf",
+    "git_core_autocrlf": true,
+    "git_status_clean_after_validation": true
+  },
+  "validation": {
+    "all_ci_equivalent_checks_passed": true,
+    "checkout_clean_after_validation": true,
+    "dependency_graph_consistent": true,
+    "no_claim_of_experiment_replay": true,
+    "status": "pass"
+  },
+  "verification": {
+    "documentation": {
+      "generator_evidence_rows": 27,
+      "markdown_files": 35,
+      "readme_evidence_rows": 26,
+      "status": "pass"
+    },
+    "experiment_registry": {
+      "completed_experiments": 9,
+      "status": "pass"
+    },
+    "format": {
+      "files": 118,
+      "status": "pass"
+    },
+    "lint": {
+      "status": "pass"
+    },
+    "metadata": {
+      "committed_files": 23,
+      "status": "pass"
+    },
+    "model_card": {
+      "evidence_rows": 43,
+      "status": "pass"
+    },
+    "tests": {
+      "framework": "unittest",
+      "status": "pass",
+      "tests": 81
+    },
+    "wheel": {
+      "bytes": 101961,
+      "name": "authentitext-0.1.0-py3-none-any.whl",
+      "sha256": "d8980a84e26fef11fcc809ccd744c4a4c7511f77952f0f577addcd0e5dda366c",
+      "status": "pass"
+    }
+  }
+}

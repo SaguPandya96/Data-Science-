@@ -1,0 +1,133 @@
+{
+  "dataset_id": "vivek3141/ghostbuster-data",
+  "input": {
+    "bytes": 70601168,
+    "files": 21000,
+    "path_size_sha256_manifest": "26eef1fc3a1bddce8b1b3a3bbb579e27f2384ee9c0de9a9540e3b0e5142ace58"
+  },
+  "output": {
+    "bytes": 27319331,
+    "relative_path": "main.jsonl.gz",
+    "rows": 20994,
+    "sha256": "27238c202fd7f3b5a27620193cf0a8f24d5b5c034fe5547915eadd06cd3c0a66"
+  },
+  "preparation_version": 1,
+  "profile": {
+    "domain_counts": {
+      "creative_writing": 7000,
+      "news": 7000,
+      "student_essay": 6994
+    },
+    "generator_machine_counts": {
+      "claude": 3000,
+      "gpt-3.5-turbo": 15000
+    },
+    "source_condition_counts": {
+      "claude": 3000,
+      "gpt": 3000,
+      "gpt_prompt1": 3000,
+      "gpt_prompt2": 3000,
+      "gpt_semantic": 3000,
+      "gpt_writing": 3000,
+      "human": 2994
+    },
+    "strategy_machine_counts": {
+      "original": 6000,
+      "prompt1": 3000,
+      "prompt2": 3000,
+      "semantic": 3000,
+      "writing": 3000
+    },
+    "target_counts": {
+      "0": 2994,
+      "1": 18000
+    },
+    "unique_exact_content_ids": 20993,
+    "unique_normalized_content_ids": 20991,
+    "whitespace_tokens": {
+      "maximum": 7215,
+      "median": 505.0,
+      "minimum": 1,
+      "p95": 762
+    }
+  },
+  "revision": "86ebd72590556a81622986fab736ab9227a948af",
+  "schema_version": 1,
+  "selection": {
+    "conditions": {
+      "claude": {
+        "generator": "claude",
+        "strategy": "original",
+        "target": 1
+      },
+      "gpt": {
+        "generator": "gpt-3.5-turbo",
+        "strategy": "original",
+        "target": 1
+      },
+      "gpt_prompt1": {
+        "generator": "gpt-3.5-turbo",
+        "strategy": "prompt1",
+        "target": 1
+      },
+      "gpt_prompt2": {
+        "generator": "gpt-3.5-turbo",
+        "strategy": "prompt2",
+        "target": 1
+      },
+      "gpt_semantic": {
+        "generator": "gpt-3.5-turbo",
+        "strategy": "semantic",
+        "target": 1
+      },
+      "gpt_writing": {
+        "generator": "gpt-3.5-turbo",
+        "strategy": "writing",
+        "target": 1
+      },
+      "human": {
+        "generator": null,
+        "strategy": null,
+        "target": 0
+      }
+    },
+    "documents_per_domain_condition": 1000,
+    "domains": {
+      "essay": "student_essay",
+      "reuter": "news",
+      "wp": "creative_writing"
+    },
+    "excluded": [
+      "nested logprobs and logprobs_babbage",
+      "prompts",
+      "perturb and perturb_old",
+      "other human-only and auxiliary evaluation sets"
+    ],
+    "included_pattern": "main text .txt files directly within each condition/author",
+    "paper_main_corpus_rows": 21000
+  },
+  "source_repository": {
+    "license": "CC BY 3.0",
+    "license_relative_path": "LICENSE",
+    "license_sha256": "1257d59336eb747e40523d74d7658d4d7885c30577d0310bbd282797e95b0773",
+    "url": "https://github.com/vivek3141/ghostbuster-data"
+  },
+  "validation": {
+    "blank_documents": 6,
+    "blank_documents_excluded": 6,
+    "blank_relative_paths": [
+      "essay/human/280.txt",
+      "essay/human/304.txt",
+      "essay/human/431.txt",
+      "essay/human/756.txt",
+      "essay/human/843.txt",
+      "essay/human/939.txt"
+    ],
+    "duplicate_record_ids": 0,
+    "output_identity_recorded": true,
+    "raw_text_in_report": false,
+    "selected_files_match_declared_cells": true,
+    "status": "pass",
+    "test_scoring_performed": false
+  }
+}

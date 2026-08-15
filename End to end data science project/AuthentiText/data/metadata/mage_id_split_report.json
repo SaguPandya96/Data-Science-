@@ -1,0 +1,142 @@
+{
+  "aggregate": {
+    "dropped_partition_counts": {
+      "test": 16,
+      "train": 69,
+      "validation": 69
+    },
+    "dropped_partition_reason_counts": {
+      "test": {
+        "conflicting_target_component": 0,
+        "grouped_overlap": 16
+      },
+      "train": {
+        "conflicting_target_component": 2,
+        "grouped_overlap": 67
+      },
+      "validation": {
+        "conflicting_target_component": 0,
+        "grouped_overlap": 69
+      }
+    },
+    "dropped_reason_counts": {
+      "conflicting_target_component": 2,
+      "grouped_overlap": 152
+    },
+    "dropped_rows": 154,
+    "dropped_target_counts": {
+      "0": 74,
+      "1": 80
+    },
+    "input_partition_counts": {
+      "test": 50583,
+      "train": 287912,
+      "validation": 50578
+    },
+    "input_rows": 389073,
+    "input_target_counts": {
+      "0": 138270,
+      "1": 250803
+    },
+    "output_partition_counts": {
+      "test": 50567,
+      "train": 287843,
+      "validation": 50509
+    },
+    "output_rows": 388919,
+    "output_target_counts": {
+      "0": 138196,
+      "1": 250723
+    }
+  },
+  "components": {
+    "confirmed_near_duplicate_edges": 12,
+    "conflicting_target": 1,
+    "grouped": 149,
+    "normalized_duplicate_values": 141,
+    "total": 388920,
+    "with_confirmed_near_duplicate_edge": 9
+  },
+  "configuration": {
+    "component_policy": "drop conflicting targets; otherwise retain one record",
+    "normalization": "NFKC, case-fold, collapse whitespace",
+    "output_format": "deterministic gzip JSON Lines with mtime=0",
+    "overlap_edges": "confirmed edges from bounded near-duplicate audit",
+    "partition_precedence": [
+      "train",
+      "test",
+      "validation"
+    ],
+    "record_policy": "records are retained in their published partition; none are moved",
+    "within_partition_tie_break": "lowest record_id"
+  },
+  "dataset_id": "yaful/MAGE",
+  "inputs": [
+    {
+      "bytes": 152657686,
+      "partition": "train",
+      "relative_path": "train.jsonl.gz",
+      "rows": 287912,
+      "sha256": "6136394fda1e90e572ae553c2128543b0dd5af83dd5183a0fb9c189b4c2ce1bd"
+    },
+    {
+      "bytes": 26138157,
+      "partition": "validation",
+      "relative_path": "validation.jsonl.gz",
+      "rows": 50578,
+      "sha256": "841d6bfe0e254b1a99430808340383941b764c9189452e72d2b6e4103d13b06c"
+    },
+    {
+      "bytes": 26070717,
+      "partition": "test",
+      "relative_path": "test.jsonl.gz",
+      "rows": 50583,
+      "sha256": "95a363e67f17ad29eb3b0a4f7af770dcf603f420435889b65fa0963a43bdcabb"
+    }
+  ],
+  "outputs": [
+    {
+      "bytes": 152640483,
+      "partition": "train",
+      "relative_path": "train.jsonl.gz",
+      "rows_written": 287843,
+      "sha256": "9bb04cac540ac2aad1249adbd7cf1023a6da538eff5519a7bb11024ffb4c6918",
+      "target_counts": {
+        "0": 86954,
+        "1": 200889
+      }
+    },
+    {
+      "bytes": 26112831,
+      "partition": "validation",
+      "relative_path": "validation.jsonl.gz",
+      "rows_written": 50509,
+      "sha256": "64a997db40e98059389fed9e1dd593015e45da68f2dddd22d67e098c6eadec39",
+      "target_counts": {
+        "0": 25608,
+        "1": 24901
+      }
+    },
+    {
+      "bytes": 26065720,
+      "partition": "test",
+      "relative_path": "test.jsonl.gz",
+      "rows_written": 50567,
+      "sha256": "0fe309466be85f146e37bfdbf1fee30024286193b8756972a52a6d313827d44d",
+      "target_counts": {
+        "0": 25634,
+        "1": 24933
+      }
+    }
+  ],
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "schema_version": 1,
+  "split_name": "id",
+  "splitter_version": 1,
+  "validation": {
+    "all_keep_decisions_written_once": true,
+    "input_equals_output_plus_dropped": true,
+    "status": "pass",
+    "unknown_near_duplicate_edge_records": 0
+  }
+}

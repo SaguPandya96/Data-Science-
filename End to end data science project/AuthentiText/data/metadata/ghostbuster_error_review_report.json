@@ -1,0 +1,568 @@
+{
+  "annotations": {
+    "cue_counts": {
+      "academic_essay_conventions": 9,
+      "citation_or_reference_markers": 4,
+      "enumerative_or_heading_structure": 2,
+      "first_person_or_personal_voice": 4,
+      "formal_or_formulaic_register": 11,
+      "institutional_or_newswire_style": 5,
+      "narrative_or_dialogue_style": 7,
+      "short_or_fragmentary": 1,
+      "source_like_specific_detail": 15
+    },
+    "records": [
+      {
+        "observed_cues": [
+          "narrative_or_dialogue_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "9ad0dd912e1efa2ec7c649053627f5944316330d78b2d403a965873b7f6b794a",
+        "reviewer_note": "Scene-based fiction uses named characters, physical action, and extended dialogue.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "first_person_or_personal_voice",
+          "narrative_or_dialogue_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "c61bb9c05457546268fed27281d27668c3687e74a8c7de0f65a5d5c73eab5295",
+        "reviewer_note": "Extended first-person speculative narrative includes remembered events and dialogue.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "narrative_or_dialogue_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "ced7caece31c0234fb4304e5baf570348abbb0a3fc704601de27c4a6fa675b1a",
+        "reviewer_note": "Fantasy narrative uses invented names, dialogue, and sustained scene detail.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "institutional_or_newswire_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "0193694cc1e4e508dc94845d05ffcb7827dc228254e158cb4345dafcfb782ff9",
+        "reviewer_note": "Newswire prose combines attributed policy details, organizations, dates, and market context.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "institutional_or_newswire_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "c2e472505ac3b32f690fd93cdf1b3511c77c87ed25cc452d4f0dab835e32cac1",
+        "reviewer_note": "Conventional report style uses government attribution, policy framing, and institutional detail.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "institutional_or_newswire_style",
+          "short_or_fragmentary",
+          "source_like_specific_detail"
+        ],
+        "record_id": "c82b2ba61b60619d7c95872878ab54034f1a22cfccd5701ecb3a974a8c7c193e",
+        "reviewer_note": "Brief newswire item compresses named organizations, counts, timing, and attributed statements.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "citation_or_reference_markers",
+          "formal_or_formulaic_register"
+        ],
+        "record_id": "10f451d3ad1c0a05b6e5aaa2c55e635f698859142eecc60158bf044830c47fa2",
+        "reviewer_note": "Formal research prose defines a topic, cites sources, and closes with proposed research questions.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "citation_or_reference_markers",
+          "formal_or_formulaic_register"
+        ],
+        "record_id": "49d014b562f6325ae4f3d6bdf3f6ab924f1d735c53e92e9c408fb1dd5e619fc6",
+        "reviewer_note": "Academic argument uses sourced claims, policy discussion, and a visible reference-list ending.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "citation_or_reference_markers",
+          "enumerative_or_heading_structure",
+          "formal_or_formulaic_register"
+        ],
+        "record_id": "596f9d4753ad7b76bd2f4cd5e813deceffd8db2221cd41c89e4c11314f19b9d0",
+        "reviewer_note": "Long research-style essay uses an introduction, citations, formal transitions, and a concluding synthesis.",
+        "sample_role": "human_false_machine"
+      },
+      {
+        "observed_cues": [
+          "first_person_or_personal_voice",
+          "formal_or_formulaic_register",
+          "narrative_or_dialogue_style"
+        ],
+        "record_id": "747cac2a7e5ee658d019b551ebad9146c2c7ddb319c27dc4c98913a8453a19e3",
+        "reviewer_note": "First-person fantasy monologue pairs personal voice with elevated, highly polished phrasing.",
+        "sample_role": "machine_false_human"
+      },
+      {
+        "observed_cues": [
+          "first_person_or_personal_voice",
+          "formal_or_formulaic_register",
+          "narrative_or_dialogue_style"
+        ],
+        "record_id": "e2e9a9a232fa2d01ad533afdb6dabc71e501ba3923c15a058f3c1fcca45b1943",
+        "reviewer_note": "Sustained first-person speculative reflection uses personal chronology and polished narrative framing.",
+        "sample_role": "machine_false_human"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "formal_or_formulaic_register",
+          "source_like_specific_detail"
+        ],
+        "record_id": "1c4303cdcfc0707f23c6c5ecd5bef20816afcd3eacafc41c49e15e65361f9a23",
+        "reviewer_note": "Structured legal essay applies contract concepts to named parties and a specific dispute.",
+        "sample_role": "machine_false_human"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "formal_or_formulaic_register",
+          "source_like_specific_detail"
+        ],
+        "record_id": "dfaa0b12e95daa6c0f6948847d48ab7dd144b0f7975fb2d7fd936e2b43e5e627",
+        "reviewer_note": "Academic survey names historical works and connects a philosopher to a disciplinary argument.",
+        "sample_role": "machine_false_human"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "formal_or_formulaic_register",
+          "source_like_specific_detail"
+        ],
+        "record_id": "f86332bd66be5e16690d4b5eb19fc20bf7748ae4ad291b0b5b4da426e7dbec1e",
+        "reviewer_note": "Historical overview uses dates, movement terminology, and balanced concluding interpretation.",
+        "sample_role": "machine_false_human"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "enumerative_or_heading_structure",
+          "formal_or_formulaic_register"
+        ],
+        "record_id": "6c61cb80319f34cc0296e6ed154c536b305a57f1930d414cb331049f8ad7eb7e",
+        "reviewer_note": "Essay follows an explicit word-budget outline with section headings and formal explanatory prose.",
+        "sample_role": "machine_false_human"
+      },
+      {
+        "observed_cues": [
+          "first_person_or_personal_voice",
+          "narrative_or_dialogue_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "08427f30d6ae04656973550bbeff46f959a9e2a946a87bde12e51928c877eb7b",
+        "reviewer_note": "First-person speculative scene uses time markers, dialogue, and concrete world-building details.",
+        "sample_role": "uncertain_boundary"
+      },
+      {
+        "observed_cues": [
+          "narrative_or_dialogue_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "04662e2c0f4f93cc4e128e9ea752a237cfd2acc43c2a1ecca8d3741909488a69",
+        "reviewer_note": "Human speculative fiction combines classroom action, dialogue, and invented technology.",
+        "sample_role": "uncertain_boundary"
+      },
+      {
+        "observed_cues": [
+          "institutional_or_newswire_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "0cc99bcd630d5e6ca1c7b5195d5c1554da2f52387da5d4c91f3cc2ff41375b40",
+        "reviewer_note": "Machine news report uses a headline-like lead, monetary figures, organizations, and case history.",
+        "sample_role": "uncertain_boundary"
+      },
+      {
+        "observed_cues": [
+          "institutional_or_newswire_style",
+          "source_like_specific_detail"
+        ],
+        "record_id": "01bbad25cb70922cf0352016e9c7651e92c7a708d75a3b9b0e4ecc17fb1798c6",
+        "reviewer_note": "Human financial news uses company results, named locations, market figures, and attribution.",
+        "sample_role": "uncertain_boundary"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "formal_or_formulaic_register",
+          "source_like_specific_detail"
+        ],
+        "record_id": "065f27e9a32de6822e9223f41e6e0ef155369fd005afcdaed2708bff48dc137f",
+        "reviewer_note": "Machine academic prose summarizes a named theorist with formal claims and disciplinary context.",
+        "sample_role": "uncertain_boundary"
+      },
+      {
+        "observed_cues": [
+          "academic_essay_conventions",
+          "citation_or_reference_markers",
+          "formal_or_formulaic_register",
+          "source_like_specific_detail"
+        ],
+        "record_id": "1502c28f95327d62813653492706fbad5c67206725c1b26d18df743c7270f532",
+        "reviewer_note": "Human history essay combines a named figure, citations, formal argument, and policy-specific detail.",
+        "sample_role": "uncertain_boundary"
+      }
+    ],
+    "role_cue_counts": {
+      "human_false_machine": {
+        "academic_essay_conventions": 3,
+        "citation_or_reference_markers": 3,
+        "enumerative_or_heading_structure": 1,
+        "first_person_or_personal_voice": 1,
+        "formal_or_formulaic_register": 3,
+        "institutional_or_newswire_style": 3,
+        "narrative_or_dialogue_style": 3,
+        "short_or_fragmentary": 1,
+        "source_like_specific_detail": 6
+      },
+      "machine_false_human": {
+        "academic_essay_conventions": 4,
+        "enumerative_or_heading_structure": 1,
+        "first_person_or_personal_voice": 2,
+        "formal_or_formulaic_register": 6,
+        "narrative_or_dialogue_style": 2,
+        "source_like_specific_detail": 3
+      },
+      "uncertain_boundary": {
+        "academic_essay_conventions": 2,
+        "citation_or_reference_markers": 1,
+        "first_person_or_personal_voice": 1,
+        "formal_or_formulaic_register": 2,
+        "institutional_or_newswire_style": 2,
+        "narrative_or_dialogue_style": 2,
+        "source_like_specific_detail": 6
+      }
+    }
+  },
+  "configuration": {
+    "allowed_cues": [
+      "academic_essay_conventions",
+      "citation_or_reference_markers",
+      "enumerative_or_heading_structure",
+      "first_person_or_personal_voice",
+      "formal_or_formulaic_register",
+      "informal_or_conversational_register",
+      "institutional_or_newswire_style",
+      "lexical_variation_or_idiosyncrasy",
+      "mixed_surface_signals",
+      "narrative_or_dialogue_style",
+      "no_clear_surface_cue",
+      "short_or_fragmentary",
+      "source_like_specific_detail"
+    ],
+    "annotation_note_policy": "generic observation, 160 characters maximum, no quotes",
+    "local_packet_closing_excerpt_characters": 120,
+    "local_packet_opening_excerpt_characters": 240,
+    "model_or_policy_changes_allowed": false,
+    "selection": {
+      "costly_rows_per_group": 3,
+      "human_false_machine": "highest calibrated scores within each external domain",
+      "machine_false_human": "lowest calibrated scores within each external generator",
+      "tie_break": "lowest record_id",
+      "uncertain_boundary": "human scores nearest machine boundary and machine scores nearest human boundary within each target/domain",
+      "uncertain_rows_per_group": 1
+    }
+  },
+  "dataset_id": "vivek3141/ghostbuster-data",
+  "inputs": {
+    "evaluation_report": {
+      "bytes": 19900,
+      "relative_path": "ghostbuster_evaluation_report.json",
+      "sha256": "d1b186b05762802fa1c25a80de6b938bfc8fe1fa081a9c74bbb8f980fc59bf2b"
+    },
+    "external_data": {
+      "bytes": 27319331,
+      "relative_path": "ghostbuster/main.jsonl.gz",
+      "rows": 20994,
+      "sha256": "27238c202fd7f3b5a27620193cf0a8f24d5b5c034fe5547915eadd06cd3c0a66"
+    },
+    "predictions": {
+      "bytes": 1173100,
+      "relative_path": "word_tfidf_policy.jsonl.gz",
+      "rows": 20991,
+      "sha256": "c90f4c426ce314d668674f4617d1afd16e0c398ba26c0e94e168bbcf4e927934"
+    }
+  },
+  "local_review_packet": {
+    "bytes": 5965,
+    "relative_path": "ghostbuster_review_packet.jsonl.gz",
+    "rows": 21,
+    "sha256": "e1df42b94d13f188e8d418ca64ee8170dd2b8ee75813315d8b9ece619548cded"
+  },
+  "review_version": 1,
+  "revision": "86ebd72590556a81622986fab736ab9227a948af",
+  "sample": {
+    "domain_counts": {
+      "creative_writing": 7,
+      "news": 5,
+      "student_essay": 9
+    },
+    "generator_counts": {
+      "claude": 6,
+      "gpt-3.5-turbo": 3,
+      "human": 12
+    },
+    "records": [
+      {
+        "calibrated_score": 1.0,
+        "category": "likely_machine",
+        "domain": "creative_writing",
+        "generator": null,
+        "record_id": "9ad0dd912e1efa2ec7c649053627f5944316330d78b2d403a965873b7f6b794a",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 540
+      },
+      {
+        "calibrated_score": 0.995260663507,
+        "category": "likely_machine",
+        "domain": "creative_writing",
+        "generator": null,
+        "record_id": "c61bb9c05457546268fed27281d27668c3687e74a8c7de0f65a5d5c73eab5295",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 1110
+      },
+      {
+        "calibrated_score": 0.995260663507,
+        "category": "likely_machine",
+        "domain": "creative_writing",
+        "generator": null,
+        "record_id": "ced7caece31c0234fb4304e5baf570348abbb0a3fc704601de27c4a6fa675b1a",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 1167
+      },
+      {
+        "calibrated_score": 0.855462184874,
+        "category": "likely_machine",
+        "domain": "news",
+        "generator": null,
+        "record_id": "0193694cc1e4e508dc94845d05ffcb7827dc228254e158cb4345dafcfb782ff9",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 485
+      },
+      {
+        "calibrated_score": 0.867088607595,
+        "category": "likely_machine",
+        "domain": "news",
+        "generator": null,
+        "record_id": "c2e472505ac3b32f690fd93cdf1b3511c77c87ed25cc452d4f0dab835e32cac1",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 369
+      },
+      {
+        "calibrated_score": 0.971659919028,
+        "category": "likely_machine",
+        "domain": "news",
+        "generator": null,
+        "record_id": "c82b2ba61b60619d7c95872878ab54034f1a22cfccd5701ecb3a974a8c7c193e",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 77
+      },
+      {
+        "calibrated_score": 1.0,
+        "category": "likely_machine",
+        "domain": "student_essay",
+        "generator": null,
+        "record_id": "10f451d3ad1c0a05b6e5aaa2c55e635f698859142eecc60158bf044830c47fa2",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 873
+      },
+      {
+        "calibrated_score": 1.0,
+        "category": "likely_machine",
+        "domain": "student_essay",
+        "generator": null,
+        "record_id": "49d014b562f6325ae4f3d6bdf3f6ab924f1d735c53e92e9c408fb1dd5e619fc6",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 957
+      },
+      {
+        "calibrated_score": 1.0,
+        "category": "likely_machine",
+        "domain": "student_essay",
+        "generator": null,
+        "record_id": "596f9d4753ad7b76bd2f4cd5e813deceffd8db2221cd41c89e4c11314f19b9d0",
+        "sample_role": "human_false_machine",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 1558
+      },
+      {
+        "calibrated_score": 0.127371273713,
+        "category": "likely_human",
+        "domain": "creative_writing",
+        "generator": "gpt-3.5-turbo",
+        "record_id": "747cac2a7e5ee658d019b551ebad9146c2c7ddb319c27dc4c98913a8453a19e3",
+        "sample_role": "machine_false_human",
+        "strategy": "prompt1",
+        "target": 1,
+        "whitespace_tokens": 100
+      },
+      {
+        "calibrated_score": 0.04,
+        "category": "likely_human",
+        "domain": "creative_writing",
+        "generator": "gpt-3.5-turbo",
+        "record_id": "e2e9a9a232fa2d01ad533afdb6dabc71e501ba3923c15a058f3c1fcca45b1943",
+        "sample_role": "machine_false_human",
+        "strategy": "prompt1",
+        "target": 1,
+        "whitespace_tokens": 282
+      },
+      {
+        "calibrated_score": 0.04,
+        "category": "likely_human",
+        "domain": "student_essay",
+        "generator": "claude",
+        "record_id": "1c4303cdcfc0707f23c6c5ecd5bef20816afcd3eacafc41c49e15e65361f9a23",
+        "sample_role": "machine_false_human",
+        "strategy": "original",
+        "target": 1,
+        "whitespace_tokens": 588
+      },
+      {
+        "calibrated_score": 0.082644628099,
+        "category": "likely_human",
+        "domain": "student_essay",
+        "generator": "claude",
+        "record_id": "dfaa0b12e95daa6c0f6948847d48ab7dd144b0f7975fb2d7fd936e2b43e5e627",
+        "sample_role": "machine_false_human",
+        "strategy": "original",
+        "target": 1,
+        "whitespace_tokens": 469
+      },
+      {
+        "calibrated_score": 0.005235602094,
+        "category": "likely_human",
+        "domain": "student_essay",
+        "generator": "claude",
+        "record_id": "f86332bd66be5e16690d4b5eb19fc20bf7748ae4ad291b0b5b4da426e7dbec1e",
+        "sample_role": "machine_false_human",
+        "strategy": "original",
+        "target": 1,
+        "whitespace_tokens": 439
+      },
+      {
+        "calibrated_score": 0.127371273713,
+        "category": "likely_human",
+        "domain": "student_essay",
+        "generator": "gpt-3.5-turbo",
+        "record_id": "6c61cb80319f34cc0296e6ed154c536b305a57f1930d414cb331049f8ad7eb7e",
+        "sample_role": "machine_false_human",
+        "strategy": "prompt1",
+        "target": 1,
+        "whitespace_tokens": 442
+      },
+      {
+        "calibrated_score": 0.237791932059,
+        "category": "uncertain",
+        "domain": "creative_writing",
+        "generator": "claude",
+        "record_id": "08427f30d6ae04656973550bbeff46f959a9e2a946a87bde12e51928c877eb7b",
+        "sample_role": "uncertain_boundary",
+        "strategy": "original",
+        "target": 1,
+        "whitespace_tokens": 314
+      },
+      {
+        "calibrated_score": 0.694117647059,
+        "category": "uncertain",
+        "domain": "creative_writing",
+        "generator": null,
+        "record_id": "04662e2c0f4f93cc4e128e9ea752a237cfd2acc43c2a1ecca8d3741909488a69",
+        "sample_role": "uncertain_boundary",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 683
+      },
+      {
+        "calibrated_score": 0.237791932059,
+        "category": "uncertain",
+        "domain": "news",
+        "generator": "claude",
+        "record_id": "0cc99bcd630d5e6ca1c7b5195d5c1554da2f52387da5d4c91f3cc2ff41375b40",
+        "sample_role": "uncertain_boundary",
+        "strategy": "original",
+        "target": 1,
+        "whitespace_tokens": 444
+      },
+      {
+        "calibrated_score": 0.694117647059,
+        "category": "uncertain",
+        "domain": "news",
+        "generator": null,
+        "record_id": "01bbad25cb70922cf0352016e9c7651e92c7a708d75a3b9b0e4ecc17fb1798c6",
+        "sample_role": "uncertain_boundary",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 656
+      },
+      {
+        "calibrated_score": 0.237791932059,
+        "category": "uncertain",
+        "domain": "student_essay",
+        "generator": "claude",
+        "record_id": "065f27e9a32de6822e9223f41e6e0ef155369fd005afcdaed2708bff48dc137f",
+        "sample_role": "uncertain_boundary",
+        "strategy": "original",
+        "target": 1,
+        "whitespace_tokens": 514
+      },
+      {
+        "calibrated_score": 0.694117647059,
+        "category": "uncertain",
+        "domain": "student_essay",
+        "generator": null,
+        "record_id": "1502c28f95327d62813653492706fbad5c67206725c1b26d18df743c7270f532",
+        "sample_role": "uncertain_boundary",
+        "strategy": null,
+        "target": 0,
+        "whitespace_tokens": 318
+      }
+    ],
+    "role_counts": {
+      "human_false_machine": 9,
+      "machine_false_human": 6,
+      "uncertain_boundary": 6
+    },
+    "rows": 21
+  },
+  "schema_version": 1,
+  "validation": {
+    "all_selected_records_annotated": true,
+    "external_outcomes_used_for_retuning": false,
+    "sample_is_deterministic": true,
+    "source_text_in_committed_report": false,
+    "status": "pass"
+  }
+}

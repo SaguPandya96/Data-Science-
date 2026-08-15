@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "dataset": "MAGE",
+  "dataset_id": "yaful/MAGE",
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "release_last_modified_utc": "2024-05-22T01:59:05Z",
+  "retrieved_at_utc": "2026-08-08T23:46:23Z",
+  "source": "https://huggingface.co/datasets/yaful/MAGE",
+  "license_note": "The repository and dataset card state Apache-2.0; upstream source terms still require review before redistribution.",
+  "intended_role": "Development corpus partitions; WritingPrompts records must be excluded before fitting, tuning, calibration, or internal evaluation.",
+  "label_semantics": {
+    "raw_to_semantic": {
+      "0": "machine_generated",
+      "1": "human_written"
+    },
+    "source_revision": "6d11f851184b9f04166f952ddc1f47727f36710f",
+    "source_url": "https://github.com/yafuly/MAGE/blob/6d11f851184b9f04166f952ddc1f47727f36710f/README.md#data-format",
+    "canonical_machine_positive_mapping": {
+      "0": 1,
+      "1": 0
+    }
+  },
+  "files": [
+    {
+      "name": "train",
+      "relative_path": "mage/train.csv",
+      "url": "https://huggingface.co/datasets/yaful/MAGE/resolve/342663f0a2b775455c023f5d36a1341ff0ec5402/train.csv?download=true",
+      "size_bytes": 403744528,
+      "sha256": "07b95008964d6be412aa764aa1e515d652c345305cebc522a7612c6015ba373a",
+      "source_git_blob_oid": "1d4929b65b50167c8e89d75f921099d233e84039",
+      "source_lfs_sha256": "07b95008964d6be412aa764aa1e515d652c345305cebc522a7612c6015ba373a",
+      "expected_columns": [
+        "text",
+        "label",
+        "src"
+      ]
+    },
+    {
+      "name": "validation",
+      "relative_path": "mage/valid.csv",
+      "url": "https://huggingface.co/datasets/yaful/MAGE/resolve/342663f0a2b775455c023f5d36a1341ff0ec5402/valid.csv?download=true",
+      "size_bytes": 72276577,
+      "sha256": "005e200957a4da551c8ac37079f43811db9c32f5141e3bdabb1caa257588691f",
+      "source_git_blob_oid": "20f36b00c988683a3fbb6766597b312083ea827d",
+      "source_lfs_sha256": "005e200957a4da551c8ac37079f43811db9c32f5141e3bdabb1caa257588691f",
+      "expected_columns": [
+        "text",
+        "label",
+        "src"
+      ]
+    },
+    {
+      "name": "test",
+      "relative_path": "mage/test.csv",
+      "url": "https://huggingface.co/datasets/yaful/MAGE/resolve/342663f0a2b775455c023f5d36a1341ff0ec5402/test.csv?download=true",
+      "size_bytes": 71739623,
+      "sha256": "dcb8a8a8de1459d382ac2da5e0f1c39452e8bc47d186d7393f3ed4308f762ac7",
+      "source_git_blob_oid": "582e2047c37852dfc9ba5fc07d133fd0db705583",
+      "source_lfs_sha256": "dcb8a8a8de1459d382ac2da5e0f1c39452e8bc47d186d7393f3ed4308f762ac7",
+      "expected_columns": [
+        "text",
+        "label",
+        "src"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+{
+  "aggregate": {
+    "canonical_target_counts": {
+      "0": 1524,
+      "1": 2400
+    },
+    "distinct_source_values": 16,
+    "exact_text_duplication": {
+      "conflicting_label_groups": 0,
+      "cross_file_groups": 762,
+      "cross_file_set_counts": {
+        "gpt_ood|paraphrase_ood": 762
+      },
+      "duplicate_extra_rows": 762,
+      "duplicate_groups": 762,
+      "group_raw_label_counts": {
+        "1": 762
+      },
+      "rows_in_duplicate_groups": 1524,
+      "unique_texts": 3162
+    },
+    "lengths": {
+      "characters": {
+        "max": 6832,
+        "mean": 1459.266,
+        "median": 1264.0,
+        "min": 44,
+        "p05": 530,
+        "p25": 808,
+        "p75": 2009,
+        "p95": 2860
+      },
+      "whitespace_tokens": {
+        "max": 1130,
+        "mean": 239.664,
+        "median": 207.0,
+        "min": 8,
+        "p05": 87,
+        "p25": 130,
+        "p75": 326,
+        "p95": 476
+      }
+    },
+    "raw_label_counts": {
+      "0": 2400,
+      "1": 1524
+    },
+    "rows": 3924,
+    "semantic_label_counts": {
+      "human_written": 1524,
+      "machine_generated": 2400
+    },
+    "source_counts": {
+      "cnn_gpt4": 200,
+      "cnn_gpt4_para": 200,
+      "cnn_human": 400,
+      "cnn_human_para": 200,
+      "dialogsum_gpt4": 200,
+      "dialogsum_gpt4_para": 200,
+      "dialogsum_human": 324,
+      "dialogsum_human_para": 200,
+      "imdb_gpt4": 200,
+      "imdb_gpt4_para": 200,
+      "imdb_human": 400,
+      "imdb_human_para": 200,
+      "pubmed_gpt4": 200,
+      "pubmed_gpt4_para": 200,
+      "pubmed_human": 400,
+      "pubmed_human_para": 200
+    }
+  },
+  "dataset": "MAGE",
+  "dataset_id": "yaful/MAGE",
+  "files": [
+    {
+      "blank_values": {
+        "label": 0,
+        "src": 0,
+        "text": 0
+      },
+      "canonical_target_counts": {
+        "0": 762,
+        "1": 800
+      },
+      "columns": [
+        "text",
+        "label",
+        "src"
+      ],
+      "distinct_sources": 8,
+      "invalid_label_counts": {},
+      "lengths": {
+        "characters": {
+          "max": 5706,
+          "mean": 1384.934,
+          "median": 1257.0,
+          "min": 44,
+          "p05": 457,
+          "p25": 775,
+          "p75": 1881,
+          "p95": 2646
+        },
+        "whitespace_tokens": {
+          "max": 986,
+          "mean": 228.286,
+          "median": 205.0,
+          "min": 8,
+          "p05": 71,
+          "p25": 125,
+          "p75": 310,
+          "p95": 449
+        }
+      },
+      "malformed_rows": 0,
+      "name": "gpt_ood",
+      "null_values": {
+        "label": 0,
+        "src": 0,
+        "text": 0
+      },
+      "raw_label_counts": {
+        "0": 800,
+        "1": 762
+      },
+      "record_identifier_column": null,
+      "relative_path": "mage/test_ood_set_gpt.csv",
+      "rows": 1562,
+      "semantic_label_counts": {
+        "human_written": 762,
+        "machine_generated": 800
+      },
+      "source_counts": {
+        "cnn_gpt4": 200,
+        "cnn_human": 200,
+        "dialogsum_gpt4": 200,
+        "dialogsum_human": 162,
+        "imdb_gpt4": 200,
+        "imdb_human": 200,
+        "pubmed_gpt4": 200,
+        "pubmed_human": 200
+      }
+    },
+    {
+      "blank_values": {
+        "label": 0,
+        "src": 0,
+        "text": 0
+      },
+      "canonical_target_counts": {
+        "0": 762,
+        "1": 1600
+      },
+      "columns": [
+        "text",
+        "label",
+        "src"
+      ],
+      "distinct_sources": 12,
+      "invalid_label_counts": {},
+      "lengths": {
+        "characters": {
+          "max": 6832,
+          "mean": 1508.422,
+          "median": 1267.0,
+          "min": 148,
+          "p05": 565,
+          "p25": 831,
+          "p75": 2088,
+          "p95": 3002
+        },
+        "whitespace_tokens": {
+          "max": 1130,
+          "mean": 247.188,
+          "median": 209.0,
+          "min": 27,
+          "p05": 98,
+          "p25": 133,
+          "p75": 340,
+          "p95": 493
+        }
+      },
+      "malformed_rows": 0,
+      "name": "paraphrase_ood",
+      "null_values": {
+        "label": 0,
+        "src": 0,
+        "text": 0
+      },
+      "raw_label_counts": {
+        "0": 1600,
+        "1": 762
+      },
+      "record_identifier_column": null,
+      "relative_path": "mage/test_ood_set_gpt_para.csv",
+      "rows": 2362,
+      "semantic_label_counts": {
+        "human_written": 762,
+        "machine_generated": 1600
+      },
+      "source_counts": {
+        "cnn_gpt4_para": 200,
+        "cnn_human": 200,
+        "cnn_human_para": 200,
+        "dialogsum_gpt4_para": 200,
+        "dialogsum_human": 162,
+        "dialogsum_human_para": 200,
+        "imdb_gpt4_para": 200,
+        "imdb_human": 200,
+        "imdb_human_para": 200,
+        "pubmed_gpt4_para": 200,
+        "pubmed_human": 200,
+        "pubmed_human_para": 200
+      }
+    }
+  ],
+  "label_semantics": {
+    "canonical_machine_positive_mapping": {
+      "0": 1,
+      "1": 0
+    },
+    "raw_to_semantic": {
+      "0": "machine_generated",
+      "1": "human_written"
+    },
+    "source_revision": "6d11f851184b9f04166f952ddc1f47727f36710f",
+    "source_url": "https://github.com/yafuly/MAGE/blob/6d11f851184b9f04166f952ddc1f47727f36710f/README.md#data-format"
+  },
+  "profiler_version": 2,
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "schema_version": 1,
+  "validation": {
+    "status": "pass",
+    "violations": [],
+    "warnings": [
+      "No stable record identifier column is present; downstream IDs must be derived deterministically",
+      "762 exact-text groups contain repeated rows; 762 groups span files"
+    ]
+  }
+}

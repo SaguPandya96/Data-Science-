@@ -1,0 +1,35 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Data and experiment artifacts
+/data/raw/
+/data/interim/
+/data/processed/
+/artifacts/
+/models/
+/mlruns/
+/logs/
+
+# Frontend dependencies and build output
+node_modules/
+.next/
+dist/
+coverage/

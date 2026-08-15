@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "authentitext"
+version = "0.1.0"
+description = "Reproducible research tooling for machine-generated text detection"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+  "fastapi==0.141.1",
+  "joblib==1.5.3",
+  "numpy==2.5.1",
+  "scikit-learn==1.9.0",
+  "scipy==1.18.0",
+  "uvicorn==0.52.1",
+]
+
+[project.optional-dependencies]
+dev = ["httpx2==2.9.1", "ruff==0.16.2"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+authentitext = ["web/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["data/raw", "data/interim"]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]
