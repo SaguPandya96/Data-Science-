@@ -1,0 +1,101 @@
+{
+  "artifact": {
+    "archive_sha256": "1e51c64ea7c5fc0464532477e0ab2f393c52e3ab596bace9e65383439fc0e218",
+    "id": 9252965325,
+    "name": "transformer-probe-71602df1e96282ac00f97e82d3d14b5413b6ebaa"
+  },
+  "candidate": {
+    "checkpoint_files": [
+      {
+        "bytes": 445,
+        "relative_path": ".gitattributes",
+        "sha256": "98c91dabef4df27b2fc7c8454d220aba47476f73593cbd034d961fe4927304c1"
+      },
+      {
+        "bytes": 4617,
+        "relative_path": "README.md",
+        "sha256": "d13a54d652a2a54fbbc50e063b465fb273295870867821e1b06baba1d49d68a9"
+      },
+      {
+        "bytes": 382,
+        "relative_path": "config.json",
+        "sha256": "508e1f01aae55d73355cbdd82609be2f43ba5a0d3428837adbe56cf8391f8b39"
+      },
+      {
+        "bytes": 17545101,
+        "relative_path": "flax_model.msgpack",
+        "sha256": "d1f885a549870769ba8b61c96b051ed6a98b68573062f03fd806fcaa9712eeb4"
+      },
+      {
+        "bytes": 17739144,
+        "relative_path": "model.safetensors",
+        "sha256": "7fb69ad9f6866d8983183c930e33828f326470bf6ad8bbb2ad4ed957a92e9414"
+      },
+      {
+        "bytes": 17743809,
+        "relative_path": "pytorch_model.bin",
+        "sha256": "dd152f8450c0579bd271ac0ccb4a88fa4f6a67d8035b7799dbf3a0fb7156d9d0"
+      },
+      {
+        "bytes": 231508,
+        "relative_path": "vocab.txt",
+        "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+      }
+    ],
+    "model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "revision": "30b0a37ccaaa32f332884b96992754e246e48c5f"
+  },
+  "estimate": {
+    "estimated_epoch_seconds": 1811.9498578053376,
+    "estimated_total_seconds": 6335.849573416013,
+    "estimated_training_seconds": 5435.849573416013,
+    "full_run_viable": true,
+    "full_train_rows": 287843,
+    "hosted_runner_limit_seconds": 21600,
+    "planned_epochs": 3,
+    "reserved_overhead_seconds": 900
+  },
+  "input": {
+    "content_sha256": "40af4c0a731ea8e26649e41d610dc74cc53ed40fececc90fb3ff5ed666d1da17",
+    "gzip_bytes": 151976860,
+    "gzip_sha256": "00f640af6f0411e2a7d1fbb9ff9357265ea99cfd64c2d0666977cd4b57e8d1a5",
+    "partition": "train",
+    "rows": 287843
+  },
+  "measurement": {
+    "logical_cpus": 4,
+    "measured_rows": 1920,
+    "measured_seconds": 12.086254405999966,
+    "peak_rss_bytes": 776138752,
+    "rows_per_second": 158.85814872859672,
+    "tokenization_seconds": 0.7765239800000074,
+    "torch_threads": 4
+  },
+  "protocol": {
+    "batch_size": 32,
+    "device": "cpu",
+    "learning_rate": 2e-05,
+    "max_length": 128,
+    "measured_steps": 60,
+    "optimizer": "AdamW",
+    "performance_metrics_reported": false,
+    "probe_rows": 2048,
+    "seed": 1729,
+    "test_data_read": false,
+    "warmup_steps": 4
+  },
+  "schema_version": 1,
+  "status": "pass",
+  "validation": {
+    "model_artifact_saved": false,
+    "source_text_in_report": false,
+    "status": "pass",
+    "test_data_read": false,
+    "transformer_trained": false
+  },
+  "workflow": {
+    "commit": "71602df1e96282ac00f97e82d3d14b5413b6ebaa",
+    "run_id": 31908238067,
+    "url": "https://github.com/SaguPandya96/Data-Science-/actions/runs/31908238067"
+  }
+}

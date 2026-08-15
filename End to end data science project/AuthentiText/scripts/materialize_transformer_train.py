@@ -1,4 +1,4 @@
-"""Rebuild the sealed transformer train input from the pinned raw train file."""
+"""Rebuild a transformer modeling partition without reading sealed test data."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from pathlib import Path
 from authentitext.data.cleaning import CleaningError, clean_partition
 from authentitext.data.transformer_train import (
     TransformerTrainError,
-    load_train_decisions,
-    materialize_transformer_train,
+    load_partition_decisions,
+    materialize_transformer_partition,
 )
 
 if __package__:
@@ -33,6 +33,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=repo_root / "data" / "metadata" / "transformer_train_decisions.json",
     )
+    parser.add_argument("--partition", choices=("train", "validation"), default="train")
     parser.add_argument("--input-dir", type=Path, default=repo_root / "data" / "raw")
     parser.add_argument(
         "--cleaned-output",
@@ -56,35 +57,37 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
         manifest = load_manifest(args.manifest)
-        decisions = load_train_decisions(args.decisions)
+        decisions = load_partition_decisions(args.decisions)
+        if decisions["partition"] != args.partition:
+            raise TransformerTrainError("Decisions do not match the requested partition")
         if decisions["dataset_id"] != manifest["dataset_id"]:
-            raise TransformerTrainError("Train decisions do not match the dataset")
+            raise TransformerTrainError("Partition decisions do not match the dataset")
         if decisions["revision"] != manifest["revision"]:
-            raise TransformerTrainError("Train decisions do not match the revision")
+            raise TransformerTrainError("Partition decisions do not match the revision")
 
         entries = {entry["name"]: entry for entry in manifest["files"]}
-        train_entry = entries.get("train")
-        if train_entry is None:
-            raise TransformerTrainError("Manifest does not contain a train file")
-        raw_train_path = args.input_dir / Path(train_entry["relative_path"])
-        verify_file(raw_train_path, train_entry)
+        partition_entry = entries.get(args.partition)
+        if partition_entry is None:
+            raise TransformerTrainError(f"Manifest does not contain {args.partition}")
+        raw_partition_path = args.input_dir / Path(partition_entry["relative_path"])
+        verify_file(raw_partition_path, partition_entry)
 
         raw_to_target = manifest["label_semantics"]["canonical_machine_positive_mapping"]
         clean_report = clean_partition(
-            input_path=raw_train_path,
+            input_path=raw_partition_path,
             output_path=args.cleaned_output,
             dataset_id=manifest["dataset_id"],
             revision=manifest["revision"],
-            partition="train",
+            partition=args.partition,
             raw_to_target=raw_to_target,
         )
         expected_input = decisions["expected_input"]
         if clean_report["rows_written"] != expected_input["rows"]:
             raise TransformerTrainError(
-                "Cleaned train row count does not match its audited identity"
+                f"Cleaned {args.partition} row count does not match its audited identity"
             )
 
-        report = materialize_transformer_train(args.cleaned_output, args.output, decisions)
+        report = materialize_transformer_partition(args.cleaned_output, args.output, decisions)
         args.report.parent.mkdir(parents=True, exist_ok=True)
         temporary_report = args.report.with_suffix(f"{args.report.suffix}.tmp")
         temporary_report.write_text(
@@ -94,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         temporary_report.replace(args.report)
         print(
-            f"materialized transformer train: {report['rows_written']} rows, "
+            f"materialized transformer {args.partition}: {report['rows_written']} rows, "
             f"content SHA-256 {report['output_content_sha256']}"
         )
     except (

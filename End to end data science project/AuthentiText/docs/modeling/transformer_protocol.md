@@ -72,6 +72,20 @@ updated probe model. The viability estimate reserves 15 minutes for setup and
 requires a prespecified three-epoch full run to fit inside the six-hour hosted
 runner limit.
 
+The measured remote probe processed 1,920 optimizer-step rows in 12.086 seconds
+(158.858 rows/second) with 776,138,752 bytes peak RSS. It estimated 1,811.950
+seconds per full epoch and 6,335.850 seconds for three epochs plus reserved
+setup time, so the full run cleared the resource gate. These are operational
+measurements, not candidate-quality metrics.
+
+The full workflow separately rebuilds the validation role from the pinned raw
+validation file and the 69 text-free audited exclusions in
+[`transformer_validation_decisions.json`](../../data/metadata/transformer_validation_decisions.json).
+It trains for exactly three epochs without early stopping, then scores
+validation, fits the existing three-role calibration and abstention policy,
+reload-checks the saved model, and uploads model and text-free evidence. The
+test partition remains unavailable throughout.
+
 The environment-resolution job is bounded to 30 minutes. The later full
 training job must stay within GitHub's six-hour hosted-runner limit; a measured
 throughput probe will decide whether that target is viable rather than assuming

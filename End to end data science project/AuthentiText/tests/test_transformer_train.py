@@ -7,6 +7,7 @@ from pathlib import Path
 from authentitext.data.cleaning import open_deterministic_gzip, sha256_file
 from authentitext.data.transformer_train import (
     TransformerTrainError,
+    load_partition_decisions,
     load_train_decisions,
     materialize_transformer_train,
     sha256_gzip_content,
@@ -41,6 +42,15 @@ class TransformerTrainTests(unittest.TestCase):
 
         self.assertEqual(len(decisions["record_ids_to_drop"]), 69)
         self.assertEqual(decisions["expected_output"]["rows"], 287843)
+        self.assertNotIn("text", decisions)
+
+    def test_committed_validation_decisions_are_complete_and_text_free(self) -> None:
+        path = REPO_ROOT / "data" / "metadata" / "transformer_validation_decisions.json"
+        decisions = load_partition_decisions(path)
+
+        self.assertEqual(decisions["partition"], "validation")
+        self.assertEqual(len(decisions["record_ids_to_drop"]), 69)
+        self.assertEqual(decisions["expected_output"]["rows"], 50509)
         self.assertNotIn("text", decisions)
 
     def test_materialization_applies_only_declared_train_exclusions(self) -> None:

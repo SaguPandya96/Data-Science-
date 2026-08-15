@@ -46,6 +46,8 @@ class TransformerEnvironmentWorkflowTests(unittest.TestCase):
         self.assertIn("torch==2.13.0+cpu", lock)
         self.assertIn("transformers==5.14.1", lock)
         self.assertIn("accelerate==1.14.0", lock)
+        self.assertIn("scikit-learn==1.9.0", lock)
+        self.assertIn("scipy==1.17.1", lock)
         self.assertNotIn("cuda", lock.lower())
         self.assertNotIn("nvidia", lock.lower())
 
