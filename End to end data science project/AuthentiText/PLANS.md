@@ -388,9 +388,14 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 17 and 18; Docker availability.
 - **Validation:** Images build and the documented Compose workflow passes health
   and prediction smoke tests.
-- **Status:** Deferred on the audited workstation because Docker is unavailable;
-  no Dockerfile, image, Compose workflow, or build result is claimed.
-- **Important decisions:** Kubernetes is out of scope without a concrete need.
+- **Status:** In progress. A minimal Dockerfile and Compose workflow now package
+  the API with a non-root user, health check, read-only artifact mount, and
+  restricted runtime. Docker remains unavailable on the audited workstation,
+  so no image or Compose smoke result is claimed. The CI image build is
+  configured but has not yet been observed on GitHub.
+- **Important decisions:** Keep trained artifacts outside the image and mount
+  them read-only so startup identity checks remain authoritative. Kubernetes is
+  out of scope without a concrete need.
 
 ## Phase 21 — Testing
 

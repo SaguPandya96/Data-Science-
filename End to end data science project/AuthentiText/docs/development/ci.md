@@ -3,8 +3,8 @@
 The GitHub Actions workflow runs on every push and pull request using Ubuntu
 and CPython 3.14. It installs the exact development lock, checks dependency
 integrity, validates committed metadata, runs Ruff lint and format checks,
-executes the complete `unittest` suite, and verifies that the project builds as
-a wheel.
+executes the complete `unittest` suite, verifies that the project builds as a
+wheel, and builds the local-service container image.
 
 The workflow grants only `contents: read`, disables persisted checkout
 credentials, and has a 20-minute timeout. It pins the immutable release commits
@@ -48,9 +48,10 @@ The pip download cache is keyed by both lock files. No datasets, trained models,
 predictions, or build outputs are cached or uploaded. The wheel is built only
 to validate packaging and is discarded with the runner.
 
-Type checking, container builds, deployment, and model retraining are absent
-because those verified capabilities or tools do not yet exist in the project.
-They must not be inferred from a green workflow.
+Type checking, deployment, and model retraining remain absent because those
+verified capabilities or tools do not yet exist in the project. The container
+step proves only that the image builds; it does not supply ignored model
+artifacts or perform a deployment acceptance test.
 
 ## Local reproduction
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -27,6 +28,12 @@ LOGGER = logging.getLogger("authentitext.api")
 WEB_ROOT = Path(__file__).resolve().parent / "web"
 
 
+def application_root() -> Path:
+    """Resolve runtime metadata and artifact paths for source or installed builds."""
+    configured = os.environ.get("AUTHENTITEXT_ROOT")
+    return Path(configured).resolve() if configured else Path(__file__).resolve().parents[2]
+
+
 class PredictRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
@@ -45,7 +52,7 @@ def _error_response(status_code: int, code: str, message: str, **details: Any) -
 
 
 def _default_predictor() -> AuthentiTextPredictor:
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = application_root()
     return AuthentiTextPredictor.from_reports(
         training_report_path=(
             repo_root / "data" / "metadata" / "mage_baseline_training_report.json"
@@ -56,7 +63,7 @@ def _default_predictor() -> AuthentiTextPredictor:
 
 
 def _default_drift_reference() -> dict[str, Any]:
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = application_root()
     return load_drift_reference(repo_root / "data" / "metadata" / "mage_drift_reference.json")
 
 

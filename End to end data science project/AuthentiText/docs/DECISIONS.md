@@ -379,3 +379,29 @@ missing packages or weights from being confused with a completed experiment.
 baseline. The current preflight is `not_ready` because PyTorch, Transformers,
 Tokenizers, Accelerate, and the pinned weights are unavailable in this
 workspace. No transformer metric or completion claim is made.
+
+## 2026-08-15 — Keep model artifacts outside the container image
+
+**Context:** The API and frontend are ready to package, but trained artifacts
+are intentionally ignored by Git and the application already verifies their
+recorded sizes, hashes, types, and calibration linkage during startup.
+
+**Options considered:** Copy local artifacts into the image; download or train
+them during every build; commit them to Git; or build a reusable application
+image and mount the verified artifact directory read-only at runtime.
+
+**Decision:** Build the service and committed text-free metadata into a
+Python 3.14.6 slim image, run as an unprivileged user, and mount
+`artifacts/baselines/id` read-only through Compose. Keep the container root
+filesystem read-only, drop capabilities, disable access logs, and use the
+existing health endpoint for the image check.
+
+**Reason:** Separating code from local model state keeps the build context
+small and preserves the existing artifact-integrity gate. The same image can be
+built in CI without private data or model files, while readiness remains false
+until the exact frozen artifacts are supplied.
+
+**Tradeoffs:** The image is not self-contained and operators must provision the
+two verified artifacts. Docker is unavailable on the audited workstation, so
+the configuration and service behavior are tested but no successful image or
+Compose smoke result is claimed yet.
