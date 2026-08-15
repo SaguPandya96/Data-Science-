@@ -8,7 +8,7 @@ and threshold ordering before readiness succeeds.
 
 The image uses the official `python:3.14.6-slim-bookworm` tag, installs the
 locked runtime, runs as an unprivileged user, disables access logs, and includes
-the same `/v1/health` readiness probe used by local operations. Compose also
+the same `/health/ready` readiness probe used by local operations. Compose also
 drops Linux capabilities, enables `no-new-privileges`, makes the root filesystem
 read-only, and provides only a bounded temporary filesystem.
 
@@ -20,7 +20,7 @@ docker compose up
 ```
 
 Then open `http://127.0.0.1:8000` or query
-`http://127.0.0.1:8000/v1/health`. Set `AUTHENTITEXT_PORT` before starting
+`http://127.0.0.1:8000/health/ready`. Set `AUTHENTITEXT_PORT` before starting
 Compose to use another host port.
 
 ## Validation boundary

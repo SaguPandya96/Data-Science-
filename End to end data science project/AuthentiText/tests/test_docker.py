@@ -21,6 +21,7 @@ class DockerConfigurationTests(unittest.TestCase):
             "USER authentitext",
             "EXPOSE 8000",
             "HEALTHCHECK",
+            "/health/ready",
             "authentitext.api:app",
             '"--no-access-log"',
         )
