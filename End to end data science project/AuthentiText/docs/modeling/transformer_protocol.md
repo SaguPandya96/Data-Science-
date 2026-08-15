@@ -46,6 +46,12 @@ framework versions, and uploads those files as a short-lived GitHub Actions
 artifact. The resolved lock must be reviewed and committed before the
 throughput probe or full training is allowed to run.
 
+The CPU-only resolution completed successfully in GitHub Actions on 2026-08-15.
+The exact transitive environment is committed as
+[`requirements/transformer.lock`](../../requirements/transformer.lock), and its
+runner, framework, workflow, and artifact identities are recorded in
+[`transformer_environment_report.json`](../../data/metadata/transformer_environment_report.json).
+
 The environment-resolution job is bounded to 30 minutes. The later full
 training job must stay within GitHub's six-hour hosted-runner limit; a measured
 throughput probe will decide whether that target is viable rather than assuming
