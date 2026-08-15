@@ -51,6 +51,7 @@ def expected_readme_evidence() -> list[str]:
     domain_holdouts = _load("mage_domain_holdout_report.json")
     generator_holdouts = _load("mage_generator_holdout_report.json")
     external = _load("ghostbuster_evaluation_report.json")
+    truncation = _load("mage_truncation_robustness_report.json")
 
     train = _output(split, "train")
     validation = _output(split, "validation")
@@ -100,6 +101,19 @@ def expected_readme_evidence() -> list[str]:
         f"{_percent(external_policy['human_false_machine_rate'])} | "
         f"{_percent(external_policy['machine_false_human_rate'])} |",
     ]
+    for condition in truncation["conditions"]:
+        original = condition["original"]
+        truncated = condition["truncated"]
+        changed = condition["paired_effects"]["category_changes"]
+        lines.append(
+            f"| {condition['budget_whitespace_tokens']}-token prefix | "
+            f"{_count(condition['selection']['rows'])} | "
+            f"{_metric(original['raw_score']['roc_auc'])} | "
+            f"{_metric(truncated['raw_score']['roc_auc'])} | "
+            f"{_percent(original['policy']['uncertain_rate'])} | "
+            f"{_percent(truncated['policy']['uncertain_rate'])} | "
+            f"{_percent(changed['changed_rate'])} |"
+        )
     domain_summary_specs = (
         ("ROC AUC", "roc_auc", _metric),
         ("Average precision", "average_precision", _metric),

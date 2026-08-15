@@ -209,6 +209,66 @@
         "sha256": "d1b186b05762802fa1c25a80de6b938bfc8fe1fa081a9c74bbb8f980fc59bf2b"
       },
       "status": "complete"
+    },
+    {
+      "decision": "Retain measured prefix sensitivity without model, calibration, or threshold retuning.",
+      "evidence": {
+        "budgets_whitespace_tokens": [
+          50,
+          100,
+          200
+        ],
+        "conditions": {
+          "100": {
+            "category_changed_rate": 0.300846,
+            "original_human_false_machine_rate": 0.023518,
+            "original_machine_false_human_rate": 0.025575,
+            "original_roc_auc": 0.923264,
+            "original_uncertain_rate": 0.453896,
+            "paired_rows": 25887,
+            "prefix_human_false_machine_rate": 0.035514,
+            "prefix_machine_false_human_rate": 0.059625,
+            "prefix_roc_auc": 0.805082,
+            "prefix_uncertain_rate": 0.627187
+          },
+          "200": {
+            "category_changed_rate": 0.231094,
+            "original_human_false_machine_rate": 0.021611,
+            "original_machine_false_human_rate": 0.017895,
+            "original_roc_auc": 0.945366,
+            "original_uncertain_rate": 0.395558,
+            "paired_rows": 14228,
+            "prefix_human_false_machine_rate": 0.021611,
+            "prefix_machine_false_human_rate": 0.039445,
+            "prefix_roc_auc": 0.886284,
+            "prefix_uncertain_rate": 0.52467
+          },
+          "50": {
+            "category_changed_rate": 0.360801,
+            "original_human_false_machine_rate": 0.033848,
+            "original_machine_false_human_rate": 0.041176,
+            "original_roc_auc": 0.878027,
+            "original_uncertain_rate": 0.508346,
+            "paired_rows": 36965,
+            "prefix_human_false_machine_rate": 0.067473,
+            "prefix_machine_false_human_rate": 0.095497,
+            "prefix_roc_auc": 0.671298,
+            "prefix_uncertain_rate": 0.697849
+          }
+        },
+        "model_calibration_and_thresholds_frozen": true,
+        "prediction_file_verified": true,
+        "retuning_allowed": false,
+        "total_paired_rows": 77080
+      },
+      "experiment_id": "mage_truncation_robustness_v1",
+      "kind": "paired_robustness_evaluation",
+      "milestone_commit": "54649bd",
+      "report": {
+        "relative_path": "data/metadata/mage_truncation_robustness_report.json",
+        "sha256": "9263c5f8666d585119bc3f688b9a68b193b35511ccf5833e447bec3d29bb499a"
+      },
+      "status": "complete"
     }
   ],
   "not_run": [
@@ -229,7 +289,7 @@
   "schema_version": 1,
   "scope": "completed_local_experiments_and_explicitly_unrun_candidates",
   "validation": {
-    "completed_experiments": 9,
+    "completed_experiments": 10,
     "source_report_hashes_recorded": true,
     "source_reports_validation_status_pass": true,
     "status": "pass"

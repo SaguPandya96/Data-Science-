@@ -247,6 +247,27 @@ python scripts/run_generator_holdouts.py --resume
 python scripts/run_generator_holdouts.py --verify-only
 ```
 
+## Paired MAGE prefix-truncation artifacts
+
+The prefix-truncation stress test reads the verified sanitized MAGE test
+directly and does not create another text dataset. For each prespecified
+budget, records longer than the budget are paired with an in-memory prefix that
+ends at the budget's last non-whitespace token. The original bytes before that
+cut are preserved, and the transformed text is discarded after scoring.
+
+The ignored `artifacts/predictions/robustness/mage_truncation_pairs.jsonl.gz`
+contains 77,080 text-free paired rows totaling 5,333,750 bytes with SHA-256
+`bc3aad34fe515013b3bf7c9e4008cc9f963fffbd2283f31b105749cc1ba6ffb8`.
+The committed
+[`mage_truncation_robustness_report.json`](../../data/metadata/mage_truncation_robustness_report.json)
+links the sanitized input, base model, calibrator, conditions, aggregate
+metrics, and prediction identity. Run or verify it with:
+
+```powershell
+python scripts/evaluate_truncation_robustness.py
+python scripts/evaluate_truncation_robustness.py --verify-only
+```
+
 ## Aggregate drift reference
 
 [`mage_drift_reference.json`](../../data/metadata/mage_drift_reference.json) is

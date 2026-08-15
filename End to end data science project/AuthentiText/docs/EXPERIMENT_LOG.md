@@ -29,6 +29,7 @@ multiple approvers create a concrete coordination need.
 | `mage_domain_holdout_v1` | Refit and recalibrate with each MAGE domain excluded in turn | `49c7fd8` | [`mage_domain_holdout_report.json`](../data/metadata/mage_domain_holdout_report.json) | Retain measured domain dependence without test-driven fold retuning |
 | `mage_generator_holdout_v1` | Refit and recalibrate with each exact MAGE generator excluded in turn | `1f5ae54` | [`mage_generator_holdout_report.json`](../data/metadata/mage_generator_holdout_report.json) | Retain exact-generator dependence without family-level claims |
 | `ghostbuster_external_evaluation` | Apply the unchanged frozen policy once to the overlap-gated external corpus | `deae0f0` | [`ghostbuster_evaluation_report.json`](../data/metadata/ghostbuster_evaluation_report.json) | Retain external calibration and human false-machine failures without retuning |
+| `mage_truncation_robustness_v1` | Compare complete eligible MAGE test records with prespecified 50-, 100-, and 200-token prefixes | `54649bd` | [`mage_truncation_robustness_report.json`](../data/metadata/mage_truncation_robustness_report.json) | Retain measured prefix sensitivity without model, calibration, or threshold retuning |
 
 The structured registry contains the actual row counts, ranking, calibration,
 policy, throughput, artifact, false-alert, and shift-detection values extracted
@@ -57,7 +58,7 @@ python scripts/build_experiment_registry.py
 python scripts/build_experiment_registry.py --check
 ```
 
-The build is deterministic and has no data/model dependency beyond the nine
+The build is deterministic and has no data/model dependency beyond the ten
 committed reports. The checker fails if a source report, extracted value,
 source-report hash, decision, or registry formatting changes. CI runs the
 read-only check.

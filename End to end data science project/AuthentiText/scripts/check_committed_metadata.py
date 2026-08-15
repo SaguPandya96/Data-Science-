@@ -38,6 +38,7 @@ REQUIRED_FILES = {
     "mage_ood_manifest.json",
     "mage_ood_profile.json",
     "mage_source_regimes.json",
+    "mage_truncation_robustness_report.json",
 }
 MANIFEST_FILES = {"mage_development_manifest.json", "mage_ood_manifest.json"}
 
@@ -200,6 +201,77 @@ def check_metadata(metadata_dir: Path = DEFAULT_METADATA_DIR) -> list[str]:
             errors.append("generator holdout report must prohibit test use before evaluation")
         if _nested(generator_holdouts, "validation", "folds_completed") != 27:
             errors.append("generator holdout report must mark all 27 folds complete")
+
+    truncation = reports.get("mage_truncation_robustness_report.json")
+    calibration = reports.get("mage_calibration_report.json")
+    id_split = reports.get("mage_id_split_report.json")
+    if truncation is not None:
+        if calibration is not None:
+            if _nested(truncation, "base_model", "sha256") != _nested(
+                calibration, "base_model", "sha256"
+            ):
+                errors.append("truncation robustness base model is not frozen")
+            if _nested(truncation, "calibration_artifact", "sha256") != _nested(
+                calibration, "artifact", "sha256"
+            ):
+                errors.append("truncation robustness calibrator is not frozen")
+        if id_split is not None:
+            test_input = next(
+                (item for item in id_split.get("outputs", []) if item.get("partition") == "test"),
+                None,
+            )
+            if not isinstance(test_input, dict) or _nested(
+                truncation, "input", "sha256"
+            ) != test_input.get("sha256"):
+                errors.append("truncation robustness input does not match the sanitized test")
+        budgets = _nested(truncation, "configuration", "budgets_whitespace_tokens")
+        conditions = truncation.get("conditions")
+        if budgets != [50, 100, 200]:
+            errors.append("truncation robustness must retain the prespecified budgets")
+        if (
+            not isinstance(conditions, list)
+            or [item.get("budget_whitespace_tokens") for item in conditions] != budgets
+        ):
+            errors.append("truncation robustness conditions do not match the budgets")
+        else:
+            condition_rows = [
+                _nested(item, "selection", "rows") for item in conditions if isinstance(item, dict)
+            ]
+            if not all(isinstance(value, int) and value > 0 for value in condition_rows):
+                errors.append("truncation robustness condition rows must be positive integers")
+            elif sum(condition_rows) != _nested(truncation, "predictions", "rows"):
+                errors.append("truncation robustness paired rows do not reconcile")
+        for key in (
+            "prediction_file_verified",
+            "metrics_recomputed_from_predictions",
+            "all_selected_records_strictly_exceed_budget",
+            "all_transformed_records_match_budget",
+        ):
+            if _nested(truncation, "validation", key) is not True:
+                errors.append(f"truncation robustness validation.{key} must be true")
+        for key in (
+            "source_text_in_report_or_predictions",
+            "model_calibration_or_threshold_retuning_performed",
+        ):
+            if _nested(truncation, "validation", key) is not False:
+                errors.append(f"truncation robustness validation.{key} must be false")
+        if (
+            _nested(truncation, "configuration", "test_outcomes_used_for_budget_selection")
+            is not False
+        ):
+            errors.append("truncation budgets must not be selected from test outcomes")
+        if (
+            _nested(
+                truncation,
+                "configuration",
+                "retuning_after_robustness_evaluation_allowed",
+            )
+            is not False
+        ):
+            errors.append("truncation robustness outcomes must not permit retuning")
+        serialized = json.dumps(truncation, sort_keys=True)
+        if '"text":' in serialized:
+            errors.append("truncation robustness report contains source text")
 
     ghostbuster = reports.get("ghostbuster_main_manifest.json")
     if ghostbuster is not None:

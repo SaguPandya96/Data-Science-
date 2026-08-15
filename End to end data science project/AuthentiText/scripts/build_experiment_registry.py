@@ -67,6 +67,12 @@ REPORTS = {
         "ghostbuster_evaluation_report.json",
         "Retain external calibration and human false-machine failures without retuning.",
     ),
+    "mage_truncation_robustness_v1": (
+        "paired_robustness_evaluation",
+        "54649bd",
+        "mage_truncation_robustness_report.json",
+        "Retain measured prefix sensitivity without model, calibration, or threshold retuning.",
+    ),
 }
 
 
@@ -273,6 +279,36 @@ def _external_evidence(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _truncation_evidence(report: dict[str, Any]) -> dict[str, Any]:
+    conditions = {}
+    for condition in report["conditions"]:
+        original = condition["original"]
+        truncated = condition["truncated"]
+        paired = condition["paired_effects"]
+        conditions[str(condition["budget_whitespace_tokens"])] = {
+            "category_changed_rate": paired["category_changes"]["changed_rate"],
+            "original_human_false_machine_rate": original["policy"]["human_false_machine_rate"],
+            "original_machine_false_human_rate": original["policy"]["machine_false_human_rate"],
+            "original_roc_auc": original["raw_score"]["roc_auc"],
+            "original_uncertain_rate": original["policy"]["uncertain_rate"],
+            "paired_rows": condition["selection"]["rows"],
+            "prefix_human_false_machine_rate": truncated["policy"]["human_false_machine_rate"],
+            "prefix_machine_false_human_rate": truncated["policy"]["machine_false_human_rate"],
+            "prefix_roc_auc": truncated["raw_score"]["roc_auc"],
+            "prefix_uncertain_rate": truncated["policy"]["uncertain_rate"],
+        }
+    return {
+        "budgets_whitespace_tokens": report["configuration"]["budgets_whitespace_tokens"],
+        "conditions": conditions,
+        "model_calibration_and_thresholds_frozen": report["configuration"][
+            "model_calibration_and_thresholds_frozen"
+        ],
+        "prediction_file_verified": report["validation"]["prediction_file_verified"],
+        "retuning_allowed": report["configuration"]["retuning_after_robustness_evaluation_allowed"],
+        "total_paired_rows": report["predictions"]["rows"],
+    }
+
+
 EVIDENCE_BUILDERS = {
     "baseline_training_v1": _training_evidence,
     "baseline_validation_v1": _validation_evidence,
@@ -283,6 +319,7 @@ EVIDENCE_BUILDERS = {
     "mage_domain_holdout_v1": _domain_holdout_evidence,
     "mage_generator_holdout_v1": _generator_holdout_evidence,
     "ghostbuster_external_evaluation": _external_evidence,
+    "mage_truncation_robustness_v1": _truncation_evidence,
 }
 
 

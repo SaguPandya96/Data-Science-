@@ -27,9 +27,9 @@ real MAGE experiments, but the complete research roadmap is not finished.
 | Data | Pinned MAGE development/OOD and Ghostbuster external acquisition, profiling, preparation, leakage/overlap analysis, and sanitized splits complete |
 | Baselines | Majority, length-only, and word TF-IDF logistic models trained and reload-verified |
 | Calibration | Isotonic calibration and two-threshold abstention selected from disjoint validation roles |
-| Evaluation | Sanitized validation, frozen in-distribution and Ghostbuster external tests, nine domain folds, 27 exact-generator folds, and MAGE GPT-4/paraphrase development OOD complete |
+| Evaluation | Sanitized validation, frozen in-distribution and Ghostbuster external tests, nine domain folds, 27 exact-generator folds, MAGE GPT-4/paraphrase development OOD, and paired prefix truncation complete |
 | Local product | Versioned inference, FastAPI, accessible dependency-free interface, aggregate monitoring, and drift checks working |
-| Experiment tracking | Nine completed runs and three explicitly unrun candidates in a deterministic hash-linked registry |
+| Experiment tracking | Ten completed runs and three explicitly unrun candidates in a deterministic hash-linked registry |
 | CI | Read-only workflow configured; every command passed in a fresh local clone; no hosted run observed |
 | Transformer | Deferred on the audited CPU-only workstation; no transformer was trained or evaluated |
 | External evaluation | Pinned Ghostbuster main corpus prepared; overlap-gated frozen evaluation complete on 20,991 records without retuning |
@@ -130,6 +130,20 @@ machine-positive and Ghostbuster is 85.7463% machine-positive, so their higher
 AP values do not indicate better generalization. Ghostbuster calibration ECE
 is 0.152084, and the human false-machine rate reaches 24.7485% on student
 essays. The Ghostbuster external evaluation does not establish production safety.
+
+The frozen MAGE test also supports a prespecified paired prefix-truncation
+stress test. Each condition retains only records longer than its budget and
+compares the same complete record with its 50-, 100-, or 200-token prefix.
+
+| Prefix budget | Paired rows | Original ROC AUC | Prefix ROC AUC | Original uncertain | Prefix uncertain | Category changed |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 50-token prefix | 36,965 | 0.878027 | 0.671298 | 50.8346% | 69.7849% | 36.0801% |
+| 100-token prefix | 25,887 | 0.923264 | 0.805082 | 45.3896% | 62.7187% | 30.0846% |
+| 200-token prefix | 14,228 | 0.945366 | 0.886284 | 39.5558% | 52.4670% | 23.1094% |
+
+At 50 tokens, human false-machine rises from 3.3848% to 6.7473% and
+machine false-human rises from 4.1176% to 9.5497%. The frozen policy was not
+retuned. See the [paired truncation evaluation](docs/evaluation/mage_truncation_robustness.md).
 
 A fixed 21-record qualitative review adds record-level context without source
 text in Git. The 9 human false-machine cases span narrative fiction, newswire
@@ -264,10 +278,11 @@ Completed model evidence can be verified when its ignored inputs are present:
 .\.venv\Scripts\python.exe scripts\run_domain_holdouts.py --verify-only
 .\.venv\Scripts\python.exe scripts\run_generator_holdouts.py --verify-only
 .\.venv\Scripts\python.exe scripts\evaluate_ghostbuster.py --verify-only
+.\.venv\Scripts\python.exe scripts\evaluate_truncation_robustness.py --verify-only
 ```
 
 The [experiment log](docs/EXPERIMENT_LOG.md) and generated
-[`experiment_registry.json`](data/metadata/experiment_registry.json) bind 9
+[`experiment_registry.json`](data/metadata/experiment_registry.json) bind 10
 completed runs to validated source-report hashes and milestone commits. 3
 unrun candidates remain explicitly metric-free. A tracking server was not
 added because the deterministic local reports already cover the single current
@@ -327,6 +342,7 @@ Known and unmeasured limitations include:
 - lexical sensitivity to topic, source, formatting, and benchmark artifacts;
 - severe short-text and domain variation;
 - degraded GPT-4/paraphrase OOD calibration and human false-machine behavior;
+- material prefix-truncation sensitivity even at 200 tokens;
 - no mixed-authorship, multilingual, or production-user validation;
 - only one sealed external corpus and no adversarially edited external corpus;
 - no transformer comparison; and
