@@ -64,3 +64,35 @@ class DockerConfigurationTests(unittest.TestCase):
         configured = REPO_ROOT / "container-root"
         with patch.dict(os.environ, {"AUTHENTITEXT_ROOT": str(configured)}):
             self.assertEqual(application_root(), configured.resolve())
+
+    def test_render_image_verifies_release_artifacts_and_uses_platform_port(self) -> None:
+        dockerfile = (REPO_ROOT / "Dockerfile.render").read_text(encoding="utf-8")
+        required = (
+            "FROM python:3.14.6-slim-bookworm",
+            "download_runtime_artifacts.py",
+            "runtime_artifact_manifest.json",
+            "--output-dir artifacts/baselines/id",
+            "USER authentitext",
+            "EXPOSE 10000",
+            "/health/ready",
+            "${PORT:-10000}",
+            "--no-access-log",
+        )
+        for fragment in required:
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, dockerfile)
+        self.assertNotIn("COPY .", dockerfile)
+
+    def test_render_blueprint_is_free_and_uses_readiness_gate(self) -> None:
+        blueprint = (REPO_ROOT / "render.yaml").read_text(encoding="utf-8")
+        required = (
+            "runtime: docker",
+            "plan: free",
+            "branch: master",
+            "rootDir: End to end data science project/AuthentiText",
+            "dockerfilePath: ./Dockerfile.render",
+            "healthCheckPath: /health/ready",
+        )
+        for fragment in required:
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, blueprint)

@@ -388,11 +388,11 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 17 and 18; Docker availability.
 - **Validation:** Images build and the documented Compose workflow passes health
   and prediction smoke tests.
-- **Status:** In progress. A minimal Dockerfile and Compose workflow now package
-  the API with a non-root user, health check, read-only artifact mount, and
-  restricted runtime. Docker remains unavailable on the audited workstation,
-  so no image or Compose smoke result is claimed. The CI image build is
-  configured but has not yet been observed on GitHub.
+- **Status:** Complete. The minimal local image packages the API with a non-root
+  user, health check, read-only artifact mount, and restricted runtime. Its
+  hosted GitHub build passed. A separate deployment image retrieves the frozen
+  release artifacts and verifies their byte counts and SHA-256 identities at
+  build time; its hosted build remains the final deployment-package gate.
 - **Important decisions:** Keep trained artifacts outside the image and mount
   them read-only so startup identity checks remain authoritative. Kubernetes is
   out of scope without a concrete need.
@@ -479,7 +479,10 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 20 through 24.
 - **Validation:** A documented deployment passes health, readiness, prediction,
   privacy, monitoring, and rollback checks.
-- **Status:** Not started.
+- **Status:** In progress. A free Render Blueprint, immutable release-artifact
+  manifest, deployment-specific image, acceptance procedure, and rollback
+  procedure are committed. Creating the service and recording the live
+  acceptance result remain pending.
 - **Important decisions:** Default to free or local infrastructure; no paid
   resource may be created without explicit permission.
 

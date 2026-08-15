@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "release": {
+    "tag": "authentitext-baseline-v1",
+    "url": "https://github.com/SaguPandya96/Data-Science-/releases/tag/authentitext-baseline-v1"
+  },
+  "validation": {
+    "status": "pass",
+    "local_artifact_identities_match_frozen_reports": true,
+    "release_assets_published": true
+  },
+  "artifacts": [
+    {
+      "filename": "word_tfidf_logistic.joblib",
+      "url": "https://github.com/SaguPandya96/Data-Science-/releases/download/authentitext-baseline-v1/word_tfidf_logistic.joblib",
+      "bytes": 1578216,
+      "sha256": "474481ed4548f89c3d0308bb8389f114f1e1d55a4436c300e3e9fb08d4eb45dd"
+    },
+    {
+      "filename": "calibration_policy.joblib",
+      "url": "https://github.com/SaguPandya96/Data-Science-/releases/download/authentitext-baseline-v1/calibration_policy.joblib",
+      "bytes": 2080,
+      "sha256": "ae50d3947e9a541163346e0fd38ad16cbe7a80a98b9b7ffa0036ce80cfea50d3"
+    }
+  ]
+}

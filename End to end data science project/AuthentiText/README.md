@@ -33,7 +33,7 @@ real MAGE experiments, but the complete research roadmap is not finished.
 | CI | Read-only workflow configured; every command passed in a fresh local clone; no hosted run observed |
 | Transformer | BERT-Tiny protocol and train-only preflight complete; dependency and weight downloads blocked, so no transformer was trained or evaluated |
 | External evaluation | Pinned Ghostbuster main corpus prepared; overlap-gated frozen evaluation complete on 20,991 records without retuning |
-| Docker and deployment | Hardened Docker and Compose configuration added; build validation and deployment remain pending |
+| Docker and deployment | Docker builds pass in hosted CI; a free Render deployment is packaged and awaits its first acceptance run |
 
 The living [execution plan](PLANS.md) records every phase, dependency, status,
 and important decision without marking deferred work complete.
@@ -374,6 +374,7 @@ current governance gaps.
 - [Operations runbook](docs/operations/runbook.md)
 - [Continuous integration](docs/development/ci.md)
 - [Docker workflow](docs/development/docker.md)
+- [Render deployment](docs/operations/deployment.md)
 
 No repository-level software license has been selected. MAGE's release is
 tagged Apache-2.0, but upstream source terms still require review before data or
