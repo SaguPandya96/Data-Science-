@@ -75,8 +75,8 @@ checks, Ruff, 81 tests, and the ordinary `pip wheel` command. The exact
 environment and wheel identity are recorded in the
 [clean-room reproduction audit](clean_room_reproduction.md).
 
-The audited workspace still required the documented CPython 3.14 `ensurepip`
+The audited workspace required the documented CPython 3.14 `ensurepip`
 temporary-directory shim during virtual-environment bootstrap. That local
-sandbox condition is separate from the CI commands and dependency graph. This
-repository has no configured Git remote and no push was performed, so the
-hosted Ubuntu workflow remains unobserved.
+environment condition is separate from the CI commands and dependency graph.
+The clean-room audit used a standalone checkout with no configured remote, so
+it did not include a hosted Ubuntu workflow run.
