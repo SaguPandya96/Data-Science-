@@ -23,7 +23,7 @@ class TransformerEnvironmentWorkflowTests(unittest.TestCase):
                 "accelerate==1.14.0",
                 "joblib==1.5.3",
                 "scikit-learn==1.9.0",
-                "scipy==1.18.0",
+                "scipy==1.17.1",
             },
         )
         self.assertIn("--extra-index-url https://download.pytorch.org/whl/cpu", requirements)
