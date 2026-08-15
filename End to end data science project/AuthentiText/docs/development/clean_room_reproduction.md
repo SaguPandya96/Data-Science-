@@ -47,12 +47,11 @@ python -m venv --without-pip .venv-clean
 .\.venv-clean\Scripts\python.exe -m pip wheel --no-deps --wheel-dir build\wheels .
 ```
 
-The audited Codex workspace exposes the documented CPython 3.14
+The isolated Windows environment exposed the documented CPython 3.14
 temporary-directory ACL incompatibility during `ensurepip`. The audit used a
 pre-created workspace-owned temporary directory to bootstrap the pinned
-`pip==26.1.2`; this workaround did not alter the resolved dependency graph or
-the repository. The ordinary environment setup remains appropriate outside
-that sandbox.
+`pip==26.1.2`. This workaround did not alter the dependency graph or repository,
+and the ordinary setup remains appropriate outside that environment.
 
 ## Portability findings
 
@@ -76,5 +75,6 @@ so the audit did not download MAGE or Ghostbuster, retrain models, rescore
 sealed evaluations, or regenerate experiment metrics. Those deeper checks
 still require the pinned inputs and artifacts named by each experiment report.
 
-The repository has no configured remote, so no hosted Ubuntu GitHub Actions run
-was observed. External documentation links were also outside this local audit.
+The standalone checkout had no configured remote when this audit ran, so the
+audit did not observe a hosted Ubuntu GitHub Actions run. External documentation
+links were also outside its local scope.

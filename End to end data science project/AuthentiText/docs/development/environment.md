@@ -35,11 +35,11 @@ the direct project dependencies and build metadata.
 .\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 ```
 
-The Codex workspace sandbox used during initial validation exposed a CPython
+The isolated Windows environment used for initial validation exposed a CPython
 3.14 `tempfile` ACL incompatibility during `ensurepip`. Installation was
-therefore validated in the same fresh `.venv` with an in-process temporary
-directory shim. This is a sandbox constraint; the versioned setup remains the
-standard `venv` and `pip` workflow shown above. The same bounded bootstrap was
-used in the [clean-room reproduction audit](clean_room_reproduction.md), after
-which the locked install, full verification matrix, and ordinary wheel build
-all passed.
+validated in the same fresh `.venv` with a temporary-directory shim scoped to
+the bootstrap process. This was an environment-specific constraint; the
+versioned setup remains the standard `venv` and `pip` workflow shown above.
+The [clean-room reproduction audit](clean_room_reproduction.md) used the same
+bounded workaround before the locked install, full verification matrix, and
+ordinary wheel build passed.

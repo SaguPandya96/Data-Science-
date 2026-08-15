@@ -324,9 +324,10 @@ pins, locked dependencies, report/registry/document checks, Ruff, the complete
 test suite, and a wheel build. It does not download ignored data, train models,
 or repeat frozen evaluations. All commands passed in a fresh Windows clone at
 commit `d52a3baa43f5a681449f9623fa8782d5d3019a6b`, including 81 tests and the
-wheel build. This repository has no configured Git remote and no hosted
-workflow run has been observed. See the [CI guide](docs/development/ci.md) and
-[clean-room audit](docs/development/clean_room_reproduction.md).
+wheel build. That clean-room audit used a standalone checkout with no configured
+remote; no hosted workflow run has been observed for the published project.
+See the [CI guide](docs/development/ci.md) and [clean-room
+audit](docs/development/clean_room_reproduction.md).
 
 ## Responsible use and limitations
 
