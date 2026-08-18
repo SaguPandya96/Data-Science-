@@ -143,6 +143,24 @@ The part worth reading is what went wrong while building it. Seven genuine bugs 
 
 ---
 
+### AuthentiText: Detecting Machine-Generated Text
+
+**The question:** can a detector tell whether a piece of writing came from a person or a language model, reliably enough to act on it?
+
+**The answer: only in the narrow setting it was measured in, and the honest version of the system refuses to answer most of the time.** On a frozen, leakage-checked test set of 50,567 records it reaches a ROC AUC of **0.806**, and on a separate sealed corpus it never saw during development, **0.829** across 20,991 records. But the published system returns three outcomes rather than a verdict: likely human, uncertain, likely machine. On the frozen test **57%** of texts land in *uncertain*, and that is the design working, not failing. It never attributes text to a named person or generator.
+
+The failures are the part worth reading, and they are the reason it is published as a research baseline rather than a tool anyone should act on. Hold out one domain at a time and the median ROC AUC drops to **0.702**, with five of nine domains wrongly flagging more than **10%** of genuine human writing as machine-written; on student essays in the external corpus that rate reaches **24.7%**. Cut a text down to its first 50 tokens and ROC AUC collapses from 0.878 to **0.671**, changing the answer for **36%** of records. A detector that accuses a quarter of real student essays, and changes its mind when a text is shortened, is a detector nobody should discipline a student with. The project says exactly that, in a responsible-use policy that names the prohibited decisions.
+
+One more thing was left undone deliberately. The shipped model is a plain word TF-IDF logistic regression. A transformer comparison was planned and never ran, because the dependencies and weights could not be downloaded in the audited environment. Rather than guess what it would have scored, the project records it as unmeasured.
+
+*Built with:* Python, scikit-learn, isotonic calibration, FastAPI, drift and monitoring contracts, unittest and Ruff, CI verified in a clean-room clone.
+
+*Technical detail:* MAGE pinned at a fixed revision, 287,843 train / 50,509 validation / 50,567 test rows after overlap and leakage sanitization; frozen test ROC AUC 0.806, 57.07% uncertain, human false-machine 5.24%; Ghostbuster external ROC AUC 0.829 over 20,991 overlap-gated records at ECE 0.152; nine leave-one-domain-out folds median ROC AUC 0.702, 27 leave-one-generator-out folds median 0.804 at ECE 0.312; paired 50-token prefix ROC AUC 0.878 to 0.671 with 36.08% category changes.
+
+[Open the project](End%20to%20end%20data%20science%20project/AuthentiText/)
+
+---
+
 ## How these were built
 
 - **Always compare against something simple.** Best-sellers, a coin flip, the supplier's promised date. A number means nothing on its own.
