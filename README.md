@@ -125,7 +125,9 @@ The first version of this measurement concluded the model was fine. It used a th
 
 **The question:** an AI assistant holds a conversation, remembers what you told it, and uses tools on your behalf. The usual way of testing one scores a single reply at a time. How do you catch the mistakes that only appear across a whole conversation?
 
-**The answer: this is a tool rather than a finding, and the honest caveat comes first.** Every number it reports here was produced by a deliberately simulated agent, not a real language model. The results measure whether the evaluation system works, not whether any AI is good.
+**The answer: this is a tool rather than a finding, and the honest caveat comes first.** Every headline number here was produced by a deliberately simulated agent, not a real language model. The results measure whether the evaluation system works, not whether any AI is good.
+
+One real-model run does exist, and it is reported as an exception rather than a result. Llama 3.1 8B was given ten adversarial scenarios: **six were scored**, four were lost to my own rate limit and excluded rather than charged to the model. It passed none of the six and resisted every prompt injection. Six sessions is far too few to characterize any model, so the project states the two claims that survive and refuses to quote the rest as a verdict. Four earlier attempts produced numbers that all turned out to be defects in my own harness rather than facts about the model.
 
 The mistakes it looks for are the ones a single-reply test cannot see. A budget mentioned in the first message and needed in the fourteenth. An instruction given once that has to hold for the rest of the conversation. A wrong figure picked up early that quietly corrupts a summary later. An assistant that sends an email because a document it read told it to.
 
