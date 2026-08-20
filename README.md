@@ -151,13 +151,13 @@ The part worth reading is what went wrong while building it. Seven genuine bugs 
 
 The failures are the part worth reading, and they are the reason it is published as a research baseline rather than a tool anyone should act on. Hold out one domain at a time and the median ROC AUC drops to **0.702**, with five of nine domains wrongly flagging more than **10%** of genuine human writing as machine-written; on student essays in the external corpus that rate reaches **24.7%**. Cut a text down to its first 50 tokens and ROC AUC collapses from 0.878 to **0.671**, changing the answer for **36%** of records. A detector that accuses a quarter of real student essays, and changes its mind when a text is shortened, is a detector nobody should discipline a student with. The project says exactly that, in a responsible-use policy that names the prohibited decisions.
 
-One more thing was left undone deliberately. The shipped model is a plain word TF-IDF logistic regression. A transformer comparison was planned and never ran, because the dependencies and weights could not be downloaded in the audited environment. Rather than guess what it would have scored, the project records it as unmeasured.
+The transformer comparison is now complete. A full-data BERT-Tiny candidate improved frozen in-distribution ROC AUC from 0.806 to 0.852, but on the MAGE development OOD set it fell to 0.558 versus 0.697 for the lexical baseline. Its calibration and both class-error rates were also worse, and it was about five times slower. I rejected it for deployment and kept the smaller lexical model rather than promoting the more complicated candidate on its in-distribution result.
 
-*Built with:* Python, scikit-learn, isotonic calibration, FastAPI, drift and monitoring contracts, unittest and Ruff, CI verified in a clean-room clone.
+*Built with:* Python, scikit-learn, isotonic calibration, FastAPI, Docker, Render, privacy-safe monitoring and drift checks, automated tests and CI.
 
 *Technical detail:* MAGE pinned at a fixed revision, 287,843 train / 50,509 validation / 50,567 test rows after overlap and leakage sanitization; frozen test ROC AUC 0.806, 57.07% uncertain, human false-machine 5.24%; Ghostbuster external ROC AUC 0.829 over 20,991 overlap-gated records at ECE 0.152; nine leave-one-domain-out folds median ROC AUC 0.702, 27 leave-one-generator-out folds median 0.804 at ECE 0.312; paired 50-token prefix ROC AUC 0.878 to 0.671 with 36.08% category changes.
 
-[Open the project](End%20to%20end%20data%20science%20project/AuthentiText/)
+[Open the project](End%20to%20end%20data%20science%20project/AuthentiText/) · [Try the live app](https://authentitext-tsaq.onrender.com)
 
 ---
 
