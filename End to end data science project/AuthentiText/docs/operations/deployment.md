@@ -52,6 +52,18 @@ base-model and calibration hashes returned by readiness, response status for
 each endpoint, and the rollback target. Do not include submitted text or full
 prediction responses in the record.
 
+## Verified deployment
+
+The first free Blueprint deployment completed on 2026-08-19 at
+[`https://authentitext-tsaq.onrender.com`](https://authentitext-tsaq.onrender.com).
+All seven required endpoints returned HTTP 200. Readiness returned the expected
+base-model and calibration SHA-256 identities, the smoke prediction preserved
+the short-text warnings, monitoring reported one successful item without raw
+text, hashes, per-request records, or persistence, and drift correctly remained
+`insufficient_data` at one of 760 required observations. The complete text-free
+record is
+[`render_deployment_acceptance_report.json`](../../data/metadata/render_deployment_acceptance_report.json).
+
 ## Rollback
 
 Use Render's rollback control to select the last known-good deploy. Readiness

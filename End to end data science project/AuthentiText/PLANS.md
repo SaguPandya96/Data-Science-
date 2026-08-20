@@ -481,10 +481,12 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 20 through 24.
 - **Validation:** A documented deployment passes health, readiness, prediction,
   privacy, monitoring, and rollback checks.
-- **Status:** In progress. A free Render Blueprint, immutable release-artifact
-  manifest, deployment-specific image, acceptance procedure, and rollback
-  procedure are committed. Creating the service and recording the live
-  acceptance result remain pending.
+- **Status:** Complete for the free portfolio deployment. The Render Blueprint
+  deployed commit `9556360` at `https://authentitext-tsaq.onrender.com`. All
+  required health, version, model, prediction, monitoring, and drift endpoints
+  returned HTTP 200; the live artifact hashes matched the frozen release. The
+  text-free acceptance evidence is committed in
+  `data/metadata/render_deployment_acceptance_report.json`.
 - **Important decisions:** Default to free or local infrastructure; no paid
   resource may be created without explicit permission.
 

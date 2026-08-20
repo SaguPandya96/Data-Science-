@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "provider": "Render",
+  "service": {
+    "name": "authentitext",
+    "service_id": "srv-da36k32jnfac73br5dmg",
+    "url": "https://authentitext-tsaq.onrender.com",
+    "plan": "free"
+  },
+  "blueprint": {
+    "blueprint_id": "exs-da36jsgjo6nc73drqgbg",
+    "sync_id": "exe-da36jsojo6nc73drqh4g"
+  },
+  "deployment": {
+    "source_branch": "master",
+    "source_commit": "9556360229e6b70c08e81ba6a11800a4f2ca5e5e",
+    "hosted_ci_run_id": 32325390735,
+    "hosted_ci_conclusion": "success",
+    "render_image_build_result": "pass",
+    "checked_at_utc": "2026-08-20T02:56:23Z"
+  },
+  "endpoints": {
+    "GET /health/live": 200,
+    "GET /health/ready": 200,
+    "GET /v1/version": 200,
+    "GET /v1/model": 200,
+    "POST /v1/predict": 200,
+    "GET /v1/metrics": 200,
+    "GET /v1/drift": 200
+  },
+  "artifact_verification": {
+    "model_name": "word_tfidf_logistic_isotonic",
+    "expected_base_model_sha256": "474481ed4548f89c3d0308bb8389f114f1e1d55a4436c300e3e9fb08d4eb45dd",
+    "observed_base_model_sha256": "474481ed4548f89c3d0308bb8389f114f1e1d55a4436c300e3e9fb08d4eb45dd",
+    "expected_calibration_sha256": "ae50d3947e9a541163346e0fd38ad16cbe7a80a98b9b7ffa0036ce80cfea50d3",
+    "observed_calibration_sha256": "ae50d3947e9a541163346e0fd38ad16cbe7a80a98b9b7ffa0036ce80cfea50d3",
+    "status": "pass"
+  },
+  "smoke_prediction": {
+    "status_code": 200,
+    "category": "uncertain",
+    "warning_codes": [
+      "short_text_low_evidence",
+      "length_outside_development_range"
+    ],
+    "request_text_recorded": false,
+    "full_response_recorded": false
+  },
+  "privacy_and_monitoring": {
+    "successful_items": 1,
+    "raw_text_retained": false,
+    "text_hashes_retained": false,
+    "per_request_records_retained": false,
+    "persistent_storage": false,
+    "drift_status": "insufficient_data",
+    "drift_observations": 1,
+    "drift_minimum_observations": 760,
+    "automatic_action": false
+  },
+  "rollback": {
+    "prior_known_good_deploy": null,
+    "first_deploy_fallback": "Suspend the service if readiness or artifact verification fails."
+  },
+  "validation": {
+    "status": "pass",
+    "all_required_endpoints_returned_200": true,
+    "artifact_hashes_match_frozen_release": true,
+    "privacy_contract_observed": true,
+    "source_text_in_report": false
+  }
+}

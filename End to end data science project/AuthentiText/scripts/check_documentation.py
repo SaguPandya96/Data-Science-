@@ -235,7 +235,7 @@ def check_documentation() -> tuple[list[str], int]:
         "The Ghostbuster external evaluation does not establish production safety.",
         "Hosted CI, both container builds, full transformer training, and the frozen "
         "transformer evaluation have passed",
-        "no deployment acceptance test, production-user validation, or production rollback test",
+        "no production-user validation or production rollback drill",
     )
     normalized_lower = normalized.lower()
     for statement in required_statements:
