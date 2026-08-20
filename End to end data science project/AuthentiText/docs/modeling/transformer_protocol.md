@@ -86,6 +86,16 @@ validation, fits the existing three-role calibration and abstention policy,
 reload-checks the saved model, and uploads model and text-free evidence. The
 test partition remains unavailable throughout.
 
+The complete three-epoch run finished successfully in GitHub Actions on
+2026-08-15. On 50,509 validation rows, BERT-Tiny reached 0.851317 ROC AUC and
+0.868015 average precision. The validation-only isotonic policy covered
+45.7266% of the audit role with 91.2204% decisive accuracy, 4.7065% human
+false-machine, and 3.2852% machine false-human. Its model files, calibrator,
+method, and thresholds are frozen in
+[`transformer_candidate_freeze.json`](../../data/metadata/transformer_candidate_freeze.json).
+Those declarations are immutable inputs to the one-time test and fixed-policy
+MAGE OOD workflow; neither result may be used to retune this candidate.
+
 The environment-resolution job is bounded to 30 minutes. The later full
 training job must stay within GitHub's six-hour hosted-runner limit; a measured
 throughput probe will decide whether that target is viable rather than assuming

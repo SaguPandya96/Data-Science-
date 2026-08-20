@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "dataset_id": "yaful/MAGE",
+  "revision": "342663f0a2b775455c023f5d36a1341ff0ec5402",
+  "partition": "test",
+  "record_ids_to_drop": [
+    "1c6b5135a049279f02a51b0fb27afb582aab424dbdaac29050039a3289ff841c",
+    "1dc40448c7fddf79edb9f78969425a27995282bdcc072de957d963c12e320753",
+    "1e917fbf77298533c56bb67716d75609863f8d36e1359ddf46b09d6f1539dd4b",
+    "33ee57bd09fc30791433ad135146c379ad04a65a826544cd23a75796ecbd522e",
+    "37a80f7169b6b9f811627c9a1f3f9e0403aeac2d6fcd05ce9f1d85c43224158a",
+    "674cc59024c61d68e3f54bd0cb2628b4abb007249eb6be80301d5f4932149c8f",
+    "80202d7f8bdc9d518e446aa61ce7dce48bff11800e5c4c38d072d93e5a6147d3",
+    "8b7f6636fb7eb18cb53f14bdf90f28069e8d078ca8dbe2f4ff3e2e7600be13b7",
+    "9d2ce6d18387ff1e1d2700c3792fdbdaa281a77917196b95f45f4b16926dc7ab",
+    "9f0be49596a0d2269f9602ddff1eaff38e3a5027307ace6e0dad9bd25ed05ce3",
+    "b7c4b237e04f05c81c579f43e154d2f76657c77856bc241cb534cf55857602dc",
+    "c95d5778e62deb01e0512bf2916b78698f0575cfefb4ad1f13e79667452b31e2",
+    "db4d8b00586f1170d9dcfae1b0be0080d0c06487fd762b18e29031fc99c7977d",
+    "de5c7a501e4fe2b8c8a66dc7bfd198810ea1d4b472deaea459cb43e4f93068ea",
+    "e5332a8de4b56e4fc94db708084876ff2f913526dfeffabd9bfef792239e23f1",
+    "ecea345e00f784f89439b96bd070f9829d8d4edc857b480cd3dcbeb9938ca985"
+  ],
+  "expected_input": {
+    "rows": 50583,
+    "reference_gzip_bytes": 26070717,
+    "reference_gzip_sha256": "95a363e67f17ad29eb3b0a4f7af770dcf603f420435889b65fa0963a43bdcabb",
+    "content_sha256": "d9352e144ff3cf3a128e9eefc1621d82f96eca962fb366786924dee11387b4d8"
+  },
+  "expected_output": {
+    "rows": 50567,
+    "reference_gzip_bytes": 26065720,
+    "reference_gzip_sha256": "0fe309466be85f146e37bfdbf1fee30024286193b8756972a52a6d313827d44d",
+    "content_sha256": "9e777ff7ea722219729db482ab6308efe76cbf2fdeee46d5db0326bb7e9c0863"
+  },
+  "validation": {
+    "status": "pass",
+    "source_text_in_report": false,
+    "published_split_identity_reused": true
+  }
+}

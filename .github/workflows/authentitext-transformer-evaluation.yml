@@ -1,0 +1,116 @@
+name: AuthentiText frozen transformer evaluation
+
+on:
+  push:
+    paths:
+      - "End to end data science project/AuthentiText/.github/workflows/transformer-evaluation.yml"
+      - "End to end data science project/AuthentiText/requirements/transformer.lock"
+      - "End to end data science project/AuthentiText/data/metadata/mage_development_manifest.json"
+      - "End to end data science project/AuthentiText/data/metadata/mage_ood_manifest.json"
+      - "End to end data science project/AuthentiText/data/metadata/transformer_candidate_freeze.json"
+      - "End to end data science project/AuthentiText/data/metadata/transformer_test_decisions.json"
+      - "End to end data science project/AuthentiText/src/authentitext/data/transformer_train.py"
+      - "End to end data science project/AuthentiText/src/authentitext/modeling/transformer_evaluation.py"
+      - "End to end data science project/AuthentiText/scripts/evaluate_transformer.py"
+      - "End to end data science project/AuthentiText/scripts/materialize_transformer_train.py"
+      - ".github/workflows/authentitext-transformer-evaluation.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: authentitext-transformer-evaluation-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: End to end data science project/AuthentiText
+
+jobs:
+  evaluate:
+    name: Evaluate frozen BERT-Tiny
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: End to end data science project/AuthentiText/requirements/transformer.lock
+
+      - name: Install the reviewed CPU environment
+        run: |
+          python -m pip install --upgrade pip==26.1.2
+          python -m pip install \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            -r requirements/transformer.lock
+          python -m pip check
+
+      - name: Download the frozen candidate
+        run: |
+          gh run download 31909066667 \
+            --repo SaguPandya96/Data-Science- \
+            --name transformer-candidate-7e175f1b2c00d8c2ef1176677423bb87f811bb45 \
+            --dir build/transformer-candidate
+
+      - name: Acquire test and development OOD sources
+        run: |
+          python scripts/download_data.py \
+            --manifest data/metadata/mage_development_manifest.json \
+            --output-dir build/transformer-raw \
+            --file test \
+            --timeout 120
+          python scripts/download_data.py \
+            --manifest data/metadata/mage_ood_manifest.json \
+            --output-dir build/transformer-raw \
+            --file gpt_ood \
+            --file paraphrase_ood \
+            --timeout 120
+
+      - name: Materialize the prespecified test role
+        run: |
+          python scripts/materialize_transformer_train.py \
+            --partition test \
+            --decisions data/metadata/transformer_test_decisions.json \
+            --input-dir build/transformer-raw \
+            --cleaned-output build/transformer-data/cleaned-test.jsonl.gz \
+            --output build/transformer-data/test.jsonl.gz \
+            --report build/transformer-evaluation/test-materialization.json
+
+      - name: Evaluate the frozen policy once
+        run: |
+          python scripts/evaluate_transformer.py \
+            --test build/transformer-data/test.jsonl.gz \
+            --test-materialization build/transformer-evaluation/test-materialization.json \
+            --ood-root build/transformer-raw \
+            --artifact-root build/transformer-candidate \
+            --test-predictions build/transformer-evaluation/test-predictions.jsonl.gz \
+            --ood-predictions build/transformer-evaluation/ood-predictions.jsonl.gz \
+            --test-report build/transformer-evaluation/test-report.json \
+            --ood-report build/transformer-evaluation/ood-report.json
+
+      - name: Upload text-free evaluation evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: transformer-frozen-evaluation-${{ github.sha }}
+          path: |
+            End to end data science project/AuthentiText/build/transformer-evaluation/test-materialization.json
+            End to end data science project/AuthentiText/build/transformer-evaluation/test-predictions.jsonl.gz
+            End to end data science project/AuthentiText/build/transformer-evaluation/ood-predictions.jsonl.gz
+            End to end data science project/AuthentiText/build/transformer-evaluation/test-report.json
+            End to end data science project/AuthentiText/build/transformer-evaluation/ood-report.json
+          if-no-files-found: error
+          retention-days: 30

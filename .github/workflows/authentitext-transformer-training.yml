@@ -1,21 +1,6 @@
 name: AuthentiText full transformer training
 
 on:
-  push:
-    paths:
-      - "End to end data science project/AuthentiText/.github/workflows/transformer-training.yml"
-      - "End to end data science project/AuthentiText/requirements/transformer.lock"
-      - "End to end data science project/AuthentiText/data/metadata/mage_development_manifest.json"
-      - "End to end data science project/AuthentiText/data/metadata/transformer_train_decisions.json"
-      - "End to end data science project/AuthentiText/data/metadata/transformer_validation_decisions.json"
-      - "End to end data science project/AuthentiText/src/authentitext/data/cleaning.py"
-      - "End to end data science project/AuthentiText/src/authentitext/data/transformer_train.py"
-      - "End to end data science project/AuthentiText/src/authentitext/modeling/transformer_probe.py"
-      - "End to end data science project/AuthentiText/src/authentitext/modeling/transformer_training.py"
-      - "End to end data science project/AuthentiText/scripts/download_data.py"
-      - "End to end data science project/AuthentiText/scripts/materialize_transformer_train.py"
-      - "End to end data science project/AuthentiText/scripts/train_transformer.py"
-      - ".github/workflows/authentitext-transformer-training.yml"
   workflow_dispatch:
 
 permissions:
@@ -24,7 +9,6 @@ permissions:
 concurrency:
   group: transformer-training-${{ github.ref }}
   cancel-in-progress: false
-
 
 defaults:
   run:
@@ -97,8 +81,6 @@ jobs:
             --calibration-artifact build/transformer-full/calibration-policy.joblib \
             --training-report build/transformer-full/training-report.json \
             --calibration-report build/transformer-full/calibration-report.json
-          cat build/transformer-full/training-report.json
-          cat build/transformer-full/calibration-report.json
 
       - name: Upload frozen transformer evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -1,4 +1,4 @@
-"""Rebuild a transformer modeling partition without reading sealed test data."""
+"""Rebuild an audited transformer partition from the pinned raw source."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=repo_root / "data" / "metadata" / "transformer_train_decisions.json",
     )
-    parser.add_argument("--partition", choices=("train", "validation"), default="train")
+    parser.add_argument("--partition", choices=("train", "validation", "test"), default="train")
     parser.add_argument("--input-dir", type=Path, default=repo_root / "data" / "raw")
     parser.add_argument(
         "--cleaned-output",

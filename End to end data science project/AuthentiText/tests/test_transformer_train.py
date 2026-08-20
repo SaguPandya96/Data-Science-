@@ -53,6 +53,15 @@ class TransformerTrainTests(unittest.TestCase):
         self.assertEqual(decisions["expected_output"]["rows"], 50509)
         self.assertNotIn("text", decisions)
 
+    def test_committed_test_decisions_are_complete_and_text_free(self) -> None:
+        path = REPO_ROOT / "data" / "metadata" / "transformer_test_decisions.json"
+        decisions = load_partition_decisions(path)
+
+        self.assertEqual(decisions["partition"], "test")
+        self.assertEqual(len(decisions["record_ids_to_drop"]), 16)
+        self.assertEqual(decisions["expected_output"]["rows"], 50567)
+        self.assertNotIn("text", decisions)
+
     def test_materialization_applies_only_declared_train_exclusions(self) -> None:
         kept_id = "1" * 64
         dropped_id = "2" * 64

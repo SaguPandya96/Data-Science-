@@ -1,4 +1,4 @@
-"""Rebuild audited modeling partitions without reading test data."""
+"""Rebuild an audited transformer partition from text-free decisions."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ class TransformerTrainError(RuntimeError):
 
 
 def load_partition_decisions(path: Path) -> dict[str, Any]:
-    """Load and validate text-free train or validation exclusion decisions."""
+    """Load and validate text-free partition exclusion decisions."""
     try:
         decisions = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -28,8 +28,8 @@ def load_partition_decisions(path: Path) -> dict[str, Any]:
 
     if not isinstance(decisions, dict) or decisions.get("schema_version") != 1:
         raise TransformerTrainError("Unexpected partition decision schema")
-    if decisions.get("partition") not in {"train", "validation"}:
-        raise TransformerTrainError("Decisions must target only train or validation")
+    if decisions.get("partition") not in {"train", "validation", "test"}:
+        raise TransformerTrainError("Decisions must target train, validation, or test")
 
     record_ids = decisions.get("record_ids_to_drop")
     if (
@@ -94,8 +94,8 @@ def materialize_transformer_partition(
 ) -> dict[str, Any]:
     """Apply only prespecified exclusions and verify the final content identity."""
     partition = decisions["partition"]
-    if partition not in {"train", "validation"}:
-        raise TransformerTrainError("Materialization cannot read a sealed partition")
+    if partition not in {"train", "validation", "test"}:
+        raise TransformerTrainError("Unsupported transformer partition")
     if not cleaned_partition_path.is_file():
         raise TransformerTrainError(f"Missing cleaned {partition} input: {cleaned_partition_path}")
     drop_ids = set(decisions["record_ids_to_drop"])
@@ -179,7 +179,7 @@ def materialize_transformer_partition(
         "output_content_sha256": output_content_sha256,
         "output_gzip_bytes": output_path.stat().st_size,
         "output_gzip_sha256": sha256_file(output_path),
-        "test_data_read": False,
+        "test_data_read": partition == "test",
         "source_text_in_report": False,
         "status": "pass",
     }
