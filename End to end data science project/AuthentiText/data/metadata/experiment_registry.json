@@ -269,17 +269,71 @@
         "sha256": "9263c5f8666d585119bc3f688b9a68b193b35511ccf5833e447bec3d29bb499a"
       },
       "status": "complete"
+    },
+    {
+      "decision": "Freeze the validation-selected BERT-Tiny candidate before final evaluation.",
+      "evidence": {
+        "audit_coverage": 0.457266,
+        "audit_decisive_accuracy": 0.912204,
+        "audit_human_false_machine_rate": 0.047065,
+        "audit_machine_false_human_rate": 0.032852,
+        "calibration_method": "isotonic",
+        "model_artifact_bytes": 18262086,
+        "model_artifact_sha256": "a9abd27623c7f483aa3de6d7f288c435a471bd6e35aef5e2c6fafe1e662ba332",
+        "raw_average_precision": 0.868015,
+        "raw_roc_auc": 0.851317,
+        "rows": 50509,
+        "test_data_used": false
+      },
+      "experiment_id": "transformer_candidate_validation_v1",
+      "kind": "transformer_training_and_validation",
+      "milestone_commit": "4df3ef5",
+      "report": {
+        "relative_path": "data/metadata/transformer_candidate_freeze.json",
+        "sha256": "146a84b6eb823b9cdf9fe982152dcd6e062b90bb87376c9077b11295b8eb388b"
+      },
+      "status": "complete"
+    },
+    {
+      "decision": "Reject BERT-Tiny for deployment because its MAGE OOD generalization regressed.",
+      "evidence": {
+        "mage_ood": {
+          "average_precision": 0.772448,
+          "expected_calibration_error": 0.390341,
+          "human_false_machine_rate": 0.190289,
+          "machine_false_human_rate": 0.18375,
+          "roc_auc": 0.558414,
+          "rows": 3162,
+          "uncertain_rate": 0.602467
+        },
+        "ood_report": {
+          "relative_path": "data/metadata/transformer_ood_evaluation_report.json",
+          "sha256": "62620d7d3ed397669cbea45dbd733b58fb293f3dac2bf1c1f1e62a0f4823299d"
+        },
+        "retuning_allowed": false,
+        "test": {
+          "average_precision": 0.866533,
+          "brier_score": 0.155159,
+          "coverage": 0.445627,
+          "expected_calibration_error": 0.009303,
+          "human_false_machine_rate": 0.047554,
+          "machine_false_human_rate": 0.031645,
+          "roc_auc": 0.851966,
+          "rows": 50567,
+          "uncertain_rate": 0.554373
+        }
+      },
+      "experiment_id": "transformer_candidate_final_v1",
+      "kind": "transformer_final_and_ood_evaluation",
+      "milestone_commit": "4df3ef5",
+      "report": {
+        "relative_path": "data/metadata/transformer_frozen_test_report.json",
+        "sha256": "54117461fcfe520c6a32998d03d88af8785d21f35f3708a11bd715dcdc3d685b"
+      },
+      "status": "complete"
     }
   ],
   "not_run": [
-    {
-      "experiment_id": "transformer_candidate",
-      "preflight_report": {
-        "relative_path": "data/metadata/transformer_preflight_report.json",
-        "sha256": "42f8a7f14e79dda919f11706f6534a1f8338dc43f36755034bb51d6dd686ef46"
-      },
-      "reason": "The train-only preflight selected and pinned BERT-Tiny, but framework dependencies and model weights are unavailable; no model was trained."
-    },
     {
       "experiment_id": "raid_robustness_evaluation",
       "reason": "No storage-safe source-group acquisition plan has been executed."
@@ -293,7 +347,7 @@
   "schema_version": 1,
   "scope": "completed_local_experiments_and_explicitly_unrun_candidates",
   "validation": {
-    "completed_experiments": 10,
+    "completed_experiments": 12,
     "source_report_hashes_recorded": true,
     "source_reports_validation_status_pass": true,
     "status": "pass"

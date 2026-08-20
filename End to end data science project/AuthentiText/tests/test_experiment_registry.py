@@ -41,7 +41,7 @@ class ExperimentRegistryTests(unittest.TestCase):
 
         registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
         self.assertEqual(registry["validation"]["status"], "pass")
-        self.assertEqual(len(registry["experiments"]), 10)
+        self.assertEqual(len(registry["experiments"]), 12)
         for experiment in registry["experiments"]:
             with self.subTest(experiment=experiment["experiment_id"]):
                 self.assertEqual(experiment["status"], "complete")

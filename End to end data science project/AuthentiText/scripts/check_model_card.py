@@ -229,7 +229,7 @@ def check_model_card(path: Path = MODEL_CARD) -> list[str]:
 
     required_statements = (
         "This system provides a statistical estimate and should not be treated as proof",
-        "No transformer was trained or evaluated.",
+        "The full-data BERT-Tiny candidate improved in-distribution metrics but failed",
         "Ghostbuster supplies cross-dataset evidence",
         "must not be described as production-ready",
     )

@@ -380,6 +380,32 @@ baseline. The current preflight is `not_ready` because PyTorch, Transformers,
 Tokenizers, Accelerate, and the pinned weights are unavailable in this
 workspace. No transformer metric or completion claim is made.
 
+## 2026-08-19 — Reject BERT-Tiny after the frozen OOD gate
+
+**Context:** The full-data BERT-Tiny candidate completed training and improved
+validation and published-test ranking, calibration, and aggregate policy error
+rates. Its model, isotonic calibrator, and thresholds were hash-frozen before
+the published test and MAGE development OOD roles were read.
+
+**Options considered:** Replace the lexical baseline based on in-distribution
+results; retune the transformer after seeing OOD failures; keep both as runtime
+choices; or apply the prespecified complete gate and retain the safer candidate.
+
+**Decision:** Reject BERT-Tiny for version 1 deployment and retain the lexical
+baseline. Preserve the transformer reports and text-free predictions without
+retuning. Treat it as completed negative evidence, not unfinished work.
+
+**Reason:** BERT-Tiny improved published-test ROC AUC from 0.806435 to 0.851966
+and reduced both aggregate policy errors, but its MAGE OOD ROC AUC fell to
+0.558414, ECE rose to 0.390341, and human false-machine and machine false-human
+rates exceeded 18%. Those regressions fail the explicit safety/generalization
+gate and outweigh the in-distribution gain.
+
+**Tradeoffs:** The runtime does not receive the transformer's stronger
+in-distribution ranking. The retained lexical model also remains unsuitable for
+consequential use, but it is smaller, faster, and materially less poor on this
+OOD stress set. A future candidate requires a new prespecified evaluation cycle.
+
 ## 2026-08-15 — Keep model artifacts outside the container image
 
 **Context:** The API and frontend are ready to package, but trained artifacts

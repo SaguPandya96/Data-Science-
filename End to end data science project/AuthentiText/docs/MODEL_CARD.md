@@ -236,7 +236,9 @@ GPU performance claim is made.
 - OOD calibration and human false-machine behavior degrade substantially.
 - Mixed-authorship, quoted passages, code, tables, non-English text, and most
   edit/adversarial conditions were not evaluated.
-- No transformer was trained or evaluated. Its performance is unknown.
+- The full-data BERT-Tiny candidate improved in-distribution metrics but failed
+  the MAGE OOD gate (0.558414 ROC AUC, 0.390341 ECE, and error rates above 18%);
+  it is not the shipped runtime model.
 - Ghostbuster supplies cross-dataset evidence, but its 12.5334% aggregate and
   24.7485% student-essay human false-machine rates prohibit a safety claim.
 - The bounded qualitative review is single-reviewer and excerpt-based; it does

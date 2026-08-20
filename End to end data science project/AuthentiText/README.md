@@ -27,11 +27,11 @@ real MAGE experiments, but the complete research roadmap is not finished.
 | Data | Pinned MAGE development/OOD and Ghostbuster external acquisition, profiling, preparation, leakage/overlap analysis, and sanitized splits complete |
 | Baselines | Majority, length-only, and word TF-IDF logistic models trained and reload-verified |
 | Calibration | Isotonic calibration and two-threshold abstention selected from disjoint validation roles |
-| Evaluation | Sanitized validation, frozen in-distribution and Ghostbuster external tests, nine domain folds, 27 exact-generator folds, MAGE GPT-4/paraphrase development OOD, and paired prefix truncation complete |
+| Evaluation | Sanitized validation, frozen in-distribution and Ghostbuster external tests, nine domain folds, 27 exact-generator folds, MAGE GPT-4/paraphrase development OOD, paired prefix truncation, and frozen transformer test/OOD evaluation complete |
 | Local product | Versioned inference, FastAPI, accessible dependency-free interface, aggregate monitoring, and drift checks working |
-| Experiment tracking | Ten completed runs and three explicitly unrun candidates in a deterministic hash-linked registry |
-| CI | Read-only workflow configured; every command passed in a fresh local clone; no hosted run observed |
-| Transformer | BERT-Tiny protocol and train-only preflight complete; dependency and weight downloads blocked, so no transformer was trained or evaluated |
+| Experiment tracking | Twelve completed runs and two explicitly unrun candidates in a deterministic hash-linked registry |
+| CI | Read-only hosted checks, both container builds, and the frozen transformer evaluation pass |
+| Transformer | Full-data BERT-Tiny training, validation, calibration, frozen test, and MAGE OOD evaluation complete; rejected for deployment after severe OOD regression |
 | External evaluation | Pinned Ghostbuster main corpus prepared; overlap-gated frozen evaluation complete on 20,991 records without retuning |
 | Docker and deployment | Docker builds pass in hosted CI; a free Render deployment is packaged and awaits its first acceptance run |
 
@@ -112,8 +112,8 @@ setup. It is not a universal probability that a human or machine wrote the
 input. The middle interval is deliberately uncertain.
 
 The [model-selection record](docs/MODEL_SELECTION.md) explains why the lexical
-model remains the local baseline and why unmeasured transformer performance is
-not guessed. The [model card](docs/MODEL_CARD.md) contains full configuration,
+model remains the local baseline after the frozen transformer candidate failed
+the OOD gate. The [model card](docs/MODEL_CARD.md) contains full configuration,
 artifact identity, intended use, subgroup evidence, performance measurements,
 and known gaps.
 
@@ -282,8 +282,8 @@ Completed model evidence can be verified when its ignored inputs are present:
 ```
 
 The [experiment log](docs/EXPERIMENT_LOG.md) and generated
-[`experiment_registry.json`](data/metadata/experiment_registry.json) bind 10
-completed runs to validated source-report hashes and milestone commits. 3
+[`experiment_registry.json`](data/metadata/experiment_registry.json) bind 12
+completed runs to validated source-report hashes and milestone commits. 2
 unrun candidates remain explicitly metric-free. A tracking server was not
 added because the deterministic local reports already cover the single current
 cycle.
@@ -325,7 +325,8 @@ test suite, and a wheel build. It does not download ignored data, train models,
 or repeat frozen evaluations. All commands passed in a fresh Windows clone at
 commit `d52a3baa43f5a681449f9623fa8782d5d3019a6b`, including 81 tests and the
 wheel build. That clean-room audit used a standalone checkout with no configured
-remote; no hosted workflow run has been observed for the published project.
+remote. Hosted CI, both container builds, full transformer training, and the
+frozen transformer evaluation have passed for the published project.
 See the [CI guide](docs/development/ci.md) and [clean-room
 audit](docs/development/clean_room_reproduction.md).
 
@@ -346,8 +347,8 @@ Known and unmeasured limitations include:
 - material prefix-truncation sensitivity even at 200 tokens;
 - no mixed-authorship, multilingual, or production-user validation;
 - only one sealed external corpus and no adversarially edited external corpus;
-- no transformer comparison; and
-- no Docker build, deployment acceptance test, or production rollback test.
+- the evaluated BERT-Tiny candidate regresses severely on MAGE OOD; and
+- no deployment acceptance test, production-user validation, or production rollback test.
 
 The [responsible-AI policy](docs/RESPONSIBLE_AI.md) defines prohibited uses,
 required human review, privacy boundaries, misuse and incident response, and

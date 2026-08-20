@@ -198,16 +198,18 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phase 9.
 - **Validation:** The run completes on documented hardware, reloads for
   inference, and yields saved predictions without fabricated results.
-- **Status:** In progress. The train-only preflight pins Google's two-layer
-  BERT-Tiny checkpoint and verifies Python 3.11, CPU, memory, disk, and the full
-  sanitized training input. Training remains blocked because the current
-  workspace cannot download the missing framework packages or pinned weights;
-  no transformer has been trained or evaluated.
+- **Status:** Complete for the prespecified BERT-Tiny candidate. A hosted CPU
+  run trained all 287,843 sanitized rows for three epochs, reload-verified the
+  saved checkpoint, selected calibration and thresholds on validation only,
+  froze the artifacts, and evaluated test and MAGE OOD exactly once. The
+  candidate improved in-distribution results but failed the OOD gate and was
+  rejected for deployment.
 - **Important decisions:** Keep the transformer stack isolated from the API
   runtime. Do not run a small, non-comparable training subsample merely to fill
   the phase. The candidate still requires pretrained-weight verification,
   full-train fitting, independent calibration, and the complete
-  generalization/error gate in `docs/MODEL_SELECTION.md`.
+  generalization/error gate in `docs/MODEL_SELECTION.md`. Preserve the failed
+  OOD result without post-test retuning.
 
 ## Phase 11 — Generalization experiments
 
