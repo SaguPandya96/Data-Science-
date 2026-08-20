@@ -61,4 +61,6 @@ jobs:
         run: python -m pip wheel --no-deps --wheel-dir build/wheels .
 
       - name: Build container image
-        run: docker build --tag authentitext:ci .
+        run: |
+          docker build --tag authentitext:ci .
+          docker build --file Dockerfile.render --tag authentitext:deploy-ci .

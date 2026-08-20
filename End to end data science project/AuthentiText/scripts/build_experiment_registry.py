@@ -73,6 +73,18 @@ REPORTS = {
         "mage_truncation_robustness_report.json",
         "Retain measured prefix sensitivity without model, calibration, or threshold retuning.",
     ),
+    "transformer_candidate_validation_v1": (
+        "transformer_training_and_validation",
+        "4df3ef5",
+        "transformer_candidate_freeze.json",
+        "Freeze the validation-selected BERT-Tiny candidate before final evaluation.",
+    ),
+    "transformer_candidate_final_v1": (
+        "transformer_final_and_ood_evaluation",
+        "4df3ef5",
+        "transformer_frozen_test_report.json",
+        "Reject BERT-Tiny for deployment because its MAGE OOD generalization regressed.",
+    ),
 }
 
 
@@ -309,6 +321,58 @@ def _truncation_evidence(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _transformer_validation_evidence(report: dict[str, Any]) -> dict[str, Any]:
+    evidence = report["validation_evidence"]
+    return {
+        "audit_coverage": evidence["audit_coverage"],
+        "audit_decisive_accuracy": evidence["audit_decisive_accuracy"],
+        "audit_human_false_machine_rate": evidence["audit_human_false_machine_rate"],
+        "audit_machine_false_human_rate": evidence["audit_machine_false_human_rate"],
+        "calibration_method": report["calibration_artifact"]["method"],
+        "model_artifact_bytes": report["model_artifact"]["bytes"],
+        "model_artifact_sha256": report["model_artifact"]["sha256"],
+        "raw_average_precision": evidence["raw_average_precision"],
+        "raw_roc_auc": evidence["raw_roc_auc"],
+        "rows": evidence["rows"],
+        "test_data_used": report["validation"]["test_data_used"],
+    }
+
+
+def _transformer_final_evidence(report: dict[str, Any]) -> dict[str, Any]:
+    ood_name = "transformer_ood_evaluation_report.json"
+    ood = _load_report(ood_name)
+    raw = report["metrics"]["raw_score"]["overall"]
+    calibrated = report["metrics"]["calibrated_probability"]
+    policy = report["metrics"]["policy"]
+    ood_combined = ood["metrics"]["content_deduplicated_combined"]
+    return {
+        "test": {
+            "average_precision": raw["average_precision"],
+            "brier_score": calibrated["brier_score"],
+            "coverage": policy["coverage"],
+            "expected_calibration_error": calibrated["expected_calibration_error"],
+            "human_false_machine_rate": policy["human_false_machine_rate"],
+            "machine_false_human_rate": policy["machine_false_human_rate"],
+            "roc_auc": raw["roc_auc"],
+            "rows": raw["rows"],
+            "uncertain_rate": policy["uncertain_rate"],
+        },
+        "mage_ood": {
+            "average_precision": ood_combined["raw_ranking"]["average_precision"],
+            "expected_calibration_error": ood_combined["calibrated_probability"][
+                "expected_calibration_error"
+            ],
+            "human_false_machine_rate": ood_combined["policy"]["human_false_machine_rate"],
+            "machine_false_human_rate": ood_combined["policy"]["machine_false_human_rate"],
+            "roc_auc": ood_combined["raw_ranking"]["roc_auc"],
+            "rows": ood_combined["rows"],
+            "uncertain_rate": ood_combined["policy"]["uncertain_rate"],
+        },
+        "ood_report": _report_identity(ood_name),
+        "retuning_allowed": report["configuration"]["retuning_after_test_allowed"],
+    }
+
+
 EVIDENCE_BUILDERS = {
     "baseline_training_v1": _training_evidence,
     "baseline_validation_v1": _validation_evidence,
@@ -320,6 +384,8 @@ EVIDENCE_BUILDERS = {
     "mage_generator_holdout_v1": _generator_holdout_evidence,
     "ghostbuster_external_evaluation": _external_evidence,
     "mage_truncation_robustness_v1": _truncation_evidence,
+    "transformer_candidate_validation_v1": _transformer_validation_evidence,
+    "transformer_candidate_final_v1": _transformer_final_evidence,
 }
 
 
@@ -342,14 +408,6 @@ def build_registry() -> dict[str, Any]:
     return {
         "experiments": experiments,
         "not_run": [
-            {
-                "experiment_id": "transformer_candidate",
-                "preflight_report": _report_identity("transformer_preflight_report.json"),
-                "reason": (
-                    "The train-only preflight selected and pinned BERT-Tiny, but framework "
-                    "dependencies and model weights are unavailable; no model was trained."
-                ),
-            },
             {
                 "experiment_id": "raid_robustness_evaluation",
                 "reason": "No storage-safe source-group acquisition plan has been executed.",

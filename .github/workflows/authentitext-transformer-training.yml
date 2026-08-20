@@ -1,0 +1,98 @@
+name: AuthentiText full transformer training
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: transformer-training-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: End to end data science project/AuthentiText
+
+jobs:
+  train:
+    name: Train and validate pinned BERT-Tiny
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    env:
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      PYTHONPATH: src
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: End to end data science project/AuthentiText/requirements/transformer.lock
+
+      - name: Install the reviewed CPU environment
+        run: |
+          python -m pip install --upgrade pip==26.1.2
+          python -m pip install \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            -r requirements/transformer.lock
+          python -m pip check
+
+      - name: Acquire only train and validation
+        run: |
+          python scripts/download_data.py \
+            --manifest data/metadata/mage_development_manifest.json \
+            --output-dir build/transformer-raw \
+            --file train \
+            --file validation \
+            --timeout 120
+
+      - name: Materialize sealed modeling roles
+        run: |
+          python scripts/materialize_transformer_train.py \
+            --partition train \
+            --decisions data/metadata/transformer_train_decisions.json \
+            --input-dir build/transformer-raw \
+            --cleaned-output build/transformer-data/cleaned-train.jsonl.gz \
+            --output build/transformer-data/train.jsonl.gz \
+            --report build/transformer-full/train-materialization.json
+          python scripts/materialize_transformer_train.py \
+            --partition validation \
+            --decisions data/metadata/transformer_validation_decisions.json \
+            --input-dir build/transformer-raw \
+            --cleaned-output build/transformer-data/cleaned-validation.jsonl.gz \
+            --output build/transformer-data/validation.jsonl.gz \
+            --report build/transformer-full/validation-materialization.json
+
+      - name: Train, evaluate, and calibrate
+        run: |
+          python scripts/train_transformer.py \
+            --train build/transformer-data/train.jsonl.gz \
+            --validation build/transformer-data/validation.jsonl.gz \
+            --checkpoint-dir build/transformer-checkpoint \
+            --model-dir build/transformer-full/model \
+            --prediction build/transformer-full/validation-predictions.jsonl.gz \
+            --calibration-artifact build/transformer-full/calibration-policy.joblib \
+            --training-report build/transformer-full/training-report.json \
+            --calibration-report build/transformer-full/calibration-report.json
+
+      - name: Upload frozen transformer evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: transformer-candidate-${{ github.sha }}
+          path: |
+            End to end data science project/AuthentiText/build/transformer-full/model/
+            End to end data science project/AuthentiText/build/transformer-full/calibration-policy.joblib
+            End to end data science project/AuthentiText/build/transformer-full/validation-predictions.jsonl.gz
+            End to end data science project/AuthentiText/build/transformer-full/train-materialization.json
+            End to end data science project/AuthentiText/build/transformer-full/validation-materialization.json
+            End to end data science project/AuthentiText/build/transformer-full/training-report.json
+            End to end data science project/AuthentiText/build/transformer-full/calibration-report.json
+          if-no-files-found: error
+          retention-days: 30

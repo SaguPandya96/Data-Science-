@@ -1,0 +1,30 @@
+{
+  "artifact": {
+    "archive_sha256": "5d77b673427d73736d0e27641e8baa7db44e0afc5b1490e2826ab225f66897c9",
+    "id": 9253100912,
+    "name": "transformer-environment-60ab563c9074b45cebb56e79b308a09806df1f23"
+  },
+  "dependencies": {
+    "accelerate": "1.14.0",
+    "joblib": "1.5.3",
+    "scikit-learn": "1.9.0",
+    "scipy": "1.17.1",
+    "tokenizers": "0.22.2",
+    "torch": "2.13.0+cpu",
+    "transformers": "5.14.1"
+  },
+  "lockfile": "requirements/transformer.lock",
+  "pip_check": "pass",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "python": "3.11.15",
+  "schema_version": 1,
+  "validation": {
+    "pip_check": "pass",
+    "status": "pass"
+  },
+  "workflow": {
+    "commit": "60ab563c9074b45cebb56e79b308a09806df1f23",
+    "run_id": 31908815261,
+    "url": "https://github.com/SaguPandya96/Data-Science-/actions/runs/31908815261"
+  }
+}

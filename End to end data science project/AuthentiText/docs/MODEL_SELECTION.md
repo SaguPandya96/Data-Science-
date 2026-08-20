@@ -8,8 +8,11 @@ research baseline**. Reject the majority and length-only controls. Do not
 approve any evaluated model as a reliable authorship detector or high-stakes
 production system.
 
-No transformer was trained or evaluated. Transformer modeling is explicitly
-deferred rather than represented by an estimate or assumed improvement.
+A full-data BERT-Tiny candidate was trained, calibrated on disjoint validation
+roles, frozen, and evaluated once on the published test and MAGE development
+OOD roles. Reject it for version 1 deployment: its in-distribution improvement
+does not compensate for its severe OOD ranking, calibration, and error
+regression.
 
 ## Candidate evidence
 
@@ -21,6 +24,7 @@ training partition and evaluated on the same 50,509 validation rows.
 | Majority/prevalence | 106 B | 0.500000 | 0.493001 | 1.000000 | Not meaningful |
 | Length logistic | 928 B | 0.529177 | 0.531670 | 0.518549 | 69,586 records/s |
 | Word TF-IDF logistic | 1,578,216 B | 0.814070 | 0.828215 | 0.266089 | 3,334 records/s |
+| BERT-Tiny | 18,262,086 B | 0.851317 | 0.868015 | 0.342354 | 629 records/s on frozen test |
 
 The word model is the only candidate with materially useful ranking. Its raw
 0.5 threshold is rejected; the selected product contract is the separately
@@ -75,20 +79,24 @@ prohibition on consequential use.
 These failures prevent a production or high-stakes recommendation even though
 the lexical model is small, fast in batches, reproducible, and easy to inspect.
 
-## Transformer feasibility decision
+## Transformer evaluation decision
 
-The audited workstation has 8 logical CPU processors, 15.82 GiB RAM, Intel HD
-Graphics 630, and no CUDA tooling. The locked environment deliberately contains
-no PyTorch, Transformers, or downloaded encoder weights. The full sparse model
-already uses 287,843 training rows; fitting a comparable encoder experiment on
-this CPU-only host would add an unmeasured training cost, a large dependency and
-artifact surface, and pretrained-weight provenance requirements.
+The pinned two-layer BERT-Tiny candidate trained on all 287,843 sanitized rows
+for three epochs on a hosted CPU runner. Its saved model reload matched exactly,
+and the hash-frozen model, isotonic calibrator, and thresholds were selected
+without test data. On 50,567 test rows it reached 0.851966 ROC AUC, 0.866533 AP,
+0.009303 ECE, and 44.5627% coverage. Human false-machine was 4.7554% and machine
+false-human was 3.1645%, both better than the lexical baseline.
 
-A tiny or heavily subsampled transformer run would answer a different question
-and could create a misleading comparison. Therefore this checkpoint does not
-install a deep-learning stack or claim that a transformer would improve the
-measured failures. Deferral is a resource and experiment-validity decision, not
-evidence against transformer models.
+The generalization gate failed decisively. On the same 3,162 deduplicated MAGE
+OOD texts, transformer ROC AUC was 0.558414 versus 0.697370 for the lexical
+baseline. ECE was 0.390341 versus 0.218292. Human false-machine rose to 19.0289%
+and machine false-human to 18.3750%, compared with 12.3360% and 3.7500% for the
+baseline. The transformer was also roughly five times slower in the measured
+batch comparisons and produced an 18.26 MB artifact instead of 1.58 MB.
+
+These results are retained without retuning. BERT-Tiny is a completed and
+rejected candidate, not deferred work and not the runtime model.
 
 ## Selection rationale
 

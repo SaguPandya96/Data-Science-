@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: authentitext
+    runtime: docker
+    plan: free
+    repo: https://github.com/SaguPandya96/Data-Science-
+    branch: master
+    rootDir: End to end data science project/AuthentiText
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /health/ready
+    envVars:
+      - key: AUTHENTITEXT_ROOT
+        value: /app

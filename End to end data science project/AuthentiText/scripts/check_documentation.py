@@ -231,10 +231,11 @@ def check_documentation() -> tuple[list[str], int]:
     required_statements = (
         "This system provides a statistical estimate and should not be treated as proof of "
         "authorship.",
-        "no transformer was trained or evaluated",
+        "the evaluated BERT-Tiny candidate regresses severely on MAGE OOD",
         "The Ghostbuster external evaluation does not establish production safety.",
-        "no hosted workflow run has been observed",
-        "no Docker build, deployment acceptance test, or production rollback test",
+        "Hosted CI, both container builds, full transformer training, and the frozen "
+        "transformer evaluation have passed",
+        "no deployment acceptance test, production-user validation, or production rollback test",
     )
     normalized_lower = normalized.lower()
     for statement in required_statements:

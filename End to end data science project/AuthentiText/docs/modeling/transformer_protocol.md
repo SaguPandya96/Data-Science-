@@ -35,6 +35,72 @@ the lexical baseline and will be retained if that happens.
 The first preflight is intentionally allowed to finish as `not_ready`. That
 status means no transformer was trained and no performance metrics exist.
 
+## Remote environment resolution
+
+The dedicated transformer workflow uses Python 3.11 and reviewed direct pins
+from `requirements/transformer.in`. The isolated environment includes the
+existing evaluation/calibration stack so the transformer is scored under the
+same validation policy as the baseline. PyTorch is pinned to the official CPU
+wheel so the hosted CPU runner does not resolve an unused CUDA stack. The job
+performs no training and reads no dataset. It runs `pip check`, captures the
+complete resolved environment with `pip freeze --all`, records the four
+framework versions, and uploads those files as a short-lived GitHub Actions
+artifact. The resolved lock must be reviewed and committed before the
+throughput probe or full training is allowed to run.
+
+The CPU-only resolution completed successfully in GitHub Actions on 2026-08-15.
+The exact transitive environment is committed as
+[`requirements/transformer.lock`](../../requirements/transformer.lock), and its
+runner, framework, workflow, and artifact identities are recorded in
+[`transformer_environment_report.json`](../../data/metadata/transformer_environment_report.json).
+
+The remote probe acquires only the pinned 403,744,528-byte MAGE training file.
+It reproduces the canonical cleaned train file, applies the 69 text-free record
+exclusions in
+[`transformer_train_decisions.json`](../../data/metadata/transformer_train_decisions.json),
+and requires the final 287,843-row decompressed canonical record stream to
+match its committed SHA-256. The original gzip byte identities remain recorded
+as provenance, but are not used as a cross-platform equality check because
+zlib output can differ by runtime. The workflow never downloads or opens the
+test partition.
+
+The throughput probe is fixed at seed 1729, sequence length 128, batch size 32,
+4 warm-up optimizer steps, and 60 measured optimizer steps over 2,048 training
+rows. It reports runtime and memory only. It does not report loss, accuracy, or
+any other candidate-performance metric, and it does not save the partially
+updated probe model. The viability estimate reserves 15 minutes for setup and
+requires a prespecified three-epoch full run to fit inside the six-hour hosted
+runner limit.
+
+The measured remote probe processed 1,920 optimizer-step rows in 12.086 seconds
+(158.858 rows/second) with 776,138,752 bytes peak RSS. It estimated 1,811.950
+seconds per full epoch and 6,335.850 seconds for three epochs plus reserved
+setup time, so the full run cleared the resource gate. These are operational
+measurements, not candidate-quality metrics.
+
+The full workflow separately rebuilds the validation role from the pinned raw
+validation file and the 69 text-free audited exclusions in
+[`transformer_validation_decisions.json`](../../data/metadata/transformer_validation_decisions.json).
+It trains for exactly three epochs without early stopping, then scores
+validation, fits the existing three-role calibration and abstention policy,
+reload-checks the saved model, and uploads model and text-free evidence. The
+test partition remains unavailable throughout.
+
+The complete three-epoch run finished successfully in GitHub Actions on
+2026-08-15. On 50,509 validation rows, BERT-Tiny reached 0.851317 ROC AUC and
+0.868015 average precision. The validation-only isotonic policy covered
+45.7266% of the audit role with 91.2204% decisive accuracy, 4.7065% human
+false-machine, and 3.2852% machine false-human. Its model files, calibrator,
+method, and thresholds are frozen in
+[`transformer_candidate_freeze.json`](../../data/metadata/transformer_candidate_freeze.json).
+Those declarations are immutable inputs to the one-time test and fixed-policy
+MAGE OOD workflow; neither result may be used to retune this candidate.
+
+The environment-resolution job is bounded to 30 minutes. The later full
+training job must stay within GitHub's six-hour hosted-runner limit; a measured
+throughput probe will decide whether that target is viable rather than assuming
+that BERT-Tiny will finish in time.
+
 ## Current workstation result
 
 The 2026-08-15 preflight found a supported Python 3.11 interpreter, eight

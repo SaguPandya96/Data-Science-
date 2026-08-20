@@ -30,6 +30,8 @@ multiple approvers create a concrete coordination need.
 | `mage_generator_holdout_v1` | Refit and recalibrate with each exact MAGE generator excluded in turn | `1f5ae54` | [`mage_generator_holdout_report.json`](../data/metadata/mage_generator_holdout_report.json) | Retain exact-generator dependence without family-level claims |
 | `ghostbuster_external_evaluation` | Apply the unchanged frozen policy once to the overlap-gated external corpus | `deae0f0` | [`ghostbuster_evaluation_report.json`](../data/metadata/ghostbuster_evaluation_report.json) | Retain external calibration and human false-machine failures without retuning |
 | `mage_truncation_robustness_v1` | Compare complete eligible MAGE test records with prespecified 50-, 100-, and 200-token prefixes | `54649bd` | [`mage_truncation_robustness_report.json`](../data/metadata/mage_truncation_robustness_report.json) | Retain measured prefix sensitivity without model, calibration, or threshold retuning |
+| `transformer_candidate_validation_v1` | Train full-data BERT-Tiny and freeze its validation-selected policy | `4df3ef5` | [`transformer_candidate_freeze.json`](../data/metadata/transformer_candidate_freeze.json) | Freeze the candidate before any final evaluation |
+| `transformer_candidate_final_v1` | Apply the frozen transformer once to published test and MAGE development OOD | `4df3ef5` | [`transformer_frozen_test_report.json`](../data/metadata/transformer_frozen_test_report.json) | Reject deployment after severe MAGE OOD regression without retuning |
 
 The structured registry contains the actual row counts, ranking, calibration,
 policy, throughput, artifact, false-alert, and shift-detection values extracted
@@ -42,7 +44,6 @@ The registry also records these planned or considered experiments as unrun:
 
 | Experiment ID | Status and reason |
 | --- | --- |
-| `transformer_candidate` | [Train-only preflight](../data/metadata/transformer_preflight_report.json) pins BERT-Tiny and verifies local resources; missing framework packages and weights block training, so no transformer was trained or evaluated |
 | `raid_robustness_evaluation` | No storage-safe source-group acquisition plan has run |
 | `multilingual_evaluation` | The first research cycle is English-only |
 
@@ -58,7 +59,7 @@ python scripts/build_experiment_registry.py
 python scripts/build_experiment_registry.py --check
 ```
 
-The build is deterministic and has no data/model dependency beyond the ten
+The build is deterministic and has no data/model dependency beyond the twelve
 committed reports. The checker fails if a source report, extracted value,
 source-report hash, decision, or registry formatting changes. CI runs the
 read-only check.

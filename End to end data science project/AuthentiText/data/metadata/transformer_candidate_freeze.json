@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "frozen_at_utc": "2026-08-20T02:21:15Z",
+  "source": {
+    "repository": "SaguPandya96/Data-Science-",
+    "workflow_run_id": 31909066667,
+    "workflow_commit": "7e175f1b2c00d8c2ef1176677423bb87f811bb45",
+    "artifact_id": 9254204527,
+    "artifact_name": "transformer-candidate-7e175f1b2c00d8c2ef1176677423bb87f811bb45",
+    "artifact_digest": "635658bbff78c292a8ef3f5930d2ef8eb2147f925f503c32d73e9ec6b9aa5873"
+  },
+  "candidate": {
+    "model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+    "max_length": 128,
+    "seed": 1729
+  },
+  "model_artifact": {
+    "relative_path": "model",
+    "bytes": 18262086,
+    "sha256": "a9abd27623c7f483aa3de6d7f288c435a471bd6e35aef5e2c6fafe1e662ba332",
+    "files": [
+      {"relative_path": "config.json", "bytes": 736, "sha256": "a6ed92ec4f77e557ef318e06b19bb151d88f26ef455599eee07fe40e7482ede0"},
+      {"relative_path": "model.safetensors", "bytes": 17549312, "sha256": "19e972d9e82142b2ac791abab4d4b6e9005799fdff9d2c5e5177c62e77598ab5"},
+      {"relative_path": "tokenizer.json", "bytes": 711661, "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0"},
+      {"relative_path": "tokenizer_config.json", "bytes": 377, "sha256": "86edfbd1d109094d4ea6a04c83822681bd05e495ced8de2cbcd6fea518da3440"}
+    ]
+  },
+  "calibration_artifact": {
+    "relative_path": "calibration-policy.joblib",
+    "bytes": 1983,
+    "sha256": "8a778daaa23eb078d0c7ceec6b681f072cc15b52a2e793f0536af58f9b61c8f5",
+    "base_model_sha256": "a9abd27623c7f483aa3de6d7f288c435a471bd6e35aef5e2c6fafe1e662ba332",
+    "method": "isotonic",
+    "human_threshold": 0.179581795818,
+    "machine_threshold": 0.677685950413
+  },
+  "validation_evidence": {
+    "rows": 50509,
+    "raw_roc_auc": 0.851317,
+    "raw_average_precision": 0.868015,
+    "audit_brier_score": 0.152345,
+    "audit_expected_calibration_error": 0.014127,
+    "audit_coverage": 0.457266,
+    "audit_decisive_accuracy": 0.912204,
+    "audit_human_false_machine_rate": 0.047065,
+    "audit_machine_false_human_rate": 0.032852
+  },
+  "policy": {
+    "frozen_before_test": true,
+    "retuning_after_test_allowed": false,
+    "selection_basis": "validation only; final test and OOD results are confirmatory"
+  },
+  "validation": {
+    "status": "pass",
+    "artifact_hashes_verified": true,
+    "test_data_used": false,
+    "source_text_in_report": false
+  }
+}

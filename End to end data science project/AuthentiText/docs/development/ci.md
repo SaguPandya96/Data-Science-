@@ -35,7 +35,7 @@ in the model card from those reports and checks the required limitations. It
 does not treat the prose or stored validation markers as a new experiment.
 
 `scripts/build_experiment_registry.py --check` reconstructs the experiment
-registry from ten completed report files, including their SHA-256 identities,
+registry from twelve completed report files, including their SHA-256 identities,
 and fails if the committed registry differs. Entries marked unrun remain
 explicitly metric-free.
 

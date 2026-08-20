@@ -198,16 +198,18 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phase 9.
 - **Validation:** The run completes on documented hardware, reloads for
   inference, and yields saved predictions without fabricated results.
-- **Status:** In progress. The train-only preflight pins Google's two-layer
-  BERT-Tiny checkpoint and verifies Python 3.11, CPU, memory, disk, and the full
-  sanitized training input. Training remains blocked because the current
-  workspace cannot download the missing framework packages or pinned weights;
-  no transformer has been trained or evaluated.
+- **Status:** Complete for the prespecified BERT-Tiny candidate. A hosted CPU
+  run trained all 287,843 sanitized rows for three epochs, reload-verified the
+  saved checkpoint, selected calibration and thresholds on validation only,
+  froze the artifacts, and evaluated test and MAGE OOD exactly once. The
+  candidate improved in-distribution results but failed the OOD gate and was
+  rejected for deployment.
 - **Important decisions:** Keep the transformer stack isolated from the API
   runtime. Do not run a small, non-comparable training subsample merely to fill
   the phase. The candidate still requires pretrained-weight verification,
   full-train fitting, independent calibration, and the complete
-  generalization/error gate in `docs/MODEL_SELECTION.md`.
+  generalization/error gate in `docs/MODEL_SELECTION.md`. Preserve the failed
+  OOD result without post-test retuning.
 
 ## Phase 11 — Generalization experiments
 
@@ -388,11 +390,11 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 17 and 18; Docker availability.
 - **Validation:** Images build and the documented Compose workflow passes health
   and prediction smoke tests.
-- **Status:** In progress. A minimal Dockerfile and Compose workflow now package
-  the API with a non-root user, health check, read-only artifact mount, and
-  restricted runtime. Docker remains unavailable on the audited workstation,
-  so no image or Compose smoke result is claimed. The CI image build is
-  configured but has not yet been observed on GitHub.
+- **Status:** Complete. The minimal local image packages the API with a non-root
+  user, health check, read-only artifact mount, and restricted runtime. Its
+  hosted GitHub build passed. A separate deployment image retrieves the frozen
+  release artifacts and verifies their byte counts and SHA-256 identities at
+  build time; its hosted build remains the final deployment-package gate.
 - **Important decisions:** Keep trained artifacts outside the image and mount
   them read-only so startup identity checks remain authoritative. Kubernetes is
   out of scope without a concrete need.
@@ -479,7 +481,10 @@ are satisfied. Decisions are recorded when they are made, not in advance.
 - **Dependencies:** Phases 20 through 24.
 - **Validation:** A documented deployment passes health, readiness, prediction,
   privacy, monitoring, and rollback checks.
-- **Status:** Not started.
+- **Status:** In progress. A free Render Blueprint, immutable release-artifact
+  manifest, deployment-specific image, acceptance procedure, and rollback
+  procedure are committed. Creating the service and recording the live
+  acceptance result remain pending.
 - **Important decisions:** Default to free or local infrastructure; no paid
   resource may be created without explicit permission.
 
