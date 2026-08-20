@@ -33,7 +33,7 @@ real MAGE experiments, but the complete research roadmap is not finished.
 | CI | Read-only hosted checks, both container builds, and the frozen transformer evaluation pass |
 | Transformer | Full-data BERT-Tiny training, validation, calibration, frozen test, and MAGE OOD evaluation complete; rejected for deployment after severe OOD regression |
 | External evaluation | Pinned Ghostbuster main corpus prepared; overlap-gated frozen evaluation complete on 20,991 records without retuning |
-| Docker and deployment | Docker builds pass in hosted CI; a free Render deployment is packaged and awaits its first acceptance run |
+| Docker and deployment | Docker builds pass in hosted CI; the free Render deployment is live and its health, model identity, privacy, monitoring, and drift acceptance checks pass |
 
 The living [execution plan](PLANS.md) records every phase, dependency, status,
 and important decision without marking deferred work complete.
@@ -348,7 +348,7 @@ Known and unmeasured limitations include:
 - no mixed-authorship, multilingual, or production-user validation;
 - only one sealed external corpus and no adversarially edited external corpus;
 - the evaluated BERT-Tiny candidate regresses severely on MAGE OOD; and
-- no deployment acceptance test, production-user validation, or production rollback test.
+- no production-user validation or production rollback drill.
 
 The [responsible-AI policy](docs/RESPONSIBLE_AI.md) defines prohibited uses,
 required human review, privacy boundaries, misuse and incident response, and

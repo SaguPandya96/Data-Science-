@@ -160,8 +160,9 @@ promotion, and rollback sequence.
 
 ## Current governance gaps
 
-There has been no external cross-dataset evaluation, multilingual evaluation,
-real-user study, formal red-team exercise, accessibility review with assistive
-technology, production privacy assessment, or deployment acceptance test. No
+There has been no multilingual evaluation, real-user study, formal red-team
+exercise, accessibility review with assistive technology, or production
+privacy assessment. The external corpus and technical deployment acceptance
+do not establish production safety. No
 formal appeal, incident-owner, or release-approval process exists. These are
 unresolved requirements, not features implied by this document.

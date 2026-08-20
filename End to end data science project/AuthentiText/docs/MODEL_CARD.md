@@ -243,8 +243,9 @@ GPU performance claim is made.
   24.7485% student-essay human false-machine rates prohibit a safety claim.
 - The bounded qualitative review is single-reviewer and excerpt-based; it does
   not estimate error-pattern prevalence or establish causal model features.
-- No production deployment, real-user monitoring study, or model-drift outcome
-  evaluation has occurred.
+- The free portfolio deployment passed its technical acceptance checks, but no
+  production-user monitoring study or model-drift outcome evaluation has
+  occurred.
 
 The model must not be described as production-ready, externally validated, or
 capable of proving authorship. The project-wide
