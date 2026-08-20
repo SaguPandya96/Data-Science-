@@ -1,4 +1,7 @@
-# AuthentiText engineering guidelines
+# Contributing to AuthentiText
+
+This guide defines the engineering, research, and validation standards for
+changes to AuthentiText.
 
 ## Project contract
 
