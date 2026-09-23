@@ -1,0 +1,126 @@
+{
+  "treatment_arm": "Mens E-Mail",
+  "outcome": "visit",
+  "n_train": 29829,
+  "n_test": 12784,
+  "ranking": {
+    "random_score": {
+      "qini_coefficient": -0.000993670773625653,
+      "qini_ci_low": -0.002650396992511966,
+      "qini_ci_high": 0.0007173109635779292
+    },
+    "t_learner_logistic": {
+      "qini_coefficient": -1.7121281735342052e-06,
+      "qini_ci_low": -0.001454097479008053,
+      "qini_ci_high": 0.001483374369222746
+    },
+    "t_learner_gbm": {
+      "qini_coefficient": -0.0002147797374978443,
+      "qini_ci_low": -0.0017400918882648924,
+      "qini_ci_high": 0.0016238825616496882
+    },
+    "transformed_outcome_gbm": {
+      "qini_coefficient": -0.0002554079863467554,
+      "qini_ci_low": -0.0018402243201884531,
+      "qini_ci_high": 0.0014954856201923941
+    }
+  },
+  "budget_policy": [
+    {
+      "policy": "random",
+      "budget_fraction": 0.1,
+      "uplift_in_targeted": 0.07650187734668336,
+      "incremental_per_customers": 7.650187734668336
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.1,
+      "uplift_in_targeted": 0.1506042855356429,
+      "incremental_per_customers": 15.06042855356429
+    },
+    {
+      "policy": "t_learner_gbm",
+      "budget_fraction": 0.1,
+      "uplift_in_targeted": 0.09516446133115378,
+      "incremental_per_customers": 9.516446133115378
+    },
+    {
+      "policy": "transformed_outcome_gbm",
+      "budget_fraction": 0.1,
+      "uplift_in_targeted": 0.09652640914465907,
+      "incremental_per_customers": 9.652640914465907
+    },
+    {
+      "policy": "random",
+      "budget_fraction": 0.2,
+      "uplift_in_targeted": 0.07650187734668336,
+      "incremental_per_customers": 15.300375469336672
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.2,
+      "uplift_in_targeted": 0.08898898972546046,
+      "incremental_per_customers": 17.797797945092093
+    },
+    {
+      "policy": "t_learner_gbm",
+      "budget_fraction": 0.2,
+      "uplift_in_targeted": 0.09555162822825691,
+      "incremental_per_customers": 19.110325645651383
+    },
+    {
+      "policy": "transformed_outcome_gbm",
+      "budget_fraction": 0.2,
+      "uplift_in_targeted": 0.0866555867094363,
+      "incremental_per_customers": 17.331117341887257
+    },
+    {
+      "policy": "random",
+      "budget_fraction": 0.3,
+      "uplift_in_targeted": 0.07650187734668336,
+      "incremental_per_customers": 22.950563204005007
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.3,
+      "uplift_in_targeted": 0.07090678152580518,
+      "incremental_per_customers": 21.272034457741555
+    },
+    {
+      "policy": "t_learner_gbm",
+      "budget_fraction": 0.3,
+      "uplift_in_targeted": 0.07082602249697365,
+      "incremental_per_customers": 21.247806749092092
+    },
+    {
+      "policy": "transformed_outcome_gbm",
+      "budget_fraction": 0.3,
+      "uplift_in_targeted": 0.07727119673922683,
+      "incremental_per_customers": 23.18135902176805
+    },
+    {
+      "policy": "random",
+      "budget_fraction": 0.5,
+      "uplift_in_targeted": 0.07650187734668336,
+      "incremental_per_customers": 38.25093867334168
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.5,
+      "uplift_in_targeted": 0.07772744801815434,
+      "incremental_per_customers": 38.863724009077174
+    },
+    {
+      "policy": "t_learner_gbm",
+      "budget_fraction": 0.5,
+      "uplift_in_targeted": 0.07727953660241686,
+      "incremental_per_customers": 38.639768301208434
+    },
+    {
+      "policy": "transformed_outcome_gbm",
+      "budget_fraction": 0.5,
+      "uplift_in_targeted": 0.07270912707223862,
+      "incremental_per_customers": 36.35456353611931
+    }
+  ]
+}

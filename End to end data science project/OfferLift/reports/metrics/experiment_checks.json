@@ -1,0 +1,41 @@
+{
+  "sample_ratio_mismatch": {
+    "observed": {
+      "No E-Mail": 21306,
+      "Mens E-Mail": 21307,
+      "Womens E-Mail": 21387
+    },
+    "expected": {
+      "No E-Mail": 21331.2,
+      "Mens E-Mail": 21331.2,
+      "Womens E-Mail": 21337.6
+    },
+    "chi2": 0.17159409870952114,
+    "p_value": 0.9177804764601016,
+    "mismatch": false
+  },
+  "covariate_balance": {
+    "Mens E-Mail": {
+      "max_smd": 0.01365900039927919,
+      "worst_feature": "zip_code_Rural",
+      "balanced": true
+    },
+    "Womens E-Mail": {
+      "max_smd": 0.008630731202833338,
+      "worst_feature": "mens",
+      "balanced": true
+    }
+  },
+  "power": {
+    "visit": {
+      "control_rate": 0.10616727682343002,
+      "n_per_arm": 21306,
+      "minimum_detectable_effect": 0.008361637539166614
+    },
+    "conversion": {
+      "control_rate": 0.005726086548390125,
+      "n_per_arm": 21306,
+      "minimum_detectable_effect": 0.002048093835095838
+    }
+  }
+}
