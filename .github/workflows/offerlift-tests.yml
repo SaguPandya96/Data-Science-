@@ -47,3 +47,6 @@ jobs:
 
       - name: Run the full analysis
         run: python scripts/run_analysis.py
+
+      - name: Build the README figures
+        run: python scripts/build_figures.py
