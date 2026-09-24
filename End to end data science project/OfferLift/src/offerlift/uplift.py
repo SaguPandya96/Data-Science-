@@ -70,3 +70,10 @@ def logistic_classifier() -> ClassifierMixin:
 
 def ridge_regressor() -> RegressorMixin:
     return make_pipeline(StandardScaler(), Ridge(alpha=1.0))
+
+
+MODELS = {
+    "t_learner_logistic": lambda: TLearner(logistic_classifier()),
+    "t_learner_gbm": lambda: TLearner(),
+    "transformed_outcome_gbm": lambda: TransformedOutcome(),
+}

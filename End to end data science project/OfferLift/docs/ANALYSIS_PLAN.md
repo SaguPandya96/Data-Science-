@@ -66,3 +66,41 @@ send the better email to everyone the budget allows, chosen at random.
 - The Bonferroni and alternative-split checks on the 10% budget result were run once,
   after seeing that result. They are reported in the README as follow-up checks and are
   not part of the decision rule.
+
+## Confirmation of the 10% budget result
+
+Written after the first readout and before any confirmation run. Settings are in the
+`confirmation` block of `configs/config.yaml`.
+
+**Hypothesis.** At a 10% budget, customers chosen by the logistic T-learner gain more
+extra visits from the men's email than the same number chosen at random.
+
+**Why a new design.** The first result came from one 70/30 split, was the best of twelve
+cells, and was noticed after the fact. Cross-fitting uses every customer for evaluation
+and averages over many splits, so no single lucky split can produce the result.
+
+**Procedure.**
+1. Men's email vs no email, outcome `visit`, all 42,613 customers.
+2. Split into 5 folds stratified by arm and outcome. For each fold, fit the logistic
+   T-learner on the other four and score the held-out fold.
+3. Within each fold, target the top 10% by score (scores from different fitted models
+   are never ranked against each other).
+4. Gain = uplift among targeted customers minus the uplift of the whole population
+   (the effect of random targeting), in extra visits per 1,000 customers.
+5. For each repeat, a 97.5% bootstrap interval (400 resamples) for the gain and a
+   bootstrap p-value.
+6. Repeat steps 2–5 with 20 different fold assignments.
+
+**Aggregation** (Chernozhukov, Demirer, Duflo and Fernández-Val, *Generic Machine
+Learning Inference on Heterogeneous Treatment Effects*): the point estimate is the
+median gain across repeats; the 95% interval uses the median of the 97.5% lower bounds
+and the median of the 97.5% upper bounds; the p-value is min(1, 2 × median p-value).
+
+**Pass rule.** The 10% result is confirmed if the aggregated 95% interval is entirely
+above zero. If it is, the recommendation changes for budgets of 10% or less only: target
+the top-scoring customers. The Qini rule above still governs larger budgets. If it is not,
+the recommendation stays random targeting at every budget.
+
+**Caveat, stated in advance.** The customers are the same ones that produced the original
+result, so this guards against a lucky split and a lucky model fit, not against something
+peculiar to this dataset. Only a new experiment can rule that out.

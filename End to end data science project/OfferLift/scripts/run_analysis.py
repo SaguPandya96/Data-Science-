@@ -10,7 +10,7 @@ import numpy as np
 import yaml
 from sklearn.model_selection import train_test_split
 
-from offerlift import data, evaluation, experiment, policy, uplift
+from offerlift import confirmation, data, evaluation, experiment, policy, uplift
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -93,11 +93,7 @@ def uplift_readout(frame, config) -> dict:
         random_state=up_cfg["random_state"],
         stratify=stratify,
     )
-    models = {
-        "t_learner_logistic": uplift.TLearner(uplift.logistic_classifier()),
-        "t_learner_gbm": uplift.TLearner(),
-        "transformed_outcome_gbm": uplift.TransformedOutcome(),
-    }
+    models = {name: make_model() for name, make_model in uplift.MODELS.items()}
     rng = np.random.default_rng(up_cfg["random_state"])
     scores = {"random_score": rng.random(len(y_test))}
     for name, model in models.items():
@@ -131,6 +127,32 @@ def uplift_readout(frame, config) -> dict:
     }
 
 
+def confirmation_readout(frame, config) -> dict:
+    data_cfg, conf = config["data"], config["confirmation"]
+    subset = data.contrast(
+        frame, data_cfg["arm_column"], data_cfg["control_arm"], conf["treatment_arm"]
+    )
+    result = confirmation.repeated_cross_fit(
+        data.feature_matrix(subset),
+        subset[conf["outcome"]].to_numpy(),
+        subset["treated"].to_numpy(),
+        uplift.MODELS[conf["model"]],
+        conf["budget_fraction"],
+        folds=conf["folds"],
+        repeats=conf["repeats"],
+        n_boot=conf["n_boot"],
+        alpha=config["experiment"]["alpha"],
+        random_state=conf["random_state"],
+    )
+    return {
+        "treatment_arm": conf["treatment_arm"],
+        "outcome": conf["outcome"],
+        "model": conf["model"],
+        "n_customers": int(len(subset)),
+        **result,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT / "configs/config.yaml")
@@ -144,6 +166,7 @@ def main() -> None:
         raise SystemExit("Sample ratio mismatch detected; do not trust effect estimates.")
     write_json(effect_estimates(frame, config), ROOT / "reports/metrics/effects.json")
     write_json(uplift_readout(frame, config), ROOT / "reports/metrics/uplift.json")
+    write_json(confirmation_readout(frame, config), ROOT / "reports/metrics/confirmation.json")
 
 
 if __name__ == "__main__":

@@ -4,10 +4,11 @@
 change what they did? And if the budget only covers part of the list next time, can a
 model pick the customers worth emailing better than picking at random?
 
-**Status: work in progress.** The experiment readout is complete. The uplift models have
-had one untuned run, reported below as it came out.
+**Status: work in progress.** The experiment readout is complete, and the one positive
+uplift result has been confirmed with a pre-committed test. The uplift models themselves
+are still untuned, and every result is reported as it came out.
 
-## First-run results
+## Results
 
 Hillstrom MineThatData email test: 64,000 customers, three randomized arms, two-week window.
 All numbers come from `reports/metrics/`, produced by `python scripts/run_analysis.py`.
@@ -70,16 +71,41 @@ points for random. Two checks, run after seeing this result and not part of the 
 So the model is good at finding a small group of highly responsive customers, and no
 better than random beyond that. This is consistent with its flat Qini curve overall.
 
-**Current recommendation, under the decision rule in `docs/ANALYSIS_PLAN.md`:** that rule
-also requires the Qini interval to exclude zero, and it does not, so the recommendation is
-still to send the men's email to randomly chosen customers. The 10% result is a
-hypothesis for the next test, not a reason to change the rule after seeing the data.
+**Confirmed with repeated cross-fitting.** Because the 10% result was the best of twelve
+cells from a single split, it was re-tested with a design written into
+`docs/ANALYSIS_PLAN.md` and `configs/config.yaml` before it was run: all 42,613 customers,
+5-fold cross-fitting repeated 20 times, the logistic T-learner and the 10% budget fixed in
+advance, and the pass rule set beforehand (the aggregated 95% interval must sit entirely
+above zero).
+
+| | Extra visits per 1,000 customers, vs random targeting |
+| --- | --- |
+| Confirmation (median of 20 cross-fits) | **+5.6** (95% CI 3.0 to 8.3), p < 0.01 |
+| Range across the 20 repeats | +5.3 to +6.0; every repeat's own interval above zero |
+| Original single split, for comparison | +7.4 (3.2 to 11.5) |
+
+So the effect is real and smaller than the first split suggested, as the alternative
+splits hinted. In practical terms, at a 10% budget random targeting earns about 7.7 extra
+visits per 1,000 customers on the list, and model targeting earns about 13.3: roughly 1.7
+times as many from the same number of emails.
+
+The customers are the same ones that produced the original result, so this rules out a
+lucky split or a lucky model fit, not something peculiar to this dataset. A fresh
+experiment that emails the model's top 10% and a random 10% would settle that.
+
+**Recommendation, under the rules in `docs/ANALYSIS_PLAN.md`:**
+
+- **Budget of 10% of the list or less:** send the men's email to the customers the
+  logistic T-learner scores highest.
+- **Larger budgets:** send the men's email to randomly chosen customers. No model beat
+  random targeting there, and the overall Qini interval still includes zero.
 
 ## Next steps
 
 - [x] Bootstrap intervals for the budget table, so the top-decile result can be judged.
-- [ ] Confirm the 10% budget result: repeated cross-fitting inside the pipeline, with the
+- [x] Confirm the 10% budget result: repeated cross-fitting inside the pipeline, with the
       budget and model fixed in advance.
+- [ ] Explain who the model targets (which customer features drive a high score).
 - [ ] X-learner and an uplift tree, for coverage of the standard model families.
 - [ ] Repeat on `conversion` and `spend`, and on the women's email.
 - [ ] Scale check on the Criteo uplift dataset (about 14M rows).
@@ -96,6 +122,7 @@ hypothesis for the next test, not a reason to change the rule after seeing the d
 | T-learner and transformed-outcome uplift models | `src/offerlift/uplift.py` |
 | Qini curve, Qini coefficient, bootstrap intervals | `src/offerlift/evaluation.py` |
 | Budget targeting table with paired bootstrap intervals | `src/offerlift/policy.py` |
+| Repeated cross-fitting confirmation | `src/offerlift/confirmation.py` |
 | Pre-committed analysis choices | `configs/config.yaml`, `docs/ANALYSIS_PLAN.md` |
 
 The tests run on synthetic data where the true uplift is known. They check that the

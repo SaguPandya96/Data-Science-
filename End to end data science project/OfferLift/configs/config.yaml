@@ -21,3 +21,14 @@ uplift:
   test_size: 0.3
   random_state: 42
   budget_fractions: [0.1, 0.2, 0.3, 0.5]
+
+# Added after the first readout, before any confirmation run. See docs/ANALYSIS_PLAN.md.
+confirmation:
+  treatment_arm: Mens E-Mail
+  outcome: visit
+  model: t_learner_logistic
+  budget_fraction: 0.1
+  folds: 5
+  repeats: 20
+  n_boot: 400
+  random_state: 2026
