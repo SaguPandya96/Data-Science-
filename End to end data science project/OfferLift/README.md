@@ -11,6 +11,7 @@ everyone else. Past that group, none of the models I tried did better than rando
 
 [Try the budget planner](https://offerlift.onrender.com) (it's on a free host, so give it up
 to a minute to wake up) · [One-page summary for non-technical readers](docs/BUSINESS_SUMMARY.md)
+· [Model card](docs/MODEL_CARD.md)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="reports/figures/segment_lift_dark.png">
@@ -131,7 +132,7 @@ The tests use made-up data where I know the true effect, so they check that each
 finds it, that a lopsided split gets flagged, and that no outcome data leaks into the
 model's inputs. CI reruns the tests and the full analysis on every change.
 
-I built this with an AI coding assistant (Claude Code). I directed the work and made the
+I built this with an AI coding assistant. I directed the work and made the
 calls on what to test, what to trust and what to report. The assistant wrote much of the
 code and first drafts of the docs, and I reviewed both. Every result comes from code you
 can rerun.
@@ -147,6 +148,6 @@ python -m pytest
 streamlit run app/app.py
 ```
 
-Still open: a model card, an X-learner and uplift tree for completeness, repeating the
+Still open: an X-learner and uplift tree for completeness, repeating the
 analysis for purchases and the women's email, and a scale check on the Criteo uplift data
 (about 14 million rows).
