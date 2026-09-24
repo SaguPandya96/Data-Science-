@@ -117,6 +117,17 @@ def uplift_readout(frame, config) -> dict:
         alpha=config["experiment"]["alpha"],
         random_state=up_cfg["random_state"],
     )
+    # Extra outcomes per 1,000 customers on the list when the top share is emailed, in the
+    # same units as the budget table (uplift among the targeted times the share targeted).
+    grid = np.linspace(0, 1, 101)
+    gain_curves = {
+        name: [0.0]
+        + [
+            1000 * f * evaluation.uplift_at_fraction(score, y_test, t_test, f)
+            for f in grid[1:]
+        ]
+        for name, score in scores.items()
+    }
     return {
         "treatment_arm": up_cfg["treatment_arm"],
         "outcome": up_cfg["outcome"],
@@ -124,6 +135,7 @@ def uplift_readout(frame, config) -> dict:
         "n_test": int(len(y_test)),
         "ranking": ranking,
         "budget_policy": table.to_dict(orient="records"),
+        "gain_curves": {"fraction_targeted": [float(x) for x in grid], **gain_curves},
     }
 
 

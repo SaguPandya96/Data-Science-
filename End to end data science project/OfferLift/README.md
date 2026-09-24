@@ -8,6 +8,11 @@ model pick the customers worth emailing better than picking at random?
 uplift result has been confirmed with a pre-committed test. The uplift models themselves
 are still untuned, and every result is reported as it came out.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/segment_lift_dark.png">
+  <img src="reports/figures/segment_lift_light.png" alt="Dot and interval chart of the men's email's effect on visit rate: +13.4 points for customers who bought both categories, against +6.9 for men's-only and +7.1 for women's-only buyers; +7.7 across all customers." width="760">
+</picture>
+
 ## Results
 
 Hillstrom MineThatData email test: 64,000 customers, three randomized arms, two-week window.
@@ -44,6 +49,11 @@ indistinguishable from zero:
 | T-learner, gradient boosting | -0.0002 | -0.0017 to 0.0016 |
 | Transformed outcome, gradient boosting | -0.0003 | -0.0018 to 0.0015 |
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/gain_curves_dark.png">
+  <img src="reports/figures/gain_curves_light.png" alt="Line chart of extra visits per 1,000 customers compared with random targeting, by share of the list emailed. The logistic T-learner leads by up to 7.4 around 10% emailed; beyond about 20% all three models sit at or below random." width="760">
+</picture>
+
 **But at a small budget, one model does beat random targeting.** The budget table
 compares each model's top-ranked customers with the same number picked at random. The
 intervals come from a paired bootstrap (500 resamples of the test split), so model and
@@ -57,6 +67,11 @@ Extra visits per 1,000 customers, compared with random targeting at the same bud
 | 20% | +2.5 (-2.7 to 7.7) | +3.8 (-1.2 to 8.8) | +2.0 (-2.9 to 7.6) |
 | 30% | -1.7 (-6.9 to 3.4) | -1.7 (-7.0 to 4.3) | +0.2 (-5.4 to 6.7) |
 | 50% | +0.6 (-5.4 to 6.2) | +0.4 (-5.9 to 7.1) | -1.9 (-7.0 to 4.1) |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/budget_gain_dark.png">
+  <img src="reports/figures/budget_gain_light.png" alt="Dot and interval chart of each model's gain over random targeting at 10, 20, 30 and 50% budgets. Only the logistic T-learner at 10% has an interval above zero, at +7.4." width="760">
+</picture>
 
 Only one of the twelve cells has an interval above zero: the logistic T-learner at a 10%
 budget, where its chosen customers visited 15.1 points more than control against 7.7
@@ -83,6 +98,11 @@ above zero).
 | Confirmation (median of 20 cross-fits) | **+5.6** (95% CI 3.0 to 8.3), p < 0.01 |
 | Range across the 20 repeats | +5.3 to +6.0; every repeat's own interval above zero |
 | Original single split, for comparison | +7.4 (3.2 to 11.5) |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/confirmation_dark.png">
+  <img src="reports/figures/confirmation_light.png" alt="Forest plot: the original split estimate of +7.4 (3.2 to 11.5), the confirmation median of +5.6 (3.0 to 8.3), and all 20 repeated cross-fits between +5.3 and +6.0, every interval above zero." width="760">
+</picture>
 
 So the effect is real and smaller than the first split suggested, as the alternative
 splits hinted. In practical terms, at a 10% budget random targeting earns about 7.7 extra
@@ -161,6 +181,7 @@ the model picks, the confirmed gain applies to it as well.
 | Budget targeting table with paired bootstrap intervals | `src/offerlift/policy.py` |
 | Repeated cross-fitting confirmation | `src/offerlift/confirmation.py` |
 | Targeting profile and segment effects | `src/offerlift/segments.py` |
+| README charts, light and dark, drawn from `reports/metrics/` | `scripts/build_figures.py` |
 | Pre-committed analysis choices | `configs/config.yaml`, `docs/ANALYSIS_PLAN.md` |
 
 The tests run on synthetic data where the true uplift is known. They check that the
@@ -173,7 +194,8 @@ never enter the feature matrix.
 python -m pip install -e ".[dev]"
 python scripts/download_data.py
 python scripts/run_analysis.py
+python scripts/build_figures.py
 python -m pytest
 ```
 
-*Built with:* Python, pandas, SciPy, scikit-learn, pytest, GitHub Actions.
+*Built with:* Python, pandas, SciPy, scikit-learn, matplotlib, pytest, GitHub Actions.
