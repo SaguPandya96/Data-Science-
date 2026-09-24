@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / "reports/metrics"
 FIGURES = ROOT / "reports/figures"
 
-# Categorical slots 1-3 of the reference palette, validated for both modes.
+# Blue, orange and green, picked to stay distinguishable for color-blind readers,
+# with separate shades for light and dark backgrounds.
 THEMES = {
     "light": {
         "surface": "#fcfcfb",
