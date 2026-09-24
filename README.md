@@ -8,6 +8,22 @@ Every project starts from a real question, and every model is measured against a
 
 ## The projects
 
+### OfferLift: Email Experiment and Uplift Targeting
+
+**The question:** a retailer emailed a random two-thirds of its customers. Did the email change what they did, and if the budget only covers part of the list next time, who should get it?
+
+**The answer: the email works, and one group is worth emailing first.** Before trusting any result I checked the experiment itself: the groups were the planned size and looked alike before the email. The men's email raised the visit rate by **7.7 points** over a 10.6% baseline. Across the whole list, the uplift models did no better than picking customers at random. At a 10% budget, one model did beat random targeting. It was the best of twelve attempts from a single split, so I wrote a confirmation test and its pass rule down before running it. Repeated cross-fitting over all 42,613 customers confirmed it, with a smaller effect than first seen: about **1.7 times as many extra visits** as random targeting from the same number of emails.
+
+Explaining the model turned it into a rule. Every customer it picks bought both men's and women's merchandise last year, and in the randomized data that group responds by **13.4 points** against about 7 for everyone else. The recommendation is to email those customers first, then choose the rest at random, with no model to maintain.
+
+*Built with:* Python, SciPy, scikit-learn, A/B testing, CUPED, uplift modeling, repeated cross-fitting, automated tests and CI.
+
+*Technical detail:* Hillstrom email test, 64,000 customers in three arms; sample ratio mismatch p = 0.92, max standardized mean difference 0.014; men's email visit lift +7.7 pts (95% CI 7.0 to 8.3); all Qini intervals include zero; 10% budget gain over random +5.6 visits per 1,000 customers (95% CI 3.0 to 8.3) over 5 folds × 20 repeats; CUPED on spend reduced variance by only 0.04%.
+
+[Open the project](End%20to%20end%20data%20science%20project/OfferLift/)
+
+---
+
 ### Signals in the Noise: Advertising Traffic Investigation
 
 **The question:** when an advertising campaign suddenly looks unusual, is there enough evidence to send it for review without treating every anomaly as fraud?
@@ -166,6 +182,7 @@ The transformer comparison is now complete. A full-data BERT-Tiny candidate impr
 - **Always compare against something simple.** Best-sellers, a coin flip, the supplier's promised date. A number means nothing on its own.
 - **Test the way the real world works.** Train on the past, predict the future, never the reverse.
 - **Question the test itself.** In the Amazon project the evaluation method turned out to be biased, which changed the conclusion. In EvalForge, three of the checks were quietly reporting better results than reality until they were tested against a case with a known answer.
+- **Decide the test before running it.** In OfferLift, a promising result from one split was re-tested with a design and a pass rule written down beforehand, so the answer could not be tuned after the fact.
 - **Publish what came out.** Reporting that a sophisticated approach did not help is more useful than tuning until it looks good.
 
 ## Study material
