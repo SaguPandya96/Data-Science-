@@ -61,4 +61,8 @@ send the better email to everyone the budget allows, chosen at random.
 
 ## Changes after first run
 
-None yet.
+- Added paired bootstrap intervals to the budget table (listed as a next step in the first
+  readout). No model, split, metric or decision rule changed.
+- The Bonferroni and alternative-split checks on the 10% budget result were run once,
+  after seeing that result. They are reported in the README as follow-up checks and are
+  not part of the decision rule.

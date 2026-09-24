@@ -118,6 +118,8 @@ def uplift_readout(frame, config) -> dict:
         y_test,
         t_test,
         up_cfg["budget_fractions"],
+        alpha=config["experiment"]["alpha"],
+        random_state=up_cfg["random_state"],
     )
     return {
         "treatment_arm": up_cfg["treatment_arm"],

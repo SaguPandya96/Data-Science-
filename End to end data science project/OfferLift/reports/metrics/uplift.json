@@ -30,97 +30,209 @@
       "policy": "random",
       "budget_fraction": 0.1,
       "uplift_in_targeted": 0.07650187734668336,
-      "incremental_per_customers": 7.650187734668336
-    },
-    {
-      "policy": "t_learner_logistic",
-      "budget_fraction": 0.1,
-      "uplift_in_targeted": 0.1506042855356429,
-      "incremental_per_customers": 15.06042855356429
+      "uplift_ci_low": 0.06471572977337656,
+      "uplift_ci_high": 0.088531554822894,
+      "incremental_per_customers": 7.650187734668336,
+      "incremental_ci_low": 6.471572977337655,
+      "incremental_ci_high": 8.8531554822894,
+      "gain_vs_random_per_customers": 0.0,
+      "gain_ci_low": 0.0,
+      "gain_ci_high": 0.0
     },
     {
       "policy": "t_learner_gbm",
       "budget_fraction": 0.1,
       "uplift_in_targeted": 0.09516446133115378,
-      "incremental_per_customers": 9.516446133115378
+      "uplift_ci_low": 0.05170100761067773,
+      "uplift_ci_high": 0.13518504200814385,
+      "incremental_per_customers": 9.516446133115378,
+      "incremental_ci_low": 5.170100761067773,
+      "incremental_ci_high": 13.518504200814386,
+      "gain_vs_random_per_customers": 1.8662583984470418,
+      "gain_ci_low": -2.4855791532369005,
+      "gain_ci_high": 5.699810716837344
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.1,
+      "uplift_in_targeted": 0.1506042855356429,
+      "uplift_ci_low": 0.10573784384977986,
+      "uplift_ci_high": 0.19722281930321053,
+      "incremental_per_customers": 15.06042855356429,
+      "incremental_ci_low": 10.573784384977985,
+      "incremental_ci_high": 19.722281930321053,
+      "gain_vs_random_per_customers": 7.410240818895954,
+      "gain_ci_low": 3.208669666517225,
+      "gain_ci_high": 11.53218076501097
     },
     {
       "policy": "transformed_outcome_gbm",
       "budget_fraction": 0.1,
       "uplift_in_targeted": 0.09652640914465907,
-      "incremental_per_customers": 9.652640914465907
+      "uplift_ci_low": 0.04676087013412351,
+      "uplift_ci_high": 0.13861961510894644,
+      "incremental_per_customers": 9.652640914465907,
+      "incremental_ci_low": 4.676087013412351,
+      "incremental_ci_high": 13.861961510894643,
+      "gain_vs_random_per_customers": 2.002453179797571,
+      "gain_ci_low": -2.94920116939814,
+      "gain_ci_high": 5.835917539056398
     },
     {
       "policy": "random",
       "budget_fraction": 0.2,
       "uplift_in_targeted": 0.07650187734668336,
-      "incremental_per_customers": 15.300375469336672
-    },
-    {
-      "policy": "t_learner_logistic",
-      "budget_fraction": 0.2,
-      "uplift_in_targeted": 0.08898898972546046,
-      "incremental_per_customers": 17.797797945092093
+      "uplift_ci_low": 0.06471572977337656,
+      "uplift_ci_high": 0.088531554822894,
+      "incremental_per_customers": 15.300375469336672,
+      "incremental_ci_low": 12.94314595467531,
+      "incremental_ci_high": 17.7063109645788,
+      "gain_vs_random_per_customers": 0.0,
+      "gain_ci_low": 0.0,
+      "gain_ci_high": 0.0
     },
     {
       "policy": "t_learner_gbm",
       "budget_fraction": 0.2,
       "uplift_in_targeted": 0.09555162822825691,
-      "incremental_per_customers": 19.110325645651383
+      "uplift_ci_low": 0.06526718817539265,
+      "uplift_ci_high": 0.12408153942662013,
+      "incremental_per_customers": 19.110325645651383,
+      "incremental_ci_low": 13.053437635078529,
+      "incremental_ci_high": 24.816307885324026,
+      "gain_vs_random_per_customers": 3.809950176314711,
+      "gain_ci_low": -1.15304766411138,
+      "gain_ci_high": 8.831469051698841
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.2,
+      "uplift_in_targeted": 0.08898898972546046,
+      "uplift_ci_low": 0.05925608582158866,
+      "uplift_ci_high": 0.1188809009369919,
+      "incremental_per_customers": 17.797797945092093,
+      "incremental_ci_low": 11.851217164317731,
+      "incremental_ci_high": 23.77618018739838,
+      "gain_vs_random_per_customers": 2.49742247575542,
+      "gain_ci_low": -2.731403164711494,
+      "gain_ci_high": 7.677108263975054
     },
     {
       "policy": "transformed_outcome_gbm",
       "budget_fraction": 0.2,
       "uplift_in_targeted": 0.0866555867094363,
-      "incremental_per_customers": 17.331117341887257
+      "uplift_ci_low": 0.05687813739768034,
+      "uplift_ci_high": 0.11703397193550943,
+      "incremental_per_customers": 17.331117341887257,
+      "incremental_ci_low": 11.37562747953607,
+      "incremental_ci_high": 23.406794387101886,
+      "gain_vs_random_per_customers": 2.0307418725505872,
+      "gain_ci_low": -2.902857043190823,
+      "gain_ci_high": 7.605189760902645
     },
     {
       "policy": "random",
       "budget_fraction": 0.3,
       "uplift_in_targeted": 0.07650187734668336,
-      "incremental_per_customers": 22.950563204005007
-    },
-    {
-      "policy": "t_learner_logistic",
-      "budget_fraction": 0.3,
-      "uplift_in_targeted": 0.07090678152580518,
-      "incremental_per_customers": 21.272034457741555
+      "uplift_ci_low": 0.06471572977337656,
+      "uplift_ci_high": 0.088531554822894,
+      "incremental_per_customers": 22.950563204005007,
+      "incremental_ci_low": 19.414718932012967,
+      "incremental_ci_high": 26.5594664468682,
+      "gain_vs_random_per_customers": 0.0,
+      "gain_ci_low": 0.0,
+      "gain_ci_high": 0.0
     },
     {
       "policy": "t_learner_gbm",
       "budget_fraction": 0.3,
       "uplift_in_targeted": 0.07082602249697365,
-      "incremental_per_customers": 21.247806749092092
+      "uplift_ci_low": 0.04869436604373785,
+      "uplift_ci_high": 0.0945826299819347,
+      "incremental_per_customers": 21.247806749092092,
+      "incremental_ci_low": 14.608309813121355,
+      "incremental_ci_high": 28.37478899458041,
+      "gain_vs_random_per_customers": -1.702756454912914,
+      "gain_ci_low": -6.997669775698536,
+      "gain_ci_high": 4.320162446608072
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.3,
+      "uplift_in_targeted": 0.07090678152580518,
+      "uplift_ci_low": 0.048211760220006956,
+      "uplift_ci_high": 0.0925013345157507,
+      "incremental_per_customers": 21.272034457741555,
+      "incremental_ci_low": 14.463528066002088,
+      "incremental_ci_high": 27.75040035472521,
+      "gain_vs_random_per_customers": -1.6785287462634537,
+      "gain_ci_low": -6.94385230831278,
+      "gain_ci_high": 3.449891847284119
     },
     {
       "policy": "transformed_outcome_gbm",
       "budget_fraction": 0.3,
       "uplift_in_targeted": 0.07727119673922683,
-      "incremental_per_customers": 23.18135902176805
+      "uplift_ci_low": 0.05299403103768226,
+      "uplift_ci_high": 0.1024258919964721,
+      "incremental_per_customers": 23.18135902176805,
+      "incremental_ci_low": 15.898209311304678,
+      "incremental_ci_high": 30.727767598941632,
+      "gain_vs_random_per_customers": 0.2307958177630423,
+      "gain_ci_low": -5.424393186402536,
+      "gain_ci_high": 6.660163676531169
     },
     {
       "policy": "random",
       "budget_fraction": 0.5,
       "uplift_in_targeted": 0.07650187734668336,
-      "incremental_per_customers": 38.25093867334168
-    },
-    {
-      "policy": "t_learner_logistic",
-      "budget_fraction": 0.5,
-      "uplift_in_targeted": 0.07772744801815434,
-      "incremental_per_customers": 38.863724009077174
+      "uplift_ci_low": 0.06471572977337656,
+      "uplift_ci_high": 0.088531554822894,
+      "incremental_per_customers": 38.25093867334168,
+      "incremental_ci_low": 32.357864886688276,
+      "incremental_ci_high": 44.265777411447,
+      "gain_vs_random_per_customers": 0.0,
+      "gain_ci_low": 0.0,
+      "gain_ci_high": 0.0
     },
     {
       "policy": "t_learner_gbm",
       "budget_fraction": 0.5,
       "uplift_in_targeted": 0.07727953660241686,
-      "incremental_per_customers": 38.639768301208434
+      "uplift_ci_low": 0.05933815543625037,
+      "uplift_ci_high": 0.09530976470589533,
+      "incremental_per_customers": 38.639768301208434,
+      "incremental_ci_low": 29.669077718125187,
+      "incremental_ci_high": 47.654882352947666,
+      "gain_vs_random_per_customers": 0.3888296278667519,
+      "gain_ci_low": -5.936478152756005,
+      "gain_ci_high": 7.054852671624828
+    },
+    {
+      "policy": "t_learner_logistic",
+      "budget_fraction": 0.5,
+      "uplift_in_targeted": 0.07772744801815434,
+      "uplift_ci_low": 0.05984960692259745,
+      "uplift_ci_high": 0.09543949952076217,
+      "incremental_per_customers": 38.863724009077174,
+      "incremental_ci_low": 29.924803461298726,
+      "incremental_ci_high": 47.719749760381085,
+      "gain_vs_random_per_customers": 0.6127853357354927,
+      "gain_ci_low": -5.359752359213846,
+      "gain_ci_high": 6.232425541960794
     },
     {
       "policy": "transformed_outcome_gbm",
       "budget_fraction": 0.5,
       "uplift_in_targeted": 0.07270912707223862,
-      "incremental_per_customers": 36.35456353611931
+      "uplift_ci_low": 0.054362742763354246,
+      "uplift_ci_high": 0.08983588092411814,
+      "incremental_per_customers": 36.35456353611931,
+      "incremental_ci_low": 27.181371381677124,
+      "incremental_ci_high": 44.917940462059065,
+      "gain_vs_random_per_customers": -1.8963751372223712,
+      "gain_ci_low": -6.976398106441799,
+      "gain_ci_high": 4.115836800091977
     }
   ]
 }

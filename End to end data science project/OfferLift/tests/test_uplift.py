@@ -43,9 +43,34 @@ def test_models_rank_responsive_customers_first(contrast, model):
 def test_budget_table_targets_better_than_random(contrast):
     subset, _ = contrast
     y, t = subset["visit"].to_numpy(), subset["treated"].to_numpy()
-    table = policy.budget_table({"oracle": subset["true_uplift"].to_numpy()}, y, t, [0.3])
-    by_policy = table.set_index("policy")["incremental_per_customers"]
-    assert by_policy["oracle"] > by_policy["random"]
+    table = policy.budget_table(
+        {"oracle": subset["true_uplift"].to_numpy()}, y, t, [0.3], n_boot=100
+    )
+    by_policy = table.set_index("policy")
+    assert by_policy.loc["oracle", "incremental_per_customers"] > by_policy.loc[
+        "random", "incremental_per_customers"
+    ]
+    assert by_policy.loc["oracle", "gain_ci_low"] > 0
+
+
+def test_budget_table_intervals_bracket_estimates(contrast):
+    subset, _ = contrast
+    y, t = subset["visit"].to_numpy(), subset["treated"].to_numpy()
+    table = policy.budget_table(
+        {"oracle": subset["true_uplift"].to_numpy()}, y, t, [0.1, 0.5], n_boot=100
+    )
+    assert (table["uplift_ci_low"] <= table["uplift_in_targeted"]).all()
+    assert (table["uplift_in_targeted"] <= table["uplift_ci_high"]).all()
+    random_rows = table[table["policy"] == "random"]
+    assert (random_rows[["gain_vs_random_per_customers", "gain_ci_low", "gain_ci_high"]] == 0).all().all()
+
+
+def test_noise_score_gain_interval_includes_zero(contrast):
+    subset, _ = contrast
+    y, t = subset["visit"].to_numpy(), subset["treated"].to_numpy()
+    noise = np.random.default_rng(3).random(len(y))
+    row = policy.budget_table({"noise": noise}, y, t, [0.3], n_boot=200).set_index("policy")
+    assert row.loc["noise", "gain_ci_low"] < 0 < row.loc["noise", "gain_ci_high"]
 
 
 def test_uplift_at_fraction_rejects_bad_fraction(contrast):
