@@ -1,4 +1,4 @@
-.PHONY: install download-data analyze test lint
+.PHONY: install download-data analyze figures test lint
 
 install:
 	python -m pip install --upgrade pip
@@ -9,6 +9,9 @@ download-data:
 
 analyze:
 	python scripts/run_analysis.py
+
+figures:
+	python scripts/build_figures.py
 
 test:
 	python -m pytest
