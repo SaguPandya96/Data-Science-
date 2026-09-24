@@ -11,6 +11,7 @@ everyone else. Past that group, none of the models I tried did better than rando
 
 [Try the budget planner](https://offerlift.onrender.com) (it's on a free host, so give it up
 to a minute to wake up) · [One-page summary for non-technical readers](docs/BUSINESS_SUMMARY.md)
+· [Model card](docs/MODEL_CARD.md)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="reports/figures/segment_lift_dark.png">
@@ -147,6 +148,6 @@ python -m pytest
 streamlit run app/app.py
 ```
 
-Still open: a model card, an X-learner and uplift tree for completeness, repeating the
+Still open: an X-learner and uplift tree for completeness, repeating the
 analysis for purchases and the women's email, and a scale check on the Criteo uplift data
 (about 14 million rows).
