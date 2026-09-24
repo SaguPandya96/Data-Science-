@@ -184,7 +184,7 @@ The transformer comparison is now complete. A full-data BERT-Tiny candidate impr
 - **Question the test itself.** In the Amazon project the evaluation method turned out to be biased, which changed the conclusion. In EvalForge, three of the checks were quietly reporting better results than reality until they were tested against a case with a known answer.
 - **Decide the test before running it.** In OfferLift, a promising result from one split was re-tested with a design and a pass rule written down beforehand, so the answer could not be tuned after the fact.
 - **Publish what came out.** Reporting that a sophisticated approach did not help is more useful than tuning until it looks good.
-- **AI-assisted, human-directed.** I use AI coding assistants, mainly Claude Code, to help write code and first drafts of docs. I pick the questions, decide what to test and what to trust, and review everything that goes in. Every number can be reproduced from the code.
+- **AI-assisted, human-directed.** I use AI coding assistants to help write code and first drafts of docs. I pick the questions, decide what to test and what to trust, and review everything that goes in. Every number can be reproduced from the code.
 
 ## Study material
 

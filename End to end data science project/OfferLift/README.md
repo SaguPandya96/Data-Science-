@@ -132,7 +132,7 @@ The tests use made-up data where I know the true effect, so they check that each
 finds it, that a lopsided split gets flagged, and that no outcome data leaks into the
 model's inputs. CI reruns the tests and the full analysis on every change.
 
-I built this with an AI coding assistant (Claude Code). I directed the work and made the
+I built this with an AI coding assistant. I directed the work and made the
 calls on what to test, what to trust and what to report. The assistant wrote much of the
 code and first drafts of the docs, and I reviewed both. Every result comes from code you
 can rerun.

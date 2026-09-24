@@ -1,7 +1,7 @@
 # Working in this repo
 
 Notes for anyone changing this repository, including AI coding assistants. I build these
-projects with AI help, mainly Claude Code, and this file says how I want that help to work.
+projects with AI help, and this file says how I want that help to work.
 
 ## Who decides what
 
