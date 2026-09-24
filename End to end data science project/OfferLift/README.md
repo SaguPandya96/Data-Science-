@@ -11,7 +11,9 @@ are still untuned, and every result is reported as it came out.
 **Short on time?** The [one-page business summary](docs/BUSINESS_SUMMARY.md) gives the
 decision, what it is worth, and how sure we are, without the statistics.
 
-**Budget planner app.** `make app` (or `streamlit run app/app.py`) opens a planner: set the
+**[Try the live budget planner](https://offerlift.onrender.com)** (free hosting, so the first
+load can take up to a minute while it wakes up). Locally, `make app` (or
+`streamlit run app/app.py`) opens the same planner: set the
 list size and budget to see who to email, the expected extra visits compared with random
 targeting, and a downloadable email list for an uploaded customer file. It reads only the
 committed results in `reports/metrics/`, so it needs no raw data or trained model.

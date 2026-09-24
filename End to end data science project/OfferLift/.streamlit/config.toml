@@ -1,0 +1,4 @@
+# The charts in reports/figures are drawn on a light background, so the app uses the
+# light theme for every viewer instead of following the browser's dark mode.
+[theme]
+base = "light"

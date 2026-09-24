@@ -20,7 +20,7 @@ Explaining the model turned it into a rule. Every customer it picks bought both 
 
 *Technical detail:* Hillstrom email test, 64,000 customers in three arms; sample ratio mismatch p = 0.92, max standardized mean difference 0.014; men's email visit lift +7.7 pts (95% CI 7.0 to 8.3); all Qini intervals include zero; 10% budget gain over random +5.6 visits per 1,000 customers (95% CI 3.0 to 8.3) over 5 folds × 20 repeats; CUPED on spend reduced variance by only 0.04%.
 
-[Open the project](End%20to%20end%20data%20science%20project/OfferLift/)
+[Open the project](End%20to%20end%20data%20science%20project/OfferLift/) · [Try the live budget planner](https://offerlift.onrender.com) (the first load can take up to a minute)
 
 ---
 
