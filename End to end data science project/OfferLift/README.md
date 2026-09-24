@@ -11,6 +11,11 @@ are still untuned, and every result is reported as it came out.
 **Short on time?** The [one-page business summary](docs/BUSINESS_SUMMARY.md) gives the
 decision, what it is worth, and how sure we are, without the statistics.
 
+**Budget planner app.** `make app` (or `streamlit run app/app.py`) opens a planner: set the
+list size and budget to see who to email, the expected extra visits compared with random
+targeting, and a downloadable email list for an uploaded customer file. It reads only the
+committed results in `reports/metrics/`, so it needs no raw data or trained model.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="reports/figures/segment_lift_dark.png">
   <img src="reports/figures/segment_lift_light.png" alt="Dot and interval chart of the men's email's effect on visit rate: +13.4 points for customers who bought both categories, against +6.9 for men's-only and +7.1 for women's-only buyers; +7.7 across all customers." width="760">
@@ -169,7 +174,7 @@ the model picks, the confirmed gain applies to it as well.
 - [ ] X-learner and an uplift tree, for coverage of the standard model families.
 - [ ] Repeat on `conversion` and `spend`, and on the women's email.
 - [ ] Scale check on the Criteo uplift dataset (about 14M rows).
-- [ ] Streamlit page: pick a budget, see who gets emailed and the expected extra visits.
+- [x] Streamlit page: pick a budget, see who gets emailed and the expected extra visits.
 - [x] One-page business summary for a non-technical reader.
 - [ ] Model card.
 
@@ -186,6 +191,7 @@ the model picks, the confirmed gain applies to it as well.
 | Repeated cross-fitting confirmation | `src/offerlift/confirmation.py` |
 | Targeting profile and segment effects | `src/offerlift/segments.py` |
 | README charts, light and dark, drawn from `reports/metrics/` | `scripts/build_figures.py` |
+| Budget planner logic and Streamlit app | `src/offerlift/planner.py`, `app/app.py` |
 | Pre-committed analysis choices | `configs/config.yaml`, `docs/ANALYSIS_PLAN.md` |
 
 The tests run on synthetic data where the true uplift is known. They check that the
@@ -195,11 +201,12 @@ never enter the feature matrix.
 ## Run it
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,app]"
 python scripts/download_data.py
 python scripts/run_analysis.py
 python scripts/build_figures.py
 python -m pytest
+streamlit run app/app.py
 ```
 
-*Built with:* Python, pandas, SciPy, scikit-learn, matplotlib, pytest, GitHub Actions.
+*Built with:* Python, pandas, SciPy, scikit-learn, matplotlib, Streamlit, pytest, GitHub Actions.
