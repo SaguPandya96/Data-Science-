@@ -4,6 +4,21 @@ End-to-end data science projects, plus the study material behind them.
 
 Every project starts from a real question, and every model is measured against a simple alternative to check it is actually adding value. Where the simple alternative wins, that is what gets published.
 
+## At a glance
+
+| Project | The question | The short answer |
+| --- | --- | --- |
+| [OfferLift](#offerlift-email-experiment-and-uplift-targeting) | Who should get a marketing email? | The email works. Customers who bought both men's and women's products respond twice as strongly; beyond them, no model beat random. |
+| [Signals in the Noise](#signals-in-the-noise-advertising-traffic-investigation) | Which ad campaigns deserve a human review? | 5,902 campaign windows narrowed to 11 evidence-rich cases, for review, not automatic enforcement. |
+| [SupplyLens](#supplylens-supplier-delivery-risk) | Which shipments should be checked first? | Checking the riskiest 1 in 5 catches about twice as many badly late shipments as checking at random. |
+| [Store revenue forecasting](#store-level-revenue-forecasting-and-scenario-planning) | Can a model beat the seven-day average? | Yes. XGBoost cut forecast error by 69.7% against it. |
+| [Amazon recommender](#amazon-review-intelligence-and-recommender-system) | Can reviews power personalized picks? | No. Showing everyone the best-sellers did better. |
+| [GitHub recommender](#github-open-source-repository-recommendation-system) | Can a developer's activity suggest useful repos? | Partly. Matching programming languages beat fancier methods, on only 5 developers. |
+| [Bitcoin forecasting](#bitcoin-direction-forecasting-with-news-sentiment) | Does news mood predict tomorrow's price direction? | No. |
+| [Toxicity robustness](#adversarial-robustness-of-a-toxicity-classifier) | Does a comment moderator survive disguised text? | It breaks. A text cleanup fixes the evasion, but odd formatting makes it flag innocent comments. |
+| [EvalForge](#evalforge-evaluating-multi-turn-ai-agents) | How do you test an AI assistant across a whole conversation? | A working evaluation tool, demonstrated on a simulated agent. |
+| [AuthentiText](#authentitext-detecting-machine-generated-text) | Can a detector reliably spot machine-written text? | Only narrowly. It answers "uncertain" most of the time and weakens outside its test setting. |
+
 ---
 
 ## The projects
@@ -12,9 +27,9 @@ Every project starts from a real question, and every model is measured against a
 
 **The question:** a retailer emailed a random two-thirds of its customers. Did the email change what they did, and if the budget only covers part of the list next time, who should get it?
 
-**The answer: the email works, and one group is worth emailing first.** Before trusting any result I checked the experiment itself: the groups were the planned size and looked alike before the email. The men's email raised the visit rate by **7.7 points** over a 10.6% baseline. Across the whole list, the uplift models did no better than picking customers at random. At a 10% budget, one model did beat random targeting. It was the best of twelve attempts from a single split, so I wrote a confirmation test and its pass rule down before running it. Repeated cross-fitting over all 42,613 customers confirmed it, with a smaller effect than first seen: about **1.7 times as many extra visits** as random targeting from the same number of emails.
+**The answer: the email works, and one group is worth emailing first.** The men's email raised the visit rate by **7.7 points** over a 10.6% baseline. Across the whole list, none of the uplift models beat picking customers at random. At a 10% budget one model did, and a stricter test I wrote down before running it confirmed the gain: about **1.7 times** the extra visits of random targeting from the same number of emails.
 
-Explaining the model turned it into a rule. Every customer it picks bought both men's and women's merchandise last year, and in the randomized data that group responds by **13.4 points** against about 7 for everyone else. The recommendation is to email those customers first, then choose the rest at random, with no model to maintain.
+That model turned out to follow one simple rule: pick the customers who bought both men's and women's products last year. In the experiment that group responds by **13.4 points**, against about 7 for everyone else. So the recommendation is a filter anyone can run, not a model to maintain.
 
 *Built with:* Python, SciPy, scikit-learn, A/B testing, CUPED, uplift modeling, repeated cross-fitting, automated tests and CI.
 
