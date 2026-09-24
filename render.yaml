@@ -12,3 +12,16 @@ services:
     envVars:
       - key: AUTHENTITEXT_ROOT
         value: /app
+  - type: web
+    name: offerlift
+    runtime: python
+    plan: free
+    repo: https://github.com/SaguPandya96/Data-Science-
+    branch: master
+    rootDir: End to end data science project/OfferLift
+    buildCommand: pip install ".[app]"
+    startCommand: streamlit run app/app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
