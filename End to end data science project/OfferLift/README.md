@@ -8,6 +8,9 @@ model pick the customers worth emailing better than picking at random?
 uplift result has been confirmed with a pre-committed test. The uplift models themselves
 are still untuned, and every result is reported as it came out.
 
+**Short on time?** The [one-page business summary](docs/BUSINESS_SUMMARY.md) gives the
+decision, what it is worth, and how sure we are, without the statistics.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="reports/figures/segment_lift_dark.png">
   <img src="reports/figures/segment_lift_light.png" alt="Dot and interval chart of the men's email's effect on visit rate: +13.4 points for customers who bought both categories, against +6.9 for men's-only and +7.1 for women's-only buyers; +7.7 across all customers." width="760">
@@ -167,7 +170,8 @@ the model picks, the confirmed gain applies to it as well.
 - [ ] Repeat on `conversion` and `spend`, and on the women's email.
 - [ ] Scale check on the Criteo uplift dataset (about 14M rows).
 - [ ] Streamlit page: pick a budget, see who gets emailed and the expected extra visits.
-- [ ] Model card and a one-page business summary.
+- [x] One-page business summary for a non-technical reader.
+- [ ] Model card.
 
 ## How it is built
 
