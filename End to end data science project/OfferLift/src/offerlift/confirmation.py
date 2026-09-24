@@ -102,16 +102,19 @@ def repeated_cross_fit(
 
     Gains are reported as extra outcomes per ``per_customers`` customers in the whole
     list, i.e. ``fraction * per_customers`` mailed customers times the per-customer gain.
+    ``top_share`` is, for each customer, the share of repeats in which they were targeted.
     """
     rng = np.random.default_rng(random_state)
     seeds = rng.integers(0, 2**31 - 1, repeats)
     mailed = fraction * per_customers
     per_repeat = []
+    top_count = np.zeros(len(outcome))
     for seed in seeds:
         scores, fold_ids = cross_fitted_scores(
             features, outcome, treated, make_model, folds, int(seed)
         )
         top = top_within_folds(scores, fold_ids, fraction)
+        top_count += top
         gain = gain_vs_random(outcome, treated, top)
         low, high, p_value = bootstrap_gain(
             outcome, treated, top, 1 - alpha / 2, n_boot, np.random.default_rng(int(seed))
@@ -137,4 +140,5 @@ def repeated_cross_fit(
         "confirmed": bool(table["ci_low"].median() > 0),
         "share_of_repeats_positive": float((table["gain_per_customers"] > 0).mean()),
         "per_repeat": per_repeat,
+        "top_share": top_count / repeats,
     }

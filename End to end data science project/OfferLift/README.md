@@ -93,19 +93,56 @@ The customers are the same ones that produced the original result, so this rules
 lucky split or a lucky model fit, not something peculiar to this dataset. A fresh
 experiment that emails the model's top 10% and a random 10% would settle that.
 
+**Who the model targets: customers who bought both men's and women's merchandise.**
+Taking the customers in the model's top 10% in at least half of the 20 confirmation
+repeats (4,288 people), **every one of them** bought from both categories last year, and
+they cover **99%** of the 4,330 customers who did. The model has in effect learned a
+one-line rule. Those customers are also higher spenders (mean past-year spend $524 vs
+$210), and all 4,330 both-category buyers spent at least $200.
+
+The randomized data backs this up without using the model at all. Effect of the men's
+email on the visit rate, by what the customer bought last year:
+
+| Bought last year | Customers | Visit rate without email | Lift from the email |
+| --- | --- | --- | --- |
+| Both categories | 4,330 | 18.1% | **+13.4 pts** (10.9 to 16.0) |
+| Men's only | 19,196 | 10.0% | +6.9 pts (6.0 to 7.9) |
+| Women's only | 19,087 | 9.6% | +7.1 pts (6.1 to 8.0) |
+
+Both-category buyers respond by 6.5 more points than everyone else (3.8 to 9.1). Their
+extra conversion response is also clear, +0.9 points (0.1 to 1.7), while the extra spend
+response is +$1.18 per customer with an interval that includes zero (-$0.19 to $2.54). The
+women's email shows the same pattern, +7.1 vs +4.3 points, a
+difference of 2.9 (0.3 to 5.4).
+
+No other customer attribute adds anything. Spend of $200 or more and being a multichannel
+customer look like signals at first, but among single-category buyers their extra lift is
++0.3 points (-1.1 to 1.8) and -0.2 points (-2.5 to 2.1): they only appeared to matter
+because every both-category buyer is in those groups. Recent buyers (1-3 months) respond
+slightly more, +1.3 points (-0.1 to 2.8), which is not conclusive. The full table for all
+six customer attributes, and these follow-up checks, are in
+`reports/metrics/targeting_profile.json`.
+
+This analysis was exploratory and run after the confirmation, so it explains the confirmed
+result rather than adding a new test. Because the rule picks almost exactly the customers
+the model picks, the confirmed gain applies to it as well.
+
 **Recommendation, under the rules in `docs/ANALYSIS_PLAN.md`:**
 
-- **Budget of 10% of the list or less:** send the men's email to the customers the
-  logistic T-learner scores highest.
-- **Larger budgets:** send the men's email to randomly chosen customers. No model beat
-  random targeting there, and the overall Qini interval still includes zero.
+- **Budget of about 10% of the list or less:** send the men's email to customers who
+  bought both men's and women's merchandise last year. This is the confirmed model
+  policy written as a rule anyone can apply and check, with no model to maintain.
+- **Larger budgets:** after those customers, choose the rest at random. No model beat
+  random targeting beyond the top 10%, and the overall Qini interval still includes zero.
 
 ## Next steps
 
 - [x] Bootstrap intervals for the budget table, so the top-decile result can be judged.
 - [x] Confirm the 10% budget result: repeated cross-fitting inside the pipeline, with the
       budget and model fixed in advance.
-- [ ] Explain who the model targets (which customer features drive a high score).
+- [x] Explain who the model targets (which customer features drive a high score).
+- [ ] Test the rule prospectively: a new send comparing both-category buyers with a random
+      group of the same size.
 - [ ] X-learner and an uplift tree, for coverage of the standard model families.
 - [ ] Repeat on `conversion` and `spend`, and on the women's email.
 - [ ] Scale check on the Criteo uplift dataset (about 14M rows).
@@ -123,6 +160,7 @@ experiment that emails the model's top 10% and a random 10% would settle that.
 | Qini curve, Qini coefficient, bootstrap intervals | `src/offerlift/evaluation.py` |
 | Budget targeting table with paired bootstrap intervals | `src/offerlift/policy.py` |
 | Repeated cross-fitting confirmation | `src/offerlift/confirmation.py` |
+| Targeting profile and segment effects | `src/offerlift/segments.py` |
 | Pre-committed analysis choices | `configs/config.yaml`, `docs/ANALYSIS_PLAN.md` |
 
 The tests run on synthetic data where the true uplift is known. They check that the

@@ -104,3 +104,12 @@ the recommendation stays random targeting at every budget.
 **Caveat, stated in advance.** The customers are the same ones that produced the original
 result, so this guards against a lucky split and a lucky model fit, not against something
 peculiar to this dataset. Only a new experiment can rule that out.
+
+## After the confirmation: who the model targets
+
+Exploratory, run after the confirmation passed, so it explains that result and does not
+test anything new. It profiles the customers in the confirmed policy's top 10% in at
+least half of the 20 repeats, and estimates the email's effect within every level of six
+pre-treatment attributes (what they bought, spend band, recency band, new vs returning,
+channel, area). All levels are reported in `reports/metrics/targeting_profile.json`, not
+only the ones that stand out.

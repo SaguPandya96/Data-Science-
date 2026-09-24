@@ -58,6 +58,10 @@ def test_real_heterogeneity_is_confirmed(contrast):
     assert result["confirmed"]
     assert result["ci_low"] > 0
     assert len(result["per_repeat"]) == 3
+    share = result["top_share"]
+    assert share.shape == y.shape and ((share >= 0) & (share <= 1)).all()
+    # Every repeat targets 20% of each fold, so the average share is 20%.
+    assert share.mean() == pytest.approx(0.2, abs=0.01)
 
 
 def test_noise_scores_are_not_confirmed(contrast):

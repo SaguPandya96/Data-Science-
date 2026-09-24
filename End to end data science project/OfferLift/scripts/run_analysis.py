@@ -10,7 +10,7 @@ import numpy as np
 import yaml
 from sklearn.model_selection import train_test_split
 
-from offerlift import confirmation, data, evaluation, experiment, policy, uplift
+from offerlift import confirmation, data, evaluation, experiment, policy, segments, uplift
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -127,7 +127,57 @@ def uplift_readout(frame, config) -> dict:
     }
 
 
-def confirmation_readout(frame, config) -> dict:
+def targeting_readout(frame, subset, top_share, config) -> dict:
+    """Who the confirmed policy targets, and how those groups respond in the experiment."""
+    outcome = config["confirmation"]["outcome"]
+    targeted = top_share >= 0.5
+    subset = segments.add_segments(subset)
+    lifts = [
+        row
+        for column in segments.SEGMENT_COLUMNS
+        for row in segments.segment_lifts(subset, column, outcome)
+    ]
+    both = (subset["purchased"] == "both").to_numpy()
+    by_outcome = {
+        metric: segments.lift_difference(subset, both, metric)
+        for metric in ["visit", "conversion", "spend"]
+    }
+    single = subset[~both].reset_index(drop=True)
+    follow_up = {
+        "single_category_history_200_plus": segments.lift_difference(
+            single, (single["history"] >= 200).to_numpy(), outcome
+        ),
+        "single_category_multichannel": segments.lift_difference(
+            single, (single["channel"] == "Multichannel").to_numpy(), outcome
+        ),
+        "recency_1_to_3": segments.lift_difference(
+            subset, (subset["recency"] <= 3).to_numpy(), outcome
+        ),
+    }
+    data_cfg = config["data"]
+    for arm in data_cfg["treatment_arms"]:
+        if arm == config["confirmation"]["treatment_arm"]:
+            continue
+        other = segments.add_segments(
+            data.contrast(frame, data_cfg["arm_column"], data_cfg["control_arm"], arm)
+        )
+        follow_up[f"bought_both_vs_rest_{arm}"] = segments.lift_difference(
+            other, (other["purchased"] == "both").to_numpy(), outcome
+        )
+    return {
+        "targeted_rule": "top 10% in at least half of the confirmation repeats",
+        "n_targeted": int(targeted.sum()),
+        "share_targeted_in_every_repeat": float((top_share == 1).mean()),
+        "targeted_who_bought_both": float(both[targeted].mean()),
+        "bought_both_who_are_targeted": float(targeted[both].mean()),
+        "profile": segments.targeted_profile(subset, targeted),
+        "segment_lifts": lifts,
+        "bought_both_vs_rest": by_outcome,
+        "follow_up_checks": follow_up,
+    }
+
+
+def confirmation_readout(frame, config) -> tuple[dict, dict]:
     data_cfg, conf = config["data"], config["confirmation"]
     subset = data.contrast(
         frame, data_cfg["arm_column"], data_cfg["control_arm"], conf["treatment_arm"]
@@ -144,13 +194,15 @@ def confirmation_readout(frame, config) -> dict:
         alpha=config["experiment"]["alpha"],
         random_state=conf["random_state"],
     )
-    return {
+    top_share = result.pop("top_share")
+    readout = {
         "treatment_arm": conf["treatment_arm"],
         "outcome": conf["outcome"],
         "model": conf["model"],
         "n_customers": int(len(subset)),
         **result,
     }
+    return readout, targeting_readout(frame, subset, top_share, config)
 
 
 def main() -> None:
@@ -166,7 +218,9 @@ def main() -> None:
         raise SystemExit("Sample ratio mismatch detected; do not trust effect estimates.")
     write_json(effect_estimates(frame, config), ROOT / "reports/metrics/effects.json")
     write_json(uplift_readout(frame, config), ROOT / "reports/metrics/uplift.json")
-    write_json(confirmation_readout(frame, config), ROOT / "reports/metrics/confirmation.json")
+    confirmed, targeting = confirmation_readout(frame, config)
+    write_json(confirmed, ROOT / "reports/metrics/confirmation.json")
+    write_json(targeting, ROOT / "reports/metrics/targeting_profile.json")
 
 
 if __name__ == "__main__":
