@@ -95,7 +95,7 @@ The project also flags unhappy customers from their written reviews, which does 
 
 **The answer: only partially, based on this dataset.** The simplest approach was matching repositories to programming languages a developer already uses. It performed best, while the content-based and hybrid approaches did not improve the recommendations.
 
-It carries an honest limitation. This was measured on **5 developers**, far too small to claim it holds generally, and the project says so rather than quietly leaving it out.
+One big limitation: this was measured on **5 developers**, far too few to say it holds in general, and the project says so up front.
 
 *Built with:* Python, GitHub public API, ranking evaluation, explainable recommendations.
 *Technical detail:* 5 developers, 796 repositories, 449 interactions; language-only baseline NDCG@10 0.136, Hit Rate@10 0.40, beating content-based and hybrid rankers.
@@ -141,7 +141,7 @@ The first version of this measurement concluded the model was fine. It used a th
 
 **The question:** an AI assistant holds a conversation, remembers what you told it, and uses tools on your behalf. The usual way of testing one scores a single reply at a time. How do you catch the mistakes that only appear across a whole conversation?
 
-**The answer: this is a tool rather than a finding, and the honest caveat comes first.** Every headline number here was produced by a deliberately simulated agent, not a real language model. The results measure whether the evaluation system works, not whether any AI is good.
+**The answer: this is a tool rather than a finding, and the caveat comes first.** Every headline number here was produced by a deliberately simulated agent, not a real language model. The results measure whether the evaluation system works, not whether any AI is good.
 
 One real-model run does exist, and it is reported as an exception rather than a result. Llama 3.1 8B was given ten adversarial scenarios: **six were scored**, four were lost to my own rate limit and excluded rather than charged to the model. It passed none of the six and resisted every prompt injection. Six sessions is far too few to characterize any model, so the project states the two claims that survive and refuses to quote the rest as a verdict. Four earlier attempts produced numbers that all turned out to be defects in my own harness rather than facts about the model.
 
@@ -163,7 +163,7 @@ The part worth reading is what went wrong while building it. Seven genuine bugs 
 
 **The question:** can a detector tell whether a piece of writing came from a person or a language model, reliably enough to act on it?
 
-**The answer: only in the narrow setting it was measured in, and the honest version of the system refuses to answer most of the time.** On a frozen, leakage-checked test set of 50,567 records it reaches a ROC AUC of **0.806**, and on a separate sealed corpus it never saw during development, **0.829** across 20,991 records. But the published system returns three outcomes rather than a verdict: likely human, uncertain, likely machine. On the frozen test **57%** of texts land in *uncertain*, and that is the design working, not failing. It never attributes text to a named person or generator.
+**The answer: only in the narrow setting it was measured in, and the version I published refuses to answer most of the time.** On a frozen, leakage-checked test set of 50,567 records it reaches a ROC AUC of **0.806**, and on a separate sealed corpus it never saw during development, **0.829** across 20,991 records. But the published system returns three outcomes rather than a verdict: likely human, uncertain, likely machine. On the frozen test **57%** of texts land in *uncertain*, and that is the design working, not failing. It never attributes text to a named person or generator.
 
 The failures are the part worth reading, and they are the reason it is published as a research baseline rather than a tool anyone should act on. Hold out one domain at a time and the median ROC AUC drops to **0.702**, with five of nine domains wrongly flagging more than **10%** of genuine human writing as machine-written; on student essays in the external corpus that rate reaches **24.7%**. Cut a text down to its first 50 tokens and ROC AUC collapses from 0.878 to **0.671**, changing the answer for **36%** of records. A detector that accuses a quarter of real student essays, and changes its mind when a text is shortened, is a detector nobody should discipline a student with. The project says exactly that, in a responsible-use policy that names the prohibited decisions.
 
@@ -184,6 +184,7 @@ The transformer comparison is now complete. A full-data BERT-Tiny candidate impr
 - **Question the test itself.** In the Amazon project the evaluation method turned out to be biased, which changed the conclusion. In EvalForge, three of the checks were quietly reporting better results than reality until they were tested against a case with a known answer.
 - **Decide the test before running it.** In OfferLift, a promising result from one split was re-tested with a design and a pass rule written down beforehand, so the answer could not be tuned after the fact.
 - **Publish what came out.** Reporting that a sophisticated approach did not help is more useful than tuning until it looks good.
+- **AI-assisted, human-directed.** I use AI coding assistants, mainly Claude Code, to help write code and first drafts of docs. I pick the questions, decide what to test and what to trust, and review everything that goes in. Every number can be reproduced from the code.
 
 ## Study material
 
