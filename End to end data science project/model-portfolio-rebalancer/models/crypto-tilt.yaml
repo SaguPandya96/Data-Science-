@@ -1,0 +1,31 @@
+model: crypto-tilt
+version: 1
+description: Crypto-tilt. 40% equities, 50% crypto, 10% cash. Tight crypto bands, active on weekends.
+base_currency: USD
+cash_floor: 0.02
+sleeves:
+  - id: us_large_cap
+    target: 0.30
+    band: {abs: 0.04, rel: 0.20}
+    instruments:
+      regular: [VOO]
+      overnight: [VOO]
+      weekend: []
+    session_policy: {max_off_hours_pct: 0.25}
+  - id: intl_equity
+    target: 0.10
+    band: {abs: 0.03, rel: 0.25}
+    instruments: {regular: [VXUS], overnight: [VXUS], weekend: []}
+    session_policy: {max_off_hours_pct: 0.25}
+  - id: btc
+    target: 0.35
+    band: {abs: 0.02, rel: 0.10}
+    instruments: {any: [BTC-USD]}
+  - id: eth
+    target: 0.15
+    band: {abs: 0.015, rel: 0.10}
+    instruments: {any: [ETH-USD]}
+  - id: cash
+    target: 0.10
+    band: {abs: 0.03}
+    instruments: {any: [USD, USDC]}

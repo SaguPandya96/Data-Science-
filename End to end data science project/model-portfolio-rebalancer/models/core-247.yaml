@@ -1,0 +1,31 @@
+model: core-247
+version: 1
+description: Core 24/7. 80% equities, 10% crypto, 10% cash. Bands only, wide on equities.
+base_currency: USD
+cash_floor: 0.02
+sleeves:
+  - id: us_large_cap
+    target: 0.60
+    band: {abs: 0.05, rel: 0.25}
+    instruments:
+      regular: [VOO]
+      overnight: [VOO]
+      weekend: []
+    session_policy: {max_off_hours_pct: 0.25}
+  - id: intl_equity
+    target: 0.20
+    band: {abs: 0.05, rel: 0.25}
+    instruments: {regular: [VXUS], overnight: [VXUS], weekend: []}
+    session_policy: {max_off_hours_pct: 0.25}
+  - id: btc
+    target: 0.07
+    band: {abs: 0.02, rel: 0.25}
+    instruments: {any: [BTC-USD]}
+  - id: eth
+    target: 0.03
+    band: {abs: 0.01, rel: 0.35}
+    instruments: {any: [ETH-USD]}
+  - id: cash
+    target: 0.10
+    band: {abs: 0.03}
+    instruments: {any: [USD, USDC]}

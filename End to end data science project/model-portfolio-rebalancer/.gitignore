@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.env
+
+# Price files you drop in for a replay. Vendors rarely allow redistribution.
+data/*
+!data/README.md
+
+.DS_Store
