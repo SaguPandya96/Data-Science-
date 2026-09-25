@@ -1,0 +1,52 @@
+{
+  "model": "growth-247",
+  "run": "24/7 engine",
+  "start": "2026-11-02T09:30:00-05:00",
+  "end": "2026-12-18T20:00:00-05:00",
+  "cycles": 2230,
+  "start_value": 100000.0,
+  "end_value": 102514.68,
+  "sleeves": {
+    "us_large_cap": {
+      "target": 0.45,
+      "max_abs_drift_pp": 4.55,
+      "share_of_time_outside_band": 0.0135
+    },
+    "intl_equity": {
+      "target": 0.15,
+      "max_abs_drift_pp": 1.95,
+      "share_of_time_outside_band": 0.0
+    },
+    "btc": {
+      "target": 0.2,
+      "max_abs_drift_pp": 3.28,
+      "share_of_time_outside_band": 0.0085
+    },
+    "eth": {
+      "target": 0.1,
+      "max_abs_drift_pp": 2.11,
+      "share_of_time_outside_band": 0.0063
+    },
+    "cash": {
+      "target": 0.1,
+      "max_abs_drift_pp": 1.39,
+      "share_of_time_outside_band": 0.0
+    }
+  },
+  "min_cash_weight": 0.0988,
+  "orders": {
+    "placed": 27,
+    "filled": 27,
+    "rejected": 0,
+    "filled_by_session": {
+      "overnight": 13,
+      "pre": 7,
+      "regular": 3,
+      "weekend": 4
+    }
+  },
+  "filled_turnover_pct_of_start": 3.78,
+  "fees": 2.21,
+  "alerts": 2,
+  "halted_cycles": 0
+}

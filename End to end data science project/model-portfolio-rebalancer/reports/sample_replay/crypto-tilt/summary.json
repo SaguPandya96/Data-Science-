@@ -1,0 +1,54 @@
+{
+  "model": "crypto-tilt",
+  "run": "24/7 engine",
+  "start": "2026-11-02T09:30:00-05:00",
+  "end": "2026-12-18T20:00:00-05:00",
+  "cycles": 2230,
+  "start_value": 100000.0,
+  "end_value": 107601.26,
+  "sleeves": {
+    "us_large_cap": {
+      "target": 0.3,
+      "max_abs_drift_pp": 4.86,
+      "share_of_time_outside_band": 0.0717
+    },
+    "intl_equity": {
+      "target": 0.1,
+      "max_abs_drift_pp": 1.82,
+      "share_of_time_outside_band": 0.0
+    },
+    "btc": {
+      "target": 0.35,
+      "max_abs_drift_pp": 3.09,
+      "share_of_time_outside_band": 0.0471
+    },
+    "eth": {
+      "target": 0.15,
+      "max_abs_drift_pp": 1.72,
+      "share_of_time_outside_band": 0.0179
+    },
+    "cash": {
+      "target": 0.1,
+      "max_abs_drift_pp": 3.62,
+      "share_of_time_outside_band": 0.1336
+    }
+  },
+  "min_cash_weight": 0.0927,
+  "orders": {
+    "placed": 88,
+    "filled": 88,
+    "rejected": 0,
+    "filled_by_session": {
+      "overnight": 21,
+      "pause": 1,
+      "post": 7,
+      "pre": 18,
+      "regular": 18,
+      "weekend": 23
+    }
+  },
+  "filled_turnover_pct_of_start": 8.99,
+  "fees": 7.61,
+  "alerts": 2,
+  "halted_cycles": 0
+}

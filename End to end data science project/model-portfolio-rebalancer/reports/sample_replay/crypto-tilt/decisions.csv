@@ -1,0 +1,842 @@
+ts,sleeve,action,detail
+2026-11-02 09:30:00-05:00,us_large_cap,ok,in band
+2026-11-02 09:30:00-05:00,intl_equity,ok,in band
+2026-11-02 09:30:00-05:00,btc,ok,in band
+2026-11-02 09:30:00-05:00,eth,ok,in band
+2026-11-14 08:00:00-05:00,btc,hold,below band: 32.89% vs 33.00%-37.00%; crypto buys paused: BTC-USD down 17.1% from its 24h high
+2026-11-15 00:30:00-05:00,eth,hold,below band: 13.49% vs 13.50%-16.50%; crypto buys paused: BTC-USD down 20.3% from its 24h high
+2026-11-15 02:00:00-05:00,eth,ok,in band
+2026-11-15 03:00:00-05:00,eth,hold,below band: 13.45% vs 13.50%-16.50%; crypto buys paused: BTC-USD down 15.7% from its 24h high
+2026-11-15 04:00:00-05:00,btc,hold,below band: 32.26% vs 33.00%-37.00%; crypto buys paused: ETH-USD down 18.5% from its 24h high
+2026-11-15 04:00:00-05:00,eth,hold,below band: 13.45% vs 13.50%-16.50%; crypto buys paused: ETH-USD down 18.5% from its 24h high
+2026-11-15 06:00:00-05:00,eth,trade,buy 0.05714 ETH-USD limit 2770.53 in weekend: below band: 13.33% vs 13.50%-16.50%
+2026-11-15 06:00:00-05:00,btc,trade,buy 0.009985 BTC-USD limit 79978.6 in weekend: below band: 32.13% vs 33.00%-37.00%
+2026-11-15 06:30:00-05:00,btc,ok,in band
+2026-11-15 06:30:00-05:00,eth,ok,in band
+2026-11-25 06:30:00-05:00,btc,trade,sell 0.000925 BTC-USD limit 98862.8 in pre: above band: 37.09% vs 33.00%-37.00%
+2026-11-25 07:00:00-05:00,btc,trade,sell 0.000557 BTC-USD limit 99255.6 in pre: above band: 37.05% vs 33.00%-37.00%
+2026-11-25 07:30:00-05:00,btc,trade,sell 0.001504 BTC-USD limit 100035 in pre: above band: 37.15% vs 33.00%-37.00%
+2026-11-25 08:00:00-05:00,btc,ok,in band
+2026-11-25 14:30:00-05:00,eth,trade,sell 0.00669 ETH-USD limit 3763.24 in regular: above band: 16.52% vs 13.50%-16.50%
+2026-11-25 15:00:00-05:00,eth,ok,in band
+2026-11-25 15:30:00-05:00,eth,skip,trade $0.51 under $25 minimum (above band: 16.50% vs 13.50%-16.50%)
+2026-11-25 16:00:00-05:00,eth,ok,in band
+2026-12-03 04:00:00-05:00,btc,trade,sell 0.000555 BTC-USD limit 102538 in pre: above band: 37.05% vs 33.00%-37.00%
+2026-12-03 04:30:00-05:00,btc,trade,sell 0.000907 BTC-USD limit 102882 in pre: above band: 37.09% vs 33.00%-37.00%
+2026-12-03 05:00:00-05:00,btc,ok,in band
+2026-12-03 07:30:00-05:00,btc,skip,trade $5.91 under $25 minimum (above band: 37.01% vs 33.00%-37.00%)
+2026-12-03 08:00:00-05:00,btc,ok,in band
+2026-12-03 08:30:00-05:00,btc,trade,sell 0.000624 BTC-USD limit 102698 in pre: above band: 37.06% vs 33.00%-37.00%
+2026-12-03 09:00:00-05:00,btc,ok,in band
+2026-12-04 14:30:00-05:00,btc,trade,sell 0.00077 BTC-USD limit 100864 in regular: above band: 37.08% vs 33.00%-37.00%
+2026-12-04 15:00:00-05:00,btc,skip,trade $24.86 under $25 minimum (above band: 37.02% vs 33.00%-37.00%)
+2026-12-04 15:30:00-05:00,btc,ok,in band
+2026-12-04 19:30:00-05:00,btc,trade,sell 0.001002 BTC-USD limit 101118 in post: above band: 37.10% vs 33.00%-37.00%
+2026-12-04 20:00:00-05:00,btc,trade,sell 0.001168 BTC-USD limit 101892 in weekend: above band: 37.12% vs 33.00%-37.00%
+2026-12-04 20:30:00-05:00,btc,ok,in band
+2026-12-04 21:00:00-05:00,btc,skip,trade $17.34 under $25 minimum (above band: 37.02% vs 33.00%-37.00%)
+2026-12-04 21:30:00-05:00,btc,ok,in band
+2026-12-04 22:30:00-05:00,btc,trade,sell 0.00039 BTC-USD limit 102163 in weekend: above band: 37.04% vs 33.00%-37.00%
+2026-12-04 23:00:00-05:00,btc,ok,in band
+2026-12-05 01:00:00-05:00,btc,trade,sell 0.001798 BTC-USD limit 103242 in weekend: above band: 37.18% vs 33.00%-37.00%
+2026-12-05 01:30:00-05:00,btc,ok,in band
+2026-12-05 08:00:00-05:00,btc,trade,sell 0.000727 BTC-USD limit 103322 in weekend: above band: 37.07% vs 33.00%-37.00%
+2026-12-05 08:30:00-05:00,btc,trade,sell 0.000287 BTC-USD limit 103519 in weekend: above band: 37.03% vs 33.00%-37.00%
+2026-12-05 09:00:00-05:00,btc,ok,in band
+2026-12-05 09:30:00-05:00,btc,trade,sell 0.000441 BTC-USD limit 103720 in weekend: above band: 37.04% vs 33.00%-37.00%
+2026-12-05 10:00:00-05:00,btc,skip,trade $16.65 under $25 minimum (above band: 37.02% vs 33.00%-37.00%)
+2026-12-05 10:30:00-05:00,btc,ok,in band
+2026-12-05 11:00:00-05:00,btc,skip,trade $12.02 under $25 minimum (above band: 37.01% vs 33.00%-37.00%)
+2026-12-05 11:30:00-05:00,btc,trade,sell 0.00136 BTC-USD limit 104652 in weekend: above band: 37.14% vs 33.00%-37.00%
+2026-12-05 12:00:00-05:00,btc,trade,sell 0.00122 BTC-USD limit 105366 in weekend: above band: 37.12% vs 33.00%-37.00%
+2026-12-05 12:30:00-05:00,btc,skip,trade $24.07 under $25 minimum (above band: 37.02% vs 33.00%-37.00%)
+2026-12-05 13:00:00-05:00,btc,trade,sell 0.000482 BTC-USD limit 105501 in weekend: above band: 37.05% vs 33.00%-37.00%
+2026-12-05 13:30:00-05:00,btc,trade,sell 0.000326 BTC-USD limit 105644 in weekend: above band: 37.03% vs 33.00%-37.00%
+2026-12-05 14:00:00-05:00,btc,ok,in band
+2026-12-05 15:00:00-05:00,btc,trade,sell 0.001297 BTC-USD limit 106240 in weekend: above band: 37.13% vs 33.00%-37.00%
+2026-12-05 15:30:00-05:00,btc,skip,trade $19.52 under $25 minimum (above band: 37.02% vs 33.00%-37.00%)
+2026-12-05 16:00:00-05:00,btc,ok,in band
+2026-12-05 16:30:00-05:00,btc,skip,trade $6.88 under $25 minimum (above band: 37.01% vs 33.00%-37.00%)
+2026-12-05 17:00:00-05:00,btc,trade,sell 0.000436 BTC-USD limit 106454 in weekend: above band: 37.04% vs 33.00%-37.00%
+2026-12-05 17:30:00-05:00,btc,skip,trade $15.20 under $25 minimum (above band: 37.01% vs 33.00%-37.00%)
+2026-12-05 18:00:00-05:00,btc,trade,sell 0.000733 BTC-USD limit 107084 in weekend: above band: 37.08% vs 33.00%-37.00%
+2026-12-05 18:30:00-05:00,btc,ok,in band
+2026-12-06 00:30:00-05:00,btc,skip,trade $23.85 under $25 minimum (above band: 37.02% vs 33.00%-37.00%)
+2026-12-06 01:00:00-05:00,btc,trade,sell 0.001254 BTC-USD limit 108268 in weekend: above band: 37.13% vs 33.00%-37.00%
+2026-12-06 01:30:00-05:00,btc,trade,sell 0.000649 BTC-USD limit 108668 in weekend: above band: 37.07% vs 33.00%-37.00%
+2026-12-06 02:00:00-05:00,btc,ok,in band
+2026-12-06 05:30:00-05:00,btc,skip,trade $0.31 under $25 minimum (above band: 37.00% vs 33.00%-37.00%)
+2026-12-06 06:00:00-05:00,btc,ok,in band
+2026-12-06 19:00:00-05:00,btc,skip,trade $12.15 under $25 minimum (above band: 37.01% vs 33.00%-37.00%)
+2026-12-06 20:30:00-05:00,btc,ok,in band
+2026-12-06 21:00:00-05:00,btc,trade,sell 0.000855 BTC-USD limit 107455 in overnight: above band: 37.09% vs 33.00%-37.00%
+2026-12-06 21:30:00-05:00,btc,trade,sell 0.000684 BTC-USD limit 107660 in overnight: above band: 37.07% vs 33.00%-37.00%
+2026-12-06 22:00:00-05:00,btc,ok,in band
+2026-12-07 10:30:00-05:00,btc,trade,sell 0.00068 BTC-USD limit 107157 in regular: above band: 37.07% vs 33.00%-37.00%
+2026-12-07 11:00:00-05:00,btc,ok,in band
+2026-12-07 12:00:00-05:00,btc,skip,trade $0.96 under $25 minimum (above band: 37.00% vs 33.00%-37.00%)
+2026-12-07 12:30:00-05:00,btc,ok,in band
+2026-12-09 23:30:00-05:00,btc,trade,sell 0.001248 BTC-USD limit 107926 in overnight: above band: 37.13% vs 33.00%-37.00%
+2026-12-10 00:00:00-05:00,btc,trade,sell 0.002101 BTC-USD limit 109304 in overnight: above band: 37.22% vs 33.00%-37.00%
+2026-12-10 00:30:00-05:00,btc,trade,sell 0.001104 BTC-USD limit 110010 in overnight: above band: 37.12% vs 33.00%-37.00%
+2026-12-10 01:00:00-05:00,btc,trade,sell 0.00301 BTC-USD limit 111827 in overnight: above band: 37.32% vs 33.00%-37.00%
+2026-12-10 01:30:00-05:00,btc,trade,sell 0.001922 BTC-USD limit 113085 in overnight: above band: 37.20% vs 33.00%-37.00%
+2026-12-10 01:30:00-05:00,eth,trade,sell 0.0069 ETH-USD limit 3932.12 in overnight: above band: 16.53% vs 13.50%-16.50%
+2026-12-10 02:00:00-05:00,us_large_cap,skip,trade $19.85 under $25 minimum (below band: 25.93% vs 26.00%-34.00%; off-hours cap 25% of $79 needed)
+2026-12-10 02:00:00-05:00,btc,trade,sell 0.001642 BTC-USD limit 114314 in overnight: above band: 37.18% vs 33.00%-37.00%
+2026-12-10 02:00:00-05:00,eth,trade,sell 0.02228 ETH-USD limit 3975.95 in overnight: above band: 16.58% vs 13.50%-16.50%
+2026-12-10 02:30:00-05:00,btc,trade,sell 0.001016 BTC-USD limit 115246 in overnight: above band: 37.11% vs 33.00%-37.00%
+2026-12-10 02:30:00-05:00,eth,trade,sell 0.01909 ETH-USD limit 4013.86 in overnight: above band: 16.57% vs 13.50%-16.50%
+2026-12-10 02:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 03:00:00-05:00,btc,trade,sell 0.001113 BTC-USD limit 116030 in overnight: above band: 37.12% vs 33.00%-37.00%
+2026-12-10 03:00:00-05:00,eth,trade,sell 0.00974 ETH-USD limit 4037.03 in overnight: above band: 16.54% vs 13.50%-16.50%
+2026-12-10 03:30:00-05:00,eth,trade,sell 0.03621 ETH-USD limit 4087.91 in overnight: above band: 16.64% vs 13.50%-16.50%
+2026-12-10 03:30:00-05:00,btc,trade,sell 0.001073 BTC-USD limit 116891 in overnight: above band: 37.12% vs 33.00%-37.00%
+2026-12-10 04:00:00-05:00,btc,trade,sell 0.000423 BTC-USD limit 117179 in pre: above band: 37.05% vs 33.00%-37.00%
+2026-12-10 04:00:00-05:00,eth,trade,sell 0.00694 ETH-USD limit 4099.43 in pre: above band: 16.53% vs 13.50%-16.50%
+2026-12-10 04:30:00-05:00,btc,ok,in band
+2026-12-10 04:30:00-05:00,eth,skip,trade $16.01 under $25 minimum (above band: 16.51% vs 13.50%-16.50%)
+2026-12-10 05:30:00-05:00,eth,trade,sell 0.03547 ETH-USD limit 4148.24 in pre: above band: 16.64% vs 13.50%-16.50%
+2026-12-10 06:00:00-05:00,btc,trade,sell 0.000936 BTC-USD limit 118332 in pre: above band: 37.10% vs 33.00%-37.00%
+2026-12-10 06:00:00-05:00,eth,trade,sell 0.00746 ETH-USD limit 4169.47 in pre: above band: 16.53% vs 13.50%-16.50%
+2026-12-10 06:30:00-05:00,eth,ok,in band
+2026-12-10 06:30:00-05:00,btc,trade,sell 0.000228 BTC-USD limit 118405 in pre: above band: 37.02% vs 33.00%-37.00%
+2026-12-10 07:00:00-05:00,btc,trade,sell 0.000607 BTC-USD limit 118522 in pre: above band: 37.07% vs 33.00%-37.00%
+2026-12-10 07:30:00-05:00,btc,ok,in band
+2026-12-10 08:00:00-05:00,eth,skip,trade $7.30 under $25 minimum (above band: 16.51% vs 13.50%-16.50%)
+2026-12-10 08:00:00-05:00,btc,trade,sell 0.000663 BTC-USD limit 119244 in pre: above band: 37.07% vs 33.00%-37.00%
+2026-12-10 08:30:00-05:00,btc,trade,sell 0.000704 BTC-USD limit 119586 in pre: above band: 37.08% vs 33.00%-37.00%
+2026-12-10 08:30:00-05:00,eth,trade,sell 0.01534 ETH-USD limit 4201.4 in pre: above band: 16.56% vs 13.50%-16.50%
+2026-12-10 09:00:00-05:00,eth,trade,sell 0.0167 ETH-USD limit 4228.84 in pre: above band: 16.56% vs 13.50%-16.50%
+2026-12-10 09:00:00-05:00,btc,trade,sell 0.000343 BTC-USD limit 120021 in pre: above band: 37.04% vs 33.00%-37.00%
+2026-12-10 09:30:00-05:00,btc,trade,sell 0.000628 BTC-USD limit 120622 in regular: above band: 37.07% vs 33.00%-37.00%
+2026-12-10 09:30:00-05:00,eth,trade,sell 0.01237 ETH-USD limit 4254.41 in regular: above band: 16.55% vs 13.50%-16.50%
+2026-12-10 09:30:00-05:00,us_large_cap,trade,buy 1 VOO limit 524.71 in regular: below band: 25.14% vs 26.00%-34.00%
+2026-12-10 10:00:00-05:00,btc,ok,in band
+2026-12-10 10:00:00-05:00,eth,ok,in band
+2026-12-10 10:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 16:00:00-05:00,us_large_cap,skip,trade $19.05 under $25 minimum (below band: 25.93% vs 26.00%-34.00%; off-hours cap 25% of $76 needed)
+2026-12-10 16:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 18:30:00-05:00,us_large_cap,ok,in band
+2026-12-10 19:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 20:00:00-05:00,us_large_cap,hold,below band: 25.96% vs 26.00%-34.00%; frozen: no instrument for the pause session
+2026-12-10 21:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 00:00:00-05:00,btc,trade,sell 0.001009 BTC-USD limit 120537 in overnight: above band: 37.11% vs 33.00%-37.00%
+2026-12-11 00:30:00-05:00,btc,ok,in band
+2026-12-11 01:30:00-05:00,btc,trade,sell 0.000533 BTC-USD limit 121260 in overnight: above band: 37.06% vs 33.00%-37.00%
+2026-12-11 02:00:00-05:00,btc,ok,in band
+2026-12-11 07:30:00-05:00,intl_equity,skip,"trade $3.75 under $25 minimum (cash flow: cash 13.05% above 13.00%, deploying; off-hours cap 25% of $15 needed)"
+2026-12-11 08:00:00-05:00,intl_equity,ok,in band
+2026-12-11 08:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 08:30:00-05:00,intl_equity,skip,"trade $3.75 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying; off-hours cap 25% of $15 needed)"
+2026-12-11 08:30:00-05:00,us_large_cap,skip,"trade $20.90 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-11 09:00:00-05:00,intl_equity,ok,in band
+2026-12-11 09:00:00-05:00,intl_equity,skip,"trade $3.34 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-11 09:00:00-05:00,us_large_cap,skip,"trade $8.16 under $25 minimum (below band: 26.00% vs 26.00%-34.00%; cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-11 09:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 09:30:00-05:00,intl_equity,ok,in band
+2026-12-11 09:30:00-05:00,intl_equity,skip,"trade $4.50 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-11 09:30:00-05:00,us_large_cap,skip,"trade $10.63 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-11 10:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 10:00:00-05:00,intl_equity,ok,in band
+2026-12-11 10:00:00-05:00,intl_equity,skip,"trade $11.30 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-11 10:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 10:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 10:30:00-05:00,intl_equity,ok,in band
+2026-12-11 10:30:00-05:00,intl_equity,skip,"trade $9.88 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-11 10:30:00-05:00,us_large_cap,skip,"trade $23.41 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-11 11:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 11:00:00-05:00,intl_equity,ok,in band
+2026-12-11 11:00:00-05:00,intl_equity,skip,"trade $12.96 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-11 11:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 11:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 11:30:00-05:00,intl_equity,ok,in band
+2026-12-11 11:30:00-05:00,intl_equity,skip,"trade $21.47 under $25 minimum (cash flow: cash 13.07% above 13.00%, deploying)"
+2026-12-11 11:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 12:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 12:00:00-05:00,intl_equity,ok,in band
+2026-12-11 12:00:00-05:00,intl_equity,skip,"trade $18.40 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-11 12:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 12:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 12:30:00-05:00,intl_equity,ok,in band
+2026-12-11 12:30:00-05:00,intl_equity,skip,"trade $24.28 under $25 minimum (cash flow: cash 13.08% above 13.00%, deploying)"
+2026-12-11 12:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 13:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 13:00:00-05:00,intl_equity,ok,in band
+2026-12-11 13:00:00-05:00,intl_equity,skip,"trade $20.45 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-11 13:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 13:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 13:30:00-05:00,intl_equity,ok,in band
+2026-12-11 13:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-11 13:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 14:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 14:00:00-05:00,intl_equity,ok,in band
+2026-12-11 14:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-11 14:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 14:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 14:30:00-05:00,intl_equity,ok,in band
+2026-12-11 14:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-11 14:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 15:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 15:00:00-05:00,intl_equity,ok,in band
+2026-12-11 15:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-11 15:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 15:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 15:30:00-05:00,intl_equity,ok,in band
+2026-12-11 15:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-11 15:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 16:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 16:00:00-05:00,intl_equity,ok,in band
+2026-12-11 16:00:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.15% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 16:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 16:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 16:30:00-05:00,intl_equity,ok,in band
+2026-12-11 16:30:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.14% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 16:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 17:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 17:00:00-05:00,intl_equity,ok,in band
+2026-12-11 17:00:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.11% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 17:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 17:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 17:30:00-05:00,intl_equity,ok,in band
+2026-12-11 17:30:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.12% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 17:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 18:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 18:00:00-05:00,intl_equity,ok,in band
+2026-12-11 18:00:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.12% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 18:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 18:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 18:30:00-05:00,intl_equity,ok,in band
+2026-12-11 18:30:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.12% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 18:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 19:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 19:00:00-05:00,intl_equity,ok,in band
+2026-12-11 19:00:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.11% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 19:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 19:30:00-05:00,us_large_cap,ok,in band
+2026-12-11 19:30:00-05:00,intl_equity,ok,in band
+2026-12-11 19:30:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.13% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-11 19:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-11 20:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 20:00:00-05:00,intl_equity,ok,in band
+2026-12-11 20:00:00-05:00,cash,hold,"cash flow: cash 13.08% above 13.00%, deploying, but no tradable sleeve to use it"
+2026-12-11 21:30:00-05:00,us_large_cap,hold,below band: 25.97% vs 26.00%-34.00%; frozen: no instrument for the weekend session
+2026-12-11 22:30:00-05:00,us_large_cap,ok,in band
+2026-12-12 06:00:00-05:00,us_large_cap,hold,below band: 25.99% vs 26.00%-34.00%; frozen: no instrument for the weekend session
+2026-12-12 07:30:00-05:00,us_large_cap,ok,in band
+2026-12-12 09:00:00-05:00,us_large_cap,hold,below band: 25.96% vs 26.00%-34.00%; frozen: no instrument for the weekend session
+2026-12-12 09:30:00-05:00,us_large_cap,ok,in band
+2026-12-12 10:30:00-05:00,us_large_cap,hold,below band: 25.97% vs 26.00%-34.00%; frozen: no instrument for the weekend session
+2026-12-12 11:30:00-05:00,us_large_cap,ok,in band
+2026-12-12 13:30:00-05:00,us_large_cap,hold,below band: 25.94% vs 26.00%-34.00%; frozen: no instrument for the weekend session
+2026-12-12 14:00:00-05:00,us_large_cap,ok,in band
+2026-12-13 13:00:00-05:00,eth,skip,trade $19.29 under $25 minimum (above band: 16.52% vs 13.50%-16.50%)
+2026-12-13 13:30:00-05:00,eth,trade,sell 0.0151 ETH-USD limit 4194.56 in weekend: above band: 16.56% vs 13.50%-16.50%
+2026-12-13 14:00:00-05:00,eth,ok,in band
+2026-12-13 14:30:00-05:00,eth,trade,sell 0.00764 ETH-USD limit 4205.95 in weekend: above band: 16.53% vs 13.50%-16.50%
+2026-12-13 15:00:00-05:00,eth,ok,in band
+2026-12-13 16:00:00-05:00,us_large_cap,hold,below band: 25.98% vs 26.00%-34.00%; frozen: no instrument for the weekend session
+2026-12-13 16:00:00-05:00,eth,trade,sell 0.02437 ETH-USD limit 4246.7 in weekend: above band: 16.60% vs 13.50%-16.50%
+2026-12-13 16:30:00-05:00,eth,trade,sell 0.03276 ETH-USD limit 4293.44 in weekend: above band: 16.63% vs 13.50%-16.50%
+2026-12-13 17:00:00-05:00,eth,ok,in band
+2026-12-13 18:00:00-05:00,eth,trade,sell 0.00711 ETH-USD limit 4309.86 in weekend: above band: 16.53% vs 13.50%-16.50%
+2026-12-13 18:30:00-05:00,eth,ok,in band
+2026-12-13 19:00:00-05:00,eth,trade,sell 0.01758 ETH-USD limit 4328.2 in weekend: above band: 16.57% vs 13.50%-16.50%
+2026-12-13 19:30:00-05:00,eth,skip,trade $3.13 under $25 minimum (above band: 16.50% vs 13.50%-16.50%)
+2026-12-13 21:00:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.35% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-13 21:00:00-05:00,eth,trade,sell 0.02785 ETH-USD limit 4367.44 in overnight: above band: 16.61% vs 13.50%-16.50%
+2026-12-13 21:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-13 21:30:00-05:00,intl_equity,ok,in band
+2026-12-13 21:30:00-05:00,eth,ok,in band
+2026-12-13 21:30:00-05:00,intl_equity,skip,"trade $11.91 under $25 minimum (cash flow: cash 13.45% above 13.00%, deploying; off-hours cap 25% of $48 needed)"
+2026-12-13 22:00:00-05:00,intl_equity,ok,in band
+2026-12-13 22:00:00-05:00,intl_equity,skip,"trade $16.07 under $25 minimum (cash flow: cash 13.48% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-13 22:30:00-05:00,intl_equity,ok,in band
+2026-12-13 22:30:00-05:00,eth,skip,trade $4.16 under $25 minimum (above band: 16.50% vs 13.50%-16.50%)
+2026-12-13 22:30:00-05:00,intl_equity,skip,"trade $16.07 under $25 minimum (cash flow: cash 13.44% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-13 23:00:00-05:00,intl_equity,ok,in band
+2026-12-13 23:00:00-05:00,eth,ok,in band
+2026-12-13 23:00:00-05:00,intl_equity,skip,"trade $16.07 under $25 minimum (cash flow: cash 13.46% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-13 23:30:00-05:00,intl_equity,ok,in band
+2026-12-13 23:30:00-05:00,intl_equity,skip,"trade $24.06 under $25 minimum (cash flow: cash 13.52% above 13.00%, deploying; off-hours cap 25% of $96 needed)"
+2026-12-14 00:00:00-05:00,intl_equity,ok,in band
+2026-12-14 00:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 00:30:00-05:00,intl_equity,ok,in band
+2026-12-14 00:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 01:00:00-05:00,intl_equity,ok,in band
+2026-12-14 01:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 01:30:00-05:00,intl_equity,ok,in band
+2026-12-14 01:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 02:00:00-05:00,intl_equity,ok,in band
+2026-12-14 02:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 02:30:00-05:00,intl_equity,ok,in band
+2026-12-14 02:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 03:00:00-05:00,intl_equity,ok,in band
+2026-12-14 03:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 03:30:00-05:00,intl_equity,ok,in band
+2026-12-14 03:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 04:00:00-05:00,intl_equity,ok,in band
+2026-12-14 04:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 04:30:00-05:00,intl_equity,ok,in band
+2026-12-14 04:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 05:00:00-05:00,intl_equity,ok,in band
+2026-12-14 05:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 05:30:00-05:00,intl_equity,ok,in band
+2026-12-14 05:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 06:00:00-05:00,intl_equity,ok,in band
+2026-12-14 06:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 06:30:00-05:00,intl_equity,ok,in band
+2026-12-14 06:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 07:00:00-05:00,intl_equity,ok,in band
+2026-12-14 07:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 07:30:00-05:00,us_large_cap,ok,in band
+2026-12-14 07:30:00-05:00,intl_equity,ok,in band
+2026-12-14 07:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 07:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 08:00:00-05:00,intl_equity,ok,in band
+2026-12-14 08:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 08:30:00-05:00,us_large_cap,ok,in band
+2026-12-14 08:30:00-05:00,intl_equity,ok,in band
+2026-12-14 08:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 08:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 09:00:00-05:00,intl_equity,ok,in band
+2026-12-14 09:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 09:30:00-05:00,intl_equity,ok,in band
+2026-12-14 09:30:00-05:00,intl_equity,trade,"buy 2 VXUS limit 62 in regular: cash flow: cash 13.52% above 13.00%, deploying"
+2026-12-14 10:00:00-05:00,us_large_cap,ok,in band
+2026-12-14 10:00:00-05:00,intl_equity,ok,in band
+2026-12-14 10:00:00-05:00,intl_equity,trade,"buy 2 VXUS limit 62.06 in regular: cash flow: cash 13.41% above 13.00%, deploying"
+2026-12-14 10:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 10:30:00-05:00,intl_equity,ok,in band
+2026-12-14 10:30:00-05:00,intl_equity,trade,"buy 1 VXUS limit 62.03 in regular: cash flow: cash 13.27% above 13.00%, deploying"
+2026-12-14 11:00:00-05:00,us_large_cap,ok,in band
+2026-12-14 11:00:00-05:00,intl_equity,ok,in band
+2026-12-14 11:00:00-05:00,intl_equity,trade,"buy 1 VXUS limit 62.16 in regular: cash flow: cash 13.23% above 13.00%, deploying"
+2026-12-14 11:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 11:30:00-05:00,intl_equity,ok,in band
+2026-12-14 11:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 12:00:00-05:00,intl_equity,ok,in band
+2026-12-14 12:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 12:30:00-05:00,intl_equity,ok,in band
+2026-12-14 12:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 13:00:00-05:00,us_large_cap,ok,in band
+2026-12-14 13:00:00-05:00,intl_equity,ok,in band
+2026-12-14 13:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 13:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 13:30:00-05:00,us_large_cap,ok,in band
+2026-12-14 13:30:00-05:00,intl_equity,ok,in band
+2026-12-14 13:30:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.93 in regular: cash flow: cash 13.25% above 13.00%, deploying"
+2026-12-14 13:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 14:00:00-05:00,intl_equity,ok,in band
+2026-12-14 14:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 14:30:00-05:00,intl_equity,ok,in band
+2026-12-14 14:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 15:00:00-05:00,intl_equity,ok,in band
+2026-12-14 15:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 15:30:00-05:00,intl_equity,ok,in band
+2026-12-14 15:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-14 16:00:00-05:00,intl_equity,ok,in band
+2026-12-14 16:00:00-05:00,intl_equity,skip,"trade $10.26 under $25 minimum (cash flow: cash 13.20% above 13.00%, deploying; off-hours cap 25% of $41 needed)"
+2026-12-14 16:30:00-05:00,intl_equity,ok,in band
+2026-12-14 16:30:00-05:00,intl_equity,skip,"trade $10.26 under $25 minimum (cash flow: cash 13.18% above 13.00%, deploying; off-hours cap 25% of $41 needed)"
+2026-12-14 17:00:00-05:00,intl_equity,ok,in band
+2026-12-14 17:00:00-05:00,intl_equity,skip,"trade $4.33 under $25 minimum (cash flow: cash 13.15% above 13.00%, deploying)"
+2026-12-14 17:30:00-05:00,intl_equity,ok,in band
+2026-12-14 17:30:00-05:00,intl_equity,skip,"trade $10.26 under $25 minimum (cash flow: cash 13.20% above 13.00%, deploying; off-hours cap 25% of $41 needed)"
+2026-12-14 18:00:00-05:00,intl_equity,ok,in band
+2026-12-14 18:30:00-05:00,intl_equity,skip,"trade $10.26 under $25 minimum (cash flow: cash 13.21% above 13.00%, deploying; off-hours cap 25% of $41 needed)"
+2026-12-14 19:00:00-05:00,intl_equity,ok,in band
+2026-12-14 19:30:00-05:00,intl_equity,skip,"trade $3.18 under $25 minimum (cash flow: cash 13.19% above 13.00%, deploying)"
+2026-12-14 20:00:00-05:00,us_large_cap,hold,below band: 25.84% vs 26.00%-34.00%; frozen: no instrument for the pause session
+2026-12-14 20:00:00-05:00,intl_equity,ok,in band
+2026-12-14 21:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 22:00:00-05:00,eth,trade,sell 0.00712 ETH-USD limit 4378.43 in overnight: above band: 16.53% vs 13.50%-16.50%
+2026-12-14 22:30:00-05:00,eth,trade,sell 0.01495 ETH-USD limit 4411.17 in overnight: above band: 16.56% vs 13.50%-16.50%
+2026-12-14 23:00:00-05:00,eth,ok,in band
+2026-12-15 02:30:00-05:00,intl_equity,skip,"trade $6.46 under $25 minimum (cash flow: cash 13.19% above 13.00%, deploying)"
+2026-12-15 03:00:00-05:00,intl_equity,ok,in band
+2026-12-15 03:00:00-05:00,intl_equity,skip,"trade $10.26 under $25 minimum (cash flow: cash 13.23% above 13.00%, deploying; off-hours cap 25% of $41 needed)"
+2026-12-15 03:30:00-05:00,intl_equity,ok,in band
+2026-12-15 03:30:00-05:00,intl_equity,skip,"trade $10.26 under $25 minimum (cash flow: cash 13.23% above 13.00%, deploying; off-hours cap 25% of $41 needed)"
+2026-12-15 04:00:00-05:00,intl_equity,ok,in band
+2026-12-15 04:00:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.28% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 04:30:00-05:00,intl_equity,ok,in band
+2026-12-15 04:30:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.23% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 05:00:00-05:00,intl_equity,ok,in band
+2026-12-15 05:00:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.22% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 05:30:00-05:00,intl_equity,ok,in band
+2026-12-15 05:30:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.26% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 06:00:00-05:00,intl_equity,ok,in band
+2026-12-15 06:00:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.21% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 06:30:00-05:00,intl_equity,ok,in band
+2026-12-15 06:30:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.23% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 07:00:00-05:00,intl_equity,ok,in band
+2026-12-15 07:00:00-05:00,intl_equity,skip,"trade $15.91 under $25 minimum (cash flow: cash 13.20% above 13.00%, deploying; off-hours cap 25% of $64 needed)"
+2026-12-15 07:30:00-05:00,intl_equity,ok,in band
+2026-12-15 08:00:00-05:00,intl_equity,skip,"trade $0.06 under $25 minimum (cash flow: cash 13.15% above 13.00%, deploying)"
+2026-12-15 08:30:00-05:00,intl_equity,ok,in band
+2026-12-15 08:30:00-05:00,intl_equity,skip,"trade $4.01 under $25 minimum (cash flow: cash 13.17% above 13.00%, deploying)"
+2026-12-15 09:00:00-05:00,intl_equity,ok,in band
+2026-12-15 10:00:00-05:00,intl_equity,skip,"trade $17.05 under $25 minimum (cash flow: cash 13.22% above 13.00%, deploying)"
+2026-12-15 10:30:00-05:00,intl_equity,ok,in band
+2026-12-15 10:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-15 11:00:00-05:00,intl_equity,ok,in band
+2026-12-15 11:00:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.84 in regular: cash flow: cash 13.31% above 13.00%, deploying"
+2026-12-15 11:30:00-05:00,intl_equity,ok,in band
+2026-12-15 12:00:00-05:00,intl_equity,skip,"trade $17.20 under $25 minimum (cash flow: cash 13.22% above 13.00%, deploying)"
+2026-12-15 12:30:00-05:00,intl_equity,ok,in band
+2026-12-15 12:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-15 13:00:00-05:00,intl_equity,ok,in band
+2026-12-15 13:00:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.63 in regular: cash flow: cash 13.28% above 13.00%, deploying"
+2026-12-15 13:30:00-05:00,intl_equity,ok,in band
+2026-12-15 13:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-15 14:00:00-05:00,intl_equity,ok,in band
+2026-12-15 14:00:00-05:00,intl_equity,skip,"trade $11.76 under $25 minimum (cash flow: cash 13.17% above 13.00%, deploying)"
+2026-12-15 14:30:00-05:00,intl_equity,ok,in band
+2026-12-15 14:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-15 15:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 15:00:00-05:00,intl_equity,ok,in band
+2026-12-15 15:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-15 15:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 15:30:00-05:00,intl_equity,ok,in band
+2026-12-15 15:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-15 16:00:00-05:00,intl_equity,ok,in band
+2026-12-15 16:00:00-05:00,intl_equity,skip,"trade $9.40 under $25 minimum (cash flow: cash 13.17% above 13.00%, deploying; off-hours cap 25% of $38 needed)"
+2026-12-15 16:30:00-05:00,intl_equity,ok,in band
+2026-12-15 16:30:00-05:00,intl_equity,skip,"trade $9.56 under $25 minimum (cash flow: cash 13.17% above 13.00%, deploying; off-hours cap 25% of $38 needed)"
+2026-12-15 17:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 17:00:00-05:00,intl_equity,ok,in band
+2026-12-15 17:00:00-05:00,intl_equity,skip,"trade $13.00 under $25 minimum (cash flow: cash 13.21% above 13.00%, deploying; off-hours cap 25% of $52 needed)"
+2026-12-15 17:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 17:30:00-05:00,us_large_cap,ok,in band
+2026-12-15 17:30:00-05:00,intl_equity,ok,in band
+2026-12-15 17:30:00-05:00,intl_equity,skip,"trade $15.08 under $25 minimum (cash flow: cash 13.25% above 13.00%, deploying; off-hours cap 25% of $60 needed)"
+2026-12-15 17:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 18:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 18:00:00-05:00,intl_equity,ok,in band
+2026-12-15 18:00:00-05:00,intl_equity,skip,"trade $16.30 under $25 minimum (cash flow: cash 13.27% above 13.00%, deploying; off-hours cap 25% of $65 needed)"
+2026-12-15 18:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 18:30:00-05:00,us_large_cap,ok,in band
+2026-12-15 18:30:00-05:00,intl_equity,ok,in band
+2026-12-15 18:30:00-05:00,intl_equity,skip,"trade $17.81 under $25 minimum (cash flow: cash 13.29% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-15 18:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 19:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 19:00:00-05:00,intl_equity,ok,in band
+2026-12-15 19:00:00-05:00,intl_equity,skip,"trade $19.36 under $25 minimum (cash flow: cash 13.32% above 13.00%, deploying; off-hours cap 25% of $77 needed)"
+2026-12-15 19:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 19:30:00-05:00,us_large_cap,ok,in band
+2026-12-15 19:30:00-05:00,intl_equity,ok,in band
+2026-12-15 19:30:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.34% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 19:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 20:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 20:00:00-05:00,intl_equity,ok,in band
+2026-12-15 21:00:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.25% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 21:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 21:30:00-05:00,us_large_cap,ok,in band
+2026-12-15 21:30:00-05:00,intl_equity,ok,in band
+2026-12-15 21:30:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.29% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 21:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 22:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 22:00:00-05:00,intl_equity,ok,in band
+2026-12-15 22:00:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.30% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 22:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 22:30:00-05:00,us_large_cap,ok,in band
+2026-12-15 22:30:00-05:00,intl_equity,ok,in band
+2026-12-15 22:30:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.33% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 22:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 23:00:00-05:00,us_large_cap,ok,in band
+2026-12-15 23:00:00-05:00,intl_equity,ok,in band
+2026-12-15 23:00:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.30% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 23:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-15 23:30:00-05:00,us_large_cap,ok,in band
+2026-12-15 23:30:00-05:00,intl_equity,ok,in band
+2026-12-15 23:30:00-05:00,intl_equity,skip,"trade $20.63 under $25 minimum (cash flow: cash 13.33% above 13.00%, deploying; off-hours cap 25% of $83 needed)"
+2026-12-15 23:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 00:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 00:00:00-05:00,intl_equity,ok,in band
+2026-12-16 00:00:00-05:00,intl_equity,skip,"trade $21.10 under $25 minimum (cash flow: cash 13.34% above 13.00%, deploying; off-hours cap 25% of $84 needed)"
+2026-12-16 00:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 00:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 00:30:00-05:00,intl_equity,ok,in band
+2026-12-16 00:30:00-05:00,intl_equity,skip,"trade $22.15 under $25 minimum (cash flow: cash 13.36% above 13.00%, deploying; off-hours cap 25% of $89 needed)"
+2026-12-16 00:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 01:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 01:00:00-05:00,intl_equity,ok,in band
+2026-12-16 01:00:00-05:00,intl_equity,skip,"trade $23.90 under $25 minimum (cash flow: cash 13.39% above 13.00%, deploying; off-hours cap 25% of $96 needed)"
+2026-12-16 01:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 01:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 01:30:00-05:00,intl_equity,ok,in band
+2026-12-16 01:30:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.40% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 01:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 02:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 02:00:00-05:00,intl_equity,ok,in band
+2026-12-16 02:00:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.35% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 02:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 02:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 02:30:00-05:00,intl_equity,ok,in band
+2026-12-16 02:30:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.34% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 02:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 03:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 03:00:00-05:00,intl_equity,ok,in band
+2026-12-16 03:00:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.29% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 03:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 03:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 03:30:00-05:00,intl_equity,ok,in band
+2026-12-16 03:30:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.34% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 03:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 04:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 04:00:00-05:00,intl_equity,ok,in band
+2026-12-16 04:00:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.34% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 04:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 04:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 04:30:00-05:00,intl_equity,ok,in band
+2026-12-16 04:30:00-05:00,intl_equity,skip,"trade $24.57 under $25 minimum (cash flow: cash 13.35% above 13.00%, deploying; off-hours cap 25% of $98 needed)"
+2026-12-16 04:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 05:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 05:00:00-05:00,intl_equity,ok,in band
+2026-12-16 05:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 05:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 05:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 05:30:00-05:00,intl_equity,ok,in band
+2026-12-16 05:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 05:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 06:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 06:00:00-05:00,intl_equity,ok,in band
+2026-12-16 06:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 06:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 06:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 06:30:00-05:00,intl_equity,ok,in band
+2026-12-16 06:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 06:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 07:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 07:00:00-05:00,intl_equity,ok,in band
+2026-12-16 07:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 07:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 07:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 07:30:00-05:00,intl_equity,ok,in band
+2026-12-16 07:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 07:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 08:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 08:00:00-05:00,intl_equity,ok,in band
+2026-12-16 08:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 08:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 08:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 08:30:00-05:00,intl_equity,ok,in band
+2026-12-16 08:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 08:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 09:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 09:00:00-05:00,intl_equity,ok,in band
+2026-12-16 09:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 09:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 09:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 09:30:00-05:00,intl_equity,ok,in band
+2026-12-16 09:30:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.3 in regular: cash flow: cash 13.49% above 13.00%, deploying"
+2026-12-16 09:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 10:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 10:00:00-05:00,intl_equity,ok,in band
+2026-12-16 10:00:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.38 in regular: cash flow: cash 13.40% above 13.00%, deploying"
+2026-12-16 10:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 10:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 10:30:00-05:00,intl_equity,ok,in band
+2026-12-16 10:30:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.4 in regular: cash flow: cash 13.31% above 13.00%, deploying"
+2026-12-16 10:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 11:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 11:00:00-05:00,intl_equity,ok,in band
+2026-12-16 11:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 11:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 11:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 11:30:00-05:00,intl_equity,ok,in band
+2026-12-16 11:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 11:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 12:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 12:00:00-05:00,intl_equity,ok,in band
+2026-12-16 12:00:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.33 in regular: cash flow: cash 13.34% above 13.00%, deploying"
+2026-12-16 12:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 12:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 12:30:00-05:00,intl_equity,ok,in band
+2026-12-16 12:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 12:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 13:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 13:00:00-05:00,intl_equity,ok,in band
+2026-12-16 13:00:00-05:00,intl_equity,trade,"buy 1 VXUS limit 61.32 in regular: cash flow: cash 13.35% above 13.00%, deploying"
+2026-12-16 13:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 13:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 13:30:00-05:00,intl_equity,ok,in band
+2026-12-16 13:30:00-05:00,btc,skip,"trade $0.87 under $25 minimum (cash flow: cash 13.30% above 13.00%, deploying)"
+2026-12-16 13:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 13:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 14:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 14:00:00-05:00,intl_equity,ok,in band
+2026-12-16 14:00:00-05:00,btc,ok,in band
+2026-12-16 14:00:00-05:00,btc,skip,"trade $4.53 under $25 minimum (cash flow: cash 13.31% above 13.00%, deploying)"
+2026-12-16 14:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 14:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 14:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 14:30:00-05:00,intl_equity,ok,in band
+2026-12-16 14:30:00-05:00,btc,ok,in band
+2026-12-16 14:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 14:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 15:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 15:00:00-05:00,intl_equity,ok,in band
+2026-12-16 15:00:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 15:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 15:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 15:30:00-05:00,intl_equity,ok,in band
+2026-12-16 15:30:00-05:00,btc,skip,"trade $0.75 under $25 minimum (cash flow: cash 13.32% above 13.00%, deploying)"
+2026-12-16 15:30:00-05:00,intl_equity,skip,VXUS trade rounds below the minimum at lot size 1
+2026-12-16 15:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 16:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 16:00:00-05:00,intl_equity,ok,in band
+2026-12-16 16:00:00-05:00,btc,ok,in band
+2026-12-16 16:00:00-05:00,intl_equity,skip,"trade $16.53 under $25 minimum (cash flow: cash 13.41% above 13.00%, deploying; off-hours cap 25% of $66 needed)"
+2026-12-16 16:00:00-05:00,btc,skip,"trade $21.67 under $25 minimum (cash flow: cash 13.41% above 13.00%, deploying)"
+2026-12-16 16:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 16:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 16:30:00-05:00,intl_equity,ok,in band
+2026-12-16 16:30:00-05:00,btc,ok,in band
+2026-12-16 16:30:00-05:00,intl_equity,skip,"trade $16.53 under $25 minimum (cash flow: cash 13.39% above 13.00%, deploying; off-hours cap 25% of $66 needed)"
+2026-12-16 16:30:00-05:00,btc,skip,"trade $21.13 under $25 minimum (cash flow: cash 13.39% above 13.00%, deploying)"
+2026-12-16 16:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 17:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 17:00:00-05:00,intl_equity,ok,in band
+2026-12-16 17:00:00-05:00,btc,ok,in band
+2026-12-16 17:00:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.48% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-16 17:00:00-05:00,btc,trade,"buy 0.000532 BTC-USD limit 107036 in post: cash flow: cash 13.48% above 13.00%, deploying"
+2026-12-16 17:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 17:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 17:30:00-05:00,intl_equity,ok,in band
+2026-12-16 17:30:00-05:00,btc,ok,in band
+2026-12-16 17:30:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.48% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-16 17:30:00-05:00,btc,trade,"buy 0.000526 BTC-USD limit 106520 in post: cash flow: cash 13.48% above 13.00%, deploying"
+2026-12-16 17:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 18:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 18:00:00-05:00,intl_equity,ok,in band
+2026-12-16 18:00:00-05:00,btc,ok,in band
+2026-12-16 18:00:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.48% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-16 18:00:00-05:00,btc,trade,"buy 0.000652 BTC-USD limit 105622 in post: cash flow: cash 13.48% above 13.00%, deploying"
+2026-12-16 18:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 18:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 18:30:00-05:00,intl_equity,ok,in band
+2026-12-16 18:30:00-05:00,btc,ok,in band
+2026-12-16 18:30:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.41% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-16 18:30:00-05:00,btc,trade,"buy 0.000484 BTC-USD limit 105658 in post: cash flow: cash 13.41% above 13.00%, deploying"
+2026-12-16 18:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 19:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 19:00:00-05:00,intl_equity,ok,in band
+2026-12-16 19:00:00-05:00,btc,ok,in band
+2026-12-16 19:00:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.35% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-16 19:00:00-05:00,btc,trade,"buy 0.000336 BTC-USD limit 105866 in post: cash flow: cash 13.35% above 13.00%, deploying"
+2026-12-16 19:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 19:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 19:30:00-05:00,intl_equity,ok,in band
+2026-12-16 19:30:00-05:00,btc,ok,in band
+2026-12-16 19:30:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.33% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-16 19:30:00-05:00,btc,trade,"buy 0.000331 BTC-USD limit 105643 in post: cash flow: cash 13.33% above 13.00%, deploying"
+2026-12-16 19:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-16 20:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 20:00:00-05:00,intl_equity,ok,in band
+2026-12-16 20:00:00-05:00,btc,ok,in band
+2026-12-16 20:00:00-05:00,btc,trade,"buy 0.002833 BTC-USD limit 105742 in pause: cash flow: cash 13.29% above 13.00%, deploying"
+2026-12-16 20:30:00-05:00,btc,ok,in band
+2026-12-16 21:00:00-05:00,btc,skip,"trade $0.12 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 21:00:00-05:00,intl_equity,skip,"trade $1.29 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 21:00:00-05:00,us_large_cap,skip,"trade $7.65 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 21:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 21:30:00-05:00,intl_equity,ok,in band
+2026-12-16 21:30:00-05:00,btc,ok,in band
+2026-12-16 21:30:00-05:00,btc,skip,"trade $0.01 under $25 minimum (cash flow: cash 13.00% above 13.00%, deploying)"
+2026-12-16 21:30:00-05:00,intl_equity,skip,"trade $0.11 under $25 minimum (cash flow: cash 13.00% above 13.00%, deploying)"
+2026-12-16 21:30:00-05:00,us_large_cap,skip,"trade $0.63 under $25 minimum (cash flow: cash 13.00% above 13.00%, deploying)"
+2026-12-16 22:00:00-05:00,us_large_cap,ok,in band
+2026-12-16 22:00:00-05:00,intl_equity,ok,in band
+2026-12-16 22:00:00-05:00,btc,ok,in band
+2026-12-16 22:00:00-05:00,btc,skip,"trade $0.23 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 22:00:00-05:00,intl_equity,skip,"trade $1.41 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 22:00:00-05:00,us_large_cap,skip,"trade $8.55 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 22:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 22:30:00-05:00,intl_equity,ok,in band
+2026-12-16 22:30:00-05:00,btc,ok,in band
+2026-12-16 23:00:00-05:00,btc,skip,"trade $0.36 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 23:00:00-05:00,intl_equity,skip,"trade $2.08 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 23:00:00-05:00,us_large_cap,skip,"trade $12.16 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-16 23:30:00-05:00,us_large_cap,ok,in band
+2026-12-16 23:30:00-05:00,intl_equity,ok,in band
+2026-12-16 23:30:00-05:00,btc,ok,in band
+2026-12-16 23:30:00-05:00,btc,skip,"trade $1.75 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-16 23:30:00-05:00,intl_equity,skip,"trade $6.26 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-16 23:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 00:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 00:00:00-05:00,intl_equity,ok,in band
+2026-12-17 00:00:00-05:00,btc,ok,in band
+2026-12-17 00:00:00-05:00,btc,skip,"trade $1.53 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-17 00:00:00-05:00,intl_equity,skip,"trade $9.33 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-17 00:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 00:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 00:30:00-05:00,intl_equity,ok,in band
+2026-12-17 00:30:00-05:00,btc,ok,in band
+2026-12-17 00:30:00-05:00,eth,skip,"trade $0.29 under $25 minimum (cash flow: cash 13.08% above 13.00%, deploying)"
+2026-12-17 00:30:00-05:00,btc,skip,"trade $2.19 under $25 minimum (cash flow: cash 13.08% above 13.00%, deploying)"
+2026-12-17 00:30:00-05:00,intl_equity,skip,"trade $11.55 under $25 minimum (cash flow: cash 13.08% above 13.00%, deploying)"
+2026-12-17 00:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 01:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 01:00:00-05:00,intl_equity,ok,in band
+2026-12-17 01:00:00-05:00,btc,ok,in band
+2026-12-17 01:00:00-05:00,eth,ok,in band
+2026-12-17 01:00:00-05:00,eth,skip,"trade $1.04 under $25 minimum (cash flow: cash 13.12% above 13.00%, deploying)"
+2026-12-17 01:00:00-05:00,btc,skip,"trade $6.87 under $25 minimum (cash flow: cash 13.12% above 13.00%, deploying)"
+2026-12-17 01:00:00-05:00,intl_equity,skip,"trade $16.42 under $25 minimum (cash flow: cash 13.12% above 13.00%, deploying)"
+2026-12-17 01:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 01:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 01:30:00-05:00,intl_equity,ok,in band
+2026-12-17 01:30:00-05:00,btc,ok,in band
+2026-12-17 01:30:00-05:00,eth,ok,in band
+2026-12-17 01:30:00-05:00,eth,skip,"trade $2.27 under $25 minimum (cash flow: cash 13.15% above 13.00%, deploying)"
+2026-12-17 01:30:00-05:00,btc,skip,"trade $11.84 under $25 minimum (cash flow: cash 13.15% above 13.00%, deploying)"
+2026-12-17 01:30:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.15% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-17 01:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 02:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 02:00:00-05:00,intl_equity,ok,in band
+2026-12-17 02:00:00-05:00,btc,ok,in band
+2026-12-17 02:00:00-05:00,eth,ok,in band
+2026-12-17 02:00:00-05:00,eth,skip,"trade $1.91 under $25 minimum (cash flow: cash 13.13% above 13.00%, deploying)"
+2026-12-17 02:00:00-05:00,btc,skip,"trade $6.57 under $25 minimum (cash flow: cash 13.13% above 13.00%, deploying)"
+2026-12-17 02:00:00-05:00,intl_equity,skip,"trade $17.36 under $25 minimum (cash flow: cash 13.13% above 13.00%, deploying)"
+2026-12-17 02:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 02:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 02:30:00-05:00,intl_equity,ok,in band
+2026-12-17 02:30:00-05:00,btc,ok,in band
+2026-12-17 02:30:00-05:00,eth,ok,in band
+2026-12-17 02:30:00-05:00,eth,skip,"trade $0.05 under $25 minimum (cash flow: cash 13.11% above 13.00%, deploying)"
+2026-12-17 02:30:00-05:00,btc,skip,"trade $1.88 under $25 minimum (cash flow: cash 13.11% above 13.00%, deploying)"
+2026-12-17 02:30:00-05:00,intl_equity,skip,"trade $15.27 under $25 minimum (cash flow: cash 13.11% above 13.00%, deploying)"
+2026-12-17 02:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 03:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 03:00:00-05:00,intl_equity,ok,in band
+2026-12-17 03:00:00-05:00,btc,ok,in band
+2026-12-17 03:00:00-05:00,eth,ok,in band
+2026-12-17 03:00:00-05:00,eth,skip,"trade $3.12 under $25 minimum (cash flow: cash 13.14% above 13.00%, deploying)"
+2026-12-17 03:00:00-05:00,btc,skip,"trade $5.87 under $25 minimum (cash flow: cash 13.14% above 13.00%, deploying)"
+2026-12-17 03:00:00-05:00,intl_equity,skip,"trade $17.71 under $25 minimum (cash flow: cash 13.14% above 13.00%, deploying; off-hours cap 25% of $71 needed)"
+2026-12-17 03:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 03:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 03:30:00-05:00,intl_equity,ok,in band
+2026-12-17 03:30:00-05:00,btc,ok,in band
+2026-12-17 03:30:00-05:00,eth,ok,in band
+2026-12-17 03:30:00-05:00,btc,skip,"trade $1.03 under $25 minimum (cash flow: cash 13.09% above 13.00%, deploying)"
+2026-12-17 03:30:00-05:00,intl_equity,skip,"trade $13.21 under $25 minimum (cash flow: cash 13.09% above 13.00%, deploying)"
+2026-12-17 03:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 04:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 04:00:00-05:00,intl_equity,ok,in band
+2026-12-17 04:00:00-05:00,btc,ok,in band
+2026-12-17 04:00:00-05:00,eth,skip,"trade $0.11 under $25 minimum (cash flow: cash 13.07% above 13.00%, deploying)"
+2026-12-17 04:00:00-05:00,intl_equity,skip,"trade $10.21 under $25 minimum (cash flow: cash 13.07% above 13.00%, deploying)"
+2026-12-17 04:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 04:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 04:30:00-05:00,intl_equity,ok,in band
+2026-12-17 04:30:00-05:00,eth,ok,in band
+2026-12-17 04:30:00-05:00,intl_equity,skip,"trade $4.83 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-17 04:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 05:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 05:00:00-05:00,intl_equity,ok,in band
+2026-12-17 05:00:00-05:00,intl_equity,skip,"trade $0.41 under $25 minimum (cash flow: cash 13.00% above 13.00%, deploying)"
+2026-12-17 05:00:00-05:00,us_large_cap,skip,"trade $2.39 under $25 minimum (cash flow: cash 13.00% above 13.00%, deploying)"
+2026-12-17 05:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 05:30:00-05:00,intl_equity,ok,in band
+2026-12-17 05:30:00-05:00,intl_equity,skip,"trade $5.61 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 05:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 06:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 06:00:00-05:00,intl_equity,ok,in band
+2026-12-17 06:00:00-05:00,btc,skip,"trade $0.05 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 06:00:00-05:00,intl_equity,skip,"trade $0.90 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 06:00:00-05:00,us_large_cap,skip,"trade $5.39 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 06:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 06:30:00-05:00,intl_equity,ok,in band
+2026-12-17 06:30:00-05:00,btc,ok,in band
+2026-12-17 12:30:00-05:00,eth,skip,"trade $0.02 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 12:30:00-05:00,btc,skip,"trade $0.41 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 12:30:00-05:00,intl_equity,skip,"trade $0.93 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 12:30:00-05:00,us_large_cap,skip,"trade $5.74 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 13:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 13:00:00-05:00,intl_equity,ok,in band
+2026-12-17 13:00:00-05:00,btc,ok,in band
+2026-12-17 13:00:00-05:00,eth,ok,in band
+2026-12-17 13:00:00-05:00,eth,skip,"trade $0.26 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 13:00:00-05:00,btc,skip,"trade $0.72 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 13:00:00-05:00,intl_equity,skip,"trade $2.02 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 13:00:00-05:00,us_large_cap,skip,"trade $12.28 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 13:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 13:30:00-05:00,intl_equity,ok,in band
+2026-12-17 13:30:00-05:00,btc,ok,in band
+2026-12-17 13:30:00-05:00,eth,ok,in band
+2026-12-17 13:30:00-05:00,eth,skip,"trade $1.70 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 13:30:00-05:00,btc,skip,"trade $3.17 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 13:30:00-05:00,intl_equity,skip,"trade $5.67 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 13:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 14:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 14:00:00-05:00,intl_equity,ok,in band
+2026-12-17 14:00:00-05:00,btc,ok,in band
+2026-12-17 14:00:00-05:00,eth,ok,in band
+2026-12-17 14:00:00-05:00,eth,skip,"trade $2.69 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-17 14:00:00-05:00,btc,skip,"trade $4.14 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-17 14:00:00-05:00,intl_equity,skip,"trade $7.29 under $25 minimum (cash flow: cash 13.06% above 13.00%, deploying)"
+2026-12-17 14:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 14:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 14:30:00-05:00,intl_equity,ok,in band
+2026-12-17 14:30:00-05:00,btc,ok,in band
+2026-12-17 14:30:00-05:00,eth,ok,in band
+2026-12-17 14:30:00-05:00,btc,skip,"trade $0.34 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 14:30:00-05:00,eth,skip,"trade $0.36 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 14:30:00-05:00,intl_equity,skip,"trade $1.76 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 14:30:00-05:00,us_large_cap,skip,"trade $10.86 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 15:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 15:00:00-05:00,intl_equity,ok,in band
+2026-12-17 15:00:00-05:00,btc,ok,in band
+2026-12-17 15:00:00-05:00,eth,ok,in band
+2026-12-17 15:00:00-05:00,eth,skip,"trade $1.78 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 15:00:00-05:00,btc,skip,"trade $2.17 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 15:00:00-05:00,intl_equity,skip,"trade $4.94 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 15:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-17 15:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 15:30:00-05:00,intl_equity,ok,in band
+2026-12-17 15:30:00-05:00,btc,ok,in band
+2026-12-17 15:30:00-05:00,eth,ok,in band
+2026-12-17 15:30:00-05:00,eth,skip,"trade $0.49 under $25 minimum (cash flow: cash 13.02% above 13.00%, deploying)"
+2026-12-17 15:30:00-05:00,btc,skip,"trade $1.09 under $25 minimum (cash flow: cash 13.02% above 13.00%, deploying)"
+2026-12-17 15:30:00-05:00,intl_equity,skip,"trade $2.46 under $25 minimum (cash flow: cash 13.02% above 13.00%, deploying)"
+2026-12-17 15:30:00-05:00,us_large_cap,skip,"trade $15.77 under $25 minimum (cash flow: cash 13.02% above 13.00%, deploying)"
+2026-12-17 16:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 16:00:00-05:00,intl_equity,ok,in band
+2026-12-17 16:00:00-05:00,btc,ok,in band
+2026-12-17 16:00:00-05:00,eth,ok,in band
+2026-12-17 16:00:00-05:00,intl_equity,skip,"trade $1.35 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying; off-hours cap 25% of $5 needed)"
+2026-12-17 16:00:00-05:00,eth,skip,"trade $2.17 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 16:00:00-05:00,btc,skip,"trade $2.63 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying)"
+2026-12-17 16:00:00-05:00,us_large_cap,skip,"trade $8.93 under $25 minimum (cash flow: cash 13.04% above 13.00%, deploying; off-hours cap 25% of $36 needed)"
+2026-12-17 16:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 16:30:00-05:00,intl_equity,ok,in band
+2026-12-17 16:30:00-05:00,btc,ok,in band
+2026-12-17 16:30:00-05:00,eth,ok,in band
+2026-12-17 16:30:00-05:00,eth,skip,"trade $1.09 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-17 16:30:00-05:00,btc,skip,"trade $1.33 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying)"
+2026-12-17 16:30:00-05:00,intl_equity,skip,"trade $1.35 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying; off-hours cap 25% of $5 needed)"
+2026-12-17 16:30:00-05:00,us_large_cap,skip,"trade $8.93 under $25 minimum (cash flow: cash 13.03% above 13.00%, deploying; off-hours cap 25% of $36 needed)"
+2026-12-17 17:00:00-05:00,us_large_cap,ok,in band
+2026-12-17 17:00:00-05:00,intl_equity,ok,in band
+2026-12-17 17:00:00-05:00,btc,ok,in band
+2026-12-17 17:00:00-05:00,eth,ok,in band
+2026-12-17 18:00:00-05:00,eth,skip,"trade $0.10 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 18:00:00-05:00,btc,skip,"trade $0.19 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 18:00:00-05:00,intl_equity,skip,"trade $0.64 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 18:00:00-05:00,us_large_cap,skip,"trade $4.28 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 18:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 18:30:00-05:00,intl_equity,ok,in band
+2026-12-17 18:30:00-05:00,btc,ok,in band
+2026-12-17 18:30:00-05:00,eth,ok,in band
+2026-12-17 23:00:00-05:00,btc,skip,"trade $0.33 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 23:00:00-05:00,eth,skip,"trade $0.38 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 23:00:00-05:00,intl_equity,skip,"trade $0.67 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 23:00:00-05:00,us_large_cap,skip,"trade $4.52 under $25 minimum (cash flow: cash 13.01% above 13.00%, deploying)"
+2026-12-17 23:30:00-05:00,us_large_cap,ok,in band
+2026-12-17 23:30:00-05:00,intl_equity,ok,in band
+2026-12-17 23:30:00-05:00,btc,ok,in band
+2026-12-17 23:30:00-05:00,eth,ok,in band

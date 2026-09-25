@@ -1,0 +1,46 @@
+name: Model portfolio rebalancer tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "End to end data science project/model-portfolio-rebalancer/**"
+      - ".github/workflows/model-portfolio-rebalancer-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/model-portfolio-rebalancer/**"
+      - ".github/workflows/model-portfolio-rebalancer-tests.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: "End to end data science project/model-portfolio-rebalancer"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/model-portfolio-rebalancer/pyproject.toml"
+
+      - name: Install project and development dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Run tests
+        run: python -m pytest
+
+      - name: Run the sample replay
+        run: python -m rebalancer.replay --out /tmp/sample_replay

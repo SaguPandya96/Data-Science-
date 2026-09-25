@@ -1,0 +1,63 @@
+ts,sleeve,action,detail
+2026-11-02 09:30:00-05:00,us_large_cap,ok,in band
+2026-11-02 09:30:00-05:00,intl_equity,ok,in band
+2026-11-02 09:30:00-05:00,btc,ok,in band
+2026-11-02 09:30:00-05:00,eth,ok,in band
+2026-12-10 00:00:00-05:00,us_large_cap,skip,trade $3.77 under $25 minimum (below band: 41.98% vs 42.00%-48.00%; off-hours cap 25% of $15 needed)
+2026-12-10 00:00:00-05:00,btc,trade,sell 0.000308 BTC-USD limit 109304 in overnight: above band: 23.03% vs 17.00%-23.00%
+2026-12-10 00:30:00-05:00,btc,trade,sell 0.001009 BTC-USD limit 110010 in overnight: above band: 23.11% vs 17.00%-23.00%
+2026-12-10 00:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 01:00:00-05:00,btc,trade,sell 0.002487 BTC-USD limit 111827 in overnight: above band: 23.28% vs 17.00%-23.00%
+2026-12-10 01:30:00-05:00,btc,trade,sell 0.001619 BTC-USD limit 113085 in overnight: above band: 23.18% vs 17.00%-23.00%
+2026-12-10 02:00:00-05:00,btc,trade,sell 0.001364 BTC-USD limit 114314 in overnight: above band: 23.15% vs 17.00%-23.00%
+2026-12-10 02:30:00-05:00,btc,trade,sell 0.000854 BTC-USD limit 115246 in overnight: above band: 23.10% vs 17.00%-23.00%
+2026-12-10 03:00:00-05:00,btc,trade,sell 0.000892 BTC-USD limit 116030 in overnight: above band: 23.10% vs 17.00%-23.00%
+2026-12-10 03:30:00-05:00,btc,trade,sell 0.001028 BTC-USD limit 116891 in overnight: above band: 23.12% vs 17.00%-23.00%
+2026-12-10 04:00:00-05:00,btc,trade,sell 0.000361 BTC-USD limit 117179 in pre: above band: 23.04% vs 17.00%-23.00%
+2026-12-10 04:30:00-05:00,btc,ok,in band
+2026-12-10 05:30:00-05:00,btc,skip,trade $7.75 under $25 minimum (above band: 23.01% vs 17.00%-23.00%)
+2026-12-10 06:00:00-05:00,btc,trade,sell 0.000906 BTC-USD limit 118332 in pre: above band: 23.10% vs 17.00%-23.00%
+2026-12-10 06:30:00-05:00,btc,skip,trade $14.39 under $25 minimum (above band: 23.01% vs 17.00%-23.00%)
+2026-12-10 07:00:00-05:00,btc,trade,sell 0.000545 BTC-USD limit 118522 in pre: above band: 23.06% vs 17.00%-23.00%
+2026-12-10 07:30:00-05:00,btc,ok,in band
+2026-12-10 08:00:00-05:00,btc,trade,sell 0.000597 BTC-USD limit 119244 in pre: above band: 23.07% vs 17.00%-23.00%
+2026-12-10 08:30:00-05:00,eth,skip,trade $8.39 under $25 minimum (above band: 12.01% vs 8.00%-12.00%)
+2026-12-10 08:30:00-05:00,btc,trade,sell 0.000637 BTC-USD limit 119586 in pre: above band: 23.07% vs 17.00%-23.00%
+2026-12-10 09:00:00-05:00,eth,trade,sell 0.01538 ETH-USD limit 4228.84 in pre: above band: 12.06% vs 8.00%-12.00%
+2026-12-10 09:00:00-05:00,btc,trade,sell 0.000334 BTC-USD limit 120021 in pre: above band: 23.04% vs 17.00%-23.00%
+2026-12-10 09:30:00-05:00,btc,trade,sell 0.000524 BTC-USD limit 120622 in regular: above band: 23.06% vs 17.00%-23.00%
+2026-12-10 09:30:00-05:00,eth,trade,sell 0.01076 ETH-USD limit 4254.41 in regular: above band: 12.04% vs 8.00%-12.00%
+2026-12-10 09:30:00-05:00,us_large_cap,trade,buy 3 VOO limit 524.71 in regular: below band: 40.45% vs 42.00%-48.00%
+2026-12-10 10:00:00-05:00,btc,ok,in band
+2026-12-10 10:00:00-05:00,eth,ok,in band
+2026-12-10 10:00:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 10:30:00-05:00,us_large_cap,skip,trade $12.37 under $25 minimum (below band: 41.99% vs 42.00%-48.00%)
+2026-12-10 11:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-10 12:00:00-05:00,us_large_cap,ok,in band
+2026-12-11 00:00:00-05:00,btc,trade,sell 0.000397 BTC-USD limit 120537 in overnight: above band: 23.05% vs 17.00%-23.00%
+2026-12-11 00:30:00-05:00,btc,ok,in band
+2026-12-11 01:30:00-05:00,btc,trade,sell 0.000438 BTC-USD limit 121260 in overnight: above band: 23.05% vs 17.00%-23.00%
+2026-12-11 02:00:00-05:00,btc,ok,in band
+2026-12-13 16:00:00-05:00,eth,trade,sell 0.01644 ETH-USD limit 4246.7 in weekend: above band: 12.07% vs 8.00%-12.00%
+2026-12-13 16:30:00-05:00,eth,trade,sell 0.02537 ETH-USD limit 4293.44 in weekend: above band: 12.11% vs 8.00%-12.00%
+2026-12-13 17:00:00-05:00,eth,ok,in band
+2026-12-13 17:30:00-05:00,eth,skip,trade $3.35 under $25 minimum (above band: 12.00% vs 8.00%-12.00%)
+2026-12-13 18:00:00-05:00,eth,trade,sell 0.00699 ETH-USD limit 4309.86 in weekend: above band: 12.03% vs 8.00%-12.00%
+2026-12-13 18:30:00-05:00,eth,ok,in band
+2026-12-13 19:00:00-05:00,eth,trade,sell 0.01187 ETH-USD limit 4328.2 in weekend: above band: 12.05% vs 8.00%-12.00%
+2026-12-13 19:30:00-05:00,eth,ok,in band
+2026-12-13 20:00:00-05:00,eth,skip,trade $4.00 under $25 minimum (above band: 12.00% vs 8.00%-12.00%)
+2026-12-13 21:00:00-05:00,eth,trade,sell 0.0239 ETH-USD limit 4367.44 in overnight: above band: 12.10% vs 8.00%-12.00%
+2026-12-13 21:30:00-05:00,eth,ok,in band
+2026-12-13 21:30:00-05:00,us_large_cap,skip,trade $6.51 under $25 minimum (below band: 41.97% vs 42.00%-48.00%; off-hours cap 25% of $26 needed)
+2026-12-13 22:00:00-05:00,us_large_cap,ok,in band
+2026-12-13 22:30:00-05:00,eth,skip,trade $9.78 under $25 minimum (above band: 12.01% vs 8.00%-12.00%)
+2026-12-13 22:30:00-05:00,us_large_cap,skip,trade $6.80 under $25 minimum (below band: 41.97% vs 42.00%-48.00%; off-hours cap 25% of $27 needed)
+2026-12-13 23:00:00-05:00,us_large_cap,ok,in band
+2026-12-13 23:00:00-05:00,eth,ok,in band
+2026-12-14 21:00:00-05:00,us_large_cap,skip,trade $14.13 under $25 minimum (below band: 41.95% vs 42.00%-48.00%; off-hours cap 25% of $57 needed)
+2026-12-14 22:00:00-05:00,eth,trade,sell 0.00627 ETH-USD limit 4378.43 in overnight: above band: 12.03% vs 8.00%-12.00%
+2026-12-14 22:30:00-05:00,eth,trade,sell 0.01188 ETH-USD limit 4411.17 in overnight: above band: 12.05% vs 8.00%-12.00%
+2026-12-14 22:30:00-05:00,us_large_cap,skip,VOO trade rounds below the minimum at lot size 1
+2026-12-14 23:00:00-05:00,us_large_cap,ok,in band
+2026-12-14 23:00:00-05:00,eth,ok,in band
