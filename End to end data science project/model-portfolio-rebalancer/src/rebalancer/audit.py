@@ -1,17 +1,25 @@
-"""In-memory audit trail: why each sleeve did what it did, every order, every alert."""
+"""Audit trail: why each sleeve did what it did, every order, every alert.
+
+Everything is kept in memory for replays and tests. Give the log a store (see store.py) and each
+entry is also written there as it happens. If a write fails, the store is dropped and the error
+kept in `store_error`; the engine halts on it rather than trade without a record.
+"""
 
 from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from typing import Protocol
+
+from .venue import Fill
 
 
 @dataclass(frozen=True)
 class Decision:
     ts: datetime
     sleeve: str
-    action: str  # trade, hold, skip, reject, halt
+    action: str  # ok, hold, skip, trade, reject, halt, cash_flow
     detail: str
 
 
@@ -32,10 +40,11 @@ class OrderRecord:
     reference_price: float
     notional: float
     reason: str
-    status: str  # placed, rejected, filled, canceled
+    status: str  # pending, placed, rejected, filled, canceled
     reject_reason: str = ""
     fill_price: float | None = None
     fee: float = 0.0
+    off_hours_window: datetime | None = None  # last regular close, for orders placed after it
 
 
 @dataclass(frozen=True)
@@ -45,12 +54,76 @@ class Alert:
     message: str
 
 
+@dataclass(frozen=True)
+class PriceSeen:
+    instrument: str
+    mid: float
+    quote_ts: datetime
+    fresh: bool
+
+
+@dataclass(frozen=True)
+class MarkSeen:
+    sleeve: str
+    value: float
+    weight: float
+    stale: bool
+
+
+@dataclass(frozen=True)
+class ReconciliationLine:
+    instrument: str
+    engine_qty: float
+    broker_qty: float
+    price: float | None
+    gap_usd: float
+
+
+class AuditStore(Protocol):
+    def cycle(
+        self,
+        ts: datetime,
+        session: str,
+        account_value: float | None,
+        halted: str | None,
+        prices: list[PriceSeen],
+        marks: list[MarkSeen],
+    ) -> None: ...
+
+    def decision(self, ts: datetime, sleeve: str, action: str, detail: str) -> None: ...
+
+    def order_created(self, record: OrderRecord) -> None: ...
+
+    def order_updated(self, record: OrderRecord, ts: datetime, detail: str) -> None: ...
+
+    def fill(self, fill: Fill, client_id: str | None) -> None: ...
+
+    def alert(self, ts: datetime, level: str, message: str) -> None: ...
+
+    def reconciliation(
+        self, ts: datetime, gap_usd: float, ok: bool, lines: list[ReconciliationLine]
+    ) -> None: ...
+
+    def halt_started(
+        self, ts: datetime, scope: str, lane: str | None, reason: str, until: datetime | None
+    ) -> None: ...
+
+    def halt_cleared(self, ts: datetime, scope: str, lane: str | None) -> None: ...
+
+    def cash_flow(self, ts: datetime, amount: float) -> None: ...
+
+
 @dataclass
 class AuditLog:
+    store: AuditStore | None = None
     decisions: list[Decision] = field(default_factory=list)
     orders: list[OrderRecord] = field(default_factory=list)
     alerts: list[Alert] = field(default_factory=list)
+    store_error: str | None = None
     _last: dict[str, tuple[str, str]] = field(default_factory=dict, repr=False)
+
+    def cycle(self, ts, session, account_value, halted, prices, marks) -> None:
+        self._write("cycle", ts, session, account_value, halted, prices, marks)
 
     def decide(
         self, ts: datetime, sleeve: str, action: str, detail: str, *, dedupe: bool = True
@@ -61,12 +134,49 @@ class AuditLog:
             return
         self._last[sleeve] = key
         self.decisions.append(Decision(ts, sleeve, action, detail))
+        self._write("decision", ts, sleeve, action, detail)
+
+    def order_created(self, record: OrderRecord) -> None:
+        self.orders.append(record)
+        self._write("order_created", record)
+
+    def order_updated(self, record: OrderRecord, ts: datetime, detail: str = "") -> None:
+        self._write("order_updated", record, ts, detail)
+
+    def fill(self, fill: Fill, client_id: str | None) -> None:
+        self._write("fill", fill, client_id)
 
     def alert(self, ts: datetime, level: str, message: str) -> None:
         self.alerts.append(Alert(ts, level, message))
+        self._write("alert", ts, level, message)
+
+    def reconciliation(self, ts, gap_usd, ok, lines) -> None:
+        self._write("reconciliation", ts, gap_usd, ok, lines)
+
+    def halt_started(self, ts, scope, lane, reason, until=None) -> None:
+        self._write("halt_started", ts, scope, lane, reason, until)
+
+    def halt_cleared(self, ts, scope, lane=None) -> None:
+        self._write("halt_cleared", ts, scope, lane)
+
+    def cash_flow(self, ts: datetime, amount: float) -> None:
+        kind = "deposit" if amount > 0 else "withdrawal"
+        self.decisions.append(Decision(ts, "cash", "cash_flow", f"{kind} of ${abs(amount):,.2f}"))
+        self._write("cash_flow", ts, amount)
 
     def rows(self, kind: str) -> list[dict]:
         return [asdict(r) for r in getattr(self, kind)]
+
+    def _write(self, method: str, *args) -> None:
+        if self.store is None:
+            return
+        try:
+            getattr(self.store, method)(*args)
+        except Exception as exc:  # any failure at all means the trail is incomplete
+            self.store = None
+            self.store_error = f"{method} failed: {type(exc).__name__}: {exc}".strip()
+            ts = args[0] if args and isinstance(args[0], datetime) else datetime.now().astimezone()
+            self.alerts.append(Alert(ts, "critical", f"audit store failed, {self.store_error}"))
 
 
 def _strip_numbers(text: str) -> str:

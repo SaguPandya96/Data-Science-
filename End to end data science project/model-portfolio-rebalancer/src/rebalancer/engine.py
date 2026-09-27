@@ -11,7 +11,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from .audit import AuditLog, OrderRecord
+from .audit import AuditLog, MarkSeen, OrderRecord, PriceSeen, ReconciliationLine
 from .models import CASH_INSTRUMENTS, Model, Sleeve
 from .risk import RiskGate, RiskLimits, round_down
 from .sessions import MarketCalendar, Session
@@ -29,6 +29,8 @@ class EngineConfig:
     fee_buffer: float = 0.005
     # Baseline for comparison: behave like a 9:30-16:00 only rebalancer.
     regular_hours_only: bool = False
+    # Prepended to client order ids, which the broker and the store both require to be unique.
+    order_prefix: str = ""
 
 
 @dataclass(frozen=True)
@@ -80,6 +82,7 @@ class Engine:
         self.gate = RiskGate(limits or RiskLimits(), calendar, instruments, self.audit)
         self.ledger: dict[str, float] = {}
         self.last_mid: dict[str, float] = {}
+        self.last_quote: dict[str, Quote] = {}
         self._open: dict[str, tuple[str, OrderRecord]] = {}  # client id -> (venue, record)
         self._seen_fills: set[str] = set()
         self._fills_since: dict[str, datetime] = {}
@@ -97,8 +100,7 @@ class Engine:
 
     def record_cash_flow(self, now: datetime, amount: float) -> None:
         self.ledger["USD"] = self.ledger.get("USD", 0.0) + amount
-        kind = "deposit" if amount > 0 else "withdrawal"
-        self.audit.decide(now, "cash", "cash_flow", f"{kind} of ${abs(amount):,.2f}", dedupe=False)
+        self.audit.cash_flow(now, amount)
 
     def snapshot(self, now: datetime) -> CycleReport:
         """Mark the portfolio without trading."""
@@ -112,9 +114,13 @@ class Engine:
         session = self.calendar.session_at(now).session
         self._settle(now)
         quotes = self._quotes(now)
-        self._reconcile(now)
+        gap, lines = self._reconcile(now)
         self.gate.crypto_buys_paused(now)  # raises and clears the drawdown alert as prices move
+        if self.audit.store_error:
+            self.gate.halt(now, f"audit store unavailable ({self.audit.store_error})")
         marks, value = self._mark(now, quotes)
+        self._record_cycle(now, session, quotes, marks, value)
+        self.audit.reconciliation(now, gap, gap <= self.gate.limits.max_reconciliation_gap, lines)
         report = CycleReport(now, session, value, marks)
         if marks is None:
             report.marks = {}
@@ -134,6 +140,14 @@ class Engine:
         self._pull_fills(now)
         return report
 
+    def _record_cycle(self, now, session, fresh, marks, value) -> None:
+        prices = [
+            PriceSeen(inst, q.mid, q.ts, inst in fresh) for inst, q in self.last_quote.items()
+        ]
+        seen = [MarkSeen(sid, m.value, m.weight, m.stale) for sid, m in (marks or {}).items()]
+        halted = self.gate.halt_reason(now)
+        self.audit.cycle(now, session.value, value if marks else None, halted, prices, seen)
+
     # --- settle and reconcile --------------------------------------------------------------
 
     def _settle(self, now: datetime) -> None:
@@ -142,6 +156,7 @@ class Engine:
         for client_id, (venue, record) in list(self._open.items()):
             if self.venues[venue].cancel(record.order_id):
                 record.status = "canceled"
+                self.audit.order_updated(record, now, "unfilled, cancelled to re-quote")
                 self.gate.release_unfilled(client_id)
                 self._release_off_hours(client_id)
                 del self._open[client_id]
@@ -161,27 +176,34 @@ class Engine:
                     self.ledger.get("USD", 0.0) - sign * fill.qty * fill.price - fill.fee
                 )
                 cid = by_order.get(fill.order_id)
+                self.audit.fill(fill, cid)
                 if cid is not None:
                     _, record = self._open.pop(cid)
                     record.status, record.fill_price, record.fee = "filled", fill.price, fill.fee
+                    self.audit.order_updated(record, fill.ts, f"filled at {fill.price:g}")
                     self.gate.forget(cid)
                     self._off_orders.pop(cid, None)
             self._fills_since[name] = now
 
-    def _reconcile(self, now: datetime) -> None:
+    def _reconcile(self, now: datetime) -> tuple[float, list[ReconciliationLine]]:
         actual = self._venue_positions()
         gap = 0.0
         worst = ""
-        for inst in set(actual) | set(self.ledger):
-            diff = abs(actual.get(inst, 0.0) - self.ledger.get(inst, 0.0))
+        lines = []
+        for inst in sorted(set(actual) | set(self.ledger)):
+            ours, theirs = self.ledger.get(inst, 0.0), actual.get(inst, 0.0)
+            diff = abs(theirs - ours)
             if diff <= _EPS:
                 continue
-            price = 1.0 if inst in CASH_INSTRUMENTS else self.last_mid.get(inst, math.inf)
-            dollars = diff * price
+            price = 1.0 if inst in CASH_INSTRUMENTS else self.last_mid.get(inst)
+            # A mismatch in something we can't price is treated as unbounded.
+            dollars = diff * price if price is not None else math.inf
             gap += dollars
-            worst = f"{inst} engine {self.ledger.get(inst, 0.0):,.6g} vs venue {actual.get(inst, 0.0):,.6g}"
+            lines.append(ReconciliationLine(inst, ours, theirs, price, dollars))
+            worst = f"{inst} engine {ours:,.6g} vs venue {theirs:,.6g}"
         if gap > self.gate.limits.max_reconciliation_gap:
             self.gate.halt(now, f"reconciliation gap ${gap:,.2f} ({worst})")
+        return gap, lines
 
     def _venue_positions(self) -> dict[str, float]:
         merged: dict[str, float] = {}
@@ -199,6 +221,7 @@ class Engine:
             if quote is None:
                 continue
             self.last_mid[inst] = quote.mid
+            self.last_quote[inst] = quote
             if quote.age(now) <= self.gate.limits.max_quote_age:
                 fresh[inst] = quote
                 self.gate.observe(inst, quote.ts, quote.mid)
@@ -444,7 +467,7 @@ class Engine:
         tif = TimeInForce.DAY if TimeInForce.DAY in status.time_in_force else TimeInForce.GTC
         reason = "; ".join(intent.reasons)
         order = Order(
-            client_id=f"{now:%Y%m%dT%H%M%S}-{intent.sleeve.id}",
+            client_id=f"{self.config.order_prefix}{now:%Y%m%dT%H%M%S}-{intent.sleeve.id}",
             instrument=inst,
             side=side,
             qty=qty,
@@ -480,11 +503,12 @@ class Engine:
             notional=order.qty * order.limit_price,
             reason=reason,
             status="rejected",
+            off_hours_window=self.calendar.last_regular_close(now) if session.off_hours else None,
         )
         if not result.approved:
             record.reject_reason = f"risk gate: {result.reason}"
-            self.audit.orders.append(record)
             self.audit.decide(now, intent.sleeve.id, "reject", record.reject_reason)
+            self.audit.order_created(record)
             return record
 
         order = result.order
@@ -495,23 +519,6 @@ class Engine:
             order.qty * order.limit_price,
             order.reason,
         )
-        ack = venue.place(order)
-        record.order_id = ack.order_id
-        if not ack.accepted:
-            record.reject_reason = f"venue: {ack.reason}"
-            self.audit.orders.append(record)
-            self.gate.record_reject(now, inst, ack.reason)
-            self.audit.decide(now, intent.sleeve.id, "reject", record.reject_reason, dedupe=False)
-            return record
-
-        record.status = "placed"
-        self.audit.orders.append(record)
-        self._open[order.client_id] = (info.venue, record)
-        self.gate.record_placed(order.client_id, now, session, record.notional)
-        if session.off_hours and info.asset_class == "equity":
-            key = (self.calendar.last_regular_close(now), intent.sleeve.id)
-            self._off_done[key] = self._off_done.get(key, 0.0) + record.notional
-            self._off_orders[order.client_id] = (key, record.notional)
         self.audit.decide(
             now,
             intent.sleeve.id,
@@ -519,6 +526,31 @@ class Engine:
             f"{side} {order.qty:g} {inst} limit {order.limit_price:g} in {session}: {order.reason}",
             dedupe=False,
         )
+        # Written before it goes out, so the broker never holds an order the store doesn't know.
+        record.status = "pending"
+        self.audit.order_created(record)
+        if self.audit.store_error:
+            record.status, record.reject_reason = "rejected", "not sent: audit store unavailable"
+            self.gate.halt(now, f"audit store unavailable ({self.audit.store_error})")
+            return record
+
+        ack = venue.place(order)
+        record.order_id = ack.order_id
+        if not ack.accepted:
+            record.status, record.reject_reason = "rejected", f"venue: {ack.reason}"
+            self.audit.order_updated(record, now, record.reject_reason)
+            self.gate.record_reject(now, inst, ack.reason)
+            self.audit.decide(now, intent.sleeve.id, "reject", record.reject_reason, dedupe=False)
+            return record
+
+        record.status = "placed"
+        self.audit.order_updated(record, now, "accepted")
+        self._open[order.client_id] = (info.venue, record)
+        self.gate.record_placed(order.client_id, now, session, record.notional)
+        if session.off_hours and info.asset_class == "equity":
+            key = (self.calendar.last_regular_close(now), intent.sleeve.id)
+            self._off_done[key] = self._off_done.get(key, 0.0) + record.notional
+            self._off_orders[order.client_id] = (key, record.notional)
         return record
 
     def _release_off_hours(self, client_id: str) -> None:

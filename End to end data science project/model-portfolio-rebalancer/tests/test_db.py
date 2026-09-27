@@ -5,24 +5,17 @@ roles; each test gets its own fresh database. Without it they skip, unless REQUI
 is set (as in CI), where a missing database is a failure.
 """
 
-import os
-import uuid
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 
 import pytest
 
 try:
-    import psycopg
     from psycopg import errors, sql
-    from psycopg.conninfo import make_conninfo
 except ImportError:  # the simulator runs without the db extra installed
-    psycopg = None
+    errors = sql = None
 
 from rebalancer.migrate import Migration, MigrationError, available, migrate, status
-
-ADMIN_DSN = os.environ.get("TEST_DATABASE_URL")
-REQUIRED = bool(os.environ.get("REQUIRE_DB_TESTS"))
 
 TABLES = {
     "model_versions",
@@ -49,31 +42,6 @@ TABLES = {
     "corporate_actions",
     "schema_migrations",
 }
-
-
-@pytest.fixture
-def db():
-    if psycopg is None or not ADMIN_DSN:
-        reason = "install the db extra and set TEST_DATABASE_URL to run database tests"
-        if REQUIRED:
-            pytest.fail(reason)
-        pytest.skip(reason)
-    name = f"rebalancer_test_{uuid.uuid4().hex[:10]}"
-    with psycopg.connect(ADMIN_DSN, autocommit=True) as admin:
-        admin.execute(sql.SQL("create database {}").format(sql.Identifier(name)))
-    conn = psycopg.connect(make_conninfo(ADMIN_DSN, dbname=name), autocommit=True)
-    try:
-        yield conn
-    finally:
-        conn.close()
-        with psycopg.connect(ADMIN_DSN, autocommit=True) as admin:
-            admin.execute(sql.SQL("drop database {} with (force)").format(sql.Identifier(name)))
-
-
-@pytest.fixture
-def schema(db):
-    migrate(db)
-    return db
 
 
 @contextmanager
@@ -129,7 +97,7 @@ def test_migration_files_are_numbered_from_one():
 
 
 def test_migrate_creates_every_table(db):
-    assert [m.version for m in migrate(db)] == [1]
+    assert [m.version for m in migrate(db)] == [m.version for m in available()]
     tables = {
         r[0] for r in db.execute("select tablename from pg_tables where schemaname = 'public'")
     }
@@ -149,11 +117,17 @@ def test_an_applied_migration_that_changed_is_refused(schema):
 
 
 def test_a_failed_migration_leaves_nothing_behind(schema):
-    broken = Migration(2, "broken", "create table half_done (id int); select * from missing_table;")
+    broken = Migration(
+        len(available()) + 1,
+        "broken",
+        "create table half_done (id int); select * from missing_table;",
+    )
     with pytest.raises(errors.UndefinedTable):
         migrate(schema, available() + [broken])
     assert schema.execute("select to_regclass('half_done')").fetchone()[0] is None
-    assert schema.execute("select max(version) from schema_migrations").fetchone()[0] == 1
+    assert schema.execute("select max(version) from schema_migrations").fetchone()[0] == len(
+        available()
+    )
 
 
 def test_runner_needs_autocommit(db):

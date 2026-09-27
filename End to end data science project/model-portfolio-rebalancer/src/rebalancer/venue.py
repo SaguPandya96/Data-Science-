@@ -29,6 +29,7 @@ class InstrumentInfo:
     venue: str
     asset_class: Literal["equity", "crypto"]
     lot_size: float
+    broker_symbol: str | None = None  # when the broker spells it differently, e.g. BTC/USD
 
 
 @dataclass(frozen=True)

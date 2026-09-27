@@ -75,6 +75,7 @@ class SimVenue:
         calendar: MarketCalendar,
         *,
         fee_bps: dict[str, float] | None = None,
+        id_prefix: str = "",
     ):
         self.name = name
         self.instruments = dict(instruments)
@@ -86,6 +87,9 @@ class SimVenue:
         self._resting: dict[str, _Resting] = {}
         self._fills: list[Fill] = []
         self._ids = itertools.count(1)
+        # Real broker ids are unique forever. A prefix keeps simulated ones from colliding when
+        # several replays write to the same database.
+        self.id_prefix = id_prefix
         self._forced_rejects: list[tuple[str, str | None]] = []
 
     # --- test and replay hooks -------------------------------------------------------------
@@ -159,7 +163,7 @@ class SimVenue:
         elif order.qty > self.account.holdings.get(order.instrument, 0.0) + 1e-12:
             return OrderAck(None, False, "insufficient position")
 
-        order_id = f"{self.name}-{next(self._ids)}"
+        order_id = f"{self.name}-{self.id_prefix}{next(self._ids)}"
         order.venue_id = order_id
         if not self._try_fill(order_id, order):
             if order.time_in_force is TimeInForce.IOC:

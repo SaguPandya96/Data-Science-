@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 from collections import deque
 from dataclasses import dataclass, field, replace
-from datetime import date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 from .audit import AuditLog
 from .sessions import ET, MarketCalendar, Session
@@ -72,9 +72,12 @@ class RiskGate:
         if self.halted is None:
             self.halted = reason
             self.audit.alert(now, "critical", f"trading halted: {reason}")
+            self.audit.halt_started(now, "global", None, reason)
 
-    def clear_halt(self) -> None:
-        self.halted = None
+    def clear_halt(self, now: datetime | None = None) -> None:
+        if self.halted is not None:
+            self.halted = None
+            self.audit.halt_cleared(now or datetime.now(UTC), "global")
 
     def halt_reason(self, now: datetime) -> str | None:
         if self.halted:
@@ -96,10 +99,12 @@ class RiskGate:
         if lane not in self.lane_halts:
             self.lane_halts[lane] = reason
             self.audit.alert(now, "critical", f"{lane} halted: {reason}")
+            self.audit.halt_started(now, "lane", lane, reason)
 
-    def clear_lane(self, lane: str) -> None:
-        self.lane_halts.pop(lane, None)
+    def clear_lane(self, lane: str, now: datetime | None = None) -> None:
         self._rejects.pop(lane, None)
+        if self.lane_halts.pop(lane, None) is not None:
+            self.audit.halt_cleared(now or datetime.now(UTC), "lane", lane)
 
     def record_reject(self, now: datetime, instrument: str, reason: str) -> None:
         lane = self.lane(instrument)
@@ -257,11 +262,9 @@ class RiskGate:
         until = datetime.combine(tomorrow, time(0, 0), tzinfo=ET)
         if self.halted_until != until:
             self.halted_until = until
-            self.audit.alert(
-                now,
-                "critical",
-                f"daily turnover limit reached; halted until {until:%a %b %d %H:%M} ET",
-            )
+            message = f"daily turnover limit reached; halted until {until:%a %b %d %H:%M} ET"
+            self.audit.alert(now, "critical", message)
+            self.audit.halt_started(now, "daily", None, "daily turnover limit reached", until)
 
 
 def round_down(qty: float, lot: float) -> float:

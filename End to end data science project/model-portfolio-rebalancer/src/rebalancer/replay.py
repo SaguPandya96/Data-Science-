@@ -35,8 +35,8 @@ PriceSteps = list[tuple[datetime, dict[str, float]]]
 DEFAULT_INSTRUMENTS = {
     "VOO": InstrumentInfo("alpaca", "equity", 1e-6),
     "VXUS": InstrumentInfo("alpaca", "equity", 1e-6),
-    "BTC-USD": InstrumentInfo("alpaca", "crypto", 1e-6),
-    "ETH-USD": InstrumentInfo("alpaca", "crypto", 1e-5),
+    "BTC-USD": InstrumentInfo("alpaca", "crypto", 1e-6, "BTC/USD"),
+    "ETH-USD": InstrumentInfo("alpaca", "crypto", 1e-5, "ETH/USD"),
 }
 # Equity trades are commission-free. Crypto pays Alpaca's taker fee, since the engine's limits
 # cross the spread; 25 bps is the lowest-volume tier as I read the schedule.
@@ -79,6 +79,7 @@ def build_world(
     limits: RiskLimits | None = None,
     config: EngineConfig | None = None,
     price_times: dict[str, datetime] | None = None,
+    audit: AuditLog | None = None,
 ) -> World:
     """Fund an account at the model's targets (or the given weights) and start an engine on it."""
     instruments = instruments or DEFAULT_INSTRUMENTS
@@ -92,7 +93,12 @@ def build_world(
             f"the simulator models a single broker account, got venues {sorted(names)}"
         )
     (name,) = names
-    venues = {name: SimVenue(name, instruments, clock, account, calendar, fee_bps=FEE_BPS)}
+    prefix = config.order_prefix if config else ""
+    venues = {
+        name: SimVenue(
+            name, instruments, clock, account, calendar, fee_bps=FEE_BPS, id_prefix=prefix
+        )
+    }
     price_times = price_times or {}
     for inst, price in prices.items():
         if inst in instruments:
@@ -106,7 +112,7 @@ def build_world(
         account.holdings[inst] = qty
         account.cash -= qty * prices[inst]
 
-    audit = AuditLog()
+    audit = audit or AuditLog()
     engine = Engine(model, venues, instruments, calendar, limits=limits, config=config, audit=audit)
     engine.start(start)
     return World(model, clock, account, venues, engine, instruments)
@@ -135,6 +141,7 @@ def run_replay(
     weights: dict[str, float] | None = None,
     events: dict[datetime, Callable[[World], None]] | None = None,
     label: str = "engine",
+    audit: AuditLog | None = None,
 ) -> ReplayResult:
     calendar = calendar or MarketCalendar()
     needed = {i for s in model.invested for i in s.all_instruments}
@@ -160,6 +167,7 @@ def run_replay(
         limits=limits,
         config=config,
         price_times={k: t for k, (t, _) in seen.items()},
+        audit=audit,
     )
     events = events or {}
     rows = []
@@ -287,6 +295,21 @@ def comparison_table(results: Iterable[ReplayResult]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _recording(dsn: str, model: Model) -> tuple[AuditLog, EngineConfig]:
+    import uuid
+
+    import psycopg
+
+    from .store import Account, PostgresStore
+
+    run = uuid.uuid4().hex[:8]
+    name = f"replay-{model.name}-{run}"
+    conn = psycopg.connect(dsn, autocommit=True)
+    store = PostgresStore.open(conn, model, DEFAULT_INSTRUMENTS, account=Account(name, name))
+    print(f"recording {model.name} as account {name}")
+    return AuditLog(store=store), EngineConfig(order_prefix=f"{run}-")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument(
@@ -296,6 +319,10 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--prices", type=Path, help="price CSV (default: the scripted sample)")
     parser.add_argument("--value", type=float, default=100_000.0)
     parser.add_argument("--out", type=Path, default=Path("reports/sample_replay"))
+    parser.add_argument(
+        "--dsn",
+        help="also record each model's 24/7 run in this Postgres database, as a paper account",
+    )
     args = parser.parse_args(argv)
 
     models = [load_model(args.model)] if args.model else list(load_models(args.models_dir).values())
@@ -303,8 +330,19 @@ def main(argv: list[str] | None = None) -> None:
     calendar = MarketCalendar()
     results = []
     for model in models:
+        audit, config = None, None
+        if args.dsn:
+            audit, config = _recording(args.dsn, model)
         runs = [
-            run_replay(model, steps, value=args.value, calendar=calendar, label="24/7 engine"),
+            run_replay(
+                model,
+                steps,
+                value=args.value,
+                calendar=calendar,
+                label="24/7 engine",
+                audit=audit,
+                config=config,
+            ),
             run_replay(
                 model,
                 steps,

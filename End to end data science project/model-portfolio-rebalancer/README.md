@@ -185,6 +185,29 @@ python -m rebalancer.migrate status
   over a year when selling at a gain. Whether the wash-sale rule applies to crypto is a
   question for a tax professional; the schema can record wash-sale adjustments either way.
 
+**Recording.** Give the engine an audit log with a store and it writes as it goes:
+
+```python
+conn = psycopg.connect(dsn, autocommit=True)
+store = PostgresStore.open(conn, model, instruments, account=Account("main", "PA123"))
+engine = Engine(model, venues, instruments, calendar, audit=AuditLog(store=store))
+```
+
+- **Every cycle** gets a row, with the prices it used, the sleeve marks, a reconciliation
+  against the broker, and the decisions it made.
+- **Orders are written as `pending` before they go to the broker.** The broker never holds
+  an order the database doesn't know about. Each status change then becomes an order
+  event, and fills link back to their order.
+- **Halts** are written when they start and when they clear. Alerts and cash flows are
+  recorded too.
+- **If a write fails,** the engine stops writing and halts trading. It never sends an
+  order it couldn't record.
+- **Opening a store** records the model version and refuses a model file that changed
+  without a version bump.
+
+`python -m rebalancer.replay --dsn ...` records each model's 24/7 run as its own paper
+account. Recording all three sample runs, 2,230 cycles each, takes about 20 seconds.
+
 The database tests create a throwaway database for each test. Point `TEST_DATABASE_URL` at a
 server where the user can create databases and roles; without it those tests are skipped.
 
@@ -203,6 +226,7 @@ src/rebalancer/
   replay.py              replay harness and command line
   scenarios.py           scripted price paths
   migrate.py             migration runner
+  store.py               writes the audit trail to Postgres
   migrations/            numbered SQL schema files
 tests/
 reports/sample_replay/   output of the sample replay
@@ -220,8 +244,9 @@ reports/sample_replay/   output of the sample replay
 - Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
   sizes are placeholders. The live version should read both, with minimum order sizes, from
   the broker's asset list.
-- The schema exists, but the engine doesn't write to it yet. A replay keeps its audit trail
-  in memory and writes CSVs.
+- The engine writes to Postgres but doesn't read back from it yet. After a restart it starts
+  with no memory of open orders, turnover used, or halts. It also doesn't yet obey a halt
+  inserted by the dashboard or the watchdog. Restart recovery is the next piece.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,
   tax-lot selection and wash-sale checks, the watchdog, and the dashboard.
