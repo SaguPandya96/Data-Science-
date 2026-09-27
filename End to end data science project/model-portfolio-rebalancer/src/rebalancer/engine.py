@@ -220,7 +220,12 @@ class Engine:
 
     # --- settle and reconcile --------------------------------------------------------------
 
-    def _settle(self, now: datetime) -> None:
+    def stand_down(self, now: datetime) -> None:
+        """Record any last fills and cancel what's resting, so nothing is left at the broker
+        unattended when the engine stops."""
+        self._settle(now, why="engine stopping")
+
+    def _settle(self, now: datetime, why: str = "re-quote") -> None:
         self._pull_fills(now)
         # Unfilled limits are cancelled and re-quoted from fresh prices this cycle.
         for client_id, (venue, record) in list(self._open.items()):
@@ -228,9 +233,9 @@ class Engine:
                 record.status = "canceled"
                 unfilled = 1 - record.filled_qty / record.qty
                 if record.filled_qty > 0:
-                    detail = f"rest cancelled to re-quote after {record.filled_qty:g} of {record.qty:g} filled"
+                    detail = f"rest cancelled ({why}) after {record.filled_qty:g} of {record.qty:g} filled"
                 else:
-                    detail = "unfilled, cancelled to re-quote"
+                    detail = f"unfilled, cancelled ({why})"
                 self.audit.order_updated(record, now, detail)
                 # Only the part that never traded is given back to the budgets.
                 self.gate.release_unfilled(client_id, unfilled)
