@@ -1,14 +1,14 @@
 # Working in this repo
 
-Notes for anyone changing this repository, including AI coding assistants. I build these
-projects with AI help, and this file says how I want that help to work.
+Notes for anyone changing this repository: how the projects are laid out, how the analysis
+should work, and what a change needs before it merges.
 
 ## Who decides what
 
 I choose the questions, decide what gets tested and what counts as a result, and review
-every change before it merges. An assistant can propose methods, write code and draft
-docs, but it should flag decisions rather than make them quietly: a changed metric, a new
-threshold, a result that looks too good, anything that would change a conclusion in a
+every change before it merges. Anyone contributing can propose methods, write code and
+draft docs, but should flag decisions rather than make them quietly: a changed metric, a
+new threshold, a result that looks too good, anything that would change a conclusion in a
 README.
 
 ## Layout
