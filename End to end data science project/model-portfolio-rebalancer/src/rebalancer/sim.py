@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from .sessions import MarketCalendar, Session
+from .settlement import SettlementBook
 from .venue import (
     Fill,
     InstrumentInfo,
@@ -54,10 +55,15 @@ class SimClock:
 
 @dataclass
 class SimAccount:
-    """The broker account: one cash balance behind both equities and crypto."""
+    """The broker account: one cash balance behind both equities and crypto. With a settlement
+    book it's a cash account, and buys can only use settled cash."""
 
     cash: float
     holdings: dict[str, float] = field(default_factory=dict)
+    settlement: SettlementBook | None = None
+
+    def settled_cash(self, now: datetime) -> float:
+        return self.cash - (self.settlement.unsettled(now) if self.settlement else 0.0)
 
 
 @dataclass
@@ -176,8 +182,11 @@ class SimVenue:
             return OrderAck(None, False, "no quote")
         if order.side is Side.BUY:
             price = order.limit_price if order.order_type is OrderType.LIMIT else quote.ask
-            if order.qty * price * (1 + self._fee(order.instrument)) > self.account.cash + 1e-9:
+            cost = order.qty * price * (1 + self._fee(order.instrument))
+            if cost > self.account.cash + 1e-9:
                 return OrderAck(None, False, "insufficient cash")
+            if cost > self.account.settled_cash(self.clock.now) + 1e-9:
+                return OrderAck(None, False, "insufficient settled cash")
         elif order.qty > self.account.holdings.get(order.instrument, 0.0) + 1e-12:
             return OrderAck(None, False, "insufficient position")
 
@@ -236,6 +245,9 @@ class SimVenue:
         self.account.holdings[order.instrument] = (
             self.account.holdings.get(order.instrument, 0.0) + sign * qty
         )
+        if order.side is Side.SELL and self.account.settlement is not None:
+            asset_class = self.instruments[order.instrument].asset_class
+            self.account.settlement.record_sale(self.clock.now, asset_class, qty * price - fee)
         self._fills.append(
             Fill(
                 f"{resting.order_id}-f{resting.fills}",

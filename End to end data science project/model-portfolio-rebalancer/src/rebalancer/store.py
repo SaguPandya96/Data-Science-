@@ -421,6 +421,17 @@ class PostgresStore:
                     (account, state.last_cycle - timedelta(days=1)),
                 )
             }
+        # Sales from the last ten days cover any proceeds that can still be settling.
+        state.recent_sales = [
+            (ts, asset_class, float(net))
+            for ts, asset_class, net in conn.execute(
+                """select f.ts, i.asset_class::text, f.qty * f.price - f.fee
+                   from fills f join instruments i on i.symbol = f.instrument
+                   where f.account_id = %s and f.side = 'sell' and f.ts >= %s
+                   order by f.ts""",
+                (account, now - timedelta(days=10)),
+            )
+        ]
         # A day of fresh prices is enough to rebuild the crypto drawdown check.
         state.prices = [
             (inst, ts, float(mid))

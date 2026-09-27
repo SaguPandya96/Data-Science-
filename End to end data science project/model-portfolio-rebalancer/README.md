@@ -44,6 +44,16 @@ rules.
   Equity trades outside the regular session are also capped at 25% of the rebalance needed
   that night. The rest waits for the open. Trades under $25 are skipped, and buys never take
   cash below the 2% floor.
+- **Settlement.** The accounts are cash accounts, so buys only spend settled cash.
+  - Equity sale proceeds settle one trading day after the trade date. A trade in the
+    overnight session counts toward the next trading day, so a Tuesday 23:00 sale settles
+    Thursday.
+  - Until then the proceeds count toward the cash weight but can't be spent. Money from
+    selling VOO on Tuesday reaches BTC on Wednesday.
+  - Never spending unsettled cash also rules out good-faith violations: nothing is ever
+    bought with money that could be sold before it settles.
+  - Crypto sale proceeds are treated as available at once. `EngineConfig.settlement_days`
+    changes either rule.
 - **The replay harness** feeds a price history through the engine, one cycle per timestamp.
   It writes every order, decision and alert to CSV.
 
@@ -263,10 +273,13 @@ reports/sample_replay/   output of the sample replay
   in full: its book has no depth limit and no queue. Tests use `set_depth` to fill orders in
   pieces, but the sample doesn't. Real overnight and weekend books are thin, so fills there
   will be worse and more of them will be partial.
-- Cash is treated as available the moment a sale fills. In a cash account, equity sales
-  settle the next business day. Buying with unsettled cash is allowed, but selling what it
-  bought before settlement is a good-faith violation. The live version should read settled
-  cash from the broker.
+- Settlement is modelled by the engine from its own fills, not read from the broker.
+  - The live adapter should check the engine's figure against the settled cash Alpaca
+    reports.
+  - I haven't confirmed that Alpaca makes crypto sale proceeds available at once.
+  - Proceeds count as settled from midnight ET on the settlement date.
+  - The sample replay never sells equities, so settlement never binds there. It's covered by
+    the tests in `test_settlement.py`.
 - Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
   sizes are placeholders. The live version should read both, with minimum order sizes, from
   the broker's asset list.

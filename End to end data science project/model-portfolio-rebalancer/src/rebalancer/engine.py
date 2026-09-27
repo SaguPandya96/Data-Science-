@@ -15,6 +15,7 @@ from .audit import AuditLog, MarkSeen, OrderRecord, PriceSeen, ReconciliationLin
 from .models import CASH_INSTRUMENTS, Model, Sleeve
 from .risk import RiskGate, RiskLimits, round_down
 from .sessions import MarketCalendar, Session
+from .settlement import DEFAULT_SETTLEMENT_DAYS, SettlementBook
 from .venue import Fill, InstrumentInfo, Order, OrderType, Quote, Side, TimeInForce, Venue
 
 _EPS = 1e-9
@@ -31,6 +32,8 @@ class EngineConfig:
     regular_hours_only: bool = False
     # Prepended to client order ids, which the broker and the store both require to be unique.
     order_prefix: str = ""
+    # Trading days until sale proceeds can be spent, by asset class (cash account rules).
+    settlement_days: dict[str, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -48,6 +51,7 @@ class CycleReport:
     marks: dict[str, SleeveMark]
     orders: list[OrderRecord] = field(default_factory=list)
     halted: str | None = None
+    unsettled: float = 0.0
 
 
 @dataclass
@@ -80,6 +84,9 @@ class Engine:
         self.config = config or EngineConfig()
         self.audit = audit or AuditLog()
         self.gate = RiskGate(limits or RiskLimits(), calendar, instruments, self.audit)
+        self.settlement = SettlementBook(
+            calendar, dict(self.config.settlement_days or DEFAULT_SETTLEMENT_DAYS)
+        )
         self.ledger: dict[str, float] = {}
         self.last_mid: dict[str, float] = {}
         self.last_quote: dict[str, Quote] = {}
@@ -121,6 +128,8 @@ class Engine:
         self._off_need.update(state.off_hours_needs)
         self._off_done.update(state.off_hours_done)
         self._seen_fills |= state.seen_fills
+        for ts, asset_class, amount in state.recent_sales:
+            self.settlement.record_sale(ts, asset_class, amount)
         resumed, abandoned = 0, 0
         for record in state.open_orders:
             counted = True
@@ -182,7 +191,7 @@ class Engine:
         marks, value = self._mark(now, quotes)
         self._record_cycle(now, session, quotes, marks, value)
         self.audit.reconciliation(now, gap, gap <= self.gate.limits.max_reconciliation_gap, lines)
-        report = CycleReport(now, session, value, marks)
+        report = CycleReport(now, session, value, marks, unsettled=self.settlement.unsettled(now))
         if marks is None:
             report.marks = {}
             return report
@@ -235,6 +244,14 @@ class Engine:
                 if fill.fill_id in self._seen_fills:
                     continue
                 self._seen_fills.add(fill.fill_id)
+                if fill.side is Side.SELL:
+                    # Tracked even for fills made while the engine was down: the broker's cash
+                    # includes them, but they may not have settled yet.
+                    self.settlement.record_sale(
+                        fill.ts,
+                        self.instruments[fill.instrument].asset_class,
+                        fill.qty * fill.price - fill.fee,
+                    )
                 if apply:
                     sign = 1 if fill.side is Side.BUY else -1
                     self.ledger[fill.instrument] = (
@@ -483,18 +500,23 @@ class Engine:
                 intent.delta = math.copysign(max_order, intent.delta)
                 intent.reasons.append(f"capped at {limits.max_order_pct:.0%} single-order limit")
 
-        # Buys only spend cash that is already there; sale proceeds wait for the fill.
+        # Buys only spend settled cash that is already there, above the floor. Proceeds of sales
+        # this cycle wait for the fill, and equity proceeds then wait for settlement.
         cash = marks[self.model.cash.id].value
-        spendable = max(cash - self.model.cash_floor * value, 0.0)
+        unsettled = self.settlement.unsettled(now)
+        above_floor = cash - self.model.cash_floor * value
+        spendable = max(min(above_floor, cash - unsettled), 0.0)
         wanted = sum(i.delta for i in intents if i.delta > 0) * (1 + self.config.fee_buffer)
         if wanted > spendable + _EPS:
             scale = spendable / wanted
+            if cash - unsettled < above_floor:
+                why = f"settled cash (${unsettled:,.0f} of sale proceeds not settled yet)"
+            else:
+                why = f"available cash above the {self.model.cash_floor:.0%} floor"
             for intent in intents:
                 if intent.delta > 0:
                     intent.delta *= scale
-                    intent.reasons.append(
-                        f"scaled to {scale:.0%} by available cash above the {self.model.cash_floor:.0%} floor"
-                    )
+                    intent.reasons.append(f"scaled to {scale:.0%} by {why}")
 
         if session.off_hours:
             room, budget = self.gate.turnover_room(now, session, value)

@@ -206,6 +206,8 @@ def test_sample_replay_respects_every_rule(model_name, request, sample_steps, ca
     assert snaps[f"w_{model.cash.id}"].min() >= model.cash_floor
 
     values = snaps.set_index("ts")["value"]
+    # Nothing is rejected, by the gate or by the broker's settled-cash rule.
+    assert (orders["status"] != "rejected").all()
     live = orders[orders["status"] != "rejected"]
     assert (live["order_type"] == "limit").all()
     assert ((live["limit_price"] / live["reference_price"] - 1).abs() <= 0.02).all()

@@ -120,6 +120,25 @@ class MarketCalendar:
             prev_end = seg.end
         raise ValueError(f"no session information after {ts}")
 
+    def trade_date(self, ts: datetime) -> date | None:
+        """The trading day an equity trade at ts belongs to. The overnight session counts toward
+        the day it leads into, so a Tuesday 23:00 trade is a Wednesday trade."""
+        window = self.session_at(ts)
+        if window.session is Session.OVERNIGHT:
+            return window.end.astimezone(ET).date()
+        if window.session.equities_open:
+            return window.start.astimezone(ET).date()
+        return None
+
+    def settlement_date(self, trade_date: date, days: int) -> date:
+        """`days` trading days after the trade date: T+1 for US equities."""
+        d = trade_date
+        for _ in range(days):
+            d += timedelta(days=1)
+            while not self.is_trading_day(d):
+                d += timedelta(days=1)
+        return d
+
     def last_regular_close(self, ts: datetime) -> datetime:
         """End of the most recent regular session that finished at or before ts."""
         ts = _as_utc(ts)

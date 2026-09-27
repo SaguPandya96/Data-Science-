@@ -25,6 +25,7 @@ from .models import Model, load_model, load_models
 from .risk import RiskLimits
 from .scenarios import generate_prices
 from .sessions import MarketCalendar
+from .settlement import DEFAULT_SETTLEMENT_DAYS, SettlementBook
 from .sim import SimAccount, SimClock, SimVenue
 from .venue import InstrumentInfo
 
@@ -86,7 +87,8 @@ def build_world(
     calendar = calendar or MarketCalendar()
     weights = weights or {s.id: s.target for s in model.sleeves}
     clock = SimClock(start)
-    account = SimAccount(cash=value)
+    days = (config.settlement_days if config else None) or DEFAULT_SETTLEMENT_DAYS
+    account = SimAccount(cash=value, settlement=SettlementBook(calendar, dict(days)))
     names = {info.venue for info in instruments.values()}
     if len(names) != 1:
         raise ValueError(
@@ -184,6 +186,7 @@ def run_replay(
             "session": report.session.value,
             "value": report.account_value,
             "halted": report.halted or "",
+            "unsettled": report.unsettled,
         }
         for sid, mark in report.marks.items():
             row[f"w_{sid}"] = mark.weight

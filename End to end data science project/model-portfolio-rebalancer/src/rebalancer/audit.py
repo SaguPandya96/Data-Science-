@@ -102,6 +102,7 @@ class RecoveredState:
     halts: list[HaltRow] = field(default_factory=list)
     prices: list[tuple[str, datetime, float]] = field(default_factory=list)
     seen_fills: set[str] = field(default_factory=set)  # fill ids already recorded
+    recent_sales: list[tuple[datetime, str, float]] = field(default_factory=list)  # ts, class, net
 
 
 class AuditStore(Protocol):
