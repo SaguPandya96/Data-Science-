@@ -5,16 +5,16 @@
   "end": "2026-12-18T20:00:00-05:00",
   "cycles": 2230,
   "start_value": 100000.0,
-  "end_value": 97545.52,
+  "end_value": 97540.57,
   "sleeves": {
     "us_large_cap": {
       "target": 0.6,
-      "max_abs_drift_pp": 2.26,
+      "max_abs_drift_pp": 2.18,
       "share_of_time_outside_band": 0.0
     },
     "intl_equity": {
       "target": 0.2,
-      "max_abs_drift_pp": 1.37,
+      "max_abs_drift_pp": 1.36,
       "share_of_time_outside_band": 0.0
     },
     "btc": {
@@ -29,11 +29,11 @@
     },
     "cash": {
       "target": 0.1,
-      "max_abs_drift_pp": 1.18,
+      "max_abs_drift_pp": 1.08,
       "share_of_time_outside_band": 0.0
     }
   },
-  "min_cash_weight": 0.0984,
+  "min_cash_weight": 0.0975,
   "orders": {
     "placed": 12,
     "filled": 12,
@@ -45,7 +45,7 @@
     }
   },
   "filled_turnover_pct_of_start": 0.48,
-  "fees": 0.48,
+  "fees": 1.2,
   "alerts": 2,
   "halted_cycles": 0
 }

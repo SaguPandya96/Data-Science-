@@ -6,8 +6,10 @@ the weekend's news. Nobody should have to wait for Monday 9:30. This project is 
 that. It holds a few model portfolios, watches prices, and trades only the parts of the
 portfolio whose market is open, in small limit orders, inside hard risk limits.
 
-This is phase 1, a simulator. It doesn't connect to a broker or exchange and uses no API keys.
-Orders go to simulated venues that follow the real session rules.
+This is phase 1, a simulator. It doesn't connect to a broker and uses no API keys. Everything
+will run through one Alpaca account, equities and crypto together against one cash balance. For
+now, orders go to a simulated version of that account that follows the real session and order
+rules.
 
 ## What it does
 
@@ -36,7 +38,7 @@ Orders go to simulated venues that follow the real session rules.
   | Quote age | 60 seconds | skip the sleeve this cycle |
   | BTC or ETH drawdown | 15% below its 24-hour high | pause crypto buys, alert |
   | Reconciliation | engine vs venue off by more than $10 | halt everything, alert |
-  | Venue rejects | 3 in 10 minutes | halt that venue, alert |
+  | Broker rejects | 3 in 10 minutes | halt the venue, alert |
   | Order type | no market orders outside the regular session | reject |
 
   Equity trades outside the regular session are also capped at 25% of the rebalance needed
@@ -81,36 +83,40 @@ regular session, and no rebalancing at all.
 
 | Model | Run | Time any sleeve out of band | Orders filled | Turnover | Fees |
 |---|---|---:|---:|---:|---:|
-| Core 24/7 | 24/7 engine | 0.9% | 12 | 0.5% | $0.48 |
-| Core 24/7 | regular hours only | 0.9% | 1 | 0.4% | $0.43 |
+| Core 24/7 | 24/7 engine | 0.9% | 12 | 0.5% | $1.20 |
+| Core 24/7 | regular hours only | 0.9% | 1 | 0.4% | $1.08 |
 | Core 24/7 | no rebalancing | 12.6% | 0 | 0% | $0 |
-| Growth 24/7 | 24/7 engine | 1.8% | 27 | 3.8% | $2.21 |
-| Growth 24/7 | regular hours only | 3.9% | 6 | 3.5% | $1.96 |
-| Growth 24/7 | no rebalancing | 15.5% | 0 | 0% | $0 |
-| Crypto-tilt | 24/7 engine | 11.5% | 88 | 9.0% | $7.61 |
-| Crypto-tilt | regular hours only | 14.8% | 24 | 6.0% | $4.87 |
+| Growth 24/7 | 24/7 engine | 1.7% | 34 | 3.6% | $5.54 |
+| Growth 24/7 | regular hours only | 3.8% | 6 | 3.4% | $4.92 |
+| Growth 24/7 | no rebalancing | 15.1% | 0 | 0% | $0 |
+| Crypto-tilt | 24/7 engine | 5.7% | 94 | 8.7% | $18.28 |
+| Crypto-tilt | regular hours only | 12.0% | 18 | 5.8% | $11.71 |
 | Crypto-tilt | no rebalancing | 32.3% | 0 | 0% | $0 |
+
+Fees are Alpaca's crypto taker fee at its lowest volume tier (25 bps, from my reading of the
+schedule). Equity trades are commission-free.
 
 The full table, with end values and worst drift, is in
 [`comparison.md`](reports/sample_replay/comparison.md).
 
-- **Trading around the clock cuts time out of band,** by about half for Growth and a fifth
-  for Crypto-tilt compared with waiting for the regular session. The cost is more orders and
-  a bit more turnover. For Core, with wide bands and little crypto, it makes no difference.
+- **Trading around the clock cuts time out of band by about half** for Growth and
+  Crypto-tilt compared with waiting for the regular session. The cost is more orders, more
+  turnover, and higher crypto fees ($18 against $12 for Crypto-tilt over seven weeks). For
+  Core, with wide bands and little crypto, it makes no difference.
 - **The crash weekend worked as intended.** Crypto buys paused at 06:30 Saturday, when ETH
   was 16% below its 24-hour high. They resumed Sunday 06:00, and Crypto-tilt then bought
   crypto back within the weekend's 5% budget. No equity order was sent while equities were
-  closed. No run hit a halt, and cash never went below 9% (the floor is 2%).
+  closed. No run hit a halt, and cash never went below 8.9% (the floor is 2%).
 - **Trading only to the band edge makes a lot of small trades in a trend.** During the
-  overnight rally into December 10, Growth sold BTC 14 times between midnight and the 9:30 open,
-  $34 to $278 each. After each trade the sleeve sits right on the edge, so the next move
+  overnight rally into December 10, Growth sold BTC 14 times between midnight and the 9:30
+  open, $37 to $278 each. After each trade the sleeve sits right on the edge, so the next move
   pushes it back out. It's cheap here but noisy. A wider no-trade zone or trading partway to
   target would cut it, and I haven't changed anything yet.
-- **Worst drift barely moves between runs** (4.9 against 4.8 points for Crypto-tilt, 4.6
-  against 4.6 for Growth). In both it's US large cap at the 9:30 open on December 10. The
-  overnight crypto rally left it underweight, and the overnight equity trade was capped at
-  25% of the need and then rounded down to zero whole VOO shares, so it waited for the open.
-  24/7 trading only helps equities as much as the overnight cap and share size allow.
+- **The overnight cap limits how much equities can catch up.** The same rally left US large
+  cap underweight. Fractional shares let the engine buy VOO overnight and pre-market, but
+  only $31 to $55 at a time under the 25% cap. Most of the gap waited for a $1,142 buy at the
+  9:30 open. Worst drift for Growth was 4.1 points, against 4.6 when trading only in regular
+  hours. For Crypto-tilt it was 4.5 against 4.6.
 
 ## Adding a model
 
@@ -157,7 +163,7 @@ src/rebalancer/
   engine.py              the rebalancing loop
   risk.py                risk gate and halts
   venue.py               adapter interface shared by every venue
-  sim.py                 simulated venues
+  sim.py                 simulated broker account
   audit.py               decisions, orders and alerts
   replay.py              replay harness and command line
   scenarios.py           scripted price paths
@@ -167,14 +173,18 @@ reports/sample_replay/   output of the sample replay
 
 ## Limits of this version
 
-- The simulated venues fill any limit order that crosses the quote, in full. There's no
+- The simulated broker fills any limit order that crosses the quote, in full. There's no
   order book depth, no partial fills and no queue. Real overnight and weekend books are
   thin, so fills there will be worse.
-- One cash balance is shared across venues, as if equities and crypto sat with one broker.
-  With a separate crypto exchange, cash would be split and moving it takes days.
-- Equities trade in whole shares. On a $100,000 account, a quarter of a small overnight
-  shortfall is often less than one VOO share, so the overnight trade rounds to nothing and
-  waits for the open.
+- Cash is treated as available the moment a sale fills. In a cash account, equity sales
+  settle the next business day. Buying with unsettled cash is allowed, but selling what it
+  bought before settlement is a good-faith violation. The live version should read settled
+  cash from the broker.
+- One broker means one venue. Three rejected orders in ten minutes stop crypto trading as
+  well as equities.
+- Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
+  sizes are placeholders. The live version should read both, with minimum order sizes, from
+  the broker's asset list.
 - Everything is in memory. Positions, orders and decisions aren't stored anywhere yet.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,

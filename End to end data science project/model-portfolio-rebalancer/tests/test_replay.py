@@ -140,19 +140,14 @@ def gap_steps(calendar, first_print):
     )
 
 
-# US large cap starts near the bottom of its 42-48% band, so a 10% gap takes it out. The account
-# is $500k because on $100k a quarter of the shortfall is less than one VOO share.
+# US large cap starts near the bottom of its 42-48% band, so a 10% gap takes it out.
 GAP_WEIGHTS = {"us_large_cap": 0.43, "intl_equity": 0.15, "btc": 0.20, "eth": 0.10, "cash": 0.12}
 
 
 @pytest.fixture(scope="module", params=["overnight", "regular"])
 def gap(request, growth, calendar):
     result = run_replay(
-        growth,
-        gap_steps(calendar, request.param),
-        calendar=calendar,
-        weights=GAP_WEIGHTS,
-        value=500_000,
+        growth, gap_steps(calendar, request.param), calendar=calendar, weights=GAP_WEIGHTS
     )
     return request.param, result
 
@@ -187,7 +182,7 @@ def test_monday_gap_orders_are_priced_and_sized_off_the_gapped_price(gap):
     assert need > 0
     if first_print == "overnight":
         assert voo["session"] == "overnight"
-        assert voo["notional"] <= 0.25 * need + MONDAY_PRICE
+        assert voo["notional"] <= 0.25 * need + 0.01
     else:
         assert voo["session"] == "regular"
         assert voo["notional"] > 0.25 * need

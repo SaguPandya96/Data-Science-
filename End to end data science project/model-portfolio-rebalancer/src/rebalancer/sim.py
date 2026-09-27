@@ -1,4 +1,8 @@
-"""Simulated venues for replays and tests. No network, no real accounts."""
+"""A simulated broker for replays and tests. No network, no real accounts.
+
+It stands in for Alpaca, which holds equities and crypto in one account against one cash
+balance. Equities follow the session calendar; crypto trades around the clock.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +11,17 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from .sessions import MarketCalendar, Session
-from .venue import Fill, Order, OrderAck, OrderType, Quote, SessionStatus, Side, TimeInForce
+from .venue import (
+    Fill,
+    InstrumentInfo,
+    Order,
+    OrderAck,
+    OrderType,
+    Quote,
+    SessionStatus,
+    Side,
+    TimeInForce,
+)
 
 EQUITY_RULES = {
     Session.REGULAR: (
@@ -18,10 +32,8 @@ EQUITY_RULES = {
     Session.POST: ({OrderType.LIMIT}, {TimeInForce.DAY}),
     Session.OVERNIGHT: ({OrderType.LIMIT}, {TimeInForce.DAY, TimeInForce.GTC}),
 }
-CRYPTO_RULES = (
-    {OrderType.LIMIT, OrderType.MARKET},
-    {TimeInForce.DAY, TimeInForce.GTC, TimeInForce.IOC},
-)
+# Alpaca crypto takes GTC and IOC only, no DAY orders.
+CRYPTO_RULES = ({OrderType.LIMIT, OrderType.MARKET}, {TimeInForce.GTC, TimeInForce.IOC})
 
 # Half-spreads in basis points by equity session. Overnight books are thin; crypto widens a bit on
 # weekends. Rough numbers, only there so limit orders have something to cross.
@@ -41,7 +53,7 @@ class SimClock:
 
 @dataclass
 class SimAccount:
-    """One cash balance shared by every venue, as if equities and crypto sat with one broker."""
+    """The broker account: one cash balance behind both equities and crypto."""
 
     cash: float
     holdings: dict[str, float] = field(default_factory=dict)
@@ -57,23 +69,19 @@ class SimVenue:
     def __init__(
         self,
         name: str,
-        instruments: set[str],
+        instruments: dict[str, InstrumentInfo],
         clock: SimClock,
         account: SimAccount,
         calendar: MarketCalendar,
         *,
-        always_open: bool = False,
-        fee_bps: float = 0.0,
-        reports_cash: bool = False,
+        fee_bps: dict[str, float] | None = None,
     ):
         self.name = name
-        self.instruments = set(instruments)
+        self.instruments = dict(instruments)
         self.clock = clock
         self.account = account
         self.calendar = calendar
-        self.always_open = always_open
-        self.fee_bps = fee_bps
-        self.reports_cash = reports_cash
+        self.fee_bps = fee_bps or {}
         self._mids: dict[str, tuple[float, datetime]] = {}
         self._resting: dict[str, _Resting] = {}
         self._fills: list[Fill] = []
@@ -96,7 +104,7 @@ class SimVenue:
 
     def session_status(self, instrument: str) -> SessionStatus:
         self._require(instrument)
-        if self.always_open:
+        if self._is_crypto(instrument):
             types, tifs = CRYPTO_RULES
             return SessionStatus(True, "continuous", frozenset(types), frozenset(tifs))
         session = self.calendar.session_at(self.clock.now).session
@@ -110,7 +118,7 @@ class SimVenue:
         if instrument not in self._mids:
             return None
         mid, ts = self._mids[instrument]
-        half = self._half_spread_bps(ts) / 10_000
+        half = self._half_spread_bps(instrument, ts) / 10_000
         return Quote(instrument, mid * (1 - half), mid * (1 + half), 1e9, 1e9, ts)
 
     def place(self, order: Order) -> OrderAck:
@@ -140,7 +148,7 @@ class SimVenue:
             return OrderAck(None, False, "no quote")
         if order.side is Side.BUY:
             price = order.limit_price if order.order_type is OrderType.LIMIT else quote.ask
-            if order.qty * price * (1 + self.fee_bps / 10_000) > self.account.cash + 1e-9:
+            if order.qty * price * (1 + self._fee(order.instrument)) > self.account.cash + 1e-9:
                 return OrderAck(None, False, "insufficient cash")
         elif order.qty > self.account.holdings.get(order.instrument, 0.0) + 1e-12:
             return OrderAck(None, False, "insufficient position")
@@ -160,8 +168,7 @@ class SimVenue:
         held = {
             k: v for k, v in self.account.holdings.items() if k in self.instruments and abs(v) > 0
         }
-        if self.reports_cash:
-            held["USD"] = self.account.cash
+        held["USD"] = self.account.cash
         return held
 
     def fills(self, since: datetime) -> list[Fill]:
@@ -181,7 +188,7 @@ class SimVenue:
             price = quote.bid
             if order.order_type is OrderType.LIMIT and price < order.limit_price:
                 return False
-        fee = order.qty * price * self.fee_bps / 10_000
+        fee = order.qty * price * self._fee(order.instrument)
         sign = 1 if order.side is Side.BUY else -1
         self.account.cash -= sign * order.qty * price + fee
         self.account.holdings[order.instrument] = (
@@ -202,9 +209,15 @@ class SimVenue:
         self._resting.pop(order_id, None)
         return True
 
-    def _half_spread_bps(self, ts: datetime) -> float:
+    def _is_crypto(self, instrument: str) -> bool:
+        return self.instruments[instrument].asset_class == "crypto"
+
+    def _fee(self, instrument: str) -> float:
+        return self.fee_bps.get(self.instruments[instrument].asset_class, 0.0) / 10_000
+
+    def _half_spread_bps(self, instrument: str, ts: datetime) -> float:
         session = self.calendar.session_at(ts).session
-        if self.always_open:
+        if self._is_crypto(instrument):
             return CRYPTO_HALF_SPREAD_BPS["weekend" if session is Session.WEEKEND else "weekday"]
         return EQUITY_HALF_SPREAD_BPS.get(session, EQUITY_HALF_SPREAD_BPS[Session.OVERNIGHT])
 

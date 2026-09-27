@@ -425,6 +425,7 @@ class Engine:
         side = Side.BUY if intent.delta > 0 else Side.SELL
         collar = self.config.limit_collar
         limit = quote.mid * (1 + collar) if side is Side.BUY else quote.mid * (1 - collar)
+        limit = round(limit, 8 if info.asset_class == "crypto" else 2)
         qty = abs(intent.delta) / (limit if side is Side.BUY else quote.mid)
         if side is Side.SELL:
             qty = min(qty, self.ledger.get(inst, 0.0))
@@ -446,7 +447,7 @@ class Engine:
             instrument=inst,
             side=side,
             qty=qty,
-            limit_price=round(limit, 8 if info.asset_class == "crypto" else 2),
+            limit_price=limit,
             order_type=OrderType.LIMIT,
             time_in_force=tif,
             sleeve=intent.sleeve.id,

@@ -134,17 +134,17 @@ def test_crypto_drawdown_pauses_buys_but_not_sells(gate):
 
 
 def test_three_venue_rejects_in_ten_minutes_halt_the_venue(gate):
-    gate.record_venue_reject(NOW, "equities", "x")
-    gate.record_venue_reject(NOW + timedelta(minutes=12), "equities", "x")
-    gate.record_venue_reject(NOW + timedelta(minutes=24), "equities", "x")
-    assert "equities" not in gate.venue_halts
-    gate.record_venue_reject(NOW + timedelta(minutes=25), "equities", "x")
-    gate.record_venue_reject(NOW + timedelta(minutes=26), "equities", "x")
-    assert "equities" in gate.venue_halts
+    gate.record_venue_reject(NOW, "alpaca", "x")
+    gate.record_venue_reject(NOW + timedelta(minutes=12), "alpaca", "x")
+    gate.record_venue_reject(NOW + timedelta(minutes=24), "alpaca", "x")
+    assert "alpaca" not in gate.venue_halts
+    gate.record_venue_reject(NOW + timedelta(minutes=25), "alpaca", "x")
+    gate.record_venue_reject(NOW + timedelta(minutes=26), "alpaca", "x")
+    assert "alpaca" in gate.venue_halts
     result = check(
         gate, order(), now=NOW + timedelta(minutes=27), q=quote(ts=NOW + timedelta(minutes=27))
     )
-    assert not result.approved and "venue equities halted" in result.reason
+    assert not result.approved and "venue alpaca halted" in result.reason
 
 
 def test_engine_halts_the_venue_after_repeated_rejects(growth):
@@ -154,12 +154,12 @@ def test_engine_halts_the_venue_after_repeated_rejects(growth):
         dict(PRICES),
         weights={"us_large_cap": 0.38, "intl_equity": 0.15, "btc": 0.20, "eth": 0.10, "cash": 0.17},
     )
-    w.venues["equities"].reject_next(10, "exchange unavailable")
+    w.venues["alpaca"].reject_next(10, "exchange unavailable")
     ts = NOW
     for _ in range(3):
         w.step(ts, PRICES)
         ts += timedelta(minutes=1)
-    assert "equities" in w.engine.gate.venue_halts
+    assert "alpaca" in w.engine.gate.venue_halts
     report = w.step(ts, PRICES)
     assert not any(o.instrument == "VOO" for o in report.orders)
 

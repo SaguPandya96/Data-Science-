@@ -98,7 +98,7 @@ def test_off_hours_equity_trade_is_capped_at_a_quarter_of_the_need(growth):
                 assert o.session == "overnight"
                 bought += o.notional
         ts += timedelta(minutes=30)
-    assert 0 < bought <= 0.25 * need + 1e-6
+    assert 0 < bought <= 0.25 * need + 0.01
 
     # The rest waits for the regular session, where it goes at full size.
     regular = placed(w.step(et(2026, 11, 4, 9, 30), PRICES))

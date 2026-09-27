@@ -30,13 +30,17 @@ from .venue import InstrumentInfo
 
 PriceSteps = list[tuple[datetime, dict[str, float]]]
 
+# Everything goes through one Alpaca account. Alpaca takes fractional equity orders in every
+# session, overnight included, so equities are sized in millionths of a share.
 DEFAULT_INSTRUMENTS = {
-    "VOO": InstrumentInfo("equities", "equity", 1.0),
-    "VXUS": InstrumentInfo("equities", "equity", 1.0),
-    "BTC-USD": InstrumentInfo("crypto", "crypto", 1e-6),
-    "ETH-USD": InstrumentInfo("crypto", "crypto", 1e-5),
+    "VOO": InstrumentInfo("alpaca", "equity", 1e-6),
+    "VXUS": InstrumentInfo("alpaca", "equity", 1e-6),
+    "BTC-USD": InstrumentInfo("alpaca", "crypto", 1e-6),
+    "ETH-USD": InstrumentInfo("alpaca", "crypto", 1e-5),
 }
-CRYPTO_FEE_BPS = 10.0
+# Equity trades are commission-free. Crypto pays Alpaca's taker fee, since the engine's limits
+# cross the spread; 25 bps is the lowest-volume tier as I read the schedule.
+FEE_BPS = {"equity": 0.0, "crypto": 25.0}
 
 
 @dataclass
@@ -82,24 +86,13 @@ def build_world(
     weights = weights or {s.id: s.target for s in model.sleeves}
     clock = SimClock(start)
     account = SimAccount(cash=value)
-    by_venue: dict[str, set[str]] = {}
-    for inst, info in instruments.items():
-        by_venue.setdefault(info.venue, set()).add(inst)
-    venues = {
-        name: SimVenue(
-            name,
-            insts,
-            clock,
-            account,
-            calendar,
-            always_open=all(instruments[i].asset_class == "crypto" for i in insts),
-            fee_bps=CRYPTO_FEE_BPS
-            if all(instruments[i].asset_class == "crypto" for i in insts)
-            else 0.0,
-            reports_cash=(name == "equities"),
+    names = {info.venue for info in instruments.values()}
+    if len(names) != 1:
+        raise ValueError(
+            f"the simulator models a single broker account, got venues {sorted(names)}"
         )
-        for name, insts in by_venue.items()
-    }
+    (name,) = names
+    venues = {name: SimVenue(name, instruments, clock, account, calendar, fee_bps=FEE_BPS)}
     price_times = price_times or {}
     for inst, price in prices.items():
         if inst in instruments:
