@@ -163,8 +163,8 @@ def alpaca_runner(dsn, fake, calendar, account="paper-main"):
     return Runner(engine, clock=lambda: fake.now, wait=wait)
 
 
-@pytest.fixture
-def fake():
+def paper_account():
+    """The fake Alpaca holding roughly the Growth model, BTC a little heavy."""
     pytest.importorskip("httpx")
     from fake_alpaca import FakeAlpaca
 
@@ -178,6 +178,11 @@ def fake():
     }.items():
         server.set_quote(symbol, bid, ask)
     return server
+
+
+@pytest.fixture
+def fake():
+    return paper_account()
 
 
 def test_the_runner_trades_through_alpaca_and_records_every_cycle(schema, dsn, fake, calendar):

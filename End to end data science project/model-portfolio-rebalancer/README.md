@@ -8,8 +8,8 @@ portfolio whose market is open, in small limit orders, inside hard risk limits.
 
 Everything runs through one Alpaca account, equities and crypto together against one cash
 balance. Phase 1 is a simulator of that account, with the real session and order rules. Phase 2
-connects to an Alpaca **paper** account: an adapter for Alpaca, and a runner that drives the
-engine against it once a minute.
+connects to an Alpaca **paper** account: an adapter for Alpaca, a runner that drives the engine
+against it once a minute, and a watchdog that cancels orders if the engine goes quiet.
 
 ## What it does
 
@@ -183,7 +183,8 @@ python -m rebalancer.migrate status
   - `rebalancer_engine` inserts everywhere. It can update only rows whose state really
     changes, like order status, open lots and halts. It can't rewrite decisions, fills or
     alerts.
-  - `rebalancer_watchdog` reads everything and can raise halts and alerts.
+  - `rebalancer_watchdog` reads everything, can raise halts and alerts, and can mark an
+    alert as delivered.
   - `rebalancer_dashboard` reads everything, can insert a halt (the halt button) and can
     acknowledge alerts.
 - **Models.** Git is the source of truth. The database keeps a copy of each version as the
@@ -320,6 +321,39 @@ python -m rebalancer.runner ... --once   # a single cycle, then stop
 - **Output.** Each cycle logs one line with the session, account value, orders placed and
   rejected, and any halt.
 
+## Watchdog
+
+`watchdog.py` is the dead-man's switch. It runs as its own process, next to the runner, and
+checks every 30 seconds.
+
+```bash
+export DATABASE_URL=... APCA_API_KEY_ID=... APCA_API_SECRET_KEY=...
+export WATCHDOG_WEBHOOK_URL=https://ntfy.sh/<topic>   # optional: alerts to my phone
+python -m rebalancer.watchdog --account paper-main
+```
+
+- **Heartbeat.** The engine's newest cycle is its heartbeat. After five minutes without one,
+  the watchdog cancels every order resting at the broker and sends a critical alert. It keeps
+  cancelling anything new until the heartbeat comes back, then says so.
+- **No halt for a quiet engine.** Stopping the runner on purpose stops the heartbeat too, so
+  five minutes later I get the alert, and there's nothing left to cancel. A restarted engine
+  carries on from the database without waiting for me to clear a halt.
+- **Reconciliation.** The engine halts itself on a reconciliation gap before it records one.
+  If the latest reconciliation failed and no halt is in force, something is wrong with the
+  engine as well as the positions, so the watchdog inserts a global halt.
+- **Alerts.** It sends each new alert, from the engine or its own, to the webhook, oldest
+  first, and marks it delivered. The webhook gets plain text with `Title` and `Priority`
+  headers, which is what ntfy expects. Without a webhook, alerts go to the log. A failed send
+  is retried on the next check, and alerts more than a day old are not sent.
+- **When the database is down.** It sends an alert straight to the webhook. It still counts
+  five minutes from the last heartbeat it saw and cancels orders after that: not knowing
+  whether the engine is alive is treated as the engine being dead.
+- **Its own login.** Connect as a user in the `rebalancer_watchdog` role.
+- **Orders cancelled behind the engine's back.** When the engine comes back it finds those
+  orders gone. It asks the broker where each one stands. It closes an order the broker says
+  was cancelled or expired, once every fill that order got has arrived, and gives the unfilled
+  part back to the turnover budgets. The same handles an order I cancel by hand in Alpaca.
+
 ## Layout
 
 ```text
@@ -338,6 +372,7 @@ src/rebalancer/
   store.py               writes the audit trail to Postgres
   alpaca.py              Alpaca paper adapter and check command
   runner.py              scheduled loop against Alpaca
+  watchdog.py            dead-man's switch and alert delivery
   broker_rules.py        order types allowed in each session
   migrations/            numbered SQL schema files
 tests/
@@ -365,6 +400,11 @@ reports/sample_replay/   output of the sample replay
   without comment.
 - The runner cycles on a timer only. The spec also asks for a cycle when prices move, which
   needs Alpaca's streaming feed.
+- The watchdog only protects anything if it runs somewhere the engine's failure doesn't
+  reach. On the same machine, a dead machine takes both down. Nothing watches the watchdog
+  yet, and a watchdog started while the database is down has no heartbeat to count from.
+- The watchdog uses the same Alpaca keys as the engine, and cancels every open order in the
+  account, not only the engine's. Use an account the engine has to itself.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,
-  tax-lot selection and wash-sale checks, the watchdog, and the dashboard.
+  tax-lot selection and wash-sale checks, and the dashboard.

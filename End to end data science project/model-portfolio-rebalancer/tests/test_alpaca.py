@@ -18,7 +18,7 @@ from rebalancer.alpaca import (  # noqa: E402
 from rebalancer.engine import Engine  # noqa: E402
 from rebalancer.models import load_model  # noqa: E402
 from rebalancer.replay import DEFAULT_INSTRUMENTS  # noqa: E402
-from rebalancer.venue import Order, OrderType, Side, TimeInForce  # noqa: E402
+from rebalancer.venue import Order, OrderState, OrderType, Side, TimeInForce  # noqa: E402
 
 TUESDAY = et(2026, 11, 3, 10, 0)
 NIGHT = et(2026, 11, 3, 23, 0)
@@ -148,6 +148,21 @@ def test_cancelling_a_filled_order_returns_false(fake, calendar):
     venue = venue_for(fake, calendar)
     ack = venue.place(Order("c1", "VOO", Side.BUY, 1, 561.0))
     assert venue.cancel(ack.order_id) is False
+
+
+def test_order_state_and_open_orders(fake, calendar):
+    venue = venue_for(fake, calendar)
+    filled = venue.place(Order("c1", "VOO", Side.BUY, 1, 561.0)).order_id
+    fake.fill_orders = False
+    resting = venue.place(Order("c2", "VOO", Side.BUY, 1, 550.0)).order_id
+    cancelled = venue.place(Order("c3", "VXUS", Side.BUY, 2, 60.0)).order_id
+    venue.cancel(cancelled)
+
+    assert venue.open_orders() == {resting: "c2"}
+    assert venue.order_state(filled) == OrderState("filled", 1.0)
+    assert venue.order_state(resting) == OrderState("open", 0.0)
+    assert venue.order_state(cancelled) == OrderState("canceled", 0.0)
+    assert venue.order_state("no-such-order") is None
 
 
 # --- account state -----------------------------------------------------------------------------

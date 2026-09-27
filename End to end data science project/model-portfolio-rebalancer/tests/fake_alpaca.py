@@ -83,8 +83,13 @@ class FakeAlpaca:
             if broker_id is None:
                 return self._json(404, {"message": "order not found"})
             return self._json(200, self.orders[broker_id])
+        if path == "/v2/orders" and params.get("status") == "open":
+            return self._json(200, [o for o in self.orders.values() if o["status"] == "new"])
         if path.startswith("/v2/orders/"):
-            return self._json(200, self.orders[path.rsplit("/", 1)[1]])
+            order = self.orders.get(path.rsplit("/", 1)[1])
+            if order is None:
+                return self._json(404, {"message": "order not found"})
+            return self._json(200, order)
         if path.startswith("/v2/stocks/") and path.endswith("/quotes/latest"):
             symbol = path.split("/")[3]
             if symbol not in self.quotes:

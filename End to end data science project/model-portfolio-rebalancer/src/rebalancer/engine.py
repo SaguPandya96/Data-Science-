@@ -230,17 +230,31 @@ class Engine:
         # Unfilled limits are cancelled and re-quoted from fresh prices this cycle.
         for client_id, (venue, record) in list(self._open.items()):
             if self.venues[venue].cancel(record.order_id):
-                record.status = "canceled"
-                unfilled = 1 - record.filled_qty / record.qty
-                if record.filled_qty > 0:
-                    detail = f"rest cancelled ({why}) after {record.filled_qty:g} of {record.qty:g} filled"
-                else:
-                    detail = f"unfilled, cancelled ({why})"
-                self.audit.order_updated(record, now, detail)
-                # Only the part that never traded is given back to the budgets.
-                self.gate.release_unfilled(client_id, unfilled)
-                self._release_off_hours(client_id, unfilled)
-                del self._open[client_id]
+                self._close_unfilled(now, client_id, record, f"cancelled ({why})")
+                continue
+            # A cancel only fails for an order that is already finished. A filled one closes when
+            # its fills arrive. One cancelled or expired at the broker, by the watchdog say,
+            # closes here, but only once every fill it did get has been recorded.
+            state = self.venues[venue].order_state(record.order_id)
+            if (
+                state is not None
+                and state.status in ("canceled", "expired", "rejected")
+                and record.filled_qty >= state.filled_qty - _EPS
+            ):
+                self._close_unfilled(now, client_id, record, f"{state.status} at the broker")
+
+    def _close_unfilled(self, now: datetime, client_id: str, record: OrderRecord, how: str) -> None:
+        record.status = "canceled"
+        unfilled = 1 - record.filled_qty / record.qty
+        if record.filled_qty > 0:
+            detail = f"rest {how} after {record.filled_qty:g} of {record.qty:g} filled"
+        else:
+            detail = f"unfilled, {how}"
+        self.audit.order_updated(record, now, detail)
+        # Only the part that never traded is given back to the budgets.
+        self.gate.release_unfilled(client_id, unfilled)
+        self._release_off_hours(client_id, unfilled)
+        del self._open[client_id]
 
     def _pull_fills(self, now: datetime, *, apply: bool = True) -> None:
         by_order = {rec.order_id: cid for cid, (_, rec) in self._open.items()}

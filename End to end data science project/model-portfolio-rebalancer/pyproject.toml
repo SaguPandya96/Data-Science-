@@ -32,6 +32,8 @@ dev = [
 rebalancer-replay = "rebalancer.replay:main"
 rebalancer-migrate = "rebalancer.migrate:main"
 rebalancer-alpaca = "rebalancer.alpaca:main"
+rebalancer-runner = "rebalancer.runner:main"
+rebalancer-watchdog = "rebalancer.watchdog:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
