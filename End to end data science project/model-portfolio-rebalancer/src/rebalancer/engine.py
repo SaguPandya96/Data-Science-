@@ -308,7 +308,6 @@ class Engine:
     def _reconcile(self, now: datetime) -> tuple[float, list[ReconciliationLine]]:
         actual = self._venue_positions()
         gap = 0.0
-        worst = ""
         lines = []
         for inst in sorted(set(actual) | set(self.ledger)):
             ours, theirs = self.ledger.get(inst, 0.0), actual.get(inst, 0.0)
@@ -320,9 +319,12 @@ class Engine:
             dollars = diff * price if price is not None else math.inf
             gap += dollars
             lines.append(ReconciliationLine(inst, ours, theirs, price, dollars))
-            worst = f"{inst} engine {ours:,.6g} vs venue {theirs:,.6g}"
         if gap > self.gate.limits.max_reconciliation_gap:
-            self.gate.halt(now, f"reconciliation gap ${gap:,.2f} ({worst})")
+            worst = max(lines, key=lambda line: line.gap_usd)
+            detail = f"{worst.instrument} engine {worst.engine_qty:,.6g} vs venue {worst.broker_qty:,.6g}"
+            if len(lines) > 1:
+                detail += f", and {len(lines) - 1} smaller"
+            self.gate.halt(now, f"reconciliation gap ${gap:,.2f} ({detail})")
         return gap, lines
 
     def _venue_positions(self) -> dict[str, float]:

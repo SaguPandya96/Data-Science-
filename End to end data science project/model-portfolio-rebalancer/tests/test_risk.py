@@ -195,3 +195,12 @@ def test_reconciliation_gap_over_ten_dollars_halts_everything(growth):
     assert report.halted and "reconciliation gap" in report.halted
     assert report.orders == []
     assert any(a.level == "critical" for a in w.engine.audit.alerts)
+
+
+def test_the_halt_names_the_biggest_gap_not_the_last_one(growth):
+    w = build_world(growth, NOW, dict(PRICES))
+    w.account.holdings["BTC-USD"] += 0.02  # $2,000
+    w.account.holdings["VOO"] += 0.01  # $5.60, and it sorts after BTC-USD
+    report = w.step(NOW, PRICES)
+    assert report.halted.startswith("reconciliation gap $2,005.60 (BTC-USD engine ")
+    assert report.halted.endswith(", and 1 smaller)")
