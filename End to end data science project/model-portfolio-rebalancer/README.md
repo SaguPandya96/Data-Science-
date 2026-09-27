@@ -9,7 +9,8 @@ portfolio whose market is open, in small limit orders, inside hard risk limits.
 Everything runs through one Alpaca account, equities and crypto together against one cash
 balance. Phase 1 is a simulator of that account, with the real session and order rules. Phase 2
 connects to an Alpaca **paper** account: an adapter for Alpaca, a runner that drives the engine
-against it once a minute, and a watchdog that cancels orders if the engine goes quiet.
+against it once a minute, a watchdog that cancels orders if the engine goes quiet, and a
+dashboard with a halt button.
 
 ## What it does
 
@@ -188,7 +189,7 @@ python -m rebalancer.migrate status
   - `rebalancer_dashboard` reads everything, can insert a halt (the halt button) and can
     acknowledge alerts.
 - **Models.** Git is the source of truth. The database keeps a copy of each version as the
-  engine loaded it, with its commit and checksum.
+  engine loaded it, with its commit, checksum and sleeves.
 - **Retention.** `select prune_cycle_detail()` keeps prices and marks at full resolution
   for 90 days, then thins them to one cycle every 5 minutes. Cycles, decisions and orders
   are never pruned.
@@ -354,6 +355,30 @@ python -m rebalancer.watchdog --account paper-main
   was cancelled or expired, once every fill that order got has arrived, and gives the unfilled
   part back to the turnover budgets. The same handles an order I cancel by hand in Alpaca.
 
+## Dashboard
+
+`dashboard.py` serves one page per account: where each sleeve stands against its target and
+band, orders resting at the broker, today's trades, open halts and unacknowledged alerts.
+
+```bash
+export DATABASE_URL=...
+python -m rebalancer.dashboard --account paper-main   # http://127.0.0.1:8050
+```
+
+- **Read from Postgres only,** so it works whether or not the engine is running. It shows how
+  long ago the last cycle was, and flags the engine as stopped after five minutes, the same
+  limit the watchdog uses. The page refreshes every 30 seconds.
+- **Halt button.** It inserts a global halt with my reason. The engine stops trading and
+  cancels resting orders on its next cycle.
+- **It can't resume trading.** Connect it as a user in the `rebalancer_dashboard` role, which
+  can insert a halt and acknowledge an alert but can't clear a halt. Clearing one is done by
+  hand in the database, so a stray tap can only stop trading.
+- **Forms carry a token** made when the server starts, so another page open in the same
+  browser can't post a halt or an acknowledgement.
+- **Localhost only.** It has no login. To use it from my phone I reach it through an SSH tunnel
+  or a private network rather than opening the port.
+- **No new dependencies.** It uses Python's built-in HTTP server and plain HTML.
+
 ## Layout
 
 ```text
@@ -373,6 +398,7 @@ src/rebalancer/
   alpaca.py              Alpaca paper adapter and check command
   runner.py              scheduled loop against Alpaca
   watchdog.py            dead-man's switch and alert delivery
+  dashboard.py           status page and halt button
   broker_rules.py        order types allowed in each session
   migrations/            numbered SQL schema files
 tests/
@@ -407,4 +433,4 @@ reports/sample_replay/   output of the sample replay
   account, not only the engine's. Use an account the engine has to itself.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,
-  tax-lot selection and wash-sale checks, and the dashboard.
+  tax-lot selection and wash-sale checks.

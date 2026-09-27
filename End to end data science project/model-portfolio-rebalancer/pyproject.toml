@@ -34,6 +34,7 @@ rebalancer-migrate = "rebalancer.migrate:main"
 rebalancer-alpaca = "rebalancer.alpaca:main"
 rebalancer-runner = "rebalancer.runner:main"
 rebalancer-watchdog = "rebalancer.watchdog:main"
+rebalancer-dashboard = "rebalancer.dashboard:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

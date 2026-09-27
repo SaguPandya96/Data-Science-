@@ -157,6 +157,25 @@ def test_a_model_edited_without_a_version_bump_is_refused(engine_conn, growth, t
         open_store(engine_conn, load_model(edited))
 
 
+def test_a_models_sleeves_are_recorded_with_it(engine_conn, growth):
+    open_store(engine_conn, growth)
+    open_store(engine_conn, growth)  # a restart loads the same version again
+    rows = engine_conn.execute(
+        "select sleeve, target, band_abs, band_rel, instruments from model_sleeves"
+    ).fetchall()
+    assert {(r[0], float(r[1])) for r in rows} == {(s.id, s.target) for s in growth.sleeves}
+    btc = next(r for r in rows if r[0] == "btc")
+    assert (float(btc[2]), float(btc[3])) == (0.03, 0.15)
+    assert btc[4] == {"any": ["BTC-USD"]}
+
+    # A version recorded before sleeves were stored gets them when it's next loaded.
+    engine_conn.execute("reset role")
+    engine_conn.execute("delete from model_sleeves")
+    engine_conn.execute("set role rebalancer_engine")
+    open_store(engine_conn, growth)
+    assert one(engine_conn, "select count(*) from model_sleeves") == len(growth.sleeves)
+
+
 def test_a_new_model_version_is_recorded_as_a_change_for_the_account(engine_conn, growth, tmp_path):
     open_store(engine_conn, growth)
     bumped = tmp_path / "growth-247.yaml"
