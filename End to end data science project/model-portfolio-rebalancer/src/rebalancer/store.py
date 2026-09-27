@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import psycopg
+from psycopg.types.json import Jsonb
 
 from .audit import HaltRow, MarkSeen, OrderRecord, PriceSeen, ReconciliationLine, RecoveredState
 from .models import Model
@@ -490,12 +491,34 @@ def _register_model(conn: psycopg.Connection, model: Model, commit: str) -> int:
                 f"{model.name} version {model.version} differs from the copy recorded on "
                 f"{row[2]:%Y-%m-%d}; bump the version in {path.name}"
             )
-        return row[0]
-    return conn.execute(
-        """insert into model_versions (name, version, yaml, sha256, git_commit, cash_floor)
-           values (%s, %s, %s, %s, %s, %s) returning id""",
-        (model.name, model.version, text, digest, commit, model.cash_floor),
-    ).fetchone()[0]
+        version_id = row[0]
+    else:
+        version_id = conn.execute(
+            """insert into model_versions (name, version, yaml, sha256, git_commit, cash_floor)
+               values (%s, %s, %s, %s, %s, %s) returning id""",
+            (model.name, model.version, text, digest, commit, model.cash_floor),
+        ).fetchone()[0]
+    # Versions recorded before sleeves were stored get them the next time they're loaded.
+    with conn.cursor() as cur:
+        cur.executemany(
+            """insert into model_sleeves (model_version_id, sleeve, target, band_abs, band_rel,
+                                          max_off_hours_pct, instruments)
+               values (%s, %s, %s, %s, %s, %s, %s)
+               on conflict do nothing""",
+            [
+                (
+                    version_id,
+                    sleeve.id,
+                    sleeve.target,
+                    sleeve.band.abs if sleeve.band else None,
+                    sleeve.band.rel if sleeve.band else None,
+                    sleeve.max_off_hours_pct,
+                    Jsonb({k: list(v) for k, v in sleeve.instruments.items()}),
+                )
+                for sleeve in model.sleeves
+            ],
+        )
+    return version_id
 
 
 def _register_instruments(conn: psycopg.Connection, instruments: dict[str, InstrumentInfo]) -> None:
