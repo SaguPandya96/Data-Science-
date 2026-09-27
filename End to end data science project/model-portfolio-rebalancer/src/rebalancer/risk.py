@@ -292,14 +292,14 @@ class RiskGate:
             self.off_hours_turnover[window] = self.off_hours_turnover.get(window, 0.0) + notional
         self._placed[client_id] = _Placed(day, window, notional)
 
-    def release_unfilled(self, client_id: str) -> None:
-        """Give back the turnover an order used if it was cancelled without filling."""
+    def release_unfilled(self, client_id: str, share: float = 1.0) -> None:
+        """Give back the turnover of the part of a cancelled order that never traded."""
         placed = self._placed.pop(client_id, None)
         if placed is None:
             return
-        self.daily_turnover[placed.day] -= placed.notional
+        self.daily_turnover[placed.day] -= placed.notional * share
         if placed.window is not None:
-            self.off_hours_turnover[placed.window] -= placed.notional
+            self.off_hours_turnover[placed.window] -= placed.notional * share
 
     def forget(self, client_id: str) -> None:
         self._placed.pop(client_id, None)

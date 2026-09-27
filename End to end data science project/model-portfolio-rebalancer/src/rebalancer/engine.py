@@ -15,7 +15,7 @@ from .audit import AuditLog, MarkSeen, OrderRecord, PriceSeen, ReconciliationLin
 from .models import CASH_INSTRUMENTS, Model, Sleeve
 from .risk import RiskGate, RiskLimits, round_down
 from .sessions import MarketCalendar, Session
-from .venue import InstrumentInfo, Order, OrderType, Quote, Side, TimeInForce, Venue
+from .venue import Fill, InstrumentInfo, Order, OrderType, Quote, Side, TimeInForce, Venue
 
 _EPS = 1e-9
 
@@ -120,6 +120,7 @@ class Engine:
         )
         self._off_need.update(state.off_hours_needs)
         self._off_done.update(state.off_hours_done)
+        self._seen_fills |= state.seen_fills
         resumed, abandoned = 0, 0
         for record in state.open_orders:
             counted = True
@@ -216,9 +217,15 @@ class Engine:
         for client_id, (venue, record) in list(self._open.items()):
             if self.venues[venue].cancel(record.order_id):
                 record.status = "canceled"
-                self.audit.order_updated(record, now, "unfilled, cancelled to re-quote")
-                self.gate.release_unfilled(client_id)
-                self._release_off_hours(client_id)
+                unfilled = 1 - record.filled_qty / record.qty
+                if record.filled_qty > 0:
+                    detail = f"rest cancelled to re-quote after {record.filled_qty:g} of {record.qty:g} filled"
+                else:
+                    detail = "unfilled, cancelled to re-quote"
+                self.audit.order_updated(record, now, detail)
+                # Only the part that never traded is given back to the budgets.
+                self.gate.release_unfilled(client_id, unfilled)
+                self._release_off_hours(client_id, unfilled)
                 del self._open[client_id]
 
     def _pull_fills(self, now: datetime, *, apply: bool = True) -> None:
@@ -239,12 +246,28 @@ class Engine:
                 cid = by_order.get(fill.order_id)
                 self.audit.fill(fill, cid)
                 if cid is not None:
-                    _, record = self._open.pop(cid)
-                    record.status, record.fill_price, record.fee = "filled", fill.price, fill.fee
-                    self.audit.order_updated(record, fill.ts, f"filled at {fill.price:g}")
-                    self.gate.forget(cid)
-                    self._off_orders.pop(cid, None)
+                    self._apply_fill(cid, fill)
             self._fills_since[name] = now
+
+    def _apply_fill(self, client_id: str, fill: Fill) -> None:
+        _, record = self._open[client_id]
+        cost = (record.fill_price or 0.0) * record.filled_qty + fill.price * fill.qty
+        record.filled_qty = round(record.filled_qty + fill.qty, 12)
+        record.fill_price = cost / record.filled_qty
+        record.fee += fill.fee
+        if record.filled_qty < record.qty - _EPS:
+            record.status = "partially_filled"
+            self.audit.order_updated(
+                record,
+                fill.ts,
+                f"{fill.qty:g} filled at {fill.price:g}, {record.filled_qty:g} of {record.qty:g} so far",
+            )
+            return
+        record.status = "filled"
+        self.audit.order_updated(record, fill.ts, f"filled, average {record.fill_price:g}")
+        del self._open[client_id]
+        self.gate.forget(client_id)
+        self._off_orders.pop(client_id, None)
 
     def _reconcile(self, now: datetime) -> tuple[float, list[ReconciliationLine]]:
         actual = self._venue_positions()
@@ -616,8 +639,8 @@ class Engine:
             self._off_orders[order.client_id] = (key, record.notional)
         return record
 
-    def _release_off_hours(self, client_id: str) -> None:
+    def _release_off_hours(self, client_id: str, share: float = 1.0) -> None:
         entry = self._off_orders.pop(client_id, None)
         if entry is not None:
             key, notional = entry
-            self._off_done[key] -= notional
+            self._off_done[key] -= notional * share

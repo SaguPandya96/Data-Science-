@@ -4,7 +4,7 @@ account from what the store holds, and check it carries on as if nothing happene
 from datetime import timedelta
 
 import pytest
-from conftest import ADMIN_DSN, PRICES, et, make_steps, ramp
+from conftest import PRICES, et, make_steps, ramp
 
 from rebalancer.audit import AuditLog
 from rebalancer.engine import Engine
@@ -12,7 +12,6 @@ from rebalancer.replay import DEFAULT_INSTRUMENTS, build_world
 
 try:
     import psycopg
-    from psycopg.conninfo import make_conninfo
 
     from rebalancer.store import Account, PostgresStore
 except ImportError:  # the simulator runs without the db extra installed
@@ -20,11 +19,6 @@ except ImportError:  # the simulator runs without the db extra installed
 
 T10 = et(2026, 11, 3, 10, 0)
 BTC_HEAVY = {"us_large_cap": 0.42, "intl_equity": 0.15, "btc": 0.26, "eth": 0.10, "cash": 0.07}
-
-
-@pytest.fixture
-def dsn(schema):
-    return make_conninfo(ADMIN_DSN, dbname=schema.info.dbname)
 
 
 def engine_store(dsn, model):

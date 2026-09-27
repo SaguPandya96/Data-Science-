@@ -38,6 +38,7 @@
     "placed": 12,
     "filled": 12,
     "rejected": 0,
+    "partly_filled_then_cancelled": 0,
     "filled_by_session": {
       "overnight": 6,
       "pre": 5,

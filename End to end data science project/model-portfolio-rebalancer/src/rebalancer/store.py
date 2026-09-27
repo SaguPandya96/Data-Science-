@@ -25,13 +25,20 @@ from .models import Model
 from .venue import Fill, InstrumentInfo
 
 # Orders whose notional counts against turnover: live or filled, or cancelled after a fill.
+# Orders count against turnover in full while live or once filled; a cancelled one counts only
+# for the share that traded, which is how the engine gave the rest back at the time.
+_FILLED = """left join (select order_id, sum(qty) as qty from fills group by order_id) f
+             on f.order_id = o.id"""
 _COUNTED = """(o.status in ('accepted', 'partially_filled', 'filled')
-               or (o.status = 'canceled' and exists (select 1 from fills f where f.order_id = o.id)))"""
+               or (o.status = 'canceled' and f.qty > 0))"""
+_COUNTED_NOTIONAL = """sum(case when o.status = 'canceled' then o.notional * f.qty / o.qty
+                        else o.notional end)"""
 
 # The engine's record statuses, in the database's words.
 _STATUS = {
     "pending": "pending",
     "placed": "accepted",
+    "partially_filled": "partially_filled",
     "rejected": "rejected",
     "filled": "filled",
     "canceled": "canceled",
@@ -315,8 +322,11 @@ class PostgresStore:
             """select o.id, o.created_at, o.session, i.venue, o.broker_order_id, o.client_order_id,
                       o.sleeve, o.instrument, o.side::text, o.qty, o.order_type, o.time_in_force,
                       o.limit_price, o.reference_price, o.notional, o.reason, o.status::text,
-                      o.off_hours_window
+                      o.off_hours_window, coalesce(f.qty, 0), f.value, coalesce(f.fee, 0)
                from orders o join instruments i on i.symbol = o.instrument
+               left join (select order_id, sum(qty) as qty, sum(qty * price) as value,
+                                 sum(fee) as fee
+                          from fills group by order_id) f on f.order_id = o.id
                where o.account_id = %s and o.status in ('pending', 'accepted', 'partially_filled')
                order by o.id""",
             (account,),
@@ -340,6 +350,9 @@ class PostgresStore:
                 reason,
                 status,
                 window,
+                filled_qty,
+                filled_value,
+                fees,
             ) = row
             self._order_ids[client_id] = order_id
             state.open_orders.append(
@@ -359,8 +372,11 @@ class PostgresStore:
                     reference_price=float(reference),
                     notional=float(notional),
                     reason=reason,
-                    status="pending" if status == "pending" else "placed",
+                    status={"accepted": "placed"}.get(status, status),
                     off_hours_window=window,
+                    filled_qty=float(filled_qty),
+                    fill_price=float(filled_value / filled_qty) if filled_qty else None,
+                    fee=float(fees),
                 )
             )
 
@@ -368,15 +384,16 @@ class PostgresStore:
         state.daily_turnover = {
             day: float(total)
             for day, total in conn.execute(
-                f"""select (o.created_at at time zone 'America/New_York')::date, sum(o.notional)
-                    from orders o where o.account_id = %s and o.created_at >= %s and {_COUNTED}
+                f"""select (o.created_at at time zone 'America/New_York')::date, {_COUNTED_NOTIONAL}
+                    from orders o {_FILLED}
+                    where o.account_id = %s and o.created_at >= %s and {_COUNTED}
                     group by 1""",
                 (account, since),
             )
         }
         for window, sleeve, asset_class, total in conn.execute(
-            f"""select o.off_hours_window, o.sleeve, i.asset_class::text, sum(o.notional)
-                from orders o join instruments i on i.symbol = o.instrument
+            f"""select o.off_hours_window, o.sleeve, i.asset_class::text, {_COUNTED_NOTIONAL}
+                from orders o join instruments i on i.symbol = o.instrument {_FILLED}
                 where o.account_id = %s and o.off_hours_window >= %s and {_COUNTED}
                 group by 1, 2, 3""",
             (account, since),
@@ -394,6 +411,16 @@ class PostgresStore:
                 (account, since),
             )
         }
+        # Fills from around the last cycle may come back from the broker again; these are the
+        # ones already recorded, so they aren't applied to their orders twice.
+        if state.last_cycle is not None:
+            state.seen_fills = {
+                fill_id
+                for (fill_id,) in conn.execute(
+                    "select broker_fill_id from fills where account_id = %s and ts >= %s",
+                    (account, state.last_cycle - timedelta(days=1)),
+                )
+            }
         # A day of fresh prices is enough to rebuild the crypto drawdown check.
         state.prices = [
             (inst, ts, float(mid))

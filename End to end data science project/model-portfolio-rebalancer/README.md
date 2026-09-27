@@ -198,6 +198,10 @@ engine = Engine(model, venues, instruments, calendar, audit=AuditLog(store=store
 - **Orders are written as `pending` before they go to the broker.** The broker never holds
   an order the database doesn't know about. Each status change then becomes an order
   event, and fills link back to their order.
+- **Orders can fill in pieces.** Each fill updates positions straight away and moves the
+  order to `partially_filled`. When the rest is cancelled to re-quote, only its unfilled
+  share of the turnover and overnight budgets is given back. The next cycle sizes a new
+  order for whatever is still needed.
 - **Halts** are written when they start and when they clear. Alerts and cash flows are
   recorded too.
 - **If a write fails,** the engine stops writing and halts trading. It never sends an
@@ -213,6 +217,8 @@ Positions still come from the broker.
 - **An order still `pending`** means the engine died between writing it and hearing back.
   The engine asks the broker by client order id: if the broker has it, the order is picked
   up; if not, it's closed as "never reached the broker".
+- **Partly filled orders** come back with the quantity already filled and its average
+  price, rebuilt from the stored fills.
 - **Fills made while the engine was down** are recorded and linked to their orders. They
   aren't added to the ledger a second time, since the broker's positions already include
   them.
@@ -253,9 +259,10 @@ reports/sample_replay/   output of the sample replay
 
 ## Limits of this version
 
-- The simulated broker fills any limit order that crosses the quote, in full. There's no
-  order book depth, no partial fills and no queue. Real overnight and weekend books are
-  thin, so fills there will be worse.
+- In the sample replay, the simulated broker fills any limit order that crosses the quote,
+  in full: its book has no depth limit and no queue. Tests use `set_depth` to fill orders in
+  pieces, but the sample doesn't. Real overnight and weekend books are thin, so fills there
+  will be worse and more of them will be partial.
 - Cash is treated as available the moment a sale fills. In a cash account, equity sales
   settle the next business day. Buying with unsettled cash is allowed, but selling what it
   bought before settlement is a good-faith violation. The live version should read settled
@@ -263,8 +270,6 @@ reports/sample_replay/   output of the sample replay
 - Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
   sizes are placeholders. The live version should read both, with minimum order sizes, from
   the broker's asset list.
-- The engine treats an order's first fill as the whole fill. The simulator never
-  part-fills, but real orders can, and that needs handling before live money.
 - At startup the engine takes positions from the broker as they are. It doesn't yet compare
   them with what the database expected, so a change made by hand while it was down passes
   without comment.

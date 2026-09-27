@@ -7,6 +7,7 @@ balance. Equities follow the session calendar; crypto trades around the clock.
 from __future__ import annotations
 
 import itertools
+import math
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -63,6 +64,8 @@ class SimAccount:
 class _Resting:
     order: Order
     order_id: str
+    remaining: float
+    fills: int = 0
 
 
 class SimVenue:
@@ -91,8 +94,11 @@ class SimVenue:
         # several replays write to the same database.
         self.id_prefix = id_prefix
         self._by_client: dict[str, str] = {}
-        # Test hook: while set, nothing crosses, as if the book were empty.
+        # Test hooks: while fills_paused is set nothing crosses, as if the book were empty.
+        # set_depth caps how much trades at the touch between price updates, for partial fills.
         self.fills_paused = False
+        self._depth: dict[str, float] = {}
+        self._available: dict[str, float] = {}
         self._forced_rejects: list[tuple[str, str | None]] = []
 
     # --- test and replay hooks -------------------------------------------------------------
@@ -100,9 +106,18 @@ class SimVenue:
     def set_price(self, instrument: str, mid: float, ts: datetime) -> None:
         self._require(instrument)
         self._mids[instrument] = (mid, ts)
-        for order_id, resting in list(self._resting.items()):
+        self._available[instrument] = self._depth.get(instrument, math.inf)
+        for resting in list(self._resting.values()):
             if resting.order.instrument == instrument:
-                self._try_fill(order_id, resting.order)
+                self._try_fill(resting)
+
+    def set_depth(self, instrument: str, qty: float | None) -> None:
+        """Let only `qty` trade at the touch per price update; None puts no limit on it."""
+        if qty is None:
+            self._depth.pop(instrument, None)
+        else:
+            self._depth[instrument] = qty
+        self._available[instrument] = math.inf if qty is None else qty
 
     def reject_next(
         self, count: int, reason: str = "rejected by venue", asset_class: str | None = None
@@ -169,10 +184,12 @@ class SimVenue:
         order_id = f"{self.name}-{self.id_prefix}{next(self._ids)}"
         order.venue_id = order_id
         self._by_client[order.client_id] = order_id
-        if not self._try_fill(order_id, order):
+        resting = _Resting(order, order_id, order.qty)
+        self._try_fill(resting)
+        if resting.remaining > 0:
             if order.time_in_force is TimeInForce.IOC:
-                return OrderAck(order_id, True, "expired unfilled")
-            self._resting[order_id] = _Resting(order, order_id)
+                return OrderAck(order_id, True, "rest expired unfilled")
+            self._resting[order_id] = resting
         return OrderAck(order_id, True)
 
     def find_order(self, client_id: str) -> str | None:
@@ -193,7 +210,8 @@ class SimVenue:
 
     # --- internals -------------------------------------------------------------------------
 
-    def _try_fill(self, order_id: str, order: Order) -> bool:
+    def _try_fill(self, resting: _Resting) -> bool:
+        order = resting.order
         quote = self.quote(order.instrument)
         if self.fills_paused or quote is None or not self.session_status(order.instrument).is_open:
             return False
@@ -205,25 +223,33 @@ class SimVenue:
             price = quote.bid
             if order.order_type is OrderType.LIMIT and price < order.limit_price:
                 return False
-        fee = order.qty * price * self._fee(order.instrument)
+        available = self._available.get(order.instrument, math.inf)
+        qty = min(resting.remaining, available)
+        if qty <= 0:
+            return False
+        self._available[order.instrument] = available - qty
+        resting.remaining = round(resting.remaining - qty, 12)
+        resting.fills += 1
+        fee = qty * price * self._fee(order.instrument)
         sign = 1 if order.side is Side.BUY else -1
-        self.account.cash -= sign * order.qty * price + fee
+        self.account.cash -= sign * qty * price + fee
         self.account.holdings[order.instrument] = (
-            self.account.holdings.get(order.instrument, 0.0) + sign * order.qty
+            self.account.holdings.get(order.instrument, 0.0) + sign * qty
         )
         self._fills.append(
             Fill(
-                f"{order_id}-f",
-                order_id,
+                f"{resting.order_id}-f{resting.fills}",
+                resting.order_id,
                 order.instrument,
                 order.side,
-                order.qty,
+                qty,
                 price,
                 fee,
                 self.clock.now,
             )
         )
-        self._resting.pop(order_id, None)
+        if resting.remaining <= 0:
+            self._resting.pop(resting.order_id, None)
         return True
 
     def _is_crypto(self, instrument: str) -> bool:

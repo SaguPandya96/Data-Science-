@@ -41,10 +41,11 @@ class OrderRecord:
     reference_price: float
     notional: float
     reason: str
-    status: str  # pending, placed, rejected, filled, canceled
+    status: str  # pending, placed, partially_filled, filled, canceled, rejected
     reject_reason: str = ""
-    fill_price: float | None = None
+    fill_price: float | None = None  # average over all fills so far
     fee: float = 0.0
+    filled_qty: float = 0.0
     off_hours_window: datetime | None = None  # last regular close, for orders placed after it
 
 
@@ -100,6 +101,7 @@ class RecoveredState:
     off_hours_needs: dict[tuple[datetime, str], float] = field(default_factory=dict)
     halts: list[HaltRow] = field(default_factory=list)
     prices: list[tuple[str, datetime, float]] = field(default_factory=list)
+    seen_fills: set[str] = field(default_factory=set)  # fill ids already recorded
 
 
 class AuditStore(Protocol):

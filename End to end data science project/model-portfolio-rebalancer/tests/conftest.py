@@ -109,3 +109,9 @@ def db():
 def schema(db):
     migrate(db)
     return db
+
+
+@pytest.fixture
+def dsn(schema):
+    """Connection string for the test's database, for code that opens its own connections."""
+    return make_conninfo(ADMIN_DSN, dbname=schema.info.dbname)

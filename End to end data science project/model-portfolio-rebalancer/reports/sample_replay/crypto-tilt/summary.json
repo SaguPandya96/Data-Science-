@@ -38,6 +38,7 @@
     "placed": 94,
     "filled": 94,
     "rejected": 0,
+    "partly_filled_then_cancelled": 0,
     "filled_by_session": {
       "overnight": 24,
       "pause": 1,

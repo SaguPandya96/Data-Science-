@@ -243,13 +243,17 @@ def summarize(result: ReplayResult) -> dict:
             "placed": int((orders["status"] != "rejected").sum()),
             "filled": int(len(filled)),
             "rejected": int((orders["status"] == "rejected").sum()),
+            "partly_filled_then_cancelled": int(
+                ((orders["status"] == "canceled") & (orders["filled_qty"] > 0)).sum()
+            ),
             "filled_by_session": {
                 k: int(v) for k, v in filled["session"].value_counts().sort_index().items()
             },
         }
-        traded = (filled["qty"] * filled["fill_price"]).sum()
+        # Turnover and fees include the traded part of orders whose rest was cancelled.
+        traded = (orders["filled_qty"] * orders["fill_price"].fillna(0)).sum()
         out["filled_turnover_pct_of_start"] = round(float(traded / out["start_value"] * 100), 2)
-        out["fees"] = round(float(filled["fee"].sum()), 2)
+        out["fees"] = round(float(orders["fee"].sum()), 2)
     out["alerts"] = int(len(result.alerts))
     out["halted_cycles"] = int((snaps["halted"] != "").sum())
     return out
