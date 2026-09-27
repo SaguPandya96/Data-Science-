@@ -15,14 +15,18 @@ import math
 import subprocess
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import psycopg
 
-from .audit import MarkSeen, OrderRecord, PriceSeen, ReconciliationLine
+from .audit import HaltRow, MarkSeen, OrderRecord, PriceSeen, ReconciliationLine, RecoveredState
 from .models import Model
 from .venue import Fill, InstrumentInfo
+
+# Orders whose notional counts against turnover: live or filled, or cancelled after a fill.
+_COUNTED = """(o.status in ('accepted', 'partially_filled', 'filled')
+               or (o.status = 'canceled' and exists (select 1 from fills f where f.order_id = o.id)))"""
 
 # The engine's record statuses, in the database's words.
 _STATUS = {
@@ -280,6 +284,128 @@ class PostgresStore:
                 "deposit" if amount > 0 else "withdrawal",
             ),
         )
+
+    def off_hours_need(self, window: datetime, sleeve: str, need: float) -> None:
+        self.conn.execute(
+            """insert into off_hours_needs (account_id, window_start, sleeve, need)
+               values (%s, %s, %s, %s)
+               on conflict (account_id, window_start, sleeve)
+               do update set need = greatest(off_hours_needs.need, excluded.need)""",
+            (self.account_id, window, sleeve, need),
+        )
+
+    def open_halts(self, now: datetime) -> list[HaltRow]:
+        rows = self.conn.execute(
+            """select scope::text, lane, reason, until from halts
+               where (account_id = %s or account_id is null) and cleared_at is null
+                 and (scope <> 'daily' or until > %s)
+               order by started_at, id""",
+            (self.account_id, now),
+        ).fetchall()
+        return [HaltRow(*row) for row in rows]
+
+    def recover(self, now: datetime) -> RecoveredState:
+        conn, account = self.conn, self.account_id
+        state = RecoveredState(halts=self.open_halts(now))
+        state.last_cycle = conn.execute(
+            "select max(ts) from cycles where account_id = %s", (account,)
+        ).fetchone()[0]
+
+        for row in conn.execute(
+            """select o.id, o.created_at, o.session, i.venue, o.broker_order_id, o.client_order_id,
+                      o.sleeve, o.instrument, o.side::text, o.qty, o.order_type, o.time_in_force,
+                      o.limit_price, o.reference_price, o.notional, o.reason, o.status::text,
+                      o.off_hours_window
+               from orders o join instruments i on i.symbol = o.instrument
+               where o.account_id = %s and o.status in ('pending', 'accepted', 'partially_filled')
+               order by o.id""",
+            (account,),
+        ):
+            (
+                order_id,
+                created,
+                session,
+                venue,
+                broker_id,
+                client_id,
+                sleeve,
+                instrument,
+                side,
+                qty,
+                order_type,
+                tif,
+                limit,
+                reference,
+                notional,
+                reason,
+                status,
+                window,
+            ) = row
+            self._order_ids[client_id] = order_id
+            state.open_orders.append(
+                OrderRecord(
+                    ts=created,
+                    session=session,
+                    venue=venue,
+                    order_id=broker_id,
+                    client_id=client_id,
+                    sleeve=sleeve,
+                    instrument=instrument,
+                    side=side,
+                    qty=float(qty),
+                    order_type=order_type,
+                    time_in_force=tif,
+                    limit_price=float(limit) if limit is not None else None,
+                    reference_price=float(reference),
+                    notional=float(notional),
+                    reason=reason,
+                    status="pending" if status == "pending" else "placed",
+                    off_hours_window=window,
+                )
+            )
+
+        since = now - timedelta(days=8)
+        state.daily_turnover = {
+            day: float(total)
+            for day, total in conn.execute(
+                f"""select (o.created_at at time zone 'America/New_York')::date, sum(o.notional)
+                    from orders o where o.account_id = %s and o.created_at >= %s and {_COUNTED}
+                    group by 1""",
+                (account, since),
+            )
+        }
+        for window, sleeve, asset_class, total in conn.execute(
+            f"""select o.off_hours_window, o.sleeve, i.asset_class::text, sum(o.notional)
+                from orders o join instruments i on i.symbol = o.instrument
+                where o.account_id = %s and o.off_hours_window >= %s and {_COUNTED}
+                group by 1, 2, 3""",
+            (account, since),
+        ):
+            state.off_hours_turnover[window] = state.off_hours_turnover.get(window, 0.0) + float(
+                total
+            )
+            if asset_class == "equity":
+                state.off_hours_done[(window, sleeve)] = float(total)
+        state.off_hours_needs = {
+            (window, sleeve): float(need)
+            for window, sleeve, need in conn.execute(
+                """select window_start, sleeve, need from off_hours_needs
+                   where account_id = %s and window_start >= %s""",
+                (account, since),
+            )
+        }
+        # A day of fresh prices is enough to rebuild the crypto drawdown check.
+        state.prices = [
+            (inst, ts, float(mid))
+            for inst, ts, mid in conn.execute(
+                """select p.instrument, p.quote_ts, p.mid
+                   from cycle_prices p join cycles c on c.id = p.cycle_id
+                   where c.account_id = %s and p.fresh and c.ts >= %s
+                   order by p.quote_ts, p.instrument""",
+                (account, now - timedelta(days=1, hours=1)),
+            )
+        ]
+        return state
 
     # --- internals -------------------------------------------------------------------------
 

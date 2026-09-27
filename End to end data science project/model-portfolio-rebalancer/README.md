@@ -205,6 +205,25 @@ engine = Engine(model, venues, instruments, calendar, audit=AuditLog(store=store
 - **Opening a store** records the model version and refuses a model file that changed
   without a version bump.
 
+**Restarts.** With a store attached, `engine.start()` resumes the account from the database.
+Positions still come from the broker.
+
+- **Open orders** go back on the books, and the next cycle cancels and re-quotes them as
+  usual.
+- **An order still `pending`** means the engine died between writing it and hearing back.
+  The engine asks the broker by client order id: if the broker has it, the order is picked
+  up; if not, it's closed as "never reached the broker".
+- **Fills made while the engine was down** are recorded and linked to their orders. They
+  aren't added to the ledger a second time, since the broker's positions already include
+  them.
+- **Budgets:** today's turnover, each night's off-hours budget, and each sleeve's overnight
+  shortfall and what's been bought against it are all restored.
+- **The crypto drawdown pause** is rebuilt from the last day of stored BTC and ETH prices,
+  without raising the alert again.
+- **Halts are read from the database every cycle,** not only at start. A halt inserted from
+  the dashboard or the watchdog stops trading on the next cycle and cancels resting orders.
+  Setting `cleared_at` on it lets trading resume.
+
 `python -m rebalancer.replay --dsn ...` records each model's 24/7 run as its own paper
 account. Recording all three sample runs, 2,230 cycles each, takes about 20 seconds.
 
@@ -244,9 +263,11 @@ reports/sample_replay/   output of the sample replay
 - Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
   sizes are placeholders. The live version should read both, with minimum order sizes, from
   the broker's asset list.
-- The engine writes to Postgres but doesn't read back from it yet. After a restart it starts
-  with no memory of open orders, turnover used, or halts. It also doesn't yet obey a halt
-  inserted by the dashboard or the watchdog. Restart recovery is the next piece.
+- The engine treats an order's first fill as the whole fill. The simulator never
+  part-fills, but real orders can, and that needs handling before live money.
+- At startup the engine takes positions from the broker as they are. It doesn't yet compare
+  them with what the database expected, so a change made by hand while it was down passes
+  without comment.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,
   tax-lot selection and wash-sale checks, the watchdog, and the dashboard.

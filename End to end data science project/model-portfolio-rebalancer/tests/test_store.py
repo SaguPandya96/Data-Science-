@@ -114,20 +114,34 @@ def test_replay_trail_in_postgres_matches_memory(engine_conn, crypto_tilt, calen
     assert one(conn, "select count(*) from fills where order_id is not null") == filled > 0
 
 
-def test_a_database_failure_halts_before_anything_reaches_the_broker(engine_conn, growth):
+def test_a_lost_database_halts_the_engine(engine_conn, growth):
     w = recording_world(engine_conn, growth)
     engine_conn.close()
 
     report = w.step(TUESDAY_10AM, PRICES)
     assert w.engine.audit.store_error
-    assert [o.status for o in report.orders] == ["rejected"]
-    assert "audit store unavailable" in report.orders[0].reject_reason
+    assert report.halted and "audit store unavailable" in report.halted
+    assert report.orders == []
     assert w.venues["alpaca"].fills(TUESDAY_10AM - timedelta(days=1)) == []
-    assert w.engine.gate.halted and "audit store unavailable" in w.engine.gate.halted
     assert any("audit store failed" in a.message for a in w.engine.audit.alerts)
 
     later = w.step(TUESDAY_10AM + timedelta(minutes=1), PRICES)
     assert later.halted and later.orders == []
+
+
+def test_an_order_that_cannot_be_written_is_never_sent(engine_conn, growth, monkeypatch):
+    w = recording_world(engine_conn, growth)
+
+    def fail(record):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(w.engine.audit.store, "order_created", fail)
+    report = w.step(TUESDAY_10AM, PRICES)
+    assert [o.status for o in report.orders] == ["rejected"]
+    assert "audit store unavailable" in report.orders[0].reject_reason
+    assert w.venues["alpaca"].fills(TUESDAY_10AM - timedelta(days=1)) == []
+    assert w.venues["alpaca"].find_order(report.orders[0].client_id) is None
+    assert w.engine.gate.halted and "disk full" in w.engine.gate.halted
 
 
 def test_a_model_edited_without_a_version_bump_is_refused(engine_conn, growth, tmp_path):

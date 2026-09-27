@@ -11,7 +11,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from .audit import AuditLog, MarkSeen, OrderRecord, PriceSeen, ReconciliationLine
+from .audit import AuditLog, MarkSeen, OrderRecord, PriceSeen, ReconciliationLine, RecoveredState
 from .models import CASH_INSTRUMENTS, Model, Sleeve
 from .risk import RiskGate, RiskLimits, round_down
 from .sessions import MarketCalendar, Session
@@ -94,9 +94,66 @@ class Engine:
     # --- lifecycle -------------------------------------------------------------------------
 
     def start(self, now: datetime) -> None:
+        """Take positions from the broker and, with a store attached, resume whatever the last
+        run left open."""
         self.ledger = self._venue_positions()
-        self._fills_since = {name: now for name in self.venues}
+        since = now
+        state = self.audit.recover(now)
+        if self.audit.store_error:
+            self.gate.halt(now, f"audit store unavailable ({self.audit.store_error})")
+        elif state is not None:
+            since = self._restore(now, state)
+        self._fills_since = {name: since for name in self.venues}
+        if state is not None:
+            # Fills made while the engine was down are already in the broker's positions: record
+            # them and close their orders, but don't count them in the ledger a second time.
+            self._pull_fills(now, apply=False)
         self._started = True
+
+    def _restore(self, now: datetime, state: RecoveredState) -> datetime:
+        self.gate.restore(
+            now,
+            daily_turnover=state.daily_turnover,
+            off_hours_turnover=state.off_hours_turnover,
+            prices=state.prices,
+            halts=state.halts,
+        )
+        self._off_need.update(state.off_hours_needs)
+        self._off_done.update(state.off_hours_done)
+        resumed, abandoned = 0, 0
+        for record in state.open_orders:
+            counted = True
+            if record.status == "pending":
+                # Written but never confirmed: the engine died around the moment of sending.
+                broker_id = self.venues[record.venue].find_order(record.client_id)
+                if broker_id is None:
+                    record.status = "rejected"
+                    record.reject_reason = "never reached the broker before a restart"
+                    self.audit.order_updated(record, now, record.reject_reason)
+                    abandoned += 1
+                    continue
+                record.order_id, record.status, counted = broker_id, "placed", False
+                self.audit.order_updated(record, now, "found at the broker after a restart")
+            window = record.off_hours_window
+            self.gate.track_open(
+                record.client_id, record.ts, window, record.notional, counted=counted
+            )
+            if window is not None and self.instruments[record.instrument].asset_class == "equity":
+                key = (window, record.sleeve)
+                if not counted:
+                    self._off_done[key] = self._off_done.get(key, 0.0) + record.notional
+                self._off_orders[record.client_id] = (key, record.notional)
+            self._open[record.client_id] = (record.venue, record)
+            resumed += 1
+        if state.last_cycle is not None:
+            self.audit.alert(
+                now,
+                "info",
+                f"resumed after a restart: last cycle {state.last_cycle.isoformat(timespec='seconds')}, "
+                f"{resumed} open orders picked up, {abandoned} never sent",
+            )
+            return state.last_cycle
+        return now
 
     def record_cash_flow(self, now: datetime, amount: float) -> None:
         self.ledger["USD"] = self.ledger.get("USD", 0.0) + amount
@@ -113,6 +170,9 @@ class Engine:
             raise RuntimeError("call start() before the first cycle")
         session = self.calendar.session_at(now).session
         self._settle(now)
+        halts = self.audit.open_halts(now)
+        if halts is not None:
+            self.gate.sync_halts(now, halts)
         quotes = self._quotes(now)
         gap, lines = self._reconcile(now)
         self.gate.crypto_buys_paused(now)  # raises and clears the drawdown alert as prices move
@@ -161,20 +221,21 @@ class Engine:
                 self._release_off_hours(client_id)
                 del self._open[client_id]
 
-    def _pull_fills(self, now: datetime) -> None:
+    def _pull_fills(self, now: datetime, *, apply: bool = True) -> None:
         by_order = {rec.order_id: cid for cid, (_, rec) in self._open.items()}
         for name, venue in self.venues.items():
             for fill in venue.fills(self._fills_since.get(name, now)):
                 if fill.fill_id in self._seen_fills:
                     continue
                 self._seen_fills.add(fill.fill_id)
-                sign = 1 if fill.side is Side.BUY else -1
-                self.ledger[fill.instrument] = (
-                    self.ledger.get(fill.instrument, 0.0) + sign * fill.qty
-                )
-                self.ledger["USD"] = (
-                    self.ledger.get("USD", 0.0) - sign * fill.qty * fill.price - fill.fee
-                )
+                if apply:
+                    sign = 1 if fill.side is Side.BUY else -1
+                    self.ledger[fill.instrument] = (
+                        self.ledger.get(fill.instrument, 0.0) + sign * fill.qty
+                    )
+                    self.ledger["USD"] = (
+                        self.ledger.get("USD", 0.0) - sign * fill.qty * fill.price - fill.fee
+                    )
                 cid = by_order.get(fill.order_id)
                 self.audit.fill(fill, cid)
                 if cid is not None:
@@ -384,7 +445,9 @@ class Engine:
                 window = self.calendar.last_regular_close(now)
                 key = (window, intent.sleeve.id)
                 need = max(self._off_need.get(key, 0.0), abs(intent.delta))
-                self._off_need[key] = need
+                if need > self._off_need.get(key, 0.0):
+                    self._off_need[key] = need
+                    self.audit.off_hours_need(window, intent.sleeve.id, need)
                 allowed = max(
                     intent.sleeve.max_off_hours_pct * need - self._off_done.get(key, 0.0), 0.0
                 )

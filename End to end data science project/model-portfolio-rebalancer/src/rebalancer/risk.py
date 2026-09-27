@@ -11,7 +11,7 @@ from collections import deque
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime, time, timedelta
 
-from .audit import AuditLog
+from .audit import AuditLog, HaltRow
 from .sessions import ET, MarketCalendar, Session
 from .venue import InstrumentInfo, Order, OrderType, Quote, SessionStatus, Side
 
@@ -139,19 +139,80 @@ class RiskGate:
         return 1 - hist[-1][1] / high
 
     def crypto_buys_paused(self, now: datetime) -> str | None:
-        reason = None
-        for inst in self.limits.drawdown_watch:
-            dd = self.drawdown(inst)
-            if dd >= self.limits.crypto_drawdown:
-                hours = int(self.limits.crypto_drawdown_window.total_seconds() // 3600)
-                reason = f"{inst} down {dd:.1%} from its {hours}h high"
-                break
+        reason = self._drawdown_reason()
         if reason and not self._pause_reason:
             self.audit.alert(now, "warning", f"crypto buys paused: {reason}")
         elif self._pause_reason and not reason:
             self.audit.alert(now, "info", "crypto buys resumed: drawdown back inside limit")
         self._pause_reason = reason
         return reason
+
+    def _drawdown_reason(self) -> str | None:
+        for inst in self.limits.drawdown_watch:
+            dd = self.drawdown(inst)
+            if dd >= self.limits.crypto_drawdown:
+                hours = int(self.limits.crypto_drawdown_window.total_seconds() // 3600)
+                return f"{inst} down {dd:.1%} from its {hours}h high"
+        return None
+
+    # --- restart and outside control -------------------------------------------------------
+
+    def restore(
+        self,
+        now: datetime,
+        *,
+        daily_turnover: dict[date, float],
+        off_hours_turnover: dict[datetime, float],
+        prices: list[tuple[str, datetime, float]],
+        halts: list[HaltRow],
+    ) -> None:
+        """Pick up where a previous run left off. Nothing here raises an alert: these are
+        states that were already announced when they began."""
+        self.daily_turnover.update(daily_turnover)
+        self.off_hours_turnover.update(off_hours_turnover)
+        for inst, ts, mid in prices:
+            self.observe(inst, ts, mid)
+        self._pause_reason = self._drawdown_reason()
+        self.sync_halts(now, halts, announce=False)
+
+    def sync_halts(self, now: datetime, rows: list[HaltRow], *, announce: bool = True) -> None:
+        """Make the open halts in the store the ones in force. That's how a halt from the
+        dashboard or watchdog stops the engine, and how clearing one lets it resume."""
+        global_reason = next((r.reason for r in rows if r.scope == "global"), None)
+        lanes = {r.lane: r.reason for r in rows if r.scope == "lane"}
+        untils = [r.until for r in rows if r.scope == "daily" and r.until and r.until > now]
+        if announce:
+            if global_reason and global_reason != self.halted:
+                self.audit.alert(now, "critical", f"trading halted: {global_reason}")
+            elif self.halted and not global_reason:
+                self.audit.alert(now, "info", "trading resumed: halt cleared")
+            for lane in lanes.keys() - self.lane_halts.keys():
+                self.audit.alert(now, "critical", f"{lane} halted: {lanes[lane]}")
+            for lane in self.lane_halts.keys() - lanes.keys():
+                self.audit.alert(now, "info", f"{lane} resumed: halt cleared")
+        self.halted = global_reason
+        self.lane_halts = lanes
+        self.halted_until = max(untils) if untils else None
+
+    def track_open(
+        self,
+        client_id: str,
+        placed_at: datetime,
+        window: datetime | None,
+        notional: float,
+        *,
+        counted: bool,
+    ) -> None:
+        """Follow an order that was placed before a restart, adding its turnover unless the
+        restored totals already include it."""
+        day = placed_at.astimezone(ET).date()
+        if not counted:
+            self.daily_turnover[day] = self.daily_turnover.get(day, 0.0) + notional
+            if window is not None:
+                self.off_hours_turnover[window] = (
+                    self.off_hours_turnover.get(window, 0.0) + notional
+                )
+        self._placed[client_id] = _Placed(day, window, notional)
 
     # --- the gate --------------------------------------------------------------------------
 

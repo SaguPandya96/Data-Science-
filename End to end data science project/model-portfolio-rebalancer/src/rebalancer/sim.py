@@ -90,6 +90,9 @@ class SimVenue:
         # Real broker ids are unique forever. A prefix keeps simulated ones from colliding when
         # several replays write to the same database.
         self.id_prefix = id_prefix
+        self._by_client: dict[str, str] = {}
+        # Test hook: while set, nothing crosses, as if the book were empty.
+        self.fills_paused = False
         self._forced_rejects: list[tuple[str, str | None]] = []
 
     # --- test and replay hooks -------------------------------------------------------------
@@ -165,11 +168,15 @@ class SimVenue:
 
         order_id = f"{self.name}-{self.id_prefix}{next(self._ids)}"
         order.venue_id = order_id
+        self._by_client[order.client_id] = order_id
         if not self._try_fill(order_id, order):
             if order.time_in_force is TimeInForce.IOC:
                 return OrderAck(order_id, True, "expired unfilled")
             self._resting[order_id] = _Resting(order, order_id)
         return OrderAck(order_id, True)
+
+    def find_order(self, client_id: str) -> str | None:
+        return self._by_client.get(client_id)
 
     def cancel(self, order_id: str) -> bool:
         return self._resting.pop(order_id, None) is not None
@@ -188,7 +195,7 @@ class SimVenue:
 
     def _try_fill(self, order_id: str, order: Order) -> bool:
         quote = self.quote(order.instrument)
-        if quote is None or not self.session_status(order.instrument).is_open:
+        if self.fills_paused or quote is None or not self.session_status(order.instrument).is_open:
             return False
         if order.side is Side.BUY:
             price = quote.ask
