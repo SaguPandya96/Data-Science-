@@ -49,7 +49,7 @@ jobs:
           cache-dependency-path: "End to end data science project/model-portfolio-rebalancer/pyproject.toml"
 
       - name: Install project and development dependencies
-        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,db]"
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,db,alpaca]"
 
       - name: Lint
         run: python -m ruff check .

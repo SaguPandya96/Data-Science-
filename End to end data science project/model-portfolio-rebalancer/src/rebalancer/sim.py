@@ -11,6 +11,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from . import broker_rules
 from .sessions import MarketCalendar, Session
 from .settlement import SettlementBook
 from .venue import (
@@ -24,18 +25,6 @@ from .venue import (
     Side,
     TimeInForce,
 )
-
-EQUITY_RULES = {
-    Session.REGULAR: (
-        {OrderType.LIMIT, OrderType.MARKET},
-        {TimeInForce.DAY, TimeInForce.GTC, TimeInForce.IOC},
-    ),
-    Session.PRE: ({OrderType.LIMIT}, {TimeInForce.DAY}),
-    Session.POST: ({OrderType.LIMIT}, {TimeInForce.DAY}),
-    Session.OVERNIGHT: ({OrderType.LIMIT}, {TimeInForce.DAY, TimeInForce.GTC}),
-}
-# Alpaca crypto takes GTC and IOC only, no DAY orders.
-CRYPTO_RULES = ({OrderType.LIMIT, OrderType.MARKET}, {TimeInForce.GTC, TimeInForce.IOC})
 
 # Half-spreads in basis points by equity session. Overnight books are thin; crypto widens a bit on
 # weekends. Rough numbers, only there so limit orders have something to cross.
@@ -135,14 +124,8 @@ class SimVenue:
 
     def session_status(self, instrument: str) -> SessionStatus:
         self._require(instrument)
-        if self._is_crypto(instrument):
-            types, tifs = CRYPTO_RULES
-            return SessionStatus(True, "continuous", frozenset(types), frozenset(tifs))
-        session = self.calendar.session_at(self.clock.now).session
-        if session not in EQUITY_RULES:
-            return SessionStatus(False, session.value)
-        types, tifs = EQUITY_RULES[session]
-        return SessionStatus(True, session.value, frozenset(types), frozenset(tifs))
+        asset_class = self.instruments[instrument].asset_class
+        return broker_rules.session_status(self.calendar, self.clock.now, asset_class)
 
     def quote(self, instrument: str) -> Quote | None:
         self._require(instrument)
