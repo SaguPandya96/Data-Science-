@@ -153,6 +153,41 @@ instrument also needs a venue and lot size in `DEFAULT_INSTRUMENTS` in
 [`replay.py`](src/rebalancer/replay.py). The starter models are examples, not
 recommendations.
 
+## Database
+
+Postgres 16 is the system of record. The schema is in
+[`migrations/001_initial.sql`](src/rebalancer/migrations/001_initial.sql). It covers model
+versions, accounts, every cycle's prices and marks, decisions, orders and their status
+changes, fills, cash flows, reconciliations, halts, alerts and tax lots. Later changes go in
+new numbered files. Never edit one that has been applied: the runner stores a checksum for
+each file and refuses one that changed.
+
+```bash
+python -m pip install -e ".[dev,db]"
+export DATABASE_URL=postgresql://user@host/rebalancer
+python -m rebalancer.migrate            # apply pending migrations
+python -m rebalancer.migrate status
+```
+
+- **Roles.** The migration creates three roles; each login user is granted one of them.
+  - `rebalancer_engine` inserts everywhere. It can update only rows whose state really
+    changes, like order status, open lots and halts. It can't rewrite decisions, fills or
+    alerts.
+  - `rebalancer_watchdog` reads everything and can raise halts and alerts.
+  - `rebalancer_dashboard` reads everything, can insert a halt (the halt button) and can
+    acknowledge alerts.
+- **Models.** Git is the source of truth. The database keeps a copy of each version as the
+  engine loaded it, with its commit and checksum.
+- **Retention.** `select prune_cycle_detail()` keeps prices and marks at full resolution
+  for 90 days, then thins them to one cycle every 5 minutes. Cycles, decisions and orders
+  are never pruned.
+- **Tax lots.** The plan is to sell the highest-cost lot first, and to prefer lots held
+  over a year when selling at a gain. Whether the wash-sale rule applies to crypto is a
+  question for a tax professional; the schema can record wash-sale adjustments either way.
+
+The database tests create a throwaway database for each test. Point `TEST_DATABASE_URL` at a
+server where the user can create databases and roles; without it those tests are skipped.
+
 ## Layout
 
 ```text
@@ -167,6 +202,8 @@ src/rebalancer/
   audit.py               decisions, orders and alerts
   replay.py              replay harness and command line
   scenarios.py           scripted price paths
+  migrate.py             migration runner
+  migrations/            numbered SQL schema files
 tests/
 reports/sample_replay/   output of the sample replay
 ```
@@ -183,7 +220,8 @@ reports/sample_replay/   output of the sample replay
 - Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
   sizes are placeholders. The live version should read both, with minimum order sizes, from
   the broker's asset list.
-- Everything is in memory. Positions, orders and decisions aren't stored anywhere yet.
+- The schema exists, but the engine doesn't write to it yet. A replay keeps its audit trail
+  in memory and writes CSVs.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,
-  tax lots and wash sales, the watchdog, and the dashboard.
+  tax-lot selection and wash-sale checks, the watchdog, and the dashboard.
