@@ -34,6 +34,9 @@ _COUNTED = """(o.status in ('accepted', 'partially_filled', 'filled')
 _COUNTED_NOTIONAL = """sum(case when o.status = 'canceled' then o.notional * f.qty / o.qty
                         else o.notional end)"""
 
+# Namespace for per-account advisory locks; any constant works as long as it never changes.
+_ACCOUNT_LOCK = 72_431
+
 # The engine's record statuses, in the database's words.
 _STATUS = {
     "pending": "pending",
@@ -115,6 +118,14 @@ class PostgresStore:
                     (account_id, model_version_id),
                 )
         return cls(conn, account_id, model_version_id, build)
+
+    def try_lock_account(self) -> bool:
+        """Claim this account for this connection. Two engines on one account would both trade,
+        so a runner that can't get the lock must not start. Postgres drops the lock when the
+        connection closes, including when the process dies."""
+        return self.conn.execute(
+            "select pg_try_advisory_lock(%s, %s)", (_ACCOUNT_LOCK, self.account_id)
+        ).fetchone()[0]
 
     # --- AuditStore ------------------------------------------------------------------------
 

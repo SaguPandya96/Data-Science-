@@ -8,8 +8,8 @@ portfolio whose market is open, in small limit orders, inside hard risk limits.
 
 Everything runs through one Alpaca account, equities and crypto together against one cash
 balance. Phase 1 is a simulator of that account, with the real session and order rules. Phase 2
-connects to an Alpaca **paper** account. The adapter is built and can be checked against your
-paper account, but nothing drives the engine against Alpaca on a schedule yet.
+connects to an Alpaca **paper** account: an adapter for Alpaca, and a runner that drives the
+engine against it once a minute.
 
 ## What it does
 
@@ -293,6 +293,33 @@ account is the first real test. Things to look at in its output:
 - **Settled cash.** `check` prints `non_marginable_buying_power`. Compare it with the engine's
   own settlement tracking before relying on either.
 
+## Running on a schedule
+
+`runner.py` runs the engine against the Alpaca paper account, one cycle a minute on the minute.
+
+```bash
+python -m pip install -e ".[db,alpaca]"
+export DATABASE_URL=... APCA_API_KEY_ID=... APCA_API_SECRET_KEY=...
+python -m rebalancer.migrate
+python -m rebalancer.runner --model models/growth-247.yaml --account paper-main --broker-account PA...
+python -m rebalancer.runner ... --once   # a single cycle, then stop
+```
+
+- **Postgres is required.** The runner won't start without it, because the audit trail,
+  restart recovery and halts all live there.
+- **One runner per account.** At startup the runner claims the account with a Postgres
+  lock, so a second runner on the same account refuses to start. The lock goes when the
+  connection does, so a crashed runner doesn't leave the account locked.
+- **Failures.** A failed cycle, like a broker timeout, is logged and alerted, and the next
+  cycle tries again. Three failures in a row halt trading, and the halt is recorded like any
+  other.
+- **Slow cycles.** A cycle that overruns makes the loop skip ahead to the next minute rather
+  than run the missed cycles back to back.
+- **Stopping.** Ctrl-C or SIGTERM finishes the current cycle, cancels whatever is resting at
+  the broker, and exits. Starting again resumes from the database.
+- **Output.** Each cycle logs one line with the session, account value, orders placed and
+  rejected, and any halt.
+
 ## Layout
 
 ```text
@@ -310,6 +337,7 @@ src/rebalancer/
   migrate.py             migration runner
   store.py               writes the audit trail to Postgres
   alpaca.py              Alpaca paper adapter and check command
+  runner.py              scheduled loop against Alpaca
   broker_rules.py        order types allowed in each session
   migrations/            numbered SQL schema files
 tests/
@@ -335,6 +363,8 @@ reports/sample_replay/   output of the sample replay
 - At startup the engine takes positions from the broker as they are. It doesn't yet compare
   them with what the database expected, so a change made by hand while it was down passes
   without comment.
+- The runner cycles on a timer only. The spec also asks for a cycle when prices move, which
+  needs Alpaca's streaming feed.
 - Not built yet: the weekly calendar check, moving between model versions over several
   sessions, spread limits per session, slicing large orders, netting trades across accounts,
   tax-lot selection and wash-sale checks, the watchdog, and the dashboard.
