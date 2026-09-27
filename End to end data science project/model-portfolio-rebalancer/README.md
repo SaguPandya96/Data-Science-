@@ -6,10 +6,10 @@ the weekend's news. Nobody should have to wait for Monday 9:30. This project is 
 that. It holds a few model portfolios, watches prices, and trades only the parts of the
 portfolio whose market is open, in small limit orders, inside hard risk limits.
 
-This is phase 1, a simulator. It doesn't connect to a broker and uses no API keys. Everything
-will run through one Alpaca account, equities and crypto together against one cash balance. For
-now, orders go to a simulated version of that account that follows the real session and order
-rules.
+Everything runs through one Alpaca account, equities and crypto together against one cash
+balance. Phase 1 is a simulator of that account, with the real session and order rules. Phase 2
+connects to an Alpaca **paper** account. The adapter is built and can be checked against your
+paper account, but nothing drives the engine against Alpaca on a schedule yet.
 
 ## What it does
 
@@ -246,6 +246,53 @@ account. Recording all three sample runs, 2,230 cycles each, takes about 20 seco
 The database tests create a throwaway database for each test. Point `TEST_DATABASE_URL` at a
 server where the user can create databases and roles; without it those tests are skipped.
 
+## Alpaca paper account
+
+`alpaca.py` implements the same adapter interface as the simulated broker, against Alpaca's
+Trading and Market Data APIs.
+
+- **Keys** come only from `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` in the environment,
+  never from a file in the repo.
+- **Paper only.** The adapter refuses any trading URL other than
+  `https://paper-api.alpaca.markets`.
+- **Order rules.** Equities use the same session rules as the simulator. Orders outside the
+  regular session go out as limit orders with `extended_hours` set. Crypto orders use Alpaca's
+  `BTC/USD` symbols and GTC.
+- **Unclear sends are never guessed.** If a send times out, the adapter looks the order up by
+  its client order id. If the order isn't found it counts as not sent, and if the lookup fails
+  too the adapter raises an error.
+- **Missing quotes don't stop the engine.** A missing or failed quote just means that sleeve
+  waits a cycle.
+- **Position symbols.** Positions come back under the engine's own symbols (Alpaca reports
+  `BTCUSD`). Anything else in the account is reported under its own name, so reconciliation
+  flags it. Use a paper account that holds nothing else.
+
+To look at the paper account:
+
+```bash
+python -m pip install -e ".[dev,alpaca]"
+export APCA_API_KEY_ID=... APCA_API_SECRET_KEY=...
+python -m rebalancer.alpaca check              # read-only
+python -m rebalancer.alpaca check --order-test # also places and cancels one VOO limit at half the price
+```
+
+`check` prints the market clock, the account's cash and buying power, positions, a quote and
+the session for each instrument, and the latest fill and crypto-fee activities.
+
+**What I haven't been able to verify.** The tests run against `tests/fake_alpaca.py`, a model of
+Alpaca built from its documentation. They don't touch Alpaca itself, so `check` against a paper
+account is the first real test. Things to look at in its output:
+
+- **Crypto fees.** Alpaca books crypto fees as separate `CFEE` activities, not on the fill. The
+  adapter reports fees as zero for now, so the engine's cash and crypto balances drift from the
+  broker's by each fee. Reconciliation halts trading once the gap passes $10. That's a safe
+  failure, but it needs fixing from the real `CFEE` rows that `check` prints.
+- **Overnight quotes.** The default stock feed is IEX, which has no overnight quotes. Equities
+  then read as stale overnight and aren't traded. Set `ALPACA_STOCK_FEED` to a feed that covers
+  the overnight session if your data plan includes one.
+- **Settled cash.** `check` prints `non_marginable_buying_power`. Compare it with the engine's
+  own settlement tracking before relying on either.
+
 ## Layout
 
 ```text
@@ -262,6 +309,8 @@ src/rebalancer/
   scenarios.py           scripted price paths
   migrate.py             migration runner
   store.py               writes the audit trail to Postgres
+  alpaca.py              Alpaca paper adapter and check command
+  broker_rules.py        order types allowed in each session
   migrations/            numbered SQL schema files
 tests/
 reports/sample_replay/   output of the sample replay

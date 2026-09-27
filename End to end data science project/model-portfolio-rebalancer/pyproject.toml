@@ -20,6 +20,9 @@ dependencies = [
 db = [
   "psycopg[binary]==3.3.6",
 ]
+alpaca = [
+  "httpx==0.28.1",
+]
 dev = [
   "pytest==8.3.3",
   "ruff==0.8.1",
@@ -28,6 +31,7 @@ dev = [
 [project.scripts]
 rebalancer-replay = "rebalancer.replay:main"
 rebalancer-migrate = "rebalancer.migrate:main"
+rebalancer-alpaca = "rebalancer.alpaca:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
