@@ -8,6 +8,7 @@ Every project starts from a real question, and every model is measured against a
 
 | Project | The question | The short answer |
 | --- | --- | --- |
+| [Model portfolio rebalancer](#model-portfolio-rebalancer-keeping-a-portfolio-on-target-around-the-clock) | Can a portfolio stay on target when its markets keep different hours? | In simulation, yes. Trading around the clock halved the time out of target compared with waiting for the regular session, at the cost of more trades. |
 | [OfferLift](#offerlift-email-experiment-and-uplift-targeting) | Who should get a marketing email? | The email works. Customers who bought both men's and women's products respond twice as strongly; beyond them, no model beat random. |
 | [Signals in the Noise](#signals-in-the-noise-advertising-traffic-investigation) | Which ad campaigns deserve a human review? | 5,902 campaign windows narrowed to 11 evidence-rich cases, for review, not automatic enforcement. |
 | [SupplyLens](#supplylens-supplier-delivery-risk) | Which shipments should be checked first? | Checking the riskiest 1 in 5 catches about twice as many badly late shipments as checking at random. |
@@ -22,6 +23,22 @@ Every project starts from a real question, and every model is measured against a
 ---
 
 ## The projects
+
+### Model Portfolio Rebalancer: Keeping a Portfolio on Target Around the Clock
+
+**The question:** a portfolio that mixes US stocks, which now trade through most of the weekday night, with crypto, which never closes, drifts away from its target weights at any hour. Can it be kept on target without waiting for Monday's open, and without trading in markets that are closed or thin?
+
+**The answer: in simulation, yes, and the simple alternative loses.** Over seven weeks of scripted prices, including a 20% crypto crash on a Saturday, the Growth portfolio spent **1.7%** of the time with a holding outside its allowed range. The same engine limited to regular trading hours spent **3.8%**, and not rebalancing at all spent **15.1%**. For the crypto-heavy portfolio the figures were 5.7%, 12.0% and 32.3%. The cost is more trading: 94 trades against 18, and $18 in crypto fees against $12.
+
+The prices are scripted, so this shows the engine follows its rules, not that it makes money, and it doesn't connect to a broker yet. Two things I haven't fixed. Trading only back to the edge of the allowed range makes many small trades in a trend. And a cap on overnight stock trades means stocks mostly catch up at the morning open.
+
+*Built with:* Python, pandas, exchange_calendars, PostgreSQL, psycopg, a simulated broker, automated tests and CI.
+
+*Technical detail:* NYSE session calendar including the 23/5 schedule from Dec 6, 2026; risk gate with a 5% single-order limit, 15% daily and 5% overnight turnover budgets, a crypto buy pause at a 15% drawdown, and halts on reconciliation gaps; T+1 settlement for a cash account; partial fills; every order written to Postgres before it is sent; restart recovery; 143 tests, including restarts at awkward moments.
+
+[Open the project](End%20to%20end%20data%20science%20project/model-portfolio-rebalancer/)
+
+---
 
 ### OfferLift: Email Experiment and Uplift Targeting
 
