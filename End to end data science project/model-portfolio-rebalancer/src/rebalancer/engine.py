@@ -243,8 +243,9 @@ class Engine:
         why = ""
         for inst in names:
             info = self.instruments[inst]
-            if info.venue in self.gate.venue_halts:
-                why = f"venue {info.venue} halted"
+            lane_halt = self.gate.lane_halt(inst)
+            if lane_halt:
+                why = lane_halt
                 continue
             status = self.venues[info.venue].session_status(inst)
             if not status.is_open:
@@ -499,7 +500,7 @@ class Engine:
         if not ack.accepted:
             record.reject_reason = f"venue: {ack.reason}"
             self.audit.orders.append(record)
-            self.gate.record_venue_reject(now, info.venue, ack.reason)
+            self.gate.record_reject(now, inst, ack.reason)
             self.audit.decide(now, intent.sleeve.id, "reject", record.reject_reason, dedupe=False)
             return record
 

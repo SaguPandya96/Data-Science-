@@ -38,7 +38,7 @@ rules.
   | Quote age | 60 seconds | skip the sleeve this cycle |
   | BTC or ETH drawdown | 15% below its 24-hour high | pause crypto buys, alert |
   | Reconciliation | engine vs venue off by more than $10 | halt everything, alert |
-  | Broker rejects | 3 in 10 minutes | halt the venue, alert |
+  | Broker rejects | 3 in 10 minutes for one asset class | halt that asset class, alert |
   | Order type | no market orders outside the regular session | reject |
 
   Equity trades outside the regular session are also capped at 25% of the rebalance needed
@@ -180,8 +180,6 @@ reports/sample_replay/   output of the sample replay
   settle the next business day. Buying with unsettled cash is allowed, but selling what it
   bought before settlement is a good-faith violation. The live version should read settled
   cash from the broker.
-- One broker means one venue. Three rejected orders in ten minutes stop crypto trading as
-  well as equities.
 - Fractional equity orders assume VOO and VXUS are fractionable at Alpaca, and crypto lot
   sizes are placeholders. The live version should read both, with minimum order sizes, from
   the broker's asset list.

@@ -133,35 +133,52 @@ def test_crypto_drawdown_pauses_buys_but_not_sells(gate):
     assert check(gate, buy, now=later, q=quote("BTC-USD", 84_500, later)).approved
 
 
-def test_three_venue_rejects_in_ten_minutes_halt_the_venue(gate):
-    gate.record_venue_reject(NOW, "alpaca", "x")
-    gate.record_venue_reject(NOW + timedelta(minutes=12), "alpaca", "x")
-    gate.record_venue_reject(NOW + timedelta(minutes=24), "alpaca", "x")
-    assert "alpaca" not in gate.venue_halts
-    gate.record_venue_reject(NOW + timedelta(minutes=25), "alpaca", "x")
-    gate.record_venue_reject(NOW + timedelta(minutes=26), "alpaca", "x")
-    assert "alpaca" in gate.venue_halts
-    result = check(
-        gate, order(), now=NOW + timedelta(minutes=27), q=quote(ts=NOW + timedelta(minutes=27))
-    )
-    assert not result.approved and "venue alpaca halted" in result.reason
+def test_three_rejects_in_ten_minutes_halt_that_asset_class(gate):
+    for minutes in (0, 12, 24):
+        gate.record_reject(NOW + timedelta(minutes=minutes), "VOO", "x")
+    assert gate.lane_halts == {}
+    gate.record_reject(NOW + timedelta(minutes=25), "VXUS", "x")
+    gate.record_reject(NOW + timedelta(minutes=26), "VOO", "x")
+    assert set(gate.lane_halts) == {"alpaca/equity"}
+
+    later = NOW + timedelta(minutes=27)
+    result = check(gate, order(), now=later, q=quote(ts=later))
+    assert not result.approved and "alpaca/equity halted" in result.reason
+    btc = order(qty=0.01, limit=100_000, inst="BTC-USD")
+    assert check(gate, btc, now=later, q=quote("BTC-USD", 100_000, later)).approved
+
+    gate.clear_lane("alpaca/equity")
+    assert check(gate, order(), now=later, q=quote(ts=later)).approved
 
 
-def test_engine_halts_the_venue_after_repeated_rejects(growth):
+def test_crypto_rejects_do_not_count_towards_the_equity_limit(gate):
+    gate.record_reject(NOW, "VOO", "x")
+    gate.record_reject(NOW, "BTC-USD", "x")
+    gate.record_reject(NOW, "ETH-USD", "x")
+    gate.record_reject(NOW, "VXUS", "x")
+    assert gate.lane_halts == {}
+
+
+def test_equity_rejects_halt_equities_but_crypto_keeps_trading(growth):
     w = build_world(
         growth,
         NOW,
         dict(PRICES),
         weights={"us_large_cap": 0.38, "intl_equity": 0.15, "btc": 0.20, "eth": 0.10, "cash": 0.17},
     )
-    w.venues["alpaca"].reject_next(10, "exchange unavailable")
+    w.venues["alpaca"].reject_next(10, "exchange unavailable", asset_class="equity")
     ts = NOW
     for _ in range(3):
         w.step(ts, PRICES)
         ts += timedelta(minutes=1)
-    assert "alpaca" in w.engine.gate.venue_halts
-    report = w.step(ts, PRICES)
-    assert not any(o.instrument == "VOO" for o in report.orders)
+    assert set(w.engine.gate.lane_halts) == {"alpaca/equity"}
+    assert w.engine.gate.halt_reason(ts) is None
+
+    # BTC rallies: the crypto sleeve still rebalances while equities stay halted.
+    report = w.step(ts, {**PRICES, "BTC-USD": 125_000.0})
+    placed = {o.instrument: o.status for o in report.orders}
+    assert placed.get("BTC-USD") == "filled"
+    assert "VOO" not in placed
 
 
 def test_reconciliation_gap_over_ten_dollars_halts_everything(growth):

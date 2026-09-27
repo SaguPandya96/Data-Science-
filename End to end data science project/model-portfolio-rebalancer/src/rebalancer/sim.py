@@ -86,7 +86,7 @@ class SimVenue:
         self._resting: dict[str, _Resting] = {}
         self._fills: list[Fill] = []
         self._ids = itertools.count(1)
-        self._forced_rejects: list[str] = []
+        self._forced_rejects: list[tuple[str, str | None]] = []
 
     # --- test and replay hooks -------------------------------------------------------------
 
@@ -97,8 +97,11 @@ class SimVenue:
             if resting.order.instrument == instrument:
                 self._try_fill(order_id, resting.order)
 
-    def reject_next(self, count: int, reason: str = "rejected by venue") -> None:
-        self._forced_rejects.extend([reason] * count)
+    def reject_next(
+        self, count: int, reason: str = "rejected by venue", asset_class: str | None = None
+    ) -> None:
+        """Reject the next `count` orders, or only those for one asset class."""
+        self._forced_rejects.extend([(reason, asset_class)] * count)
 
     # --- adapter interface -----------------------------------------------------------------
 
@@ -123,8 +126,11 @@ class SimVenue:
 
     def place(self, order: Order) -> OrderAck:
         self._require(order.instrument)
-        if self._forced_rejects:
-            return OrderAck(None, False, self._forced_rejects.pop(0))
+        asset_class = self.instruments[order.instrument].asset_class
+        for i, (reason, only) in enumerate(self._forced_rejects):
+            if only is None or only == asset_class:
+                del self._forced_rejects[i]
+                return OrderAck(None, False, reason)
         status = self.session_status(order.instrument)
         if not status.is_open:
             return OrderAck(None, False, f"market closed ({status.session})")

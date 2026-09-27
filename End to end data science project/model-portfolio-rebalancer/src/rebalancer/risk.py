@@ -56,7 +56,9 @@ class RiskGate:
     audit: AuditLog
     halted: str | None = None
     halted_until: datetime | None = None
-    venue_halts: dict[str, str] = field(default_factory=dict)
+    # Reject halts are per venue and asset class, so a burst of equity rejects at the broker
+    # doesn't stop crypto rebalancing in the same account, and the reverse.
+    lane_halts: dict[str, str] = field(default_factory=dict)
     daily_turnover: dict[date, float] = field(default_factory=dict)
     off_hours_turnover: dict[datetime, float] = field(default_factory=dict)
     _history: dict[str, deque] = field(default_factory=dict)
@@ -81,24 +83,34 @@ class RiskGate:
             return f"daily turnover limit reached, halted until {self.halted_until.astimezone(ET):%a %H:%M} ET"
         return None
 
-    def halt_venue(self, now: datetime, venue: str, reason: str) -> None:
-        if venue not in self.venue_halts:
-            self.venue_halts[venue] = reason
-            self.audit.alert(now, "critical", f"venue {venue} halted: {reason}")
+    def lane(self, instrument: str) -> str:
+        info = self.instruments[instrument]
+        return f"{info.venue}/{info.asset_class}"
 
-    def clear_venue(self, venue: str) -> None:
-        self.venue_halts.pop(venue, None)
-        self._rejects.pop(venue, None)
+    def lane_halt(self, instrument: str) -> str | None:
+        lane = self.lane(instrument)
+        reason = self.lane_halts.get(lane)
+        return f"{lane} halted: {reason}" if reason else None
 
-    def record_venue_reject(self, now: datetime, venue: str, reason: str) -> None:
-        recent = self._rejects.setdefault(venue, deque())
+    def halt_lane(self, now: datetime, lane: str, reason: str) -> None:
+        if lane not in self.lane_halts:
+            self.lane_halts[lane] = reason
+            self.audit.alert(now, "critical", f"{lane} halted: {reason}")
+
+    def clear_lane(self, lane: str) -> None:
+        self.lane_halts.pop(lane, None)
+        self._rejects.pop(lane, None)
+
+    def record_reject(self, now: datetime, instrument: str, reason: str) -> None:
+        lane = self.lane(instrument)
+        recent = self._rejects.setdefault(lane, deque())
         recent.append(now)
         while recent and now - recent[0] > self.limits.reject_window:
             recent.popleft()
         if len(recent) >= self.limits.max_rejects:
             minutes = int(self.limits.reject_window.total_seconds() // 60)
-            self.halt_venue(
-                now, venue, f"{len(recent)} rejected orders in {minutes} min (last: {reason})"
+            self.halt_lane(
+                now, lane, f"{len(recent)} rejected orders in {minutes} min (last: {reason})"
             )
 
     # --- market state ----------------------------------------------------------------------
@@ -153,8 +165,9 @@ class RiskGate:
         halt = self.halt_reason(now)
         if halt:
             return GateResult(None, f"halted: {halt}")
-        if info.venue in self.venue_halts:
-            return GateResult(None, f"venue {info.venue} halted: {self.venue_halts[info.venue]}")
+        lane_halt = self.lane_halt(order.instrument)
+        if lane_halt:
+            return GateResult(None, lane_halt)
         if not status.is_open:
             return GateResult(None, f"market closed ({status.session})")
         if order.order_type is OrderType.MARKET and session is not Session.REGULAR:
