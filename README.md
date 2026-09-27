@@ -30,11 +30,11 @@ Every project starts from a real question, and every model is measured against a
 
 **The answer: in simulation, yes, and the simple alternative loses.** Over seven weeks of scripted prices, including a 20% crypto crash on a Saturday, the Growth portfolio spent **1.7%** of the time with a holding outside its allowed range. The same engine limited to regular trading hours spent **3.8%**, and not rebalancing at all spent **15.1%**. For the crypto-heavy portfolio the figures were 5.7%, 12.0% and 32.3%. The cost is more trading: 94 trades against 18, and $18 in crypto fees against $12.
 
-The prices are scripted, so this shows the engine follows its rules, not that it makes money, and it doesn't connect to a broker yet. Two things I haven't fixed. Trading only back to the edge of the allowed range makes many small trades in a trend. And a cap on overnight stock trades means stocks mostly catch up at the morning open.
+The prices are scripted, so this shows the engine follows its rules, not that it makes money. It now connects to an Alpaca paper account, but so far it has only run against a stand-in for Alpaca built from its documentation, not the paper account itself. Two things I haven't fixed. Trading only back to the edge of the allowed range makes many small trades in a trend. And a cap on overnight stock trades means stocks mostly catch up at the morning open.
 
-*Built with:* Python, pandas, exchange_calendars, PostgreSQL, psycopg, a simulated broker, automated tests and CI.
+*Built with:* Python, pandas, exchange_calendars, PostgreSQL, psycopg, the Alpaca API through httpx, a simulated broker, automated tests and CI.
 
-*Technical detail:* NYSE session calendar including the 23/5 schedule from Dec 6, 2026; risk gate with a 5% single-order limit, 15% daily and 5% overnight turnover budgets, a crypto buy pause at a 15% drawdown, and halts on reconciliation gaps; T+1 settlement for a cash account; partial fills; every order written to Postgres before it is sent; restart recovery; 143 tests, including restarts at awkward moments.
+*Technical detail:* NYSE session calendar including the 23/5 schedule from Dec 6, 2026; risk gate with a 5% single-order limit, 15% daily and 5% overnight turnover budgets, a crypto buy pause at a 15% drawdown, and halts on reconciliation gaps; T+1 settlement for a cash account; partial fills; every order written to Postgres before it is sent; restart recovery; a once-a-minute runner against Alpaca's paper API, a watchdog that cancels orders if the engine goes quiet, and a dashboard with a halt button; 196 tests, including restarts at awkward moments.
 
 [Open the project](End%20to%20end%20data%20science%20project/model-portfolio-rebalancer/)
 
