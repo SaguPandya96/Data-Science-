@@ -19,6 +19,7 @@ from .venue import (
     InstrumentInfo,
     Order,
     OrderAck,
+    OrderState,
     OrderType,
     Quote,
     SessionStatus,
@@ -83,6 +84,8 @@ class SimVenue:
         self.fee_bps = fee_bps or {}
         self._mids: dict[str, tuple[float, datetime]] = {}
         self._resting: dict[str, _Resting] = {}
+        self._placed: dict[str, _Resting] = {}
+        self._ended: dict[str, str] = {}  # orders that stopped resting without filling in full
         self._fills: list[Fill] = []
         self._ids = itertools.count(1)
         # Real broker ids are unique forever. A prefix keeps simulated ones from colliding when
@@ -177,9 +180,11 @@ class SimVenue:
         order.venue_id = order_id
         self._by_client[order.client_id] = order_id
         resting = _Resting(order, order_id, order.qty)
+        self._placed[order_id] = resting
         self._try_fill(resting)
         if resting.remaining > 0:
             if order.time_in_force is TimeInForce.IOC:
+                self._ended[order_id] = "expired"
                 return OrderAck(order_id, True, "rest expired unfilled")
             self._resting[order_id] = resting
         return OrderAck(order_id, True)
@@ -188,7 +193,22 @@ class SimVenue:
         return self._by_client.get(client_id)
 
     def cancel(self, order_id: str) -> bool:
-        return self._resting.pop(order_id, None) is not None
+        if self._resting.pop(order_id, None) is None:
+            return False
+        self._ended[order_id] = "canceled"
+        return True
+
+    def order_state(self, order_id: str) -> OrderState | None:
+        placed = self._placed.get(order_id)
+        if placed is None:
+            return None
+        filled = round(placed.order.qty - placed.remaining, 12)
+        if order_id in self._resting:
+            return OrderState("open", filled)
+        return OrderState(self._ended.get(order_id, "filled"), filled)
+
+    def open_orders(self) -> dict[str, str]:
+        return {order_id: r.order.client_id for order_id, r in self._resting.items()}
 
     def positions(self) -> dict[str, float]:
         held = {

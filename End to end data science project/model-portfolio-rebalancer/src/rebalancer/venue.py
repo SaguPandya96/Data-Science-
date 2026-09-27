@@ -93,6 +93,12 @@ class Fill:
     ts: datetime
 
 
+@dataclass(frozen=True)
+class OrderState:
+    status: Literal["open", "filled", "canceled", "expired", "rejected"]
+    filled_qty: float
+
+
 class Venue(Protocol):
     name: str
 
@@ -110,4 +116,12 @@ class Venue(Protocol):
 
     def find_order(self, client_id: str) -> str | None:
         """The broker's id for an order sent with this client id, or None if it never arrived."""
+        ...
+
+    def order_state(self, order_id: str) -> OrderState | None:
+        """Where an order stands at the broker, or None if the broker doesn't know it."""
+        ...
+
+    def open_orders(self) -> dict[str, str]:
+        """Every order resting at the broker, as broker id to client id."""
         ...

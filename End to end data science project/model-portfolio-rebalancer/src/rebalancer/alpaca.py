@@ -24,11 +24,24 @@ import httpx
 
 from . import broker_rules
 from .sessions import MarketCalendar, Session
-from .venue import Fill, InstrumentInfo, Order, OrderAck, OrderType, Quote, SessionStatus, Side
+from .venue import (
+    Fill,
+    InstrumentInfo,
+    Order,
+    OrderAck,
+    OrderState,
+    OrderType,
+    Quote,
+    SessionStatus,
+    Side,
+)
 
 PAPER_URL = "https://paper-api.alpaca.markets"
 DATA_URL = "https://data.alpaca.markets"
 PAGE_SIZE = 100
+# Alpaca has a dozen order statuses. These are the ones where the order is finished; everything
+# else (new, accepted, pending_cancel, held and so on) may still trade.
+_FINISHED = frozenset({"filled", "canceled", "expired", "rejected"})
 
 
 class AlpacaError(RuntimeError):
@@ -228,6 +241,25 @@ class AlpacaVenue:
         if response.status_code == 404:
             return None
         raise AlpacaError(f"lookup {client_id}: {response.status_code} {_message(response)}")
+
+    def order_state(self, order_id: str) -> OrderState | None:
+        response = self._http.get(
+            f"{self.config.trading_url}/v2/orders/{order_id}", headers=self._headers
+        )
+        if response.status_code == 404:
+            return None
+        if response.status_code != 200:
+            raise AlpacaError(f"order {order_id}: {response.status_code} {_message(response)}")
+        body = response.json()
+        status = body["status"] if body["status"] in _FINISHED else "open"
+        return OrderState(status, float(body.get("filled_qty") or 0))
+
+    def open_orders(self) -> dict[str, str]:
+        rows = self._get(
+            f"{self.config.trading_url}/v2/orders",
+            params={"status": "open", "limit": 500, "direction": "asc"},
+        )
+        return {row["id"]: row["client_order_id"] for row in rows}
 
     # --- extras for the check command ------------------------------------------------------
 
