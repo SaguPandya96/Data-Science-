@@ -7,13 +7,13 @@ name = "rebalancer"
 version = "0.1.0"
 description = "Keeps accounts on their model portfolios around the clock, across equity and crypto sessions"
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 license = { file = "LICENSE" }
 authors = [{ name = "Sagar Pandya" }]
 dependencies = [
   "exchange-calendars==4.13.2",
   "pandas==3.0.6",
-  "PyYAML==6.0.2",
+  "PyYAML==6.0.3",
 ]
 
 [project.optional-dependencies]

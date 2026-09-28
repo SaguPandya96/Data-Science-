@@ -60,7 +60,7 @@ dashboard with a halt button.
 
 ## Running it
 
-Python 3.11 or later.
+Python 3.11 to 3.14. CI tests the oldest and the newest.
 
 ```bash
 python -m pip install -e ".[dev]"
