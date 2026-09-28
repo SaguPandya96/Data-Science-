@@ -210,6 +210,33 @@ def test_fills_page_through_and_skip_what_isnt_ours(fake, calendar, monkeypatch)
     assert venue.fills(TUESDAY + timedelta(minutes=1)) == []
 
 
+def test_crypto_fees_match_the_paper_account():
+    # The first fills on the paper account, 2026-09-28: bought vs. then held.
+    assert alpaca.crypto_fee(Side.BUY, "0.9314", "2679.5", 25) == (0.0, 0.0023285)
+    btc = ["0.00023986", "0.00023984", "0.0294433"]
+    fees = sum(alpaca.crypto_fee(Side.BUY, qty, "83400", 25)[1] for qty in btc)
+    assert 0.029923 - fees == pytest.approx(0.029848191, abs=1e-12)
+    # A sale pays in dollars (not yet seen on the paper account).
+    assert alpaca.crypto_fee(Side.SELL, "0.1", "80000", 25) == (pytest.approx(20.0), 0.0)
+
+
+def test_fills_carry_the_crypto_fee_and_equities_pay_none(fake, calendar):
+    venue = venue_for(fake, calendar)
+    venue.place(Order("c1", "VOO", Side.BUY, 1, 561.0))
+    venue.place(Order("c2", "ETH-USD", Side.BUY, 1, 3_510.0, time_in_force=TimeInForce.GTC))
+    voo, eth = venue.fills(TUESDAY - timedelta(minutes=1))
+    assert (voo.fee, voo.fee_qty) == (0.0, 0.0)
+    assert (eth.fee, eth.fee_qty) == (0.0, 0.0025)
+    assert eth.fee_value == pytest.approx(0.0025 * 3_501.0)
+    assert fake.positions["ETHUSD"] == pytest.approx(1 - 0.0025)
+
+
+def test_the_fee_rate_comes_from_the_environment():
+    env = {"APCA_API_KEY_ID": "k", "APCA_API_SECRET_KEY": "s", "ALPACA_CRYPTO_FEE_BPS": "15"}
+    assert AlpacaConfig.from_env(env).crypto_fee_bps == 15.0
+    assert AlpacaConfig.from_env({**env, "ALPACA_CRYPTO_FEE_BPS": ""}).crypto_fee_bps == 25.0
+
+
 # --- with the engine -----------------------------------------------------------------------------
 
 
@@ -234,6 +261,30 @@ def test_the_engine_trades_and_reconciles_through_the_adapter(fake, calendar):
     later = engine.cycle(fake.now)
     assert later.halted is None and later.orders == []
     assert engine.ledger["BTC-USD"] == pytest.approx(fake.positions["BTCUSD"])
+    assert engine.ledger["USD"] == pytest.approx(fake.cash)
+
+
+def test_after_a_crypto_buy_the_engine_holds_what_the_broker_holds(fake, calendar):
+    growth = load_model(MODELS / "growth-247.yaml")
+    # ETH at 7% against an 8-12% band. Alpaca keeps 0.25% of the ETH bought as its fee.
+    fake.cash = 16_000.0
+    fake.positions = {"VOO": 75.0, "VXUS": 220.588, "BTCUSD": 0.2, "ETHUSD": 2.0}
+    venue = venue_for(fake, calendar)
+    engine = Engine(growth, {"alpaca": venue}, DEFAULT_INSTRUMENTS, calendar)
+    engine.start(TUESDAY)
+
+    report = engine.cycle(TUESDAY)
+    eth = next(o for o in report.orders if o.instrument == "ETH-USD")
+    assert (eth.side, eth.status) == (Side.BUY, "filled")
+    # Rounding the coin fee up to 9 decimals moves it by up to a billionth of an ETH.
+    assert eth.fee == pytest.approx(eth.qty * 0.0025 * eth.fill_price, rel=1e-5)
+
+    fake.now = TUESDAY + timedelta(minutes=1)
+    for symbol, (bid, ask) in list(fake.quotes.items()):
+        fake.set_quote(symbol, bid, ask)
+    later = engine.cycle(fake.now)
+    assert later.halted is None
+    assert engine.ledger["ETH-USD"] == pytest.approx(fake.positions["ETHUSD"], abs=1e-12)
     assert engine.ledger["USD"] == pytest.approx(fake.cash)
 
 

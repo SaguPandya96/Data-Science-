@@ -237,7 +237,7 @@ class PostgresStore:
                 fill.side.value,
                 fill.qty,
                 fill.price,
-                fill.fee,
+                fill.fee_value,  # in dollars, including a fee taken in the asset
                 fill.ts,
             ),
         )

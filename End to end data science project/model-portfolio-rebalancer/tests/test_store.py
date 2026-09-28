@@ -157,6 +157,15 @@ def test_a_model_edited_without_a_version_bump_is_refused(engine_conn, growth, t
         open_store(engine_conn, load_model(edited))
 
 
+def test_a_fee_taken_in_coins_is_stored_in_dollars(engine_conn, growth):
+    from rebalancer.venue import Fill, Side
+
+    open_store(engine_conn, growth).fill(
+        Fill("f1", "o1", "ETH-USD", Side.BUY, 1.0, 2_000.0, 0.0, TUESDAY_10AM, fee_qty=0.0025), None
+    )
+    assert float(one(engine_conn, "select fee from fills")) == pytest.approx(5.0)
+
+
 def test_a_models_sleeves_are_recorded_with_it(engine_conn, growth):
     open_store(engine_conn, growth)
     open_store(engine_conn, growth)  # a restart loads the same version again

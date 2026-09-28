@@ -10,6 +10,7 @@ from __future__ import annotations
 import itertools
 import json
 from datetime import UTC, datetime
+from decimal import ROUND_CEILING, Decimal
 
 import httpx
 
@@ -36,6 +37,9 @@ class FakeAlpaca:
         self.reject_next_post: tuple[int, str] | None = None
         self.fill_orders = True
         self.configuration = {"max_margin_multiplier": "4", "no_shorting": False}
+        # As on the paper account: a crypto buy pays in coins, qty * 0.25% rounded up to 9
+        # decimals, and a sale is taken to pay in dollars.
+        self.crypto_fee_bps = 25.0
         self._ids = itertools.count(1)
         self._activity_ids = itertools.count(1)
 
@@ -133,8 +137,14 @@ class FakeAlpaca:
             return
         sign = 1 if order["side"] == "buy" else -1
         held = order["symbol"].replace("/", "")
-        self.positions[held] = self.positions.get(held, 0.0) + sign * qty
-        self.cash -= sign * qty * price
+        rate = Decimal(str(self.crypto_fee_bps)) / 10_000 if "/" in order["symbol"] else Decimal(0)
+        if sign > 0:
+            coin_fee = (Decimal(order["qty"]) * rate).quantize(Decimal("1e-9"), ROUND_CEILING)
+            self.positions[held] = self.positions.get(held, 0.0) + qty - float(coin_fee)
+            self.cash -= qty * price
+        else:
+            self.positions[held] = self.positions.get(held, 0.0) - qty
+            self.cash += qty * price * (1 - float(rate))
         order.update(status="filled", filled_qty=order["qty"], filled_avg_price=str(price))
         self.activities.append(
             {

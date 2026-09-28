@@ -105,7 +105,8 @@ regular session, and no rebalancing at all.
 | Crypto-tilt | no rebalancing | 32.3% | 0 | 0% | $0 |
 
 Fees are Alpaca's crypto taker fee at its lowest volume tier (25 bps, from my reading of the
-schedule). Equity trades are commission-free.
+schedule, and what the paper account charged). Equity trades are commission-free. The simulator
+takes the fee in dollars; Alpaca takes it out of the coins a buy receives. The cost is the same.
 
 The full table, with end values and worst drift, is in
 [`comparison.md`](reports/sample_replay/comparison.md).
@@ -296,14 +297,24 @@ account on September 28, 2026, during regular hours.
   three. Alpaca only sends a crypto quote when the book changes, so with a 60-second limit ETH
   would have been skipped most cycles. Crypto quotes may now be up to 5 minutes old. That also
   means a frozen crypto feed takes up to 5 minutes to notice.
+- **The first engine cycle** ran with `runner --once` after hours. It bought about $2,500 each
+  of BTC and ETH, which is the 5% off-hours budget split between them.
+- **Crypto fees come out of the coins bought.** The account held exactly 0.25% less ETH and BTC
+  than it had bought, while its cash matched the fills to the cent. For BTC, filled in three
+  pieces, 0.25% of each piece rounded up to 9 decimals adds up to the shortfall exactly. No
+  `CFEE` activity had appeared. Without accounting for this, the engine's balances would have
+  been about $12 off the broker's after those two buys, and reconciliation would have halted
+  trading. The adapter now charges crypto buys 0.25% in coins, rounded up the same way.
+  `ALPACA_CRYPTO_FEE_BPS` changes the rate, which Alpaca lowers as monthly volume grows.
 
 **What I still haven't been able to verify.** Everything else runs against `tests/fake_alpaca.py`,
 a model of Alpaca built from its documentation:
 
-- **Crypto fees.** Alpaca books crypto fees as separate `CFEE` activities, not on the fill. The
-  adapter reports fees as zero for now, so the engine's cash and crypto balances drift from the
-  broker's by each fee. Reconciliation halts trading once the gap passes $10. That's a safe
-  failure, but it needs fixing from the real `CFEE` rows that `check` prints.
+- **Crypto sale fees.** A sale is assumed to pay 0.25% out of the dollars received. The paper
+  account hasn't sold any crypto yet. The first sale will show whether that's right, and a wrong
+  guess shows up as a reconciliation gap.
+- **`CFEE` activities.** None appeared after the first buys. The engine doesn't read them, so if
+  they do turn up later they can't be counted twice.
 - **Overnight quotes.** The default stock feed is IEX, which has no overnight quotes. Equities
   then read as stale overnight and aren't traded. Set `ALPACA_STOCK_FEED` to a feed that covers
   the overnight session if your data plan includes one.

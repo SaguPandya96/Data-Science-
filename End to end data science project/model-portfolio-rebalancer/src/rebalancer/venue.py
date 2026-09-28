@@ -89,8 +89,15 @@ class Fill:
     side: Side
     qty: float
     price: float
-    fee: float
+    fee: float  # charged in cash
     ts: datetime
+    # Charged in the asset itself. Alpaca takes its crypto fee out of the coins a buy receives.
+    fee_qty: float = 0.0
+
+    @property
+    def fee_value(self) -> float:
+        """The whole fee in dollars, whichever way it was charged."""
+        return self.fee + self.fee_qty * self.price
 
 
 @dataclass(frozen=True)
