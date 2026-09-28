@@ -35,6 +35,7 @@ class FakeAlpaca:
         self.timeout_next_post: str | None = None  # "before" or "after" the order is stored
         self.reject_next_post: tuple[int, str] | None = None
         self.fill_orders = True
+        self.configuration = {"max_margin_multiplier": "4", "no_shorting": False}
         self._ids = itertools.count(1)
         self._activity_ids = itertools.count(1)
 
@@ -60,18 +61,22 @@ class FakeAlpaca:
             return self._post_order(request, body)
         if request.method == "DELETE" and path.startswith("/v2/orders/"):
             return self._cancel(path.rsplit("/", 1)[1])
+        if request.method == "PATCH" and path == "/v2/account/configurations":
+            self.configuration.update(body)
+            return self._json(200, self.configuration)
         routes = {
             "/v2/clock": lambda: {"is_open": True, "next_open": "2026-11-04T09:30:00-05:00"},
             "/v2/account": lambda: {
                 "account_number": "PA0001",
                 "status": "ACTIVE",
                 "cash": f"{self.cash:.2f}",
-                "buying_power": f"{self.cash:.2f}",
+                "buying_power": f"{self.cash * int(self.configuration['max_margin_multiplier']):.2f}",
                 "non_marginable_buying_power": f"{self.cash:.2f}",
             },
             "/v2/positions": lambda: [
                 {"symbol": s, "qty": f"{q:.9f}"} for s, q in self.positions.items() if q
             ],
+            "/v2/account/configurations": lambda: self.configuration,
             "/v2/account/activities/FILL": lambda: self._activities(params),
             "/v2/account/activities/CFEE": lambda: [],
             "/v1beta3/crypto/us/latest/quotes": lambda: self._crypto_quotes(params),

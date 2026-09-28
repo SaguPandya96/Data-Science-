@@ -23,12 +23,18 @@ class RiskLimits:
     max_off_hours_turnover_pct: float = 0.05
     max_limit_deviation: float = 0.02
     max_quote_age: timedelta = timedelta(seconds=60)
+    # Alpaca only sends a new crypto quote when the book changes, so a quiet ETH book can show a
+    # minute-old quote that is still right. On the paper account ETH quotes were 53-58 s old.
+    max_crypto_quote_age: timedelta = timedelta(minutes=5)
     crypto_drawdown: float = 0.15
     crypto_drawdown_window: timedelta = timedelta(hours=24)
     drawdown_watch: tuple[str, ...] = ("BTC-USD", "ETH-USD")
     max_reconciliation_gap: float = 10.0
     max_rejects: int = 3
     reject_window: timedelta = timedelta(minutes=10)
+
+    def quote_age_limit(self, asset_class: str) -> timedelta:
+        return self.max_crypto_quote_age if asset_class == "crypto" else self.max_quote_age
 
 
 @dataclass(frozen=True)
@@ -248,7 +254,7 @@ class RiskGate:
         if quote is None:
             return GateResult(None, "no quote")
         age = quote.age(now)
-        if age > self.limits.max_quote_age:
+        if age > self.limits.quote_age_limit(info.asset_class):
             return GateResult(None, f"stale quote ({age.total_seconds():.0f}s old)")
         if order.order_type is OrderType.LIMIT:
             deviation = abs(order.limit_price / quote.mid - 1)

@@ -36,7 +36,7 @@ dashboard with a halt button.
   | Daily turnover | 15% of account | clip, then halt until midnight ET |
   | Off-hours turnover | 5% of account per night or weekend | defer to the regular session |
   | Limit price | within 2% of the quote mid | reject |
-  | Quote age | 60 seconds | skip the sleeve this cycle |
+  | Quote age | 60 seconds for equities, 5 minutes for crypto | skip the sleeve this cycle |
   | BTC or ETH drawdown | 15% below its 24-hour high | pause crypto buys, alert |
   | Reconciliation | engine vs venue off by more than $10 | halt everything, alert |
   | Broker rejects | 3 in 10 minutes for one asset class | halt that asset class, alert |
@@ -276,14 +276,29 @@ python -m pip install -e ".[dev,alpaca]"
 export APCA_API_KEY_ID=... APCA_API_SECRET_KEY=...
 python -m rebalancer.alpaca check              # read-only
 python -m rebalancer.alpaca check --order-test # also places and cancels one VOO limit at half the price
+python -m rebalancer.alpaca cash-only          # set the margin multiplier to 1
 ```
 
-`check` prints the market clock, the account's cash and buying power, positions, a quote and
-the session for each instrument, and the latest fill and crypto-fee activities.
+`check` prints the market clock, the account's cash and buying power, its margin multiplier,
+positions, a quote and the session for each instrument, and the latest fill and crypto-fee
+activities.
 
-**What I haven't been able to verify.** The tests run against `tests/fake_alpaca.py`, a model of
-Alpaca built from its documentation. They don't touch Alpaca itself, so `check` against a paper
-account is the first real test. Things to look at in its output:
+**What the paper account showed.** I ran `check` and `check --order-test` against a new paper
+account on September 28, 2026, during regular hours.
+
+- The clock, cash, positions, quotes and session names all read correctly, and the crypto
+  symbols mapped both ways.
+- The order test placed a VOO limit, found it again by its client id, cancelled it, and read
+  back `canceled`.
+- **Paper accounts start as 4x margin accounts:** $100,000 of cash showed $400,000 of buying
+  power. The engine only spends settled cash, but `cash-only` makes the broker enforce that too.
+- **ETH quotes were 53 and 58 seconds old** on two runs, against 0 to 3 seconds for the other
+  three. Alpaca only sends a crypto quote when the book changes, so with a 60-second limit ETH
+  would have been skipped most cycles. Crypto quotes may now be up to 5 minutes old. That also
+  means a frozen crypto feed takes up to 5 minutes to notice.
+
+**What I still haven't been able to verify.** Everything else runs against `tests/fake_alpaca.py`,
+a model of Alpaca built from its documentation:
 
 - **Crypto fees.** Alpaca books crypto fees as separate `CFEE` activities, not on the fill. The
   adapter reports fees as zero for now, so the engine's cash and crypto balances drift from the

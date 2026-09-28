@@ -344,7 +344,7 @@ class Engine:
                 continue
             self.last_mid[inst] = quote.mid
             self.last_quote[inst] = quote
-            if quote.age(now) <= self.gate.limits.max_quote_age:
+            if quote.age(now) <= self.gate.limits.quote_age_limit(info.asset_class):
                 fresh[inst] = quote
                 self.gate.observe(inst, quote.ts, quote.mid)
         return fresh

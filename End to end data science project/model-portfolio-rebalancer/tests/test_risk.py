@@ -65,6 +65,15 @@ def test_rejects_a_stale_quote(gate):
     assert not result.approved and "stale quote" in result.reason
 
 
+def test_crypto_quotes_may_be_older_than_equity_quotes(gate):
+    btc = order(inst="BTC-USD", qty=0.01, limit=100.0)
+    four_minutes = NOW - timedelta(minutes=4)
+    assert check(gate, btc, q=quote("BTC-USD", ts=four_minutes)).approved
+    assert not check(gate, order(), q=quote(ts=four_minutes)).approved
+    result = check(gate, btc, q=quote("BTC-USD", ts=NOW - timedelta(minutes=5, seconds=1)))
+    assert not result.approved and "stale quote (301s old)" in result.reason
+
+
 def test_no_market_orders_outside_the_regular_session(gate):
     assert check(gate, order(kind=OrderType.MARKET)).approved
     all_types = SessionStatus(True, "overnight", frozenset(OrderType), frozenset(TimeInForce))
