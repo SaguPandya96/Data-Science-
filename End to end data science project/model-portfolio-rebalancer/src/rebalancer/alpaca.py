@@ -3,6 +3,7 @@
     export APCA_API_KEY_ID=... APCA_API_SECRET_KEY=...
     python -m rebalancer.alpaca check              # read-only look at the paper account
     python -m rebalancer.alpaca check --order-test # also place and cancel a far-away limit order
+    python -m rebalancer.alpaca cash-only          # stop the account from ever trading on margin
 
 Keys only ever come from the environment. The adapter refuses any trading URL other than the
 paper one unless it is built with allow_live=True, which nothing in this project does.
@@ -266,6 +267,21 @@ class AlpacaVenue:
     def account(self) -> dict:
         return self._get(f"{self.config.trading_url}/v2/account")
 
+    def configurations(self) -> dict:
+        return self._get(f"{self.config.trading_url}/v2/account/configurations")
+
+    def use_cash_only(self) -> dict:
+        """Set the margin multiplier to 1, so buying power is the cash in the account. Paper
+        accounts start at 4x; the engine never borrows, but the broker shouldn't let it either."""
+        response = self._http.patch(
+            f"{self.config.trading_url}/v2/account/configurations",
+            json={"max_margin_multiplier": "1"},
+            headers=self._headers,
+        )
+        if response.status_code != 200:
+            raise AlpacaError(f"cash-only: {response.status_code} {_message(response)}")
+        return response.json()
+
     def market_clock(self) -> dict:
         return self._get(f"{self.config.trading_url}/v2/clock")
 
@@ -334,6 +350,9 @@ def check(venue: AlpacaVenue, *, order_test: bool, out=print) -> None:
         f"cash {account.get('cash')}, buying power {account.get('buying_power')}, "
         f"non-marginable buying power {account.get('non_marginable_buying_power')}"
     )
+    multiplier = venue.configurations().get("max_margin_multiplier")
+    note = "" if str(multiplier) == "1" else " (margin allowed; run `cash-only` to turn it off)"
+    out(f"margin multiplier: {multiplier}{note}")
     out(f"positions: {venue.positions()}")
     for symbol in venue.instruments:
         status = venue.session_status(symbol)
@@ -355,6 +374,14 @@ def check(venue: AlpacaVenue, *, order_test: bool, out=print) -> None:
             out("  " + json.dumps(row, sort_keys=True))
     if order_test:
         _order_test(venue, out)
+
+
+def cash_only(venue: AlpacaVenue, out=print) -> None:
+    before = venue.configurations().get("max_margin_multiplier")
+    after = venue.use_cash_only().get("max_margin_multiplier")
+    account = venue.account()
+    out(f"margin multiplier: {before} -> {after}")
+    out(f"cash {account.get('cash')}, buying power {account.get('buying_power')}")
 
 
 def _order_test(venue: AlpacaVenue, out) -> None:
@@ -387,14 +414,17 @@ def main(argv: list[str] | None = None) -> None:
     from .replay import DEFAULT_INSTRUMENTS
 
     parser = argparse.ArgumentParser(description="Look at the Alpaca paper account")
-    parser.add_argument("command", choices=["check"])
+    parser.add_argument("command", choices=["check", "cash-only"])
     parser.add_argument(
         "--order-test", action="store_true", help="place and cancel one far-away limit order"
     )
     args = parser.parse_args(argv)
     try:
         venue = AlpacaVenue(AlpacaConfig.from_env(), DEFAULT_INSTRUMENTS, MarketCalendar())
-        check(venue, order_test=args.order_test)
+        if args.command == "cash-only":
+            cash_only(venue)
+        else:
+            check(venue, order_test=args.order_test)
     except AlpacaError as exc:
         sys.exit(str(exc))
 

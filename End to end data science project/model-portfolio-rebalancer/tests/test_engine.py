@@ -74,6 +74,21 @@ def test_stale_quote_skips_the_sleeve(growth):
     assert "stale quote" in holds[0].detail
 
 
+@pytest.mark.parametrize(
+    "age, trades", [(timedelta(minutes=3), True), (timedelta(minutes=6), False)]
+)
+def test_a_quiet_crypto_book_still_counts_as_fresh(growth, age, trades):
+    w = world(
+        growth,
+        TUESDAY_10AM,
+        weights(eth=0.07, cash=0.13),
+        price_times={"ETH-USD": TUESDAY_10AM - age},
+    )
+    report = w.step(TUESDAY_10AM, {"VOO": 560.0, "VXUS": 68.0, "BTC-USD": 100_000.0})
+    assert report.marks["eth"].stale is not trades
+    assert any(o.instrument == "ETH-USD" for o in report.orders) is trades
+
+
 def test_trades_under_25_dollars_are_skipped(growth):
     # 0.02 points below the band on $100k is $20.
     w = world(growth, TUESDAY_10AM, weights(eth=0.0798, cash=0.1202))

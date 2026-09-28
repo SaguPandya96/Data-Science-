@@ -247,3 +247,20 @@ def test_check_reports_the_account_and_round_trips_an_order(fake, calendar):
     assert "final status -> canceled" in text
     placed = last_order_body(fake)
     assert float(placed["limit_price"]) == pytest.approx(559.9 * 0.5, abs=0.01)
+
+
+def test_check_flags_a_margin_account(fake, calendar):
+    lines = []
+    check(venue_for(fake, calendar), order_test=False, out=lines.append)
+    assert "margin multiplier: 4 (margin allowed; run `cash-only` to turn it off)" in lines
+
+
+def test_cash_only_sets_the_margin_multiplier_to_one(fake, calendar):
+    lines = []
+    alpaca.cash_only(venue_for(fake, calendar), out=lines.append)
+    patch = next(body for method, path, body in fake.requests if method == "PATCH")
+    assert patch == {"max_margin_multiplier": "1"}
+    assert lines == ["margin multiplier: 4 -> 1", "cash 10000.00, buying power 10000.00"]
+    lines.clear()
+    check(venue_for(fake, calendar), order_test=False, out=lines.append)
+    assert "margin multiplier: 1" in lines
