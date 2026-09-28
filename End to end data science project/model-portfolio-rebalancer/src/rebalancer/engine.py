@@ -274,7 +274,7 @@ class Engine:
                 if apply:
                     sign = 1 if fill.side is Side.BUY else -1
                     self.ledger[fill.instrument] = (
-                        self.ledger.get(fill.instrument, 0.0) + sign * fill.qty
+                        self.ledger.get(fill.instrument, 0.0) + sign * fill.qty - fill.fee_qty
                     )
                     self.ledger["USD"] = (
                         self.ledger.get("USD", 0.0) - sign * fill.qty * fill.price - fill.fee
@@ -290,7 +290,7 @@ class Engine:
         cost = (record.fill_price or 0.0) * record.filled_qty + fill.price * fill.qty
         record.filled_qty = round(record.filled_qty + fill.qty, 12)
         record.fill_price = cost / record.filled_qty
-        record.fee += fill.fee
+        record.fee += fill.fee_value
         if record.filled_qty < record.qty - _EPS:
             record.status = "partially_filled"
             self.audit.order_updated(

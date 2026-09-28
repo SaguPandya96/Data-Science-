@@ -20,6 +20,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from decimal import ROUND_CEILING, Decimal
 
 import httpx
 
@@ -58,6 +59,8 @@ class AlpacaConfig:
     # IEX is the free stock feed. It has no overnight quotes, so equities read as stale overnight
     # and the engine won't trade them then; a feed that covers the overnight session fixes that.
     stock_feed: str = "iex"
+    # Alpaca's crypto taker fee at the lowest volume tier. It falls as monthly volume grows.
+    crypto_fee_bps: float = 25.0
     timeout: float = 10.0
 
     @classmethod
@@ -71,6 +74,7 @@ class AlpacaConfig:
             secret_key=env["APCA_API_SECRET_KEY"],
             trading_url=env.get("APCA_API_BASE_URL", PAPER_URL).rstrip("/"),
             stock_feed=env.get("ALPACA_STOCK_FEED", "iex"),
+            crypto_fee_bps=float(env.get("ALPACA_CRYPTO_FEE_BPS") or 25.0),
         )
 
 
@@ -214,17 +218,23 @@ class AlpacaVenue:
                 ts = parse_time(row["transaction_time"])
                 if ts < since:
                     continue
+                side = Side.BUY if row["side"] == "buy" else Side.SELL
+                fee, fee_qty = 0.0, 0.0
+                if self.instruments[symbol].asset_class == "crypto":
+                    fee, fee_qty = crypto_fee(
+                        side, row["qty"], row["price"], self.config.crypto_fee_bps
+                    )
                 out.append(
                     Fill(
                         fill_id=row["id"],
                         order_id=row["order_id"],
                         instrument=symbol,
-                        side=Side.BUY if row["side"] == "buy" else Side.SELL,
+                        side=side,
                         qty=float(row["qty"]),
                         price=float(row["price"]),
-                        # Alpaca books crypto fees as separate CFEE activities; see the README.
-                        fee=0.0,
+                        fee=fee,
                         ts=ts,
+                        fee_qty=fee_qty,
                     )
                 )
             if len(page) < PAGE_SIZE:
@@ -309,6 +319,20 @@ class AlpacaVenue:
 
 
 _FRACTION = re.compile(r"\.(\d+)")
+_COIN_STEP = Decimal("0.000000001")
+
+
+def crypto_fee(side: Side, qty: str, price: str, bps: float) -> tuple[float, float]:
+    """(fee in dollars, fee in coins) for one crypto fill.
+
+    A buy pays in the coin received: on the paper account each fill came up short by exactly
+    qty * 0.25% rounded up to 9 decimals. A sale is assumed to pay in the dollars received,
+    which I haven't yet seen on the paper account.
+    """
+    rate = Decimal(str(bps)) / 10_000
+    if side is Side.BUY:
+        return 0.0, float((Decimal(qty) * rate).quantize(_COIN_STEP, rounding=ROUND_CEILING))
+    return float(Decimal(qty) * Decimal(price) * rate), 0.0
 
 
 def parse_time(text: str) -> datetime:

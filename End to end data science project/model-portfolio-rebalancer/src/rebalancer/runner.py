@@ -174,6 +174,8 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit("set DATABASE_URL or pass --dsn: the runner needs Postgres for its audit trail")
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    # httpx logs every request at INFO, which buries the one line per cycle.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     try:
         alpaca_config = AlpacaConfig.from_env()
     except AlpacaError as exc:
