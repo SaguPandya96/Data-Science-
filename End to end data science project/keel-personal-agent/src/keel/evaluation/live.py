@@ -23,9 +23,10 @@ import numpy as np
 
 from keel.evaluation.benchmark import bootstrap_mean, load_config, paired_difference
 from keel.evaluation.scenarios import SLOTS, Persona, Probe, build_personas
-from keel.memory.embeddings import Embedder, WordLlamaEmbedder
+from keel.memory.embeddings import Embedder, WordLlamaEmbedder, default_transformer
 from keel.memory.retrieval import (
     EMBEDDING_WEIGHT,
+    TRANSFORMER_WEIGHT,
     EmbeddingMemory,
     FullMemory,
     KeelMemory,
@@ -64,17 +65,25 @@ def grade(answer: str, probe: Probe) -> dict[str, bool]:
     return {"correct": current and not earlier, "stale": earlier and not current}
 
 
-def live_arms(core_max: int, embedder: Embedder) -> list[Retriever]:
+def live_arms(core_max: int, wordllama: Embedder, transformer: Embedder) -> list[Retriever]:
+    """Every method the live check knows; configs/eval.toml picks which ones run."""
     return [
         RecentMemory(),
         LexicalMemory(),
-        EmbeddingMemory(embedder),
+        EmbeddingMemory(wordllama),
+        EmbeddingMemory(transformer, name="transformer"),
         KeelMemory(core_max=core_max),
         KeelMemory(
             core_max=core_max,
-            embedder=embedder,
+            embedder=wordllama,
             embedding_weight=EMBEDDING_WEIGHT,
             name="keel+embed",
+        ),
+        KeelMemory(
+            core_max=core_max,
+            embedder=transformer,
+            embedding_weight=TRANSFORMER_WEIGHT,
+            name="keel+transformer",
         ),
         FullMemory(),
     ]
@@ -125,6 +134,7 @@ def run_live(
     personas: int | None = None,
     arms: Sequence[str] | None = None,
     embedder: Embedder | None = None,
+    transformer: Embedder | None = None,
     cache_path: Path | None = None,
     workers: int = 8,
     progress: Callable[[int, int], None] | None = None,
@@ -136,7 +146,16 @@ def run_live(
     k, core_max = config["retrieval"]["k"], config["retrieval"]["core_max"]
     seed = config["benchmark"]["seed"]
     embedder = embedder or WordLlamaEmbedder()
-    chosen = [a for a in live_arms(core_max, embedder) if a.name in arm_names]
+    if transformer is None and any(a in ("transformer", "keel+transformer") for a in arm_names):
+        transformer = default_transformer()
+        if transformer is None:
+            raise RuntimeError(
+                "the transformer arms need the MiniLM encoder: install the 'transformer' "
+                "extra and allow one download (unset KEEL_OFFLINE)"
+            )
+    chosen = [
+        a for a in live_arms(core_max, embedder, transformer or embedder) if a.name in arm_names
+    ]
     missing = set(arm_names) - {a.name for a in chosen}
     if missing:
         raise ValueError(f"unknown arms: {', '.join(sorted(missing))}")

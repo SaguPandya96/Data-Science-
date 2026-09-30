@@ -6,12 +6,13 @@ a personal agent in the spirit of this year's consumer agents, to find out one t
 its memory put the right, *current* fact in front of the model more often than the simple
 ways of doing it?
 
-Short answer: **yes, by a wide margin, with limits worth knowing.** On held-out questions
-from 200 synthetic users, Keel put the current answer in the prompt, with no outdated
-version beside it, **69.1%** of the time (95% CI 68.6 to 69.6). Keyword search managed
-18.9%, embedding search 39.2%, and showing the newest memories 4.6%. The limits: questions
-that only hint at their topic ("Who else grew up in the same house as me?") still succeed
-only 42.7% of the time, and forgetting depends on the model labeling updates consistently.
+Short answer: **yes, by a wide margin, with limits worth knowing.** On the latest held-out
+questions from 200 synthetic users, Keel put the current answer in the prompt, with no
+outdated version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer
+embedding search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%.
+The limits: questions that only hint at their topic ("What should I tell the valet to bring
+around?") still succeed only about half the time, and forgetting depends on the model
+labeling updates consistently.
 
 [How the agent works](docs/AGENT.md) · [Analysis plan and change log](docs/ANALYSIS_PLAN.md)
 
@@ -66,17 +67,18 @@ eight memories for the prompt:
    question, capped at half the budget. Forgetting a peanut allergy while booking dinner
    is the mistake that matters most.
 3. **Hybrid search for the rest.** BM25 over each memory's key and text, with stemming and
-   synonym expansion ("live" also matches "based", "home", "city"), plus sentence-embedding
-   similarity, plus small boosts for recent and important memories. Repeats of the same
-   small talk are skipped.
+   synonym expansion ("live" also matches "based", "home", "city"), plus similarity from a
+   transformer sentence encoder, plus small boosts for recent and important memories.
+   Repeats of the same small talk are skipped.
 
 The model sees the keys already in use, so when you say "I moved to Austin" it can save the
 new value under `home_city` and retire Denver.
 
-Embeddings come from [WordLlama](https://github.com/dleemiller/WordLlama) (256 dimensions,
-16 MB, MIT licence). It ships its weights inside the Python package, runs on NumPy in
-milliseconds, and needs no GPU or download. Without it installed, Keel falls back to the
-BM25 hybrid.
+Sentence similarity comes from `all-MiniLM-L6-v2`, a small transformer encoder run on CPU
+with ONNX Runtime. It is downloaded once (about 80 MB, checked against a pinned SHA-256) and
+cached. Offline, or without the `transformer` extra, Keel falls back to
+[WordLlama](https://github.com/dleemiller/WordLlama) embeddings, which ship inside their
+Python package, and without those to the BM25 hybrid alone.
 
 ## Measuring it
 
@@ -154,19 +156,49 @@ was chosen on dev only.
 Source: [`reports/metrics/round2.md`](reports/metrics/round2.md).
 
 **The pre-registered rule passed**: embeddings added **4.7 points** (95% CI 4.3 to 5.1) over
-round 1 Keel, on both direct and indirect questions. Keel with embeddings is now the
-agent's default. Embedding search on its own is a much weaker memory: it has no idea which
-value is current, so it shows outdated values 20% of the time.
+round 1 Keel, on both direct and indirect questions. Embedding search on its own is a much
+weaker memory: it has no idea which value is current, so it shows outdated values 20% of
+the time. But indirect questions only rose from 37.8% to 42.7%. WordLlama averages word
+vectors, so it can't read a question as a whole.
+
+### Round 3: an end-to-end check with Claude
+
+Designed and pre-registered, but not yet run; see below.
+
+### Round 4: a transformer sentence encoder
+
+So I tried two small transformer encoders, `all-MiniLM-L6-v2` and `bge-small-en-v1.5`, with
+a third held-out set written before either was run. The encoder and its weight were chosen
+together on dev: MiniLM won.
+
+| Method | Clean hit | Direct | Indirect | Outdated shown |
+| --- | --- | --- | --- | --- |
+| Newest 5 memories | 4.6% | 4.6% | 4.6% | 0.0% |
+| Keyword search (BM25) | 20.4% | 34.4% | 6.4% | 9.8% |
+| Embedding search (WordLlama) | 35.0% | 54.0% | 16.0% | 17.2% |
+| Embedding search (MiniLM) | 44.9% | 61.7% | 28.1% | 25.3% |
+| Keel, round 1 | 64.3% | 98.6% | 30.1% | 0.0% |
+| Keel with WordLlama (round 2) | 66.9% | 98.8% | 35.0% | 0.0% |
+| **Keel with MiniLM** | **74.9% (74.5 to 75.3)** | **100.0%** | **49.8%** | **0.0%** |
+
+Source: [`reports/metrics/round4.md`](reports/metrics/round4.md).
+
+**The pre-registered rule passed**: MiniLM added **8.0 points** (95% CI 7.5 to 8.6) over Keel
+with WordLlama, and **14.8 points** on indirect questions. It is now the agent's default.
+Some indirect wordings jumped ("Who could be my kids' aunt or uncle on my side?" went from
+8% to 100%), but two got worse ("What should I tell the valet to bring around?" fell from
+14% to 0%). It is also about 80 times slower than WordLlama, at about 255 texts a second on
+one CPU thread. For one person's memory that's fine, because each text is embedded once
+and cached.
 
 ## What this does not show
 
-- **Indirect questions are still the weak spot.** 42.7% is better than 37.8%, but four of
-  the sixteen indirect wordings still score 6% or less, including "Who else grew up in the
-  same house as me?" and "What finish line am I working toward this season?". A small
-  static embedding model can't make those connections. A transformer sentence encoder
-  would likely do better. It needs a model download that my build environment blocks, but
-  the retriever accepts any embedder, so it can be swapped in. The agent also has a
-  `recall` tool it can call with its own rephrasing, which only the live check can measure.
+- **Indirect questions are still the weak spot.** The transformer lifted them to 49.8%, so
+  half still miss, and three indirect wordings score 2% or less ("Which of the potluck
+  dishes will I actually want to try?"). The agent also has a `recall` tool it can call
+  with its own rephrasing, which only the live check can measure.
+- **The encoder's weight may be under-tuned.** Dev scores were still rising at the largest
+  weight tried (2.0). I didn't extend the grid after seeing that; a later round can.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under
   `residence` instead of `home_city`, nothing is retired. When I renamed the key on every
   update, Keel's clean-hit rate on changed details fell from 67.8% to 26.1%, still above
@@ -175,11 +207,12 @@ value is current, so it shows outdated values 20% of the time.
 - **The users are synthetic** and every memory is written perfectly. The numbers describe
   retrieval, not how well a model decides what to remember.
 - **The end-to-end check hasn't been run.** Its design and pass rule are fixed in the
-  [analysis plan](docs/ANALYSIS_PLAN.md#round-3-end-to-end-check): the model answers the
-  round 2 held-out questions from each method's memories (including every memory at once)
-  and the answers are graded automatically. It makes up to 5,760 API calls for 30 users
-  and needs a key, so it isn't in CI. Until it runs, I haven't shown that better retrieval
-  gives better answers, only that it gives the model a better chance.
+  [analysis plan](docs/ANALYSIS_PLAN.md#round-3-end-to-end-check), amended before any run
+  to test Keel with MiniLM: the model answers held-out questions from each method's
+  memories (including every memory at once) and the answers are graded automatically. It
+  makes up to 5,760 API calls for 30 users and needs a key, so it isn't in CI. Until it
+  runs, I haven't shown that better retrieval gives better answers, only that it gives the
+  model a better chance.
 - **Two bugs were fixed after the round 1 test run.** The original stemmer treated "lives"
   and "live", or "siblings" and "sibling", as different words. I switched to the standard
   Snowball stemmer and reran. The pre-registered run gave Keel 59.7% and keyword search
@@ -190,7 +223,7 @@ value is current, so it shows outdated values 20% of the time.
 
 ```bash
 cd "End to end data science project/keel-personal-agent"
-python -m pip install -e ".[dev,app,embed]"
+python -m pip install -e ".[dev,app,embed,transformer]"
 
 keel --db ~/.keel/demo.db demo          # load a made-up user to explore
 keel --db ~/.keel/demo.db brief         # their morning brief
@@ -202,7 +235,8 @@ keel chat                                # /brief, /memories, /approvals, /quit
 keel approvals && keel approve 1         # approved emails are written to ~/.keel/outbox
 
 python scripts/run_benchmark.py          # round 1; writes reports/metrics/
-python scripts/run_round2.py             # round 2 (embeddings)
+python scripts/run_round2.py             # round 2 (WordLlama embeddings)
+python scripts/run_round4.py             # round 4 (transformer encoders; downloads ~160 MB once)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -214,9 +248,11 @@ refusal fallbacks and web search. Email approval writes an `.eml` file instead o
 through a mail account. Connecting a real mailbox is left to the user; this project is
 about the gate in front of it.
 
-Run the checks with `make check` (Ruff, mypy, pytest). The 62 tests use a scripted model,
-so they need no key and cost nothing. CI also reruns both benchmark rounds and fails if any
-committed number changes.
+Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is already on disk.
+
+Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
+never download anything, so they need no key and cost nothing. CI also reruns every
+benchmark round and fails if any committed number changes.
 
 ## Project layout
 
@@ -228,7 +264,7 @@ src/keel/
   tools/              tool registry (risk levels, validation, audit) and built-in tools
   approvals.py        the queue outward actions go through
   briefing.py         the daily brief
-  evaluation/         synthetic users, both benchmark rounds, report tables, live check
+  evaluation/         synthetic users, benchmark rounds, report tables, live check
   cli.py, demo.py
 app/app.py            Streamlit: chat, today, memory, goals, approvals, activity
 configs/eval.toml     benchmark settings, fixed before each held-out run
@@ -238,5 +274,5 @@ reports/metrics/      every number in this README
 ```
 
 *Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web
-search), SQLite, BM25, WordLlama embeddings, NumPy, Streamlit, pytest, Ruff, mypy, GitHub
-Actions.
+search), SQLite, BM25, MiniLM via ONNX Runtime, WordLlama, NumPy, Streamlit, pytest, Ruff,
+mypy, GitHub Actions.

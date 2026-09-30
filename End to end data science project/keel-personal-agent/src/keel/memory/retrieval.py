@@ -15,7 +15,7 @@ from datetime import datetime
 from functools import lru_cache
 from typing import Protocol
 
-from keel.memory.embeddings import Embedder, default_embedder
+from keel.memory.embeddings import Embedder, default_embedder, default_transformer
 from keel.memory.store import Memory
 from keel.memory.text import expand, tokens
 
@@ -139,10 +139,9 @@ class FullMemory:
 class EmbeddingMemory:
     """Cosine similarity over every memory ever written: standard dense retrieval memory."""
 
-    name = "embedding"
-
-    def __init__(self, embedder: Embedder) -> None:
+    def __init__(self, embedder: Embedder, name: str = "embedding") -> None:
         self.embedder = embedder
+        self.name = name
 
     def retrieve(
         self, memories: Sequence[Memory], query: str, now: datetime, k: int
@@ -231,10 +230,23 @@ class KeelMemory:
 
 # Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).
 EMBEDDING_WEIGHT = 0.5
+# Chosen on the dev wordings in round 4 (reports/metrics/round4.json).
+TRANSFORMER_WEIGHT = 2.0
 
 
 def default_retriever(core_max: int = 2) -> KeelMemory:
-    """The agent's retriever: Keel with embeddings when WordLlama is installed, else BM25."""
+    """The agent's retriever, best available first.
+
+    1. Keel with the MiniLM transformer encoder (round 4's winner), if ONNX Runtime is
+       installed and the model is on disk or can be downloaded.
+    2. Keel with WordLlama embeddings (round 2's winner), if installed.
+    3. Keel on BM25 alone.
+    """
+    transformer = default_transformer()
+    if transformer is not None:
+        return KeelMemory(
+            core_max=core_max, embedder=transformer, embedding_weight=TRANSFORMER_WEIGHT
+        )
     embedder = default_embedder()
     return KeelMemory(
         core_max=core_max,

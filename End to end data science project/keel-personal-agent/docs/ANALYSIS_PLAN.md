@@ -230,3 +230,108 @@ for.
 - Every arm's accuracy and stale-answer rate, for direct and indirect questions.
 - `keel+embed` against `keel`, `lexical`, `recent` and `full`, with token cost.
 - A sample of graded answers, so the automatic grading can be checked by eye.
+
+## Round 4: transformer sentence encoders
+
+Written after round 2 was finished and before any transformer model was run on benchmark
+text.
+
+### The question
+
+Round 2's WordLlama embeddings lifted indirect questions only from 37.8% to 42.7%. WordLlama
+averages static word vectors, so it can't read a question as a whole. Does a small
+transformer sentence encoder, which does, close more of that gap?
+
+### Encoders
+
+Two widely used small encoders, both run on CPU with ONNX Runtime:
+
+| Encoder | Size | Pooling | Why |
+| --- | --- | --- | --- |
+| `all-MiniLM-L6-v2` | 22M parameters, 384 dimensions | mean | The standard small sentence encoder |
+| `bge-small-en-v1.5` | 33M parameters, 384 dimensions | CLS | Trained for retrieval; stronger on retrieval benchmarks |
+
+Hugging Face is blocked in my build environment, so the ONNX exports are downloaded from
+Qdrant's public model mirror (the source `fastembed` uses). Each archive is pinned by
+SHA-256 in `configs/eval.toml`. No query instruction prefix is used for BGE (v1.5 is
+designed to work without one), and every text is embedded the same way.
+
+### Arms
+
+| Arm | What it is |
+| --- | --- |
+| `transformer` | Cosine similarity top `k` over every memory ever written, with the chosen encoder |
+| `keel+transformer` | Keel with the chosen encoder in place of WordLlama |
+
+Plus, unchanged: `recent`, `lexical`, `embedding` (WordLlama), `keel` (round 1) and
+`keel+embed` (the current default).
+
+The encoder and the weight `w` from {0.25, 0.5, 1.0, 2.0} are chosen together by clean-hit
+rate on the **dev** wordings only. Ties go to the smaller weight, then to MiniLM.
+
+### New held-out questions
+
+The round 2 held-out set has been run and I have seen its per-question results. A third
+set, `HOLDOUT2` in `keel.evaluation.scenarios`, was written and committed before any
+transformer run: one direct and one indirect wording per detail, none repeating an earlier
+wording. It is run once, after the encoder and `w` are fixed.
+
+### Pass rule
+
+`keel+transformer` passes if, on the `HOLDOUT2` wordings at `k = 5`, its clean-hit rate
+beats `keel+embed` with the 95% persona-bootstrap interval of the paired difference
+entirely above zero.
+
+If it passes, it becomes the agent's default retriever when the encoder is available. If
+not, WordLlama stays the default and the README reports the result.
+
+### Reported, not part of the rule
+
+- Direct and indirect wordings separately.
+- `keel+transformer` against every other arm.
+- Both encoders at every weight on dev.
+- All arms on the round 2 held-out set, labeled as already seen.
+- Time to embed, since a transformer is much slower than WordLlama.
+
+### Outcome
+
+Run once, as planned. On dev, `all-MiniLM-L6-v2` at `w = 2.0` scored highest (98.8%, against
+98.1% for `bge-small-en-v1.5` at the same weight). On the third held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `embedding` (WordLlama) | 35.0% | 54.0% | 16.0% |
+| `transformer` (MiniLM) | 44.9% | 61.7% | 28.1% |
+| `keel` (round 1) | 64.3% | 98.6% | 30.1% |
+| `keel+embed` (round 2 default) | 66.9% | 98.8% | 35.0% |
+| `keel+transformer` | 74.9% | 100.0% | 49.8% |
+
+`keel+transformer` − `keel+embed`: **+8.0 points** (95% CI +7.5 to +8.6). **Passed.** As
+planned, it is now the agent's default when ONNX Runtime is installed and the model is on
+disk or can be downloaded. Full tables: `reports/metrics/round4.md`.
+
+Things to know about this result:
+
+- **The weight is at the edge of the grid.** Dev clean hits were still rising at `w = 2.0`,
+  the largest weight tried, so a larger weight might do better. I did not extend the grid
+  after seeing this; a future round can.
+- **Gains are uneven.** Some indirect wordings jumped (the aunt-or-uncle question went from
+  8% to 100%), and two fell (telling the valet which car went from 14% to 0%, and the race
+  bib pickup from 22% to 10%). Half of indirect questions still miss.
+- **It costs speed.** On one CPU thread MiniLM embedded 255 texts a second, against about
+  20,000 for WordLlama. Each text is embedded once and cached, so for one person's memory
+  this is fine.
+
+## Round 3 amendment
+
+Made after round 4 and **before any live run**. Round 3 was meant to test the agent as it
+ships, and round 4 changed what ships. The arms and pass rule are updated to match, at the
+same number of API calls:
+
+- **Arms:** `recent`, `lexical`, `transformer`, `keel+embed`, `keel+transformer`, `full`.
+  `embedding` (WordLlama) and round 1 `keel` are dropped; the retrieval benchmark already
+  covers them.
+- **Pass rule:** `keel+transformer` must beat `transformer` (the same encoder used as plain
+  dense retrieval) on answer accuracy, with the 95% paired interval entirely above zero.
+
+The original design is kept above for the record.

@@ -424,6 +424,57 @@ HOLDOUT: dict[str, tuple[str, str]] = {
     ),
 }
 
+# Third held-out set, for round 4 (transformer sentence encoders). Written after round 2
+# was finished and before any transformer model was run on benchmark text.
+HOLDOUT2: dict[str, tuple[str, str]] = {
+    "home_city": (
+        "Which city do I live in?",
+        "If I say 'let's grab brunch downtown', which downtown do I mean?",
+    ),
+    "employer": (
+        "What's the name of the company I work at?",
+        "Whose quarterly all-hands meeting do I attend?",
+    ),
+    "job_title": ("What's my job title?", "How would a coworker introduce me to a new client?"),
+    "diet": ("What diet am I on?", "Which of the potluck dishes will I actually want to try?"),
+    "allergy": (
+        "Tell me my allergies.",
+        "What should be on the medical alert bracelet I'm ordering?",
+    ),
+    "partner_name": ("Who is my partner?", "Whose name goes next to mine on the joint lease?"),
+    "pet": ("Tell me about my pet.", "Who will the house sitter be looking after?"),
+    "gym_days": (
+        "On which days do I go to the gym?",
+        "Which days should my spotter expect me?",
+    ),
+    "wake_time": (
+        "What time does my alarm ring?",
+        "Can we schedule a sunrise hike without me oversleeping?",
+    ),
+    "favorite_cuisine": (
+        "Which cuisine do I love most?",
+        "What kind of cookbook would make a good gift for me?",
+    ),
+    "dining_budget": (
+        "How big is my dining-out budget?",
+        "Should I say yes to a pricey tasting menu this month?",
+    ),
+    "doctor": ("Who's my GP?", "Whose office should get my updated insurance card?"),
+    "car": ("Which car is mine?", "What should I tell the valet to bring around?"),
+    "sibling": (
+        "What's my brother's or sister's name?",
+        "Who could be my kids' aunt or uncle on my side?",
+    ),
+    "language_goal": (
+        "Which foreign language am I working on?",
+        "Which app course should I open for my daily streak?",
+    ),
+    "race_goal": (
+        "What race is my goal?",
+        "Which bib number pickup should I put in my calendar?",
+    ),
+}
+
 # Small talk. "{city}", "{food}" and similar are filled with values from the slot pools,
 # usually not the user's own, to create near misses for the retriever.
 DISTRACTORS: tuple[str, ...] = (
@@ -602,23 +653,24 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
                     )
                 )
             persona.probes[split] = probes
-        # Round 2 held-out wordings: fixed, so they use no randomness and leave the
-        # dev and test probes above exactly as they were.
-        for style, position in (("direct", 0), ("indirect", 1)):
-            persona.probes[f"holdout_{style}"] = [
-                Probe(
-                    slot=slot.key,
-                    question=HOLDOUT[slot.key][position],
-                    current_id=written[slot.key][-1],
-                    stale_ids=tuple(written[slot.key][:-1]),
-                    expected=values[slot.key][-1],
-                    updated=len(written[slot.key]) > 1,
-                    stale_values=tuple(values[slot.key][:-1]),
-                )
-                for slot in SLOTS
-            ]
-        persona.probes["holdout"] = (
-            persona.probes["holdout_direct"] + persona.probes["holdout_indirect"]
-        )
+        # Held-out wordings for rounds 2 and 4: fixed, so they use no randomness and leave
+        # the dev and test probes above exactly as they were.
+        for prefix, wordings in (("holdout", HOLDOUT), ("holdout2", HOLDOUT2)):
+            for style, position in (("direct", 0), ("indirect", 1)):
+                persona.probes[f"{prefix}_{style}"] = [
+                    Probe(
+                        slot=slot.key,
+                        question=wordings[slot.key][position],
+                        current_id=written[slot.key][-1],
+                        stale_ids=tuple(written[slot.key][:-1]),
+                        expected=values[slot.key][-1],
+                        updated=len(written[slot.key]) > 1,
+                        stale_values=tuple(values[slot.key][:-1]),
+                    )
+                    for slot in SLOTS
+                ]
+            persona.probes[prefix] = (
+                persona.probes[f"{prefix}_direct"] + persona.probes[f"{prefix}_indirect"]
+            )
         personas.append(persona)
     return personas

@@ -1,17 +1,25 @@
 """Sentence embeddings for memory search.
 
-Any object with ``embed(texts) -> array of unit vectors`` works as an embedder. Two ship:
+Any object with ``embed(texts) -> array of unit vectors`` works as an embedder. Three ship:
 
 - ``WordLlamaEmbedder``: WordLlama ``l2_supercat`` (256 dimensions, MIT licence). The
   weights and tokenizer are inside the ``wordllama`` package, so it loads offline in well
   under a second and needs no GPU. Install with ``pip install -e ".[embed]"``.
+- ``OnnxSentenceEmbedder``: a transformer sentence encoder (e.g. MiniLM, BGE) exported to
+  ONNX and run on CPU with ONNX Runtime. ``download_model`` fetches and verifies the
+  archive. Install with ``pip install -e ".[transformer]"``.
 - ``HashingEmbedder``: character trigrams hashed into a fixed vector. No semantics at all;
-  it exists so tests can exercise the embedding code path without the model.
+  it exists so tests can exercise the embedding code path without a model.
 """
 
 from __future__ import annotations
 
 import hashlib
+import os
+import shutil
+import tarfile
+import tempfile
+import urllib.request
 from collections.abc import Sequence
 from functools import lru_cache
 from pathlib import Path
@@ -96,9 +104,131 @@ class HashingEmbedder(_CachedEmbedder):
         return out
 
 
+def model_dir() -> Path:
+    """Where downloaded encoders live: ``KEEL_MODEL_DIR``, else ~/.cache/keel/models."""
+    return Path(os.environ.get("KEEL_MODEL_DIR", "~/.cache/keel/models")).expanduser()
+
+
+def offline() -> bool:
+    """``KEEL_OFFLINE=1`` forbids downloads; only models already on disk are used."""
+    return os.environ.get("KEEL_OFFLINE", "").lower() in ("1", "true", "yes")
+
+
+# The encoder chosen in round 4 of the benchmark (reports/metrics/round4.json).
+DEFAULT_ENCODER = {
+    "name": "all-MiniLM-L6-v2",
+    "url": "https://storage.googleapis.com/qdrant-fastembed/"
+    "sentence-transformers-all-MiniLM-L6-v2.tar.gz",
+    "sha256": "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77",
+    "pooling": "mean",
+}
+
+
+def download_model(url: str, sha256: str, cache_dir: Path | None = None) -> Path:
+    """Fetch a model archive once, check its SHA-256, and unpack it.
+
+    Returns the folder holding the ONNX file. A second call finds it on disk and makes no
+    network request. A download whose hash doesn't match is deleted, not used.
+    """
+    root = (cache_dir or model_dir()) / sha256[:16]
+    marker = root / ".verified"
+    if marker.exists():
+        return _model_folder(root)
+    if offline():
+        raise FileNotFoundError(f"{url} is not downloaded yet and KEEL_OFFLINE is set")
+    root.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=root, suffix=".tar.gz", delete=False) as tmp:
+        archive = Path(tmp.name)
+    try:
+        with urllib.request.urlopen(url, timeout=120) as response, archive.open("wb") as out:
+            shutil.copyfileobj(response, out)
+        digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+        if digest != sha256:
+            raise ValueError(f"checksum mismatch for {url}: got {digest}, expected {sha256}")
+        with tarfile.open(archive) as tar:
+            tar.extractall(root, filter="data")
+    finally:
+        archive.unlink(missing_ok=True)
+    marker.write_text(url + "\n")
+    return _model_folder(root)
+
+
+def _model_folder(root: Path) -> Path:
+    models = [p for p in root.rglob("*.onnx") if not p.name.startswith("._")]
+    if len(models) != 1:
+        raise FileNotFoundError(f"expected one .onnx file under {root}, found {len(models)}")
+    return models[0].parent
+
+
+class OnnxSentenceEmbedder(_CachedEmbedder):
+    """A transformer sentence encoder on CPU.
+
+    Runs single-threaded so the same text always gives the same vector, bit for bit;
+    the benchmark's committed numbers depend on that.
+    """
+
+    def __init__(self, model_dir: Path, *, pooling: str, name: str, max_length: int = 128) -> None:
+        super().__init__()
+        import onnxruntime
+        from tokenizers import Tokenizer
+
+        if pooling not in ("mean", "cls"):
+            raise ValueError("pooling must be 'mean' or 'cls'")
+        self.name = name
+        self.pooling = pooling
+        self._tokenizer = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
+        self._tokenizer.enable_truncation(max_length)
+        self._tokenizer.enable_padding()
+        options = onnxruntime.SessionOptions()
+        options.intra_op_num_threads = 1
+        options.inter_op_num_threads = 1
+        model = next(p for p in model_dir.glob("*.onnx") if not p.name.startswith("._"))
+        self._session = onnxruntime.InferenceSession(
+            str(model), options, providers=["CPUExecutionProvider"]
+        )
+        self._inputs = {i.name for i in self._session.get_inputs()}
+
+    def _embed_new(self, texts: list[str]) -> np.ndarray:
+        out = []
+        for start in range(0, len(texts), 64):
+            batch = self._tokenizer.encode_batch(texts[start : start + 64])
+            ids = np.array([e.ids for e in batch], dtype=np.int64)
+            mask = np.array([e.attention_mask for e in batch], dtype=np.int64)
+            feed = {"input_ids": ids, "attention_mask": mask}
+            if "token_type_ids" in self._inputs:
+                feed["token_type_ids"] = np.zeros_like(ids)
+            hidden = self._session.run(None, feed)[0]
+            if self.pooling == "cls":
+                out.append(hidden[:, 0])
+            else:
+                weights = mask[..., None].astype(np.float32)
+                out.append((hidden * weights).sum(axis=1) / weights.sum(axis=1))
+        return np.concatenate(out)
+
+
 def default_embedder() -> Embedder | None:
     """WordLlama when it is installed, otherwise None (Keel then runs on BM25 alone)."""
     try:
         return WordLlamaEmbedder()
     except ImportError:
         return None
+
+
+def default_transformer() -> Embedder | None:
+    """MiniLM when ONNX Runtime is installed and the model is on disk or downloadable.
+
+    Returns None rather than raising, so the agent still starts offline or without the
+    ``transformer`` extra; it then falls back to WordLlama.
+    """
+    try:
+        import onnxruntime  # noqa: F401
+        import tokenizers  # noqa: F401
+    except ImportError:
+        return None
+    try:
+        folder = download_model(DEFAULT_ENCODER["url"], DEFAULT_ENCODER["sha256"])
+    except (OSError, ValueError):  # offline, blocked, or a corrupted download
+        return None
+    return OnnxSentenceEmbedder(
+        folder, pooling=DEFAULT_ENCODER["pooling"], name=DEFAULT_ENCODER["name"]
+    )

@@ -19,6 +19,7 @@ dependencies = [
 [project.optional-dependencies]
 app = ["streamlit>=1.45"]
 embed = ["wordllama>=0.4.0,<0.5"]
+transformer = ["onnxruntime>=1.17", "tokenizers>=0.15"]
 dev = [
   "pytest>=8.2",
   "ruff>=0.5",
@@ -55,7 +56,7 @@ warn_redundant_casts = true
 strict_equality = true
 
 [[tool.mypy.overrides]]
-module = ["anthropic.*", "streamlit.*", "snowballstemmer.*", "wordllama.*"]
+module = ["anthropic.*", "streamlit.*", "snowballstemmer.*", "wordllama.*", "onnxruntime.*", "tokenizers.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

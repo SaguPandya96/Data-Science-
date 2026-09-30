@@ -39,7 +39,7 @@ jobs:
           cache-dependency-path: "End to end data science project/keel-personal-agent/pyproject.toml"
 
       - name: Install project and development dependencies
-        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,app,embed]"
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,app,embed,transformer]"
 
       - name: Lint and format check
         run: python -m ruff check . && python -m ruff format --check .
@@ -53,7 +53,9 @@ jobs:
   reproduce:
     name: Benchmark numbers reproduce
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    env:
+      KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -66,7 +68,14 @@ jobs:
           cache-dependency-path: "End to end data science project/keel-personal-agent/pyproject.toml"
 
       - name: Install project
-        run: python -m pip install --upgrade pip && python -m pip install -e ".[embed]"
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,embed,transformer]"
+
+      - name: Restore downloaded encoders
+        # Keyed on the pinned checksums, so a changed model is always downloaded fresh.
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/keel/models
+          key: keel-encoders-${{ hashFiles('End to end data science project/keel-personal-agent/configs/eval.toml') }}
 
       - name: Rerun round 1 and its question breakdown
         run: python scripts/run_benchmark.py > /dev/null && python scripts/question_breakdown.py > /dev/null
@@ -74,6 +83,13 @@ jobs:
       - name: Rerun round 2 (embedding search)
         run: python scripts/run_round2.py > /dev/null
 
+      - name: Rerun round 4 (transformer encoders)
+        run: python scripts/run_round4.py > /dev/null
+
+      - name: Real encoder is deterministic
+        run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py
+
       - name: Committed metrics match a fresh run
         # Every number in the README comes from these files, so they must regenerate exactly.
-        run: git diff --exit-code -- reports/metrics
+        # Embedding speed depends on the machine, so its file is left out.
+        run: git diff --exit-code -- reports/metrics ':!reports/metrics/round4_timing.json'
