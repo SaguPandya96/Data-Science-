@@ -1,0 +1,17 @@
+{
+  "minilm": {
+    "texts": 1675,
+    "seconds": 6.63,
+    "per_second": 252.5
+  },
+  "bge": {
+    "texts": 1675,
+    "seconds": 14.77,
+    "per_second": 113.4
+  },
+  "wordllama": {
+    "texts": 1675,
+    "seconds": 0.1,
+    "per_second": 17579.7
+  }
+}

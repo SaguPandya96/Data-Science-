@@ -57,7 +57,7 @@ The design is built around three commitments:
 | Model | `model.py` | Claude client; a scripted model with the same interface for tests. |
 | Memory store | `memory/store.py` | Writes memories, retires superseded values, deletes on request. |
 | Retriever | `memory/retrieval.py` | Chooses which memories enter the prompt. |
-| Embeddings | `memory/embeddings.py` | Sentence vectors for semantic matching (optional). |
+| Embeddings | `memory/embeddings.py` | Sentence vectors: MiniLM (ONNX), WordLlama fallback; model download and checksum. |
 | Toolbox | `tools/registry.py` | Tool schemas, input validation, risk handling, audit log. |
 | Tools | `tools/builtin.py` | Memory, calendar, tasks, goals, notes, email, brief. |
 | Approvals | `approvals.py` | Queue for outward actions; approve or reject. |
@@ -120,14 +120,24 @@ when this fails.
 
    ```text
    score = 1.0  × BM25(question, key + text) / max BM25
-         + 0.5  × cosine(embed(question), embed(key + text))
+         + w    × cosine(embed(question), embed(key + text))
          + 0.25 × 0.5^(age in days / 30)
          + 0.15 × (importance − 1) / 4
    ```
 
    BM25 uses Snowball stemming and a fixed list of synonym groups for personal topics,
-   with synonyms weighted at 0.6. The embedding term is present only when WordLlama is
-   installed; its weight was chosen on the benchmark's dev questions.
+   with synonyms weighted at 0.6. The embedding term uses the best encoder available, with
+   its weight `w` chosen on the benchmark's dev questions:
+
+   | Encoder | `w` | Used when |
+   | --- | --- | --- |
+   | `all-MiniLM-L6-v2` (ONNX Runtime, CPU) | 2.0 | the `transformer` extra is installed and the model is cached or downloadable |
+   | WordLlama `l2_supercat` | 0.5 | the `embed` extra is installed |
+   | none | — | neither; BM25 hybrid only |
+
+   The MiniLM archive (about 80 MB) is downloaded once to `~/.cache/keel/models`, checked
+   against a pinned SHA-256 and discarded on mismatch. Inference is single-threaded so a
+   given text always produces the same vector.
 4. A candidate whose words match one already chosen is skipped.
 
 The `recall` tool uses the same retriever without the always-on constraints, so the model
@@ -194,7 +204,9 @@ correct. Unknown tools are rejected the same way.
 | Effort | `medium` | `keel chat --effort` |
 | Memories per turn | 8 | `Agent(memory_k=...)` |
 | Step limit | 12 | `Agent(max_steps=...)` |
-| Embedding search | On when installed | `pip install -e ".[embed]"` |
+| Embedding search | Best available encoder | `pip install -e ".[embed,transformer]"` |
+| Model cache | `~/.cache/keel/models` | `KEEL_MODEL_DIR` |
+| Forbid model downloads | off | `KEEL_OFFLINE=1` |
 | Credentials | `ANTHROPIC_API_KEY` or an `ant auth login` profile | Environment |
 
 ## 8. Operations
@@ -207,13 +219,14 @@ correct. Unknown tools are rejected the same way.
 
 ## 9. Testing
 
-- **Unit and integration tests** (`tests/`, 62 tests) run the full agent loop against a
-  scripted model: tool round trips, parallel calls, error results, step limits, refusals,
-  paused turns, append-only history, approvals, the brief, the CLI and the Streamlit app.
-  They need no key and make no network calls.
-- **Retrieval benchmark** (`scripts/run_benchmark.py`, `scripts/run_round2.py`): 200
-  synthetic users with pre-registered pass rules. CI reruns both rounds and fails if any
-  committed number changes.
+- **Unit and integration tests** (`tests/`) run the full agent loop against a scripted
+  model: tool round trips, parallel calls, error results, step limits, refusals, paused
+  turns, append-only history, approvals, the brief, the CLI and the Streamlit app. They
+  also cover model download, checksum rejection and offline fallback. They need no key and
+  never download a model.
+- **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`):
+  200 synthetic users with pre-registered pass rules. CI reruns every round and fails if
+  any committed number changes.
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
   questions from each retriever's memories, and the answers are graded automatically. It
   costs money, so it is run manually. Calls run in parallel, and every answer is saved to
@@ -222,8 +235,10 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are still retrieved correctly only 42.7% of the
-  time (benchmark round 2).
+- Questions that only imply their topic are still retrieved correctly only 49.8% of the
+  time (benchmark round 4).
+- The first run of the agent downloads the encoder (about 80 MB). Offline, it falls back
+  to WordLlama, which retrieves less well.
 - Supersession depends on consistent keys. With every update written under a new key,
   clean retrieval of changed details falls from 67.8% to 26.1%.
 - The benchmark assumes perfect memory writing; how well the model chooses what to
@@ -235,7 +250,8 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Try a transformer sentence encoder in place of WordLlama for indirect questions.
+2. Extend the embedding weight grid beyond 2.0, where dev scores were still rising, and
+   try a larger encoder for indirect questions.
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.

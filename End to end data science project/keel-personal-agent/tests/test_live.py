@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from keel.cli import main
+from keel.evaluation.benchmark import load_config
 from keel.evaluation.live import (
     AnswerCache,
     grade,
@@ -43,14 +44,17 @@ def _run(model: EchoModel, cache: Path, arms: list[str]) -> dict:
         personas=2,
         arms=arms,
         embedder=HashingEmbedder(),
+        transformer=HashingEmbedder(64),
         cache_path=cache,
         workers=4,
     )
 
 
 def test_live_arms_match_the_plan():
-    names = [a.name for a in live_arms(2, HashingEmbedder())]
-    assert names == ["recent", "lexical", "embedding", "keel", "keel+embed", "full"]
+    names = [a.name for a in live_arms(2, HashingEmbedder(), HashingEmbedder(64))]
+    planned = load_config(CONFIG)["live"]["arms"]
+    assert set(planned) <= set(names)
+    assert "keel+transformer" in planned
 
 
 def test_grading_separates_current_stale_and_both():
@@ -64,18 +68,18 @@ def test_grading_separates_current_stale_and_both():
 def test_run_scores_arms_and_resumes_from_cache(tmp_path):
     cache = tmp_path / "answers.jsonl"
     model = EchoModel()
-    results = _run(model, cache, ["recent", "keel+embed", "embedding"])
-    assert model.calls == planned_calls(2, ["recent", "keel+embed", "embedding"]) == 192
-    assert set(results["accuracy"]) == {"recent", "keel+embed", "embedding"}
-    keel = results["accuracy"]["keel+embed"]["all"]["correct"]["mean"]
+    results = _run(model, cache, ["recent", "keel+transformer", "transformer"])
+    assert model.calls == planned_calls(2, ["recent", "keel+transformer", "transformer"]) == 192
+    assert set(results["accuracy"]) == {"recent", "keel+transformer", "transformer"}
+    keel = results["accuracy"]["keel+transformer"]["all"]["correct"]["mean"]
     assert keel > results["accuracy"]["recent"]["all"]["correct"]["mean"]
-    assert set(results["comparisons"]) == {"recent", "embedding"}
+    assert set(results["comparisons"]) == {"recent", "transformer"}
     assert results["pass_rule"]["passed"] in (True, False)
     assert "Round 3: end-to-end check" in to_markdown(results, "echo")
 
     # A second run pays for nothing and reproduces the same numbers.
     again = EchoModel()
-    assert _run(again, cache, ["recent", "keel+embed", "embedding"]) == results
+    assert _run(again, cache, ["recent", "keel+transformer", "transformer"]) == results
     assert again.calls == 0
     assert len(AnswerCache(cache)) == 192
 
@@ -96,3 +100,16 @@ def test_cli_states_the_spend_and_needs_confirmation(capsys):
     out = capsys.readouterr().out
     assert "Up to 5,760 API calls to claude-opus-5-5" in out
     assert "--yes" in out
+
+
+def test_transformer_arms_need_the_encoder(tmp_path):
+    with pytest.raises(RuntimeError, match="MiniLM"):
+        run_live(
+            CONFIG,
+            EchoModel(),
+            model_name="echo",
+            personas=1,
+            arms=["keel+transformer"],
+            embedder=HashingEmbedder(),
+            cache_path=tmp_path / "a.jsonl",
+        )

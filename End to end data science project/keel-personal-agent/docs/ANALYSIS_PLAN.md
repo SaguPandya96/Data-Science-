@@ -292,3 +292,46 @@ not, WordLlama stays the default and the README reports the result.
 - Both encoders at every weight on dev.
 - All arms on the round 2 held-out set, labeled as already seen.
 - Time to embed, since a transformer is much slower than WordLlama.
+
+### Outcome
+
+Run once, as planned. On dev, `all-MiniLM-L6-v2` at `w = 2.0` scored highest (98.8%, against
+98.1% for `bge-small-en-v1.5` at the same weight). On the third held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `embedding` (WordLlama) | 35.0% | 54.0% | 16.0% |
+| `transformer` (MiniLM) | 44.9% | 61.7% | 28.1% |
+| `keel` (round 1) | 64.3% | 98.6% | 30.1% |
+| `keel+embed` (round 2 default) | 66.9% | 98.8% | 35.0% |
+| `keel+transformer` | 74.9% | 100.0% | 49.8% |
+
+`keel+transformer` − `keel+embed`: **+8.0 points** (95% CI +7.5 to +8.6). **Passed.** As
+planned, it is now the agent's default when ONNX Runtime is installed and the model is on
+disk or can be downloaded. Full tables: `reports/metrics/round4.md`.
+
+Things to know about this result:
+
+- **The weight is at the edge of the grid.** Dev clean hits were still rising at `w = 2.0`,
+  the largest weight tried, so a larger weight might do better. I did not extend the grid
+  after seeing this; a future round can.
+- **Gains are uneven.** Some indirect wordings jumped (the aunt-or-uncle question went from
+  8% to 100%), and two fell (telling the valet which car went from 14% to 0%, and the race
+  bib pickup from 22% to 10%). Half of indirect questions still miss.
+- **It costs speed.** On one CPU thread MiniLM embedded 255 texts a second, against about
+  20,000 for WordLlama. Each text is embedded once and cached, so for one person's memory
+  this is fine.
+
+## Round 3 amendment
+
+Made after round 4 and **before any live run**. Round 3 was meant to test the agent as it
+ships, and round 4 changed what ships. The arms and pass rule are updated to match, at the
+same number of API calls:
+
+- **Arms:** `recent`, `lexical`, `transformer`, `keel+embed`, `keel+transformer`, `full`.
+  `embedding` (WordLlama) and round 1 `keel` are dropped; the retrieval benchmark already
+  covers them.
+- **Pass rule:** `keel+transformer` must beat `transformer` (the same encoder used as plain
+  dense retrieval) on answer accuracy, with the 95% paired interval entirely above zero.
+
+The original design is kept above for the record.

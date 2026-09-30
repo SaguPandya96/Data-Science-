@@ -13,6 +13,13 @@ from keel.tools.registry import Toolbox, ToolContext
 NOW = datetime(2026, 10, 1, 9, 0)
 
 
+@pytest.fixture(autouse=True)
+def _no_model_downloads(tmp_path_factory, monkeypatch):  # type: ignore[no-untyped-def]
+    """Tests never download encoders: an empty model folder, and downloads forbidden."""
+    monkeypatch.setenv("KEEL_MODEL_DIR", str(tmp_path_factory.mktemp("models")))
+    monkeypatch.setenv("KEEL_OFFLINE", "1")
+
+
 @pytest.fixture
 def clock() -> FixedClock:
     return FixedClock(NOW)
