@@ -161,25 +161,44 @@ def cmd_eval(args: argparse.Namespace) -> int:
 
 
 def cmd_eval_live(args: argparse.Namespace) -> int:
-    from keel.evaluation.live import run_live
+    from keel.evaluation.benchmark import load_config
+    from keel.evaluation.live import planned_calls, run_live, to_markdown
     from keel.model import ClaudeModel
 
-    arms = args.arms.split(",")
-    calls = args.personas * 16 * len(arms)
-    print(f"This makes {calls} API calls to {args.model}.")
+    plan = load_config(args.config)["live"]
+    personas = args.personas or plan["personas"]
+    arms = args.arms.split(",") if args.arms else plan["arms"]
+    model_name = args.model or plan["model"]
+    cache = Path(args.cache)
+    print(
+        f"Up to {planned_calls(personas, arms):,} API calls to {model_name} "
+        f"({personas} personas, {len(arms)} arms). Answers already in {cache} are reused."
+    )
     if not args.yes:
         print("Re-run with --yes to spend that.")
         return 1
-    model = ClaudeModel(model=args.model, effort="low", web_search=False, max_tokens=2000)
-    results = run_live(args.config, model, args.personas, arms)
+
+    def progress(done: int, total: int) -> None:
+        if done % 200 == 0 or done == total:
+            print(f"  {done:,} / {total:,}", flush=True)
+
+    model = ClaudeModel(model=model_name, effort=plan["effort"], web_search=False, max_tokens=2000)
+    results = run_live(
+        args.config,
+        model,
+        model_name=model_name,
+        personas=personas,
+        arms=arms,
+        cache_path=cache,
+        workers=args.workers,
+        progress=progress,
+    )
     out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(results, indent=2) + "\n")
-    for arm, stat in results["accuracy"].items():
-        print(
-            f"{arm:8s} {100 * stat['mean']:.1f}% "
-            f"({100 * stat['low']:.1f} to {100 * stat['high']:.1f})"
-        )
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "live.json").write_text(json.dumps(results, indent=2) + "\n")
+    markdown = to_markdown(results, model_name)
+    (out / "live.md").write_text(markdown)
+    print(markdown)
     return 0
 
 
@@ -223,12 +242,18 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--json", help="also write results here")
     evaluate.set_defaults(func=cmd_eval)
 
-    live = sub.add_parser("eval-live", help="end-to-end benchmark with Claude")
-    live.add_argument("--personas", type=int, default=10)
-    live.add_argument("--arms", default="recent,lexical,keel")
-    live.add_argument("--model", default="claude-opus-5-5")
+    live = sub.add_parser("eval-live", help="end-to-end check with Claude (costs money)")
+    live.add_argument("--personas", type=int, help="default: configs/eval.toml [live]")
+    live.add_argument("--arms", help="comma-separated; default: configs/eval.toml [live]")
+    live.add_argument("--model", help="default: configs/eval.toml [live]")
+    live.add_argument("--workers", type=int, default=8, help="parallel API calls")
     live.add_argument("--config", default=config)
-    live.add_argument("--out", default=str(ROOT / "reports" / "metrics" / "live.json"))
+    live.add_argument("--out", default=str(ROOT / "reports" / "metrics"))
+    live.add_argument(
+        "--cache",
+        default=str(ROOT / "reports" / "live" / "answers.jsonl"),
+        help="every answer is saved here; a rerun reuses them instead of paying again",
+    )
     live.add_argument("--yes", action="store_true", help="confirm the API spend")
     live.set_defaults(func=cmd_eval_live)
     return parser

@@ -174,10 +174,12 @@ value is current, so it shows outdated values 20% of the time.
   meant to prevent this; how often a real model complies is untested.
 - **The users are synthetic** and every memory is written perfectly. The numbers describe
   retrieval, not how well a model decides what to remember.
-- **The end-to-end check hasn't been run.** `keel eval-live` has the model answer each
-  question from each method's memories and grades the answer. It costs about 1,440 API
-  calls for 30 users and needs a key, so it isn't in CI. Until it runs, I haven't shown
-  that better retrieval gives better answers, only that it gives the model a better chance.
+- **The end-to-end check hasn't been run.** Its design and pass rule are fixed in the
+  [analysis plan](docs/ANALYSIS_PLAN.md#round-3-end-to-end-check): the model answers the
+  round 2 held-out questions from each method's memories (including every memory at once)
+  and the answers are graded automatically. It makes up to 5,760 API calls for 30 users
+  and needs a key, so it isn't in CI. Until it runs, I haven't shown that better retrieval
+  gives better answers, only that it gives the model a better chance.
 - **Two bugs were fixed after the round 1 test run.** The original stemmer treated "lives"
   and "live", or "siblings" and "sibling", as different words. I switched to the standard
   Snowball stemmer and reran. The pre-registered run gave Keel 59.7% and keyword search
@@ -202,7 +204,8 @@ keel approvals && keel approve 1         # approved emails are written to ~/.kee
 python scripts/run_benchmark.py          # round 1; writes reports/metrics/
 python scripts/run_round2.py             # round 2 (embeddings)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
-keel eval-live --personas 30 --yes       # end-to-end check (costs money)
+keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
+keel eval-live --yes                     # the planned run: 30 users, 6 methods
 ```
 
 The brief, memory view, approvals and the whole test suite work without a key. Chat uses
@@ -211,7 +214,7 @@ refusal fallbacks and web search. Email approval writes an `.eml` file instead o
 through a mail account. Connecting a real mailbox is left to the user; this project is
 about the gate in front of it.
 
-Run the checks with `make check` (Ruff, mypy, pytest). The 57 tests use a scripted model,
+Run the checks with `make check` (Ruff, mypy, pytest). The 62 tests use a scripted model,
 so they need no key and cost nothing. CI also reruns both benchmark rounds and fails if any
 committed number changes.
 

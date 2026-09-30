@@ -35,7 +35,7 @@ The limits are in the README, not a footnote. On the question wordings I built a
 
 *Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web search), SQLite, BM25, WordLlama embeddings, NumPy, Streamlit, automated tests and CI.
 
-*Technical detail:* two rounds, each with a pass rule and held-out question wordings committed before the run; 200 personas × 16 details × 12 weekly sessions, ~100 memories each; k = 5; paired persona bootstrap. Round 1: Keel − keyword search +52.8 pts (95% CI 51.3 to 54.3), ablation synonyms −27.9 pts, retiring old values −19.1, key search −10.9; two stemmer bugs fixed after the test run, with the pre-registered run kept (Keel 59.7%, same verdict). Round 2: adding WordLlama cosine similarity (weight chosen on dev) gave +4.7 pts (4.3 to 5.1), direct wordings 95.5%, indirect 42.7%; 57 tests with a scripted model, and CI checks that every committed number reproduces.
+*Technical detail:* two rounds, each with a pass rule and held-out question wordings committed before the run; 200 personas × 16 details × 12 weekly sessions, ~100 memories each; k = 5; paired persona bootstrap. Round 1: Keel − keyword search +52.8 pts (95% CI 51.3 to 54.3), ablation synonyms −27.9 pts, retiring old values −19.1, key search −10.9; two stemmer bugs fixed after the test run, with the pre-registered run kept (Keel 59.7%, same verdict). Round 2: adding WordLlama cosine similarity (weight chosen on dev) gave +4.7 pts (4.3 to 5.1), direct wordings 95.5%, indirect 42.7%; 62 tests with a scripted model, and CI checks that every committed number reproduces.
 
 [Open the project](End%20to%20end%20data%20science%20project/keel-personal-agent/)
 
