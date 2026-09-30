@@ -13,6 +13,8 @@ from keel.evaluation.benchmark import load_config
 from keel.evaluation.round4 import run_round4, to_markdown
 from keel.evaluation.round5 import run_round5
 from keel.evaluation.round5 import to_markdown as round5_markdown
+from keel.evaluation.round6 import run_round6
+from keel.evaluation.round6 import to_markdown as round6_markdown
 from keel.memory.embeddings import (
     DEFAULT_ENCODER,
     HashingEmbedder,
@@ -135,3 +137,24 @@ def test_real_minilm_is_deterministic_and_semantic(monkeypatch):
     assert first.shape == (3, 384)
     assert (first == second).all()
     assert first[0] @ first[1] > first[0] @ first[2] + 0.3
+
+
+def test_round6_runner_with_stand_in_encoders(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    ticks = iter(range(100))
+    encoders = {
+        "minilm": HashingEmbedder(64),
+        "bge_base": HashingEmbedder(96),
+        "mpnet": HashingEmbedder(128),
+    }
+    results, timings = run_round6(small, encoders=encoders, clock=lambda: float(next(ticks)))
+    plan = load_config(CONFIG)["round6"]
+    assert set(results["tuning"]) == set(plan["encoders"])
+    assert results["chosen"]["encoder"] in plan["encoders"]
+    assert results["chosen"]["weight"] in plan["weight_grid"]
+    assert set(results["splits"]) == {"holdout4", "holdout4_direct", "holdout4_indirect"}
+    assert set(timings) == set(plan["encoders"])
+    unchanged = results["chosen"] == {"encoder": "minilm", "weight": 6.0}
+    assert (results["pass_rule"]["passed"] is None) == unchanged
+    assert "Round 6: larger transformer encoders" in round6_markdown(results, timings)
