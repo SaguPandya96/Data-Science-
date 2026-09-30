@@ -230,3 +230,65 @@ for.
 - Every arm's accuracy and stale-answer rate, for direct and indirect questions.
 - `keel+embed` against `keel`, `lexical`, `recent` and `full`, with token cost.
 - A sample of graded answers, so the automatic grading can be checked by eye.
+
+## Round 4: transformer sentence encoders
+
+Written after round 2 was finished and before any transformer model was run on benchmark
+text.
+
+### The question
+
+Round 2's WordLlama embeddings lifted indirect questions only from 37.8% to 42.7%. WordLlama
+averages static word vectors, so it can't read a question as a whole. Does a small
+transformer sentence encoder, which does, close more of that gap?
+
+### Encoders
+
+Two widely used small encoders, both run on CPU with ONNX Runtime:
+
+| Encoder | Size | Pooling | Why |
+| --- | --- | --- | --- |
+| `all-MiniLM-L6-v2` | 22M parameters, 384 dimensions | mean | The standard small sentence encoder |
+| `bge-small-en-v1.5` | 33M parameters, 384 dimensions | CLS | Trained for retrieval; stronger on retrieval benchmarks |
+
+Hugging Face is blocked in my build environment, so the ONNX exports are downloaded from
+Qdrant's public model mirror (the source `fastembed` uses). Each archive is pinned by
+SHA-256 in `configs/eval.toml`. No query instruction prefix is used for BGE (v1.5 is
+designed to work without one), and every text is embedded the same way.
+
+### Arms
+
+| Arm | What it is |
+| --- | --- |
+| `transformer` | Cosine similarity top `k` over every memory ever written, with the chosen encoder |
+| `keel+transformer` | Keel with the chosen encoder in place of WordLlama |
+
+Plus, unchanged: `recent`, `lexical`, `embedding` (WordLlama), `keel` (round 1) and
+`keel+embed` (the current default).
+
+The encoder and the weight `w` from {0.25, 0.5, 1.0, 2.0} are chosen together by clean-hit
+rate on the **dev** wordings only. Ties go to the smaller weight, then to MiniLM.
+
+### New held-out questions
+
+The round 2 held-out set has been run and I have seen its per-question results. A third
+set, `HOLDOUT2` in `keel.evaluation.scenarios`, was written and committed before any
+transformer run: one direct and one indirect wording per detail, none repeating an earlier
+wording. It is run once, after the encoder and `w` are fixed.
+
+### Pass rule
+
+`keel+transformer` passes if, on the `HOLDOUT2` wordings at `k = 5`, its clean-hit rate
+beats `keel+embed` with the 95% persona-bootstrap interval of the paired difference
+entirely above zero.
+
+If it passes, it becomes the agent's default retriever when the encoder is available. If
+not, WordLlama stays the default and the README reports the result.
+
+### Reported, not part of the rule
+
+- Direct and indirect wordings separately.
+- `keel+transformer` against every other arm.
+- Both encoders at every weight on dev.
+- All arms on the round 2 held-out set, labeled as already seen.
+- Time to embed, since a transformer is much slower than WordLlama.
