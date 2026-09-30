@@ -103,7 +103,7 @@ def test_cli_states_the_spend_and_needs_confirmation(capsys):
 
 
 def test_transformer_arms_need_the_encoder(tmp_path):
-    with pytest.raises(RuntimeError, match="MiniLM"):
+    with pytest.raises(RuntimeError, match="default encoder"):
         run_live(
             CONFIG,
             EchoModel(),

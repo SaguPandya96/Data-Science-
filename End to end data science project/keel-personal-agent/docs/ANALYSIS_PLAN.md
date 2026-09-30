@@ -456,3 +456,34 @@ above zero but below that bar, the gain is reported and MiniLM stays.
 - Every encoder and weight on every tuning set.
 - Direct and indirect wordings separately.
 - Embedding speed for each encoder on one CPU thread.
+
+### Outcome
+
+Run once, as planned. On the four already-seen sets, `all-mpnet-base-v2` at `w = 12.0` had
+the highest mean clean-hit rate (86.8%, against 86.6% for MiniLM at 6.0 and 83.8% at best
+for `bge-base-en-v1.5`). On the fifth held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `transformer` (plain MiniLM search) | 48.9% | 61.4% | 36.3% |
+| `larger` (plain mpnet search) | 52.7% | 61.9% | 43.5% |
+| `keel+transformer` (MiniLM, `w = 6.0`) | 85.5% | 100.0% | 71.0% |
+| `keel+larger` (mpnet, `w = 12.0`) | 89.3% | 100.0% | 78.5% |
+
+`keel+larger` − `keel+transformer`: **+3.8 points** (95% CI +3.4 to +4.2), all of it on
+indirect wordings (+7.6). The lower bound clears the 1-point bar, so **mpnet at `w = 12.0`
+is adopted** as the agent's default encoder. Full tables: `reports/metrics/round6.md`.
+
+Things to keep in mind:
+
+- **The tuning sets barely told the models apart.** On them, mpnet led MiniLM by 0.2
+  points, and weights 6 to 12 for mpnet were within rounding of each other. The larger
+  gain appeared only on the fresh set. That is the pattern a real but modest improvement
+  would show on near-ceiling tuning data, but it is one held-out set.
+- **The chosen weight is again at the top of the grid.** A larger weight was not tried.
+- **Bigger was not automatically better.** `bge-base-en-v1.5`, the same size as mpnet,
+  scored below MiniLM on every tuning weight.
+- **Cost.** mpnet is a 403 MB first download (MiniLM was 83 MB), and on one CPU thread it
+  embedded about 50 texts a second against about 340 for MiniLM. Each memory is embedded
+  once and cached, so for one person's memory this is a one-off cost of seconds, but it
+  would matter at scale.

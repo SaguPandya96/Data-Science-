@@ -114,12 +114,12 @@ def offline() -> bool:
     return os.environ.get("KEEL_OFFLINE", "").lower() in ("1", "true", "yes")
 
 
-# The encoder chosen in round 4 of the benchmark (reports/metrics/round4.json).
+# The encoder chosen in round 6 of the benchmark (reports/metrics/round6.json). Rounds 4
+# and 5 had shipped all-MiniLM-L6-v2.
 DEFAULT_ENCODER = {
-    "name": "all-MiniLM-L6-v2",
-    "url": "https://storage.googleapis.com/qdrant-fastembed/"
-    "sentence-transformers-all-MiniLM-L6-v2.tar.gz",
-    "sha256": "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77",
+    "name": "all-mpnet-base-v2",
+    "url": "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz",
+    "sha256": "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93",
     "pooling": "mean",
 }
 
@@ -215,7 +215,8 @@ def default_embedder() -> Embedder | None:
 
 
 def default_transformer() -> Embedder | None:
-    """MiniLM when ONNX Runtime is installed and the model is on disk or downloadable.
+    """The default encoder when ONNX Runtime is installed and the model is on disk or
+    downloadable.
 
     Returns None rather than raising, so the agent still starts offline or without the
     ``transformer`` extra; it then falls back to WordLlama.

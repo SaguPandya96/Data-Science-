@@ -76,20 +76,21 @@ def test_offline_agent_falls_back_without_error():
 
 
 def test_shipped_defaults_match_the_benchmark_results():
+    """The agent ships whatever the latest adopted round chose, and nothing else."""
     metrics = ROOT / "reports" / "metrics"
-    round4 = json.loads((metrics / "round4.json").read_text())
-    round5 = json.loads((metrics / "round5.json").read_text())
-    minilm = load_config(CONFIG)["round4"]["encoders"]["minilm"]
-    # Round 4 chose the encoder; round 5 chose its weight.
-    assert round4["pass_rule"]["passed"] is True
-    assert round4["chosen_encoder"] == DEFAULT_ENCODER["name"] == minilm["name"]
-    assert DEFAULT_ENCODER["sha256"] == minilm["sha256"]
-    assert DEFAULT_ENCODER["url"] == minilm["url"]
-    assert round5["encoder"] == DEFAULT_ENCODER["name"]
-    if round5["pass_rule"]["passed"]:
-        assert round5["chosen_weight"] == TRANSFORMER_WEIGHT
+    round6 = json.loads((metrics / "round6.json").read_text())
+    plan = load_config(CONFIG)["round6"]
+    if round6["pass_rule"]["passed"]:
+        key, weight = round6["chosen"]["encoder"], round6["chosen"]["weight"]
     else:
-        assert round5["current_weight"] == TRANSFORMER_WEIGHT
+        key, weight = plan["current"]["encoder"], plan["current"]["weight"]
+    spec = plan["encoders"][key]
+    assert {k: spec[k] for k in ("name", "url", "sha256", "pooling")} == DEFAULT_ENCODER
+    assert weight == TRANSFORMER_WEIGHT
+    # Round 6's baseline must be what rounds 4 and 5 had shipped.
+    round5 = json.loads((metrics / "round5.json").read_text())
+    assert plan["current"]["weight"] == round5["chosen_weight"]
+    assert plan["encoders"]["minilm"]["name"] == round5["encoder"]
 
 
 def test_round5_runner_with_stand_in_encoders(tmp_path):
@@ -125,16 +126,17 @@ def test_round4_runner_with_stand_in_encoders(tmp_path):
 
 
 @pytest.mark.skipif(not os.environ.get("KEEL_TEST_MODEL_DIR"), reason="needs a downloaded encoder")
-def test_real_minilm_is_deterministic_and_semantic(monkeypatch):
+def test_real_default_encoder_is_deterministic_and_semantic(monkeypatch):
     pytest.importorskip("onnxruntime")
     from keel.memory.embeddings import OnnxSentenceEmbedder
 
     monkeypatch.setenv("KEEL_MODEL_DIR", os.environ["KEEL_TEST_MODEL_DIR"])
     folder = download_model(DEFAULT_ENCODER["url"], DEFAULT_ENCODER["sha256"])
     texts = ["A man is playing a guitar.", "Someone strums a guitar.", "Stocks fell today."]
-    first = OnnxSentenceEmbedder(folder, pooling="mean", name="minilm").embed(texts)
-    second = OnnxSentenceEmbedder(folder, pooling="mean", name="minilm").embed(texts)
-    assert first.shape == (3, 384)
+    pooling, name = DEFAULT_ENCODER["pooling"], DEFAULT_ENCODER["name"]
+    first = OnnxSentenceEmbedder(folder, pooling=pooling, name=name).embed(texts)
+    second = OnnxSentenceEmbedder(folder, pooling=pooling, name=name).embed(texts)
+    assert first.shape[0] == 3
     assert (first == second).all()
     assert first[0] @ first[1] > first[0] @ first[2] + 0.3
 

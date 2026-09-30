@@ -57,7 +57,7 @@ The design is built around three commitments:
 | Model | `model.py` | Claude client; a scripted model with the same interface for tests. |
 | Memory store | `memory/store.py` | Writes memories, retires superseded values, deletes on request. |
 | Retriever | `memory/retrieval.py` | Chooses which memories enter the prompt. |
-| Embeddings | `memory/embeddings.py` | Sentence vectors: MiniLM (ONNX), WordLlama fallback; model download and checksum. |
+| Embeddings | `memory/embeddings.py` | Sentence vectors: mpnet (ONNX), WordLlama fallback; model download and checksum. |
 | Toolbox | `tools/registry.py` | Tool schemas, input validation, risk handling, audit log. |
 | Tools | `tools/builtin.py` | Memory, calendar, tasks, goals, notes, email, brief. |
 | Approvals | `approvals.py` | Queue for outward actions; approve or reject. |
@@ -127,15 +127,15 @@ when this fails.
 
    BM25 uses Snowball stemming and a fixed list of synonym groups for personal topics,
    with synonyms weighted at 0.6. The embedding term uses the best encoder available, with
-   its weight `w` chosen by the benchmark (rounds 2 and 5):
+   its weight `w` chosen by the benchmark (rounds 2 and 6):
 
    | Encoder | `w` | Used when |
    | --- | --- | --- |
-   | `all-MiniLM-L6-v2` (ONNX Runtime, CPU) | 6.0 | the `transformer` extra is installed and the model is cached or downloadable |
+   | `all-mpnet-base-v2` (ONNX Runtime, CPU) | 12.0 | the `transformer` extra is installed and the model is cached or downloadable |
    | WordLlama `l2_supercat` | 0.5 | the `embed` extra is installed |
    | none | — | neither; BM25 hybrid only |
 
-   The MiniLM archive (about 80 MB) is downloaded once to `~/.cache/keel/models`, checked
+   The mpnet archive (about 400 MB) is downloaded once to `~/.cache/keel/models`, checked
    against a pinned SHA-256 and discarded on mismatch. Inference is single-threaded so a
    given text always produces the same vector.
 4. A candidate whose words match one already chosen is skipped.
@@ -225,7 +225,7 @@ correct. Unknown tools are rejected the same way.
   also cover model download, checksum rejection and offline fallback. They need no key and
   never download a model.
 - **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`,
-  `run_round5.py`):
+  `run_round5.py`, `run_round6.py`):
   200 synthetic users with pre-registered pass rules. CI reruns every round and fails if
   any committed number changes.
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
@@ -236,11 +236,12 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are the weak spot: 49.8% to 74.8% retrieved
-  correctly depending on the question set (benchmark rounds 4 and 5), against 100% for
-  direct questions.
-- The first run of the agent downloads the encoder (about 80 MB). Offline, it falls back
+- Questions that only imply their topic are the weak spot: 78.5% retrieved correctly on
+  the latest held-out set (benchmark round 6), against 100% for direct questions.
+- The first run of the agent downloads the encoder (about 400 MB). Offline, it falls back
   to WordLlama, which retrieves less well.
+- The encoder embeds about 50 texts a second on one CPU thread. Fine for one person's
+  memory, since each text is embedded once, but slow for bulk imports.
 - Supersession depends on consistent keys. With every update written under a new key,
   clean retrieval of changed details falls from 67.8% to 26.1%.
 - The benchmark assumes perfect memory writing; how well the model chooses what to
@@ -252,7 +253,8 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Try a larger encoder for indirect questions.
+2. Try embedding weights above 12, where round 6 stopped, and a quantized mpnet to cut
+   the download and embedding time.
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.
