@@ -22,7 +22,7 @@ from typing import Any
 
 from keel.briefing import build_brief
 from keel.clock import Clock, SystemClock
-from keel.memory.retrieval import KeelMemory, render_context
+from keel.memory.retrieval import KeelMemory, default_retriever, render_context
 from keel.memory.store import Memory, MemoryStore
 from keel.model import Model, ModelReply
 from keel.tools.builtin import builtin_tools
@@ -88,16 +88,19 @@ class Agent:
         memory_k: int = 8,
         max_steps: int = 12,
         session_id: str | None = None,
+        retriever: KeelMemory | None = None,
     ) -> None:
         self.conn = conn
         self.model = model
         self.clock = clock or SystemClock()
         self.memory = MemoryStore(conn, self.clock)
-        self.retriever = KeelMemory()
+        self.retriever = retriever or default_retriever()
         self.memory_k = memory_k
         self.max_steps = max_steps
         self.session_id = session_id or uuid.uuid4().hex[:12]
-        self.toolbox = Toolbox(ToolContext(conn, self.clock, self.memory, self.session_id))
+        self.toolbox = Toolbox(
+            ToolContext(conn, self.clock, self.memory, self.session_id, self.retriever)
+        )
         for tool in builtin_tools():
             self.toolbox.register(tool)
         self.messages: list[dict[str, Any]] = []

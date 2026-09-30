@@ -19,6 +19,7 @@ from datetime import datetime
 from typing import Any
 
 from keel.clock import Clock
+from keel.memory.retrieval import KeelMemory
 from keel.memory.store import MemoryStore
 
 RISKS = ("read", "write", "outward")
@@ -34,6 +35,7 @@ class ToolContext:
     clock: Clock
     memory: MemoryStore
     session_id: str | None = None
+    retriever: KeelMemory | None = None  # used by recall; plain Keel (BM25) when unset
 
 
 Handler = Callable[[ToolContext, dict[str, Any]], Any]

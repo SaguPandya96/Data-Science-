@@ -208,7 +208,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("approvals", help="pending approvals").set_defaults(func=cmd_approvals)
     approve = sub.add_parser("approve", help="approve and carry out an action")
     approve.add_argument("id", type=int)
-    approve.add_argument("--outbox", default="~/.keel/outbox")
+    approve.add_argument("--outbox", default=os.environ.get("KEEL_OUTBOX", "~/.keel/outbox"))
     approve.set_defaults(func=cmd_approve)
     reject = sub.add_parser("reject", help="reject an action")
     reject.add_argument("id", type=int)

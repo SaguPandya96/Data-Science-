@@ -15,6 +15,7 @@ from datetime import datetime
 from functools import lru_cache
 from typing import Protocol
 
+from keel.memory.embeddings import Embedder, default_embedder
 from keel.memory.store import Memory
 from keel.memory.text import expand, tokens
 
@@ -135,6 +136,25 @@ class FullMemory:
         return [m for m in memories if not m.deleted]
 
 
+class EmbeddingMemory:
+    """Cosine similarity over every memory ever written: standard dense retrieval memory."""
+
+    name = "embedding"
+
+    def __init__(self, embedder: Embedder) -> None:
+        self.embedder = embedder
+
+    def retrieve(
+        self, memories: Sequence[Memory], query: str, now: datetime, k: int
+    ) -> list[Memory]:
+        visible = [m for m in memories if not m.deleted]
+        if not visible or k <= 0:
+            return []
+        vectors = self.embedder.embed([query, *(m.text for m in visible)])
+        similarity = vectors[1:] @ vectors[0]
+        return _top_k(visible, [float(x) for x in similarity], k)
+
+
 @dataclass
 class KeelMemory:
     """Keel's retriever.
@@ -147,6 +167,10 @@ class KeelMemory:
        and synonym expansion, plus smaller terms for recency and importance.
     4. Repeats of a memory already chosen are skipped, so five copies of the same small talk
        can't crowd out the answer.
+
+    With an ``embedder``, the hybrid score also adds ``embedding_weight`` times the cosine
+    similarity between the question and the memory's key and text, which lets a question
+    find a memory it shares no words with.
     """
 
     core_max: int = 2
@@ -159,6 +183,8 @@ class KeelMemory:
     use_core: bool = True
     use_keys: bool = True
     use_dedupe: bool = True
+    embedder: Embedder | None = None
+    embedding_weight: float = 0.0
     name: str = "keel"
 
     def retrieve(
@@ -185,17 +211,36 @@ class KeelMemory:
         docs = [indexed_text(m) if self.use_keys else m.text for m in rest]
         lexical = bm25_scores(docs, weights)
         top = max(lexical) or 1.0
+        semantic = [0.0] * len(rest)
+        if self.embedder is not None and self.embedding_weight:
+            vectors = self.embedder.embed([query, *docs])
+            semantic = [float(x) for x in vectors[1:] @ vectors[0]]
         scores = []
-        for memory, lex in zip(rest, lexical, strict=True):
+        for memory, lex, sim in zip(rest, lexical, semantic, strict=True):
             age_days = max((now - memory.created_at).total_seconds() / 86400, 0.0)
             recency = 0.5 ** (age_days / self.half_life_days)
             importance = (memory.importance - 1) / 4
             scores.append(
                 self.lexical_weight * lex / top
+                + self.embedding_weight * sim
                 + self.recency_weight * recency
                 + self.importance_weight * importance
             )
         return chosen + _top_k(rest, scores, k - len(chosen), dedupe=self.use_dedupe)
+
+
+# Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).
+EMBEDDING_WEIGHT = 0.5
+
+
+def default_retriever(core_max: int = 2) -> KeelMemory:
+    """The agent's retriever: Keel with embeddings when WordLlama is installed, else BM25."""
+    embedder = default_embedder()
+    return KeelMemory(
+        core_max=core_max,
+        embedder=embedder,
+        embedding_weight=EMBEDDING_WEIGHT if embedder is not None else 0.0,
+    )
 
 
 def render_context(memories: Sequence[Memory]) -> str:

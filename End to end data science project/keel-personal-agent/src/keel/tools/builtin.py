@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -56,7 +57,9 @@ def _recall(ctx: ToolContext, args: dict[str, Any]) -> list[dict[str, Any]]:
     limit = int(args.get("limit", 8))
     if not 1 <= limit <= 25:
         raise ToolError("limit must be between 1 and 25")
-    found = KeelMemory(core_max=0).retrieve(ctx.memory.all(), query, ctx.clock.now(), limit)
+    # Same retriever as the context block, minus the always-on constraints.
+    retriever = replace(ctx.retriever or KeelMemory(), core_max=0)
+    found = retriever.retrieve(ctx.memory.all(), query, ctx.clock.now(), limit)
     return [
         {
             "id": m.id,

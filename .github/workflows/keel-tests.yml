@@ -39,7 +39,7 @@ jobs:
           cache-dependency-path: "End to end data science project/keel-personal-agent/pyproject.toml"
 
       - name: Install project and development dependencies
-        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,app]"
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,app,embed]"
 
       - name: Lint and format check
         run: python -m ruff check . && python -m ruff format --check .
@@ -66,10 +66,13 @@ jobs:
           cache-dependency-path: "End to end data science project/keel-personal-agent/pyproject.toml"
 
       - name: Install project
-        run: python -m pip install --upgrade pip && python -m pip install -e .
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[embed]"
 
-      - name: Rerun the benchmark and the question breakdown
+      - name: Rerun round 1 and its question breakdown
         run: python scripts/run_benchmark.py > /dev/null && python scripts/question_breakdown.py > /dev/null
+
+      - name: Rerun round 2 (embedding search)
+        run: python scripts/run_round2.py > /dev/null
 
       - name: Committed metrics match a fresh run
         # Every number in the README comes from these files, so they must regenerate exactly.

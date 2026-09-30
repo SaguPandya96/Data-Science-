@@ -171,3 +171,24 @@ Keel and the README reports the failure.
 - `keel+embed` against `embedding`, `lexical` and `recent`.
 - All arms on the round 1 test wordings, labeled as already seen.
 
+
+### Outcome
+
+Run once, as planned. `w = 0.5` was chosen on dev (94.6%, tied with 1.0; the grid rule
+takes the smaller weight). On the new held-out wordings at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `embedding` | 39.2% | 55.6% | 22.8% |
+| `keel` (round 1) | 64.4% | 90.9% | 37.8% |
+| `keel+embed` | 69.1% | 95.5% | 42.7% |
+
+`keel+embed` − `keel`: **+4.7 points** (95% CI +4.3 to +5.1). **Passed.** As planned, it is
+now the agent's default retriever when WordLlama is installed. Full tables:
+`reports/metrics/round2.md`.
+
+The gain is real but small, and indirect questions remain the weak spot: four of the
+sixteen indirect wordings still score 6% or less. A small static embedding model is not
+enough to connect "Who else grew up in the same house as me?" with "Has a sister named
+Mira." Embeddings on their own lose to Keel by 29.9 points: they have no notion of which
+value is current, so they show outdated values 20.1% of the time.
