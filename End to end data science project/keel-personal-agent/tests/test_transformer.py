@@ -11,6 +11,8 @@ import pytest
 
 from keel.evaluation.benchmark import load_config
 from keel.evaluation.round4 import run_round4, to_markdown
+from keel.evaluation.round5 import run_round5
+from keel.evaluation.round5 import to_markdown as round5_markdown
 from keel.memory.embeddings import (
     DEFAULT_ENCODER,
     HashingEmbedder,
@@ -71,14 +73,37 @@ def test_offline_agent_falls_back_without_error():
     assert retriever.embedding_weight != TRANSFORMER_WEIGHT or retriever.embedder is None
 
 
-def test_shipped_defaults_match_the_round4_result():
-    results = json.loads((ROOT / "reports" / "metrics" / "round4.json").read_text())
+def test_shipped_defaults_match_the_benchmark_results():
+    metrics = ROOT / "reports" / "metrics"
+    round4 = json.loads((metrics / "round4.json").read_text())
+    round5 = json.loads((metrics / "round5.json").read_text())
     minilm = load_config(CONFIG)["round4"]["encoders"]["minilm"]
-    assert results["pass_rule"]["passed"] is True
-    assert results["chosen_encoder"] == DEFAULT_ENCODER["name"] == minilm["name"]
-    assert results["chosen_weight"] == TRANSFORMER_WEIGHT
+    # Round 4 chose the encoder; round 5 chose its weight.
+    assert round4["pass_rule"]["passed"] is True
+    assert round4["chosen_encoder"] == DEFAULT_ENCODER["name"] == minilm["name"]
     assert DEFAULT_ENCODER["sha256"] == minilm["sha256"]
     assert DEFAULT_ENCODER["url"] == minilm["url"]
+    assert round5["encoder"] == DEFAULT_ENCODER["name"]
+    if round5["pass_rule"]["passed"]:
+        assert round5["chosen_weight"] == TRANSFORMER_WEIGHT
+    else:
+        assert round5["current_weight"] == TRANSFORMER_WEIGHT
+
+
+def test_round5_runner_with_stand_in_encoders(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    results = run_round5(small, encoder=HashingEmbedder(64), wordllama=HashingEmbedder())
+    grid = load_config(CONFIG)["round5"]["weight_grid"]
+    assert set(results["tuning"]) == {str(w) for w in grid}
+    assert results["chosen_weight"] in grid
+    assert set(results["splits"]) == {"holdout3", "holdout3_direct", "holdout3_indirect"}
+    assert results["pass_rule"]["outcome"]
+    if results["chosen_weight"] == results["current_weight"]:
+        assert results["pass_rule"]["passed"] is None
+    else:
+        assert "keel+transformer(tuned)" in results["splits"]["holdout3"]
+    assert "Round 5: a wider weight grid" in round5_markdown(results)
 
 
 def test_round4_runner_with_stand_in_encoders(tmp_path):

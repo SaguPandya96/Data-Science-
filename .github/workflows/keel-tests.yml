@@ -86,6 +86,9 @@ jobs:
       - name: Rerun round 4 (transformer encoders)
         run: python scripts/run_round4.py > /dev/null
 
+      - name: Rerun round 5 (weight grid for the transformer encoder)
+        run: python scripts/run_round5.py > /dev/null
+
       - name: Real encoder is deterministic
         run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py
 

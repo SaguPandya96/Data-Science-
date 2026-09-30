@@ -6,13 +6,14 @@ a personal agent in the spirit of this year's consumer agents, to find out one t
 its memory put the right, *current* fact in front of the model more often than the simple
 ways of doing it?
 
-Short answer: **yes, by a wide margin, with limits worth knowing.** On the latest held-out
-questions from 200 synthetic users, Keel put the current answer in the prompt, with no
-outdated version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer
-embedding search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%.
-The limits: questions that only hint at their topic ("What should I tell the valet to bring
-around?") still succeed only about half the time, and forgetting depends on the model
-labeling updates consistently.
+Short answer: **yes, by a wide margin, with limits worth knowing.** On held-out questions
+from 200 synthetic users, Keel put the current answer in the prompt, with no outdated
+version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer embedding
+search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%. Tuning the
+encoder's weight afterwards added another **3.0 points** on a fresh set. The limits:
+questions that only hint at their topic ("What should I tell the valet to bring around?")
+are still the weak spot, and forgetting depends on the model labeling updates
+consistently.
 
 [How the agent works](docs/AGENT.md) · [Analysis plan and change log](docs/ANALYSIS_PLAN.md)
 
@@ -191,14 +192,34 @@ Some indirect wordings jumped ("Who could be my kids' aunt or uncle on my side?"
 one CPU thread. For one person's memory that's fine, because each text is embedded once
 and cached.
 
+### Round 5: tuning the encoder's weight
+
+Round 4 chose MiniLM's weight on dev, where scores were still rising at 2.0, the largest
+value tried. Dev was also near its ceiling (98.8%), so it couldn't separate weights well.
+Round 5 tried weights from 1 to 16, chose one on the three question sets I had already
+seen (dev and the round 2 and round 4 held-out sets), and judged it once on a fourth,
+fresh set.
+
+| Weight | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| 2.0 (round 4) | 84.4% | 100.0% | 68.8% |
+| **6.0 (chosen)** | **87.4% (87.0 to 87.8)** | **100.0%** | **74.8%** |
+
+Source: [`reports/metrics/round5.md`](reports/metrics/round5.md).
+
+**The pre-registered rule passed**: 6.0 added **3.0 points** (95% CI 2.6 to 3.4), all of it
+on indirect questions, so the agent now uses it. This fourth set is easier than round 4's
+(the old default scores 84.4% here against 74.9% there), so compare the rounds by their
+paired gains, not their absolute rates. And the gain isn't universal: on the round 4 set,
+larger weights were slightly worse.
+
 ## What this does not show
 
-- **Indirect questions are still the weak spot.** The transformer lifted them to 49.8%, so
-  half still miss, and three indirect wordings score 2% or less ("Which of the potluck
-  dishes will I actually want to try?"). The agent also has a `recall` tool it can call
-  with its own rephrasing, which only the live check can measure.
-- **The encoder's weight may be under-tuned.** Dev scores were still rising at the largest
-  weight tried (2.0). I didn't extend the grid after seeing that; a later round can.
+- **Indirect questions are still the weak spot.** Direct questions reach 100%, but indirect
+  ones range from 49.8% (round 4 set) to 74.8% (round 5 set), and some wordings score
+  near 0% ("Which of the potluck dishes will I actually want to try?"). The agent also has
+  a `recall` tool it can call with its own rephrasing, which only the live check can
+  measure.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under
   `residence` instead of `home_city`, nothing is retired. When I renamed the key on every
   update, Keel's clean-hit rate on changed details fell from 67.8% to 26.1%, still above
@@ -237,6 +258,7 @@ keel approvals && keel approve 1         # approved emails are written to ~/.kee
 python scripts/run_benchmark.py          # round 1; writes reports/metrics/
 python scripts/run_round2.py             # round 2 (WordLlama embeddings)
 python scripts/run_round4.py             # round 4 (transformer encoders; downloads ~160 MB once)
+python scripts/run_round5.py             # round 5 (weight grid for MiniLM)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
