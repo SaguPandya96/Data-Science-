@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environments
+.venv/
+.env
+
+# Local agent state: personal data never belongs in git
+*.db
+*.db-journal
+outbox/
+
+.DS_Store

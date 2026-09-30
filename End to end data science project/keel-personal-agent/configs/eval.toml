@@ -1,0 +1,24 @@
+# Memory benchmark settings. Fixed before the first test-split run; see docs/ANALYSIS_PLAN.md.
+# Any later change must be listed in the plan's change log with the reason.
+
+[benchmark]
+seed = 20260930
+personas = 200
+sessions_per_persona = 12
+days_between_sessions = 7
+distractors_per_session = [4, 9]   # inclusive range of small-talk memories per session
+update_probability = 0.45          # chance a slot changes value later in the persona's history
+second_update_probability = 0.25   # chance an updated slot changes again
+
+[retrieval]
+k = 5                              # memories every arm may put in the prompt
+core_max = 2                       # Keel's always-on constraints, counted inside k
+
+[analysis]
+bootstrap_resamples = 2000
+confidence = 0.95
+primary_metric = "clean_hit"
+primary_split = "test"
+baselines_to_beat = ["recent", "lexical"]
+key_noise_levels = [0.0, 0.25, 0.5, 1.0]
+k_sweep = [1, 3, 5, 10]

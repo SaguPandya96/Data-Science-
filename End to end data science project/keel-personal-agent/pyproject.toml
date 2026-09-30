@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "keel"
+version = "0.1.0"
+description = "A personal AI agent with long-term memory, planning tools and approval-gated actions"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+authors = [{ name = "Sagar Pandya", email = "pandyasagar323@gmail.com" }]
+dependencies = [
+  "anthropic>=1.9,<2",
+  "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.35"]
+dev = [
+  "pytest>=8.2",
+  "ruff>=0.5",
+  "mypy>=1.10",
+]
+
+[project.scripts]
+keel = "keel.cli:main"
+
+[project.urls]
+Repository = "https://github.com/SaguPandya96/Data-Science-"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/keel"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM", "PTH", "RET", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["keel"]
+
+[tool.mypy]
+mypy_path = "src"
+packages = ["keel"]
+disallow_untyped_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = ["anthropic.*", "streamlit.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
