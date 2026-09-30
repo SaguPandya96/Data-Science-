@@ -62,3 +62,13 @@ name = "bge-small-en-v1.5"
 url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-small-en-v1.5.tar.gz"
 sha256 = "3858004b3822f64f940280874b8f2d2dc25b34a4f3eb3cdf617bdceeb21ed9ed"
 pooling = "cls"
+
+# Round 5: a wider weight grid for the MiniLM encoder. Fixed before any round 5 run.
+[round5]
+split = "holdout3"                 # fourth held-out set, 16 direct + 16 indirect wordings
+tuning_splits = ["dev", "holdout", "holdout2"]   # all already seen; used only to choose w
+weight_grid = [1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0, 16.0]
+current_weight = 2.0
+candidate = "keel+transformer(tuned)"
+must_beat = "keel+transformer"     # the current default, w = 2.0
+also_compare = ["transformer", "keel+embed"]

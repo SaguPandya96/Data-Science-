@@ -230,8 +230,9 @@ class KeelMemory:
 
 # Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).
 EMBEDDING_WEIGHT = 0.5
-# Chosen on the dev wordings in round 4 (reports/metrics/round4.json).
-TRANSFORMER_WEIGHT = 2.0
+# Chosen in round 5 on already-seen question sets, then confirmed on a fresh held-out set
+# (reports/metrics/round5.json). Round 4 had shipped 2.0.
+TRANSFORMER_WEIGHT = 6.0
 
 
 def default_retriever(core_max: int = 2) -> KeelMemory:

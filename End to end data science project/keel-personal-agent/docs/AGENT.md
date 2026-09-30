@@ -127,11 +127,11 @@ when this fails.
 
    BM25 uses Snowball stemming and a fixed list of synonym groups for personal topics,
    with synonyms weighted at 0.6. The embedding term uses the best encoder available, with
-   its weight `w` chosen on the benchmark's dev questions:
+   its weight `w` chosen by the benchmark (rounds 2 and 5):
 
    | Encoder | `w` | Used when |
    | --- | --- | --- |
-   | `all-MiniLM-L6-v2` (ONNX Runtime, CPU) | 2.0 | the `transformer` extra is installed and the model is cached or downloadable |
+   | `all-MiniLM-L6-v2` (ONNX Runtime, CPU) | 6.0 | the `transformer` extra is installed and the model is cached or downloadable |
    | WordLlama `l2_supercat` | 0.5 | the `embed` extra is installed |
    | none | — | neither; BM25 hybrid only |
 
@@ -224,7 +224,8 @@ correct. Unknown tools are rejected the same way.
   turns, append-only history, approvals, the brief, the CLI and the Streamlit app. They
   also cover model download, checksum rejection and offline fallback. They need no key and
   never download a model.
-- **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`):
+- **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`,
+  `run_round5.py`):
   200 synthetic users with pre-registered pass rules. CI reruns every round and fails if
   any committed number changes.
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
@@ -235,8 +236,9 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are still retrieved correctly only 49.8% of the
-  time (benchmark round 4).
+- Questions that only imply their topic are the weak spot: 49.8% to 74.8% retrieved
+  correctly depending on the question set (benchmark rounds 4 and 5), against 100% for
+  direct questions.
 - The first run of the agent downloads the encoder (about 80 MB). Offline, it falls back
   to WordLlama, which retrieves less well.
 - Supersession depends on consistent keys. With every update written under a new key,
@@ -250,8 +252,7 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Extend the embedding weight grid beyond 2.0, where dev scores were still rising, and
-   try a larger encoder for indirect questions.
+2. Try a larger encoder for indirect questions.
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.

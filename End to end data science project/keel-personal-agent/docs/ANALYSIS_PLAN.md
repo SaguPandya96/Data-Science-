@@ -335,3 +335,73 @@ same number of API calls:
   dense retrieval) on answer accuracy, with the 95% paired interval entirely above zero.
 
 The original design is kept above for the record.
+
+## Round 5: a wider weight grid for MiniLM
+
+Written after round 4 was merged and before any round 5 run.
+
+### The question
+
+In round 4, dev clean hits were still rising at `w = 2.0`, the largest weight tried, so the
+shipped weight may be too small. Does a larger weight on MiniLM's similarity do better?
+
+### Tuning set
+
+Dev alone can't settle this: at `w = 2.0` it is already at 98.8%, too close to the
+ceiling to separate weights. So `w` is chosen by the **mean clean-hit rate over three
+question sets that have all been seen already**: dev, the round 2 held-out set and the
+round 4 held-out set. None of them is used to judge the result. The two held-out sets
+contain indirect wordings, which is where the weight matters. Ties go to the smaller
+weight.
+
+### Grid
+
+`w` ∈ {1, 2, 3, 4, 6, 8, 12, 16}. The lexical term is scaled to at most 1, so at 16 the
+ranking is close to pure embedding similarity among current memories.
+
+### New held-out questions
+
+A fourth set, `HOLDOUT3` in `keel.evaluation.scenarios`, was written and committed before
+any round 5 run: one direct and one indirect wording per detail, none repeating an earlier
+wording. It is run once, after `w` is chosen.
+
+### Pass rule
+
+If the tuning set chooses `w = 2.0`, the current weight is confirmed and nothing changes.
+Otherwise the tuned weight passes if, on `HOLDOUT3` at `k = 5`, its clean-hit rate beats
+the current `w = 2.0`, with the 95% persona-bootstrap interval of the paired difference
+entirely above zero. If it passes, it becomes the agent's weight; if not, 2.0 stays.
+
+### Reported, not part of the rule
+
+- Every weight on every tuning set, and on direct and indirect wordings separately.
+- The tuned weight against plain MiniLM search and Keel with WordLlama.
+
+The live check (round 3) uses whatever weight the agent ships with, so it would test the
+round 5 result if one is adopted. It has still not been run.
+
+### Outcome
+
+Run once, as planned. The tuning set chose `w = 6.0` (mean clean hit 86.3%, against 85.2%
+at 2.0). The curve is flat near the top: every weight from 4 to 12 is within 0.2 points.
+On the fourth held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `transformer` (plain MiniLM search) | 49.4% | 60.1% | 38.6% |
+| `keel+embed` (WordLlama) | 67.6% | 92.0% | 43.2% |
+| `keel+transformer`, `w = 2.0` (round 4 default) | 84.4% | 100.0% | 68.8% |
+| `keel+transformer`, `w = 6.0` | 87.4% | 100.0% | 74.8% |
+
+`w = 6.0` − `w = 2.0`: **+3.0 points** (95% CI +2.6 to +3.4), all of it on indirect wordings
+(+6.0). **Passed**, so the agent now uses `w = 6.0`. Full tables:
+`reports/metrics/round5.md`.
+
+Two things to keep in mind:
+
+- **This set is easier than round 4's.** The round 4 default scores 84.4% here against
+  74.9% on the round 4 set. Absolute rates can't be compared across rounds, only the
+  paired differences within one.
+- **Not every set agrees.** On the round 4 held-out set, which was part of tuning, larger
+  weights were slightly *worse* (74.9% at 2.0, 74.2% at 6.0). The gain comes from the other
+  two tuning sets and holds on the fresh one, but it is not universal.
