@@ -405,3 +405,54 @@ Two things to keep in mind:
 - **Not every set agrees.** On the round 4 held-out set, which was part of tuning, larger
   weights were slightly *worse* (74.9% at 2.0, 74.2% at 6.0). The gain comes from the other
   two tuning sets and holds on the fresh one, but it is not universal.
+
+## Round 6: larger transformer encoders
+
+Written after round 5 was merged and before any larger encoder was run on benchmark text.
+
+### The question
+
+With MiniLM at `w = 6.0`, direct questions are at 100% but indirect ones still miss often
+(68.8% to 74.8% across the last two held-out sets). MiniLM has 22M parameters. Does an
+encoder about five times larger read implied topics better?
+
+### Encoders
+
+Both are on the same public mirror as MiniLM, pinned by SHA-256, and run on CPU with ONNX
+Runtime:
+
+| Encoder | Parameters | Download | Pooling |
+| --- | --- | --- | --- |
+| `all-MiniLM-L6-v2` (current) | 22M | 83 MB | mean |
+| `bge-base-en-v1.5` | 110M | 204 MB | CLS |
+| `all-mpnet-base-v2` | 110M | 403 MB | mean |
+
+A 560M-parameter multilingual E5 model is also on the mirror, but at 1.3 GB it is too large
+to download by default for a personal agent, so it is not tried.
+
+### Choosing the encoder and weight
+
+All three encoders, each at `w` ∈ {2, 4, 6, 8, 12}, are scored on the **mean clean-hit
+rate over four question sets that have all been seen**: dev and the round 2, 4 and 5
+held-out sets. The best (encoder, weight) pair is chosen. Ties go to the smaller model,
+then the smaller weight. MiniLM is in the grid, so "keep MiniLM" is a possible outcome.
+
+### New held-out questions
+
+A fifth set, `HOLDOUT4` in `keel.evaluation.scenarios`, was written and committed before
+any larger encoder was run: one direct and one indirect wording per detail, none repeating
+an earlier wording. It is run once, after the choice is made.
+
+### Pass rule
+
+If MiniLM at `w = 6.0` is chosen, nothing changes. Otherwise the chosen pair is compared
+with it on `HOLDOUT4` at `k = 5`. A larger encoder costs a bigger first download and
+slower embedding, so it is **adopted only if the 95% persona-bootstrap interval of the
+paired clean-hit difference has a lower bound of at least 1 point**. If the interval is
+above zero but below that bar, the gain is reported and MiniLM stays.
+
+### Reported, not part of the rule
+
+- Every encoder and weight on every tuning set.
+- Direct and indirect wordings separately.
+- Embedding speed for each encoder on one CPU thread.
