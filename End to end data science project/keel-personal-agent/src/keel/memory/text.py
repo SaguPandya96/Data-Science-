@@ -1,6 +1,6 @@
 """Tokenizing, stemming and query expansion for memory search.
 
-Deliberately small and dependency-free. The synonym groups cover everyday personal topics
+Deliberately small. The synonym groups cover everyday personal topics
 in general terms; they were written before the benchmark's test templates were first run
 (docs/ANALYSIS_PLAN.md) and must not be edited to chase a test-split result.
 """
@@ -8,8 +8,12 @@ in general terms; they were written before the benchmark's test templates were f
 from __future__ import annotations
 
 import re
+from functools import lru_cache
+
+import snowballstemmer
 
 _WORD = re.compile(r"[a-z0-9]+")
+_STEMMER = snowballstemmer.stemmer("english")
 
 STOPWORDS = frozenset(
     """
@@ -54,20 +58,10 @@ for _group in SYNONYM_GROUPS:
         _SYNONYMS[_word] = _SYNONYMS.get(_word, frozenset()) | _group
 
 
+@lru_cache(maxsize=65536)
 def stem(word: str) -> str:
-    """Strip common English suffixes. Crude, but stable and predictable."""
-    if len(word) <= 3 or word.isdigit():
-        return word
-    for suffix, replacement in (
-        ("ies", "y"),
-        ("ing", ""),
-        ("ed", ""),
-        ("es", ""),
-        ("s", ""),
-    ):
-        if word.endswith(suffix) and len(word) - len(suffix) >= 3:
-            return word[: -len(suffix)] + replacement
-    return word
+    """Snowball (Porter2) English stem, so "sibling" and "siblings" both become "sibl"."""
+    return _STEMMER.stemWord(word)
 
 
 def words(text: str) -> list[str]:

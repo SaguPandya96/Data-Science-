@@ -98,3 +98,22 @@ templates. The pass rule, arms, data generator, `k` and the baselines did not ch
 
 Dev clean-hit rate for `keel` at `k = 5` was 71.4% before changes 1 and 2 and 92.5% after.
 The test split had not been run at that point.
+
+### After the test run
+
+6. **Stemmer bugs.** The hand-written stemmer was inconsistent: "lives" became "liv" while
+   "live" stayed "live" (found by a unit test), and "siblings" became "sibling" while
+   "sibling" became "sibl" (found in the per-question breakdown, where "Tell me about my
+   siblings" scored 0%). These are bugs, not tuning: the same word in two forms never
+   matched, in every arm that searches text. I replaced the stemmer with the standard
+   Snowball (Porter2) English stemmer rather than patching it further. The synonym list,
+   weights, templates and everything else stayed as frozen.
+
+   The run on the frozen code is kept unchanged in
+   `reports/metrics/benchmark_test_preregistered.{json,md}`. The verdict is the same in
+   both runs. Clean-hit rate on test at `k = 5`:
+
+   | Code | `recent` | `lexical` | `keel` | `full` |
+   | --- | --- | --- | --- | --- |
+   | Frozen (pre-registered) | 4.6% | 8.1% | 59.7% | 62.2% |
+   | Snowball stemmer (reported in the README) | 4.6% | 9.8% | 62.6% | 62.2% |

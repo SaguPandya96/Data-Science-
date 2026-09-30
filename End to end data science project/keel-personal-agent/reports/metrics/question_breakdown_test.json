@@ -1,0 +1,194 @@
+[
+  {
+    "detail": "sibling",
+    "question": "Who in my family should I call on holidays besides my parents?",
+    "hit_rate": 0.0,
+    "n": 103
+  },
+  {
+    "detail": "partner_name",
+    "question": "Who should I book the anniversary dinner with?",
+    "hit_rate": 0.0,
+    "n": 104
+  },
+  {
+    "detail": "gym_days",
+    "question": "When should you avoid booking things because I'm lifting?",
+    "hit_rate": 0.04,
+    "n": 101
+  },
+  {
+    "detail": "car",
+    "question": "What should I look for in the parking lot?",
+    "hit_rate": 0.113,
+    "n": 97
+  },
+  {
+    "detail": "partner_name",
+    "question": "Who's my significant other?",
+    "hit_rate": 0.135,
+    "n": 96
+  },
+  {
+    "detail": "doctor",
+    "question": "Who should I call to book a checkup?",
+    "hit_rate": 0.151,
+    "n": 106
+  },
+  {
+    "detail": "pet",
+    "question": "Who needs feeding when I travel?",
+    "hit_rate": 0.152,
+    "n": 92
+  },
+  {
+    "detail": "race_goal",
+    "question": "What event should my long runs build toward?",
+    "hit_rate": 0.155,
+    "n": 97
+  },
+  {
+    "detail": "employer",
+    "question": "Who pays my salary right now?",
+    "hit_rate": 0.19,
+    "n": 105
+  },
+  {
+    "detail": "wake_time",
+    "question": "What's the earliest I'm usually awake?",
+    "hit_rate": 0.205,
+    "n": 117
+  },
+  {
+    "detail": "language_goal",
+    "question": "Which vocabulary should my flashcards drill?",
+    "hit_rate": 0.284,
+    "n": 102
+  },
+  {
+    "detail": "pet",
+    "question": "What animal shares my house?",
+    "hit_rate": 0.306,
+    "n": 108
+  },
+  {
+    "detail": "race_goal",
+    "question": "Remind me what my training plan is aiming at.",
+    "hit_rate": 0.379,
+    "n": 103
+  },
+  {
+    "detail": "language_goal",
+    "question": "What should my daily lesson be in?",
+    "hit_rate": 0.418,
+    "n": 98
+  },
+  {
+    "detail": "gym_days",
+    "question": "What's my exercise routine?",
+    "hit_rate": 0.859,
+    "n": 99
+  },
+  {
+    "detail": "favorite_cuisine",
+    "question": "Pick a restaurant style I'd enjoy for date night.",
+    "hit_rate": 0.879,
+    "n": 91
+  },
+  {
+    "detail": "diet",
+    "question": "Plan my dinners this week - any rules on what I eat?",
+    "hit_rate": 0.99,
+    "n": 101
+  },
+  {
+    "detail": "home_city",
+    "question": "Suggest a park near me - what town should you assume I'm in?",
+    "hit_rate": 1.0,
+    "n": 98
+  },
+  {
+    "detail": "job_title",
+    "question": "How would you describe my occupation?",
+    "hit_rate": 1.0,
+    "n": 103
+  },
+  {
+    "detail": "allergy",
+    "question": "Is there anything that could give me a reaction?",
+    "hit_rate": 1.0,
+    "n": 102
+  },
+  {
+    "detail": "dining_budget",
+    "question": "How much am I allowed to blow on eating out?",
+    "hit_rate": 1.0,
+    "n": 100
+  },
+  {
+    "detail": "doctor",
+    "question": "Which physician looks after me?",
+    "hit_rate": 1.0,
+    "n": 94
+  },
+  {
+    "detail": "sibling",
+    "question": "Tell me about my siblings.",
+    "hit_rate": 1.0,
+    "n": 97
+  },
+  {
+    "detail": "employer",
+    "question": "Remind me which firm I'm with.",
+    "hit_rate": 1.0,
+    "n": 95
+  },
+  {
+    "detail": "job_title",
+    "question": "What's my role called at the moment?",
+    "hit_rate": 1.0,
+    "n": 97
+  },
+  {
+    "detail": "wake_time",
+    "question": "How early do my mornings start?",
+    "hit_rate": 1.0,
+    "n": 83
+  },
+  {
+    "detail": "car",
+    "question": "What am I driving these days?",
+    "hit_rate": 1.0,
+    "n": 103
+  },
+  {
+    "detail": "diet",
+    "question": "Which meals fit my eating habits?",
+    "hit_rate": 1.0,
+    "n": 99
+  },
+  {
+    "detail": "allergy",
+    "question": "What should a restaurant know about my allergy situation?",
+    "hit_rate": 1.0,
+    "n": 98
+  },
+  {
+    "detail": "dining_budget",
+    "question": "What's my cap for going out to dinner?",
+    "hit_rate": 1.0,
+    "n": 100
+  },
+  {
+    "detail": "favorite_cuisine",
+    "question": "What dishes do I get most excited about?",
+    "hit_rate": 1.0,
+    "n": 109
+  },
+  {
+    "detail": "home_city",
+    "question": "Which city am I based in these days?",
+    "hit_rate": 1.0,
+    "n": 102
+  }
+]

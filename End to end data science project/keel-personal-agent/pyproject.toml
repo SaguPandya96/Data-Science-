@@ -13,10 +13,11 @@ authors = [{ name = "Sagar Pandya", email = "pandyasagar323@gmail.com" }]
 dependencies = [
   "anthropic>=1.9,<2",
   "numpy>=1.26",
+  "snowballstemmer>=2.2",
 ]
 
 [project.optional-dependencies]
-app = ["streamlit>=1.35"]
+app = ["streamlit>=1.45"]
 dev = [
   "pytest>=8.2",
   "ruff>=0.5",
@@ -53,7 +54,7 @@ warn_redundant_casts = true
 strict_equality = true
 
 [[tool.mypy.overrides]]
-module = ["anthropic.*", "streamlit.*"]
+module = ["anthropic.*", "streamlit.*", "snowballstemmer.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

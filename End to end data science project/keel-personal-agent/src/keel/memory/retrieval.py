@@ -12,6 +12,7 @@ from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
+from functools import lru_cache
 from typing import Protocol
 
 from keel.memory.store import Memory
@@ -30,7 +31,7 @@ def bm25_scores(
     docs: Sequence[str], query_weights: dict[str, float], k1: float = 1.2, b: float = 0.75
 ) -> list[float]:
     """Okapi BM25 with weighted query terms."""
-    tokenized = [tokens(d) for d in docs]
+    tokenized = [_cached_tokens(d) for d in docs]
     n = len(tokenized)
     if n == 0:
         return []
@@ -53,6 +54,11 @@ def bm25_scores(
     return scores
 
 
+@lru_cache(maxsize=65536)
+def _cached_tokens(text: str) -> tuple[str, ...]:
+    return tuple(tokens(text))
+
+
 def _top_k(
     memories: Sequence[Memory], scores: Sequence[float], k: int, *, dedupe: bool = False
 ) -> list[Memory]:
@@ -63,7 +69,7 @@ def _top_k(
     for i in order:
         if len(chosen) == k:
             break
-        signature = " ".join(tokens(memories[i].text))
+        signature = " ".join(_cached_tokens(memories[i].text))
         if dedupe and signature in seen:
             continue
         seen.add(signature)

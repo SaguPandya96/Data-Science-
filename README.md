@@ -8,6 +8,7 @@ Every project starts from a real question, and every model is measured against a
 
 | Project | The question | The short answer |
 | --- | --- | --- |
+| [Keel personal agent](#keel-a-personal-ai-agent-that-remembers-and-knows-when-to-forget) | Can a personal agent's memory keep the current fact in front of the model? | Yes, far better than keyword search or recent memories: 62.6% of held-out questions got the current answer with nothing outdated beside it, against 9.8% and 4.6%. It still misses questions that only hint at their topic. |
 | [Model portfolio rebalancer](#model-portfolio-rebalancer-keeping-a-portfolio-on-target-around-the-clock) | Can a portfolio stay on target when its markets keep different hours? | In simulation, yes. Trading around the clock halved the time out of target compared with waiting for the regular session, at the cost of more trades. |
 | [OfferLift](#offerlift-email-experiment-and-uplift-targeting) | Who should get a marketing email? | The email works. Customers who bought both men's and women's products respond twice as strongly; beyond them, no model beat random. |
 | [Signals in the Noise](#signals-in-the-noise-advertising-traffic-investigation) | Which ad campaigns deserve a human review? | 5,902 campaign windows narrowed to 11 evidence-rich cases, for review, not automatic enforcement. |
@@ -23,6 +24,22 @@ Every project starts from a real question, and every model is measured against a
 ---
 
 ## The projects
+
+### Keel: A Personal AI Agent That Remembers, and Knows When to Forget
+
+**The question:** a personal agent is only personal if it remembers you, and it also has to forget. When you move from Denver to Austin, it should stop planning around Denver. Does Keel's memory put the right, *current* fact in front of the model more often than the simple ways of doing it?
+
+**The answer: yes, by a wide margin, with two limits.** Keel is a working agent: it remembers across sessions, turns goals into dated milestones and tasks, manages a calendar with conflict checks, drafts email, briefs you each morning, and asks your approval before anything reaches another person. On 3,200 held-out questions from 200 synthetic users, it put the current answer in the prompt with no outdated version beside it **62.6%** of the time, against **9.8%** for keyword search and **4.6%** for the newest memories. For details that had changed, keyword search mostly surfaced the old value: 5.5% against Keel's 67.8%.
+
+The limits are in the README, not a footnote. On the question wordings I built against, Keel scored 92.5%; on held-out wordings, 62.6%. It fails questions that only hint at their topic ("Who should I book the anniversary dinner with?"). Its forgetting also depends on the model reusing the same label for a changed detail. The end-to-end check with a real model is built but not yet run.
+
+*Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web search), SQLite, BM25, NumPy, Streamlit, automated tests and CI.
+
+*Technical detail:* pre-registered pass rule and dev/test split of question wordings; 200 personas × 16 details × 12 weekly sessions, ~100 memories each, 38% of questions on details that changed; k = 5; paired persona bootstrap: Keel − keyword search +52.8 pts (95% CI 51.3 to 54.3), Keel − recent +58.1 pts (56.7 to 59.5); ablation: synonyms −27.9 pts, retiring old values −19.1, key search −10.9; key-noise and k sweeps; two stemmer bugs fixed after the test run, with the pre-registered run kept (Keel 59.7%, same verdict); 50 tests with a scripted model.
+
+[Open the project](End%20to%20end%20data%20science%20project/keel-personal-agent/)
+
+---
 
 ### Model Portfolio Rebalancer: Keeping a Portfolio on Target Around the Clock
 

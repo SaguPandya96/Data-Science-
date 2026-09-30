@@ -429,6 +429,7 @@ class Probe:
     stale_ids: tuple[int, ...]  # memories holding earlier values
     expected: str
     updated: bool
+    stale_values: tuple[str, ...] = ()
 
 
 @dataclass
@@ -545,6 +546,7 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
                         stale_ids=tuple(ids[:-1]),
                         expected=values[slot.key][-1],
                         updated=len(ids) > 1,
+                        stale_values=tuple(values[slot.key][:-1]),
                     )
                 )
             persona.probes[split] = probes
