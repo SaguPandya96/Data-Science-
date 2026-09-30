@@ -1,0 +1,79 @@
+name: Keel tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "End to end data science project/keel-personal-agent/**"
+      - ".github/workflows/keel-tests.yml"
+  pull_request:
+    paths:
+      - "End to end data science project/keel-personal-agent/**"
+      - ".github/workflows/keel-tests.yml"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: "End to end data science project/keel-personal-agent"
+
+jobs:
+  checks:
+    name: Lint, types and tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: "End to end data science project/keel-personal-agent/pyproject.toml"
+
+      - name: Install project and development dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,app,embed]"
+
+      - name: Lint and format check
+        run: python -m ruff check . && python -m ruff format --check .
+
+      - name: Type check
+        run: python -m mypy src
+
+      - name: Run tests (scripted model, no API key)
+        run: python -m pytest
+
+  reproduce:
+    name: Benchmark numbers reproduce
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: "End to end data science project/keel-personal-agent/pyproject.toml"
+
+      - name: Install project
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[embed]"
+
+      - name: Rerun round 1 and its question breakdown
+        run: python scripts/run_benchmark.py > /dev/null && python scripts/question_breakdown.py > /dev/null
+
+      - name: Rerun round 2 (embedding search)
+        run: python scripts/run_round2.py > /dev/null
+
+      - name: Committed metrics match a fresh run
+        # Every number in the README comes from these files, so they must regenerate exactly.
+        run: git diff --exit-code -- reports/metrics
