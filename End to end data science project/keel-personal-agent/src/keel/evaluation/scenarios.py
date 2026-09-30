@@ -475,6 +475,60 @@ HOLDOUT2: dict[str, tuple[str, str]] = {
     ),
 }
 
+# Fourth held-out set, for round 5 (a wider weight grid for the transformer encoder).
+# Written after round 4 was finished and before any round 5 run.
+HOLDOUT3: dict[str, tuple[str, str]] = {
+    "home_city": (
+        "Where am I living these days?",
+        "Which city's transit card should I keep topped up?",
+    ),
+    "employer": (
+        "Which business am I employed by?",
+        "Whose company holiday party am I going to?",
+    ),
+    "job_title": (
+        "What title is on my business card?",
+        "What do I say when a stranger asks how I spend my workday?",
+    ),
+    "diet": ("Describe my eating habits.", "Which dishes should the caterer leave off my plate?"),
+    "allergy": (
+        "Do I have any allergies I should mention?",
+        "What should the ER nurse know before giving me anything?",
+    ),
+    "partner_name": ("Who am I dating or married to?", "Who's my plus-one for the wedding?"),
+    "pet": ("What animal do I have at home?", "Who gets the leftover chicken scraps at my place?"),
+    "gym_days": ("Which days do I work out?", "When do I pack my lifting shoes?"),
+    "wake_time": (
+        "When do I wake up in the morning?",
+        "Is a 7 am breakfast meeting realistic for me?",
+    ),
+    "favorite_cuisine": (
+        "What's my go-to cuisine?",
+        "Which takeout menu should stay on my fridge?",
+    ),
+    "dining_budget": (
+        "What's my monthly limit for eating out?",
+        "Can I afford splitting a steak dinner with friends this week?",
+    ),
+    "doctor": (
+        "Who is the doctor I see?",
+        "Who should I ask for a referral to a specialist?",
+    ),
+    "car": ("What do I drive?", "What's parked in my driveway?"),
+    "sibling": (
+        "Do I have a sister or brother?",
+        "Who will my parents' other child be at the reunion?",
+    ),
+    "language_goal": (
+        "What language am I trying to learn?",
+        "Which country's newspapers should I read for practice?",
+    ),
+    "race_goal": (
+        "Which race have I signed up for?",
+        "What's the big event my weekly mileage is building to?",
+    ),
+}
+
 # Small talk. "{city}", "{food}" and similar are filled with values from the slot pools,
 # usually not the user's own, to create near misses for the retriever.
 DISTRACTORS: tuple[str, ...] = (
@@ -653,9 +707,13 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
                     )
                 )
             persona.probes[split] = probes
-        # Held-out wordings for rounds 2 and 4: fixed, so they use no randomness and leave
+        # Held-out wordings for rounds 2, 4 and 5: fixed, so they use no randomness and leave
         # the dev and test probes above exactly as they were.
-        for prefix, wordings in (("holdout", HOLDOUT), ("holdout2", HOLDOUT2)):
+        for prefix, wordings in (
+            ("holdout", HOLDOUT),
+            ("holdout2", HOLDOUT2),
+            ("holdout3", HOLDOUT3),
+        ):
             for style, position in (("direct", 0), ("indirect", 1)):
                 persona.probes[f"{prefix}_{style}"] = [
                     Probe(
