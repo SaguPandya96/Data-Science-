@@ -10,7 +10,6 @@ import numpy as np
 from keel.evaluation.benchmark import load_config, paired_difference, score_arm, summarize
 from keel.evaluation.scenarios import build_personas
 from keel.memory.embeddings import (
-    DEFAULT_ENCODER,
     Embedder,
     OnnxSentenceEmbedder,
     WordLlamaEmbedder,
@@ -21,11 +20,11 @@ from keel.memory.retrieval import EMBEDDING_WEIGHT, EmbeddingMemory, KeelMemory,
 SPLITS = ("holdout3", "holdout3_direct", "holdout3_indirect")
 
 
-def load_minilm() -> Embedder:
-    folder = download_model(DEFAULT_ENCODER["url"], DEFAULT_ENCODER["sha256"])
-    return OnnxSentenceEmbedder(
-        folder, pooling=DEFAULT_ENCODER["pooling"], name=DEFAULT_ENCODER["name"]
-    )
+def load_minilm(config: dict[str, Any]) -> Embedder:
+    """The MiniLM encoder round 5 tuned, pinned in the config (not the agent's default)."""
+    spec = config["round4"]["encoders"]["minilm"]
+    folder = download_model(spec["url"], spec["sha256"])
+    return OnnxSentenceEmbedder(folder, pooling=spec["pooling"], name=spec["name"])
 
 
 def run_round5(
@@ -38,7 +37,7 @@ def run_round5(
     plan = config["round5"]
     seed, k, core_max = bench["seed"], retrieval["k"], retrieval["core_max"]
     resamples, confidence = analysis["bootstrap_resamples"], analysis["confidence"]
-    encoder = encoder or load_minilm()
+    encoder = encoder or load_minilm(config)
     wordllama = wordllama or WordLlamaEmbedder()
     personas = build_personas(bench)
 

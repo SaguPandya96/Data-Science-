@@ -72,3 +72,31 @@ current_weight = 2.0
 candidate = "keel+transformer(tuned)"
 must_beat = "keel+transformer"     # the current default, w = 2.0
 also_compare = ["transformer", "keel+embed"]
+
+# Round 6: larger transformer encoders. Fixed before any larger encoder was run.
+[round6]
+split = "holdout4"                 # fifth held-out set, 16 direct + 16 indirect wordings
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3"]   # all already seen
+weight_grid = [2.0, 4.0, 6.0, 8.0, 12.0]
+current = { encoder = "minilm", weight = 6.0 }
+min_gain = 0.01                    # adopt only if the 95% interval's lower bound is >= 1 point
+candidate = "keel+larger"
+must_beat = "keel+transformer"     # the current default: MiniLM at w = 6.0
+
+[round6.encoders.minilm]
+name = "all-MiniLM-L6-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
+sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+pooling = "mean"
+
+[round6.encoders.bge_base]
+name = "bge-base-en-v1.5"
+url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-base-en-v1.5.tar.gz"
+sha256 = "b2e829f86bb0933e7d7fabce2d881f718464880c22658d189a2f70de4527d991"
+pooling = "cls"
+
+[round6.encoders.mpnet]
+name = "all-mpnet-base-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
+sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+pooling = "mean"

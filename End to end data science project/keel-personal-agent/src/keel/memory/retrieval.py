@@ -230,16 +230,16 @@ class KeelMemory:
 
 # Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).
 EMBEDDING_WEIGHT = 0.5
-# Chosen in round 5 on already-seen question sets, then confirmed on a fresh held-out set
-# (reports/metrics/round5.json). Round 4 had shipped 2.0.
-TRANSFORMER_WEIGHT = 6.0
+# Chosen with the encoder in round 6 on already-seen question sets, then confirmed on a
+# fresh held-out set (reports/metrics/round6.json). MiniLM had shipped at 2.0, then 6.0.
+TRANSFORMER_WEIGHT = 12.0
 
 
 def default_retriever(core_max: int = 2) -> KeelMemory:
     """The agent's retriever, best available first.
 
-    1. Keel with the MiniLM transformer encoder (round 4's winner), if ONNX Runtime is
-       installed and the model is on disk or can be downloaded.
+    1. Keel with the all-mpnet-base-v2 transformer encoder (round 6's winner), if ONNX
+       Runtime is installed and the model is on disk or can be downloaded.
     2. Keel with WordLlama embeddings (round 2's winner), if installed.
     3. Keel on BM25 alone.
     """

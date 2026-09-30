@@ -10,7 +10,8 @@ Short answer: **yes, by a wide margin, with limits worth knowing.** On held-out 
 from 200 synthetic users, Keel put the current answer in the prompt, with no outdated
 version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer embedding
 search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%. Tuning the
-encoder's weight afterwards added another **3.0 points** on a fresh set. The limits:
+encoder's weight added another **3.0 points** on a fresh set, and a larger encoder another
+**3.8**. The limits:
 questions that only hint at their topic ("What should I tell the valet to bring around?")
 are still the weak spot, and forgetting depends on the model labeling updates
 consistently.
@@ -75,8 +76,8 @@ eight memories for the prompt:
 The model sees the keys already in use, so when you say "I moved to Austin" it can save the
 new value under `home_city` and retire Denver.
 
-Sentence similarity comes from `all-MiniLM-L6-v2`, a small transformer encoder run on CPU
-with ONNX Runtime. It is downloaded once (about 80 MB, checked against a pinned SHA-256) and
+Sentence similarity comes from `all-mpnet-base-v2`, a transformer encoder run on CPU with
+ONNX Runtime. It is downloaded once (about 400 MB, checked against a pinned SHA-256) and
 cached. Offline, or without the `transformer` extra, Keel falls back to
 [WordLlama](https://github.com/dleemiller/WordLlama) embeddings, which ship inside their
 Python package, and without those to the BM25 hybrid alone.
@@ -213,13 +214,36 @@ on indirect questions, so the agent now uses it. This fourth set is easier than 
 paired gains, not their absolute rates. And the gain isn't universal: on the round 4 set,
 larger weights were slightly worse.
 
+### Round 6: a larger encoder
+
+MiniLM has 22 million parameters. Round 6 tried two encoders about five times larger,
+`bge-base-en-v1.5` and `all-mpnet-base-v2`, alongside MiniLM, each at weights from 2 to 12.
+The pair was chosen on the four question sets already seen and judged once on a fifth,
+fresh set. Because a larger model means a bigger download and slower embedding, I set the
+bar in advance: adopt it only if the gain's 95% interval starts at 1 point or more.
+
+| Encoder | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| MiniLM, weight 6 (round 5) | 85.5% | 100.0% | 71.0% |
+| **mpnet, weight 12 (chosen)** | **89.3% (89.0 to 89.5)** | **100.0%** | **78.5%** |
+
+Source: [`reports/metrics/round6.md`](reports/metrics/round6.md).
+
+**It cleared the bar**: mpnet added **3.8 points** (95% CI 3.4 to 4.2), and **7.6** on
+indirect questions, so it is now the default. Size alone didn't do it: `bge-base-en-v1.5`,
+the same size, scored below MiniLM on every weight. And the tuning sets barely separated
+mpnet from MiniLM (0.2 points), so most of the evidence comes from one fresh set. The cost
+is a 400 MB first download and embedding about seven times slower than MiniLM (about 50
+texts a second on one CPU thread), which for one person's memory is a few seconds once.
+
 ## What this does not show
 
-- **Indirect questions are still the weak spot.** Direct questions reach 100%, but indirect
-  ones range from 49.8% (round 4 set) to 74.8% (round 5 set), and some wordings score
-  near 0% ("Which of the potluck dishes will I actually want to try?"). The agent also has
-  a `recall` tool it can call with its own rephrasing, which only the live check can
-  measure.
+- **Indirect questions are still the weak spot.** Direct questions reach 100%, but with the
+  current encoder about one indirect question in five still misses (78.5% on the latest
+  set). The agent also has a `recall` tool it can call with its own rephrasing, which only
+  the live check can measure.
+- **The current weight is at the top of the range tried.** Round 6 chose weight 12, the
+  largest it tested, so a higher weight might do better still.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under
   `residence` instead of `home_city`, nothing is retired. When I renamed the key on every
   update, Keel's clean-hit rate on changed details fell from 67.8% to 26.1%, still above
@@ -229,7 +253,7 @@ larger weights were slightly worse.
   retrieval, not how well a model decides what to remember.
 - **The end-to-end check hasn't been run.** Its design and pass rule are fixed in the
   [analysis plan](docs/ANALYSIS_PLAN.md#round-3-end-to-end-check), amended before any run
-  to test Keel with MiniLM: the model answers held-out questions from each method's
+  to test the agent's default retriever: the model answers held-out questions from each method's
   memories (including every memory at once) and the answers are graded automatically. It
   makes up to 5,760 API calls for 30 users and needs a key, so it isn't in CI. Until it
   runs, I haven't shown that better retrieval gives better answers, only that it gives the
@@ -259,6 +283,7 @@ python scripts/run_benchmark.py          # round 1; writes reports/metrics/
 python scripts/run_round2.py             # round 2 (WordLlama embeddings)
 python scripts/run_round4.py             # round 4 (transformer encoders; downloads ~160 MB once)
 python scripts/run_round5.py             # round 5 (weight grid for MiniLM)
+python scripts/run_round6.py             # round 6 (larger encoders; downloads ~600 MB once)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -296,5 +321,5 @@ reports/metrics/      every number in this README
 ```
 
 *Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web
-search), SQLite, BM25, MiniLM via ONNX Runtime, WordLlama, NumPy, Streamlit, pytest, Ruff,
+search), SQLite, BM25, mpnet and MiniLM via ONNX Runtime, WordLlama, NumPy, Streamlit, pytest, Ruff,
 mypy, GitHub Actions.

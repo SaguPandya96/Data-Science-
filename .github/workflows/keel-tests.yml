@@ -53,7 +53,7 @@ jobs:
   reproduce:
     name: Benchmark numbers reproduce
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
@@ -89,10 +89,13 @@ jobs:
       - name: Rerun round 5 (weight grid for the transformer encoder)
         run: python scripts/run_round5.py > /dev/null
 
+      - name: Rerun round 6 (larger transformer encoders)
+        run: python scripts/run_round6.py > /dev/null
+
       - name: Real encoder is deterministic
         run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py
 
       - name: Committed metrics match a fresh run
         # Every number in the README comes from these files, so they must regenerate exactly.
-        # Embedding speed depends on the machine, so its file is left out.
-        run: git diff --exit-code -- reports/metrics ':!reports/metrics/round4_timing.json'
+        # Embedding speed depends on the machine, so the timing files are left out.
+        run: git diff --exit-code -- reports/metrics ':!reports/metrics/*_timing.json'

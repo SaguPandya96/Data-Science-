@@ -150,7 +150,7 @@ def run_live(
         transformer = default_transformer()
         if transformer is None:
             raise RuntimeError(
-                "the transformer arms need the MiniLM encoder: install the 'transformer' "
+                "the transformer arms need the default encoder: install the 'transformer' "
                 "extra and allow one download (unset KEEL_OFFLINE)"
             )
     chosen = [

@@ -1,0 +1,17 @@
+{
+  "minilm": {
+    "texts": 1739,
+    "seconds": 5.05,
+    "per_second": 344.1
+  },
+  "bge_base": {
+    "texts": 1739,
+    "seconds": 42.42,
+    "per_second": 41.0
+  },
+  "mpnet": {
+    "texts": 1739,
+    "seconds": 34.95,
+    "per_second": 49.8
+  }
+}
