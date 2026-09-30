@@ -117,3 +117,57 @@ The test split had not been run at that point.
    | --- | --- | --- | --- | --- |
    | Frozen (pre-registered) | 4.6% | 8.1% | 59.7% | 62.2% |
    | Snowball stemmer (reported in the README) | 4.6% | 9.8% | 62.6% | 62.2% |
+
+## Round 2: embedding search
+
+Written after round 1 was finished and before any embedding code was run.
+
+### The question
+
+Round 1 showed Keel failing questions that only imply their topic ("Who should I book the
+anniversary dinner with?"). Word matching can't connect "anniversary dinner" to "partner".
+Does adding a sentence-embedding similarity to Keel's score fix that without giving up
+what round 1 gained?
+
+### Model
+
+WordLlama (`l2_supercat`, 256 dimensions, MIT licence): static token embeddings taken from
+a large language model's embedding table and trained for sentence similarity. It is small
+(16 MB), runs on NumPy in milliseconds, and ships its weights inside the Python package, so
+the benchmark runs offline and in CI. The obvious alternative, a transformer sentence
+encoder such as MiniLM, needs a download from Hugging Face, which this build environment
+blocks. The retriever takes any embedder, so a stronger model can be swapped in later.
+
+### Arms
+
+| Arm | What changes |
+| --- | --- |
+| `embedding` | Cosine similarity top `k` over every memory ever written. The standard dense retrieval memory, and the stronger baseline round 1 was missing. |
+| `keel+embed` | Keel exactly as in round 1, plus `w × cosine similarity` (between the question and the memory's key and text) added to the hybrid score. |
+
+`w` is chosen from {0.25, 0.5, 1.0, 2.0} by clean-hit rate on the **dev** wordings only.
+
+### New held-out questions
+
+The round 1 test wordings have been seen, and I know which ones fail, so they can't
+judge a fix fairly. I wrote a new set before running anything: for each of the 16 details,
+one **direct** wording that names the topic ("What car do I own?") and one **indirect**
+wording that only implies it ("What model should I tell the mechanic I'm bringing in?").
+They are in `HOLDOUT` in `keel.evaluation.scenarios`, committed before the first embedding
+run. They are run once, after `w` is fixed.
+
+### Pass rule
+
+`keel+embed` passes if, on the new held-out wordings at `k = 5`, its clean-hit rate beats
+round 1 `keel`, with the 95% persona-bootstrap interval of the paired difference entirely
+above zero.
+
+If it passes, it becomes the agent's default retriever. If not, the agent keeps round 1
+Keel and the README reports the failure.
+
+### Reported, not part of the rule
+
+- Direct and indirect wordings separately.
+- `keel+embed` against `embedding`, `lexical` and `recent`.
+- All arms on the round 1 test wordings, labeled as already seen.
+

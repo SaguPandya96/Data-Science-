@@ -372,6 +372,58 @@ SLOTS: tuple[Slot, ...] = (
     ),
 )
 
+# Second held-out set, written after the first test run and before any embedding
+# experiment (docs/ANALYSIS_PLAN.md, "Round 2"). Each detail gets one direct wording that
+# names its topic and one indirect wording that only implies it.
+HOLDOUT: dict[str, tuple[str, str]] = {
+    "home_city": (
+        "What city do I call home?",
+        "Which local news station should I watch for my weather?",
+    ),
+    "employer": ("Which company do I work for now?", "Whose logo is on my work badge?"),
+    "job_title": (
+        "What is my current job?",
+        "What do I tell people I do when they ask at parties?",
+    ),
+    "diet": ("Do I follow any particular diet?", "Can you pick a sandwich for me at the deli?"),
+    "allergy": (
+        "Which allergies do I have?",
+        "Is there anything I should tell the waiter before ordering?",
+    ),
+    "partner_name": (
+        "What's the name of my partner?",
+        "Who am I sharing the hotel room with on our getaway?",
+    ),
+    "pet": ("What kind of pet do I own?", "Who is the vet appointment for?"),
+    "gym_days": (
+        "What days are my workouts?",
+        "Which evenings should you keep clear so I can get my reps in?",
+    ),
+    "wake_time": ("When do I usually get up?", "Is a 6 am call too early for me?"),
+    "favorite_cuisine": (
+        "What's my favorite type of food?",
+        "What should we order in tonight to cheer me up?",
+    ),
+    "dining_budget": (
+        "What's my monthly restaurant budget?",
+        "Can I afford another fancy dinner out this month?",
+    ),
+    "doctor": (
+        "What's the name of my doctor?",
+        "Who should the pharmacy send my prescription questions to?",
+    ),
+    "car": ("What car do I own?", "What model should I tell the mechanic I'm bringing in?"),
+    "sibling": ("Do I have any siblings?", "Who else grew up in the same house as me?"),
+    "language_goal": (
+        "Which language am I learning at the moment?",
+        "Which country's movies should I watch with subtitles for practice?",
+    ),
+    "race_goal": (
+        "Which race am I training for?",
+        "What finish line am I working toward this season?",
+    ),
+}
+
 # Small talk. "{city}", "{food}" and similar are filled with values from the slot pools,
 # usually not the user's own, to create near misses for the retriever.
 DISTRACTORS: tuple[str, ...] = (
@@ -550,5 +602,23 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
                     )
                 )
             persona.probes[split] = probes
+        # Round 2 held-out wordings: fixed, so they use no randomness and leave the
+        # dev and test probes above exactly as they were.
+        for style, position in (("direct", 0), ("indirect", 1)):
+            persona.probes[f"holdout_{style}"] = [
+                Probe(
+                    slot=slot.key,
+                    question=HOLDOUT[slot.key][position],
+                    current_id=written[slot.key][-1],
+                    stale_ids=tuple(written[slot.key][:-1]),
+                    expected=values[slot.key][-1],
+                    updated=len(written[slot.key]) > 1,
+                    stale_values=tuple(values[slot.key][:-1]),
+                )
+                for slot in SLOTS
+            ]
+        persona.probes["holdout"] = (
+            persona.probes["holdout_direct"] + persona.probes["holdout_indirect"]
+        )
         personas.append(persona)
     return personas

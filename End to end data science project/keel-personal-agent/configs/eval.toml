@@ -22,3 +22,12 @@ primary_split = "test"
 baselines_to_beat = ["recent", "lexical"]
 key_noise_levels = [0.0, 0.25, 0.5, 1.0]
 k_sweep = [1, 3, 5, 10]
+
+# Round 2: embedding search. Fixed before the first embedding run; see docs/ANALYSIS_PLAN.md.
+[round2]
+split = "holdout"                  # 16 direct + 16 indirect wordings per persona
+embedding_model = "wordllama l2_supercat 256d"
+weight_grid = [0.25, 0.5, 1.0, 2.0] # embedding weight in Keel's hybrid score; chosen on dev
+candidate = "keel+embed"
+must_beat = "keel"                 # the round 1 retriever
+also_compare = ["embedding", "lexical", "recent"]
