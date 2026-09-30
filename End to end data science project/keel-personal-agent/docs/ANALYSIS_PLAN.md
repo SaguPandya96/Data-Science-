@@ -192,3 +192,41 @@ sixteen indirect wordings still score 6% or less. A small static embedding model
 enough to connect "Who else grew up in the same house as me?" with "Has a sister named
 Mira." Embeddings on their own lose to Keel by 29.9 points: they have no notion of which
 value is current, so they show outdated values 20.1% of the time.
+
+## Round 3: end-to-end check
+
+Written before the first live run.
+
+### The question
+
+Rounds 1 and 2 measured whether the right memory reaches the prompt. Does that turn into
+right answers? A capable model might pick the newest of two conflicting memories on its
+own, or might answer correctly from memories that miss the exact one the benchmark looks
+for.
+
+### Design
+
+- **Users and questions:** the first 30 benchmark personas, with the round 2 held-out
+  wordings (16 direct and 16 indirect per persona), so 960 questions per arm.
+- **Arms:** `recent`, `lexical`, `embedding`, `keel` (round 1), `keel+embed` (the agent's
+  default) and `full` (every memory). `full` is included because it tests the one thing
+  retrieval benchmarks can't: whether the model resolves outdated values by itself.
+- **Model:** `claude-opus-5-5` at low effort. The system prompt tells it to answer from
+  the given memories only and to say it doesn't know otherwise. Each memory line shows its
+  date.
+- **Grading:** automatic. An answer is **correct** when it states the current value and no
+  earlier one (names and numbers must all appear; other values must appear as a phrase).
+  It is **stale** when it states an earlier value and not the current one.
+- **Statistics:** per-persona accuracy, 95% persona-bootstrap intervals, paired
+  differences as in the earlier rounds.
+
+### Pass rule
+
+`keel+embed` passes if its accuracy beats `embedding`, the standard alternative, with the
+95% interval of the paired difference entirely above zero.
+
+### Reported, not part of the rule
+
+- Every arm's accuracy and stale-answer rate, for direct and indirect questions.
+- `keel+embed` against `keel`, `lexical`, `recent` and `full`, with token cost.
+- A sample of graded answers, so the automatic grading can be checked by eye.
