@@ -5,10 +5,9 @@ from pathlib import Path
 import numpy as np
 
 from keel.evaluation.benchmark import bootstrap_mean, load_config, paired_difference, score_arm
-from keel.evaluation.live import mentions, run_live
+from keel.evaluation.live import mentions
 from keel.evaluation.scenarios import SLOTS, build_personas
 from keel.memory.retrieval import KeelMemory, LexicalMemory, RecentMemory
-from keel.model import text
 
 CONFIG = Path(__file__).resolve().parents[1] / "configs" / "eval.toml"
 
@@ -67,18 +66,3 @@ def test_answer_grading():
     assert mentions("You wake at 5:30 am.", "5:30 am")
     assert mentions("You're vegetarian.", "vegetarian")
     assert mentions("About $300 a month.", "$300 a month")
-
-
-class EchoModel:
-    """Answers with whatever the first memory line says."""
-
-    def reply(self, system, messages, tools):  # type: ignore[no-untyped-def]
-        prompt = messages[0]["content"]
-        lines = [line for line in prompt.splitlines() if line.startswith("- #")]
-        return text(" ".join(lines) or "I don't know.")
-
-
-def test_live_runner_with_a_fake_model():
-    results = run_live(CONFIG, EchoModel(), personas=2, arms=["recent", "keel"])
-    assert set(results["accuracy"]) == {"recent", "keel"}
-    assert results["accuracy"]["keel"]["mean"] > results["accuracy"]["recent"]["mean"]

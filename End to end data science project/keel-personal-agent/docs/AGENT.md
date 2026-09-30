@@ -207,15 +207,18 @@ correct. Unknown tools are rejected the same way.
 
 ## 9. Testing
 
-- **Unit and integration tests** (`tests/`, 57 tests) run the full agent loop against a
+- **Unit and integration tests** (`tests/`, 62 tests) run the full agent loop against a
   scripted model: tool round trips, parallel calls, error results, step limits, refusals,
   paused turns, append-only history, approvals, the brief, the CLI and the Streamlit app.
   They need no key and make no network calls.
 - **Retrieval benchmark** (`scripts/run_benchmark.py`, `scripts/run_round2.py`): 200
   synthetic users with pre-registered pass rules. CI reruns both rounds and fails if any
   committed number changes.
-- **End-to-end check** (`keel eval-live`): the model answers benchmark questions from each
-  retriever's memories. It costs money and is run manually.
+- **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
+  questions from each retriever's memories, and the answers are graded automatically. It
+  costs money, so it is run manually. Calls run in parallel, and every answer is saved to
+  `reports/live/answers.jsonl` as it arrives, so an interrupted run resumes without paying
+  twice.
 
 ## 10. Known limitations
 
