@@ -215,10 +215,24 @@ class OnnxSentenceEmbedder(_CachedEmbedder):
     the benchmark's committed numbers depend on that.
     """
 
-    def __init__(self, model_dir: Path, *, pooling: str, name: str, max_length: int = 128) -> None:
+    def __init__(
+        self,
+        model_dir: Path,
+        *,
+        pooling: str,
+        name: str,
+        max_length: int = 128,
+        query_prefix: str = "",
+        doc_prefix: str = "",
+    ) -> None:
         super().__init__()
         import onnxruntime
         from tokenizers import Tokenizer
+
+        # Some encoders were trained with a fixed prefix on questions and another on the
+        # text being searched (e.g. "query: " and "passage: "). Retrievers add them.
+        self.query_prefix = query_prefix
+        self.doc_prefix = doc_prefix
 
         if pooling not in ("mean", "cls"):
             raise ValueError("pooling must be 'mean' or 'cls'")

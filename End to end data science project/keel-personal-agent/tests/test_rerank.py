@@ -15,6 +15,8 @@ from keel.evaluation.round8 import run_round8
 from keel.evaluation.round8 import to_markdown as round8_markdown
 from keel.evaluation.round9 import run_round9
 from keel.evaluation.round9 import to_markdown as round9_markdown
+from keel.evaluation.round11 import run_round11
+from keel.evaluation.round11 import to_markdown as round11_markdown
 from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
@@ -309,3 +311,50 @@ def test_round10_reuses_round9_with_its_own_grid(tmp_path):
         assert set(row) == {str(w) for w in plan["weight_grid"]}
     assert all(w < 4.5 for w in results["best_weight"].values())
     assert "Round 10: MiniLM below weight 4" in round9_markdown(results, timings, section="round10")
+
+
+class RecordingEmbedder(HashingEmbedder):
+    def __init__(self, query_prefix: str = "", doc_prefix: str = "") -> None:
+        super().__init__(32)
+        self.query_prefix, self.doc_prefix = query_prefix, doc_prefix
+        self.seen: list[str] = []
+
+    def embed(self, texts):  # type: ignore[no-untyped-def]
+        self.seen.extend(texts)
+        return super().embed(texts)
+
+
+def test_prefixes_are_added_to_questions_and_memories(store, clock):
+    memories = _memories(store, clock)
+    plain, prefixed = RecordingEmbedder(), RecordingEmbedder("query: ", "passage: ")
+    for embedder in (plain, prefixed):
+        KeelMemory(embedder=embedder, embedding_weight=1.0).retrieve(
+            memories, "where do I live", clock.now(), 3
+        )
+    assert plain.seen[0] == "where do I live"
+    assert not any(t.startswith(("query: ", "passage: ")) for t in plain.seen)
+    assert prefixed.seen[0] == "query: where do I live"
+    assert all(t.startswith("passage: ") for t in prefixed.seen[1:])
+
+
+def test_round11_runner_with_stand_ins(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    plan = load_config(CONFIG)["round11"]
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    sizes = dict.fromkeys(plan["encoders"], 436.0)
+    results, timings = run_round11(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=sizes,
+        clock=lambda: float(next(ticks)),
+    )
+    others = set(plan["encoders"]) - {plan["current"]["encoder"]}
+    assert set(results["tuning"]) == others
+    assert results["chosen"]["encoder"] in others
+    tested = results["pass_rule"]["passed"] is not None
+    assert bool(results["splits"]) == tested
+    assert set(timings) == set(plan["encoders"])
+    assert "Round 11: other encoders" in round11_markdown(results, timings)
