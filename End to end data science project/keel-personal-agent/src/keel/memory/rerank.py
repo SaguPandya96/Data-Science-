@@ -151,14 +151,16 @@ class RerankedMemory:
         return chosen + _top_k(pool, final, k - len(chosen), dedupe=self.base.use_dedupe)
 
 
-# The reranker and setting chosen in round 7 of the benchmark (reports/metrics/round7.json).
+# The reranker and setting chosen in round 7 of the benchmark (reports/metrics/round7.json),
+# in the int8 version that round 8 found no worse and four times smaller
+# (reports/metrics/round8.json).
 DEFAULT_RERANKER: dict[str, Any] = {
-    "name": "ms-marco-MiniLM-L-6-v2",
+    "name": "ms-marco-MiniLM-L-6-v2 (int8)",
     "files": {
         "model.onnx": {
             "url": "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/"
-            "a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model.onnx",
-            "sha256": "c623d0bcb99f4622beb413eaef00cfbe5db20df9f1dd982da4b4f26022881870",
+            "a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx",
+            "sha256": "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe",
         },
         "tokenizer.json": {
             "url": "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/"

@@ -607,3 +607,102 @@ amendment: round 7 changed what ships. The number of arms and API calls is uncha
   same encoder) on answer accuracy, with the 95% paired interval entirely above zero.
   `keel+transformer` stays as an arm, so the reranker's own effect on answers is reported.
 
+
+## Round 8: quantized models
+
+Written after round 7 was merged and before any quantized model was run on benchmark text.
+
+### The question
+
+The shipped retriever downloads about 500 MB (mpnet 436 MB as ONNX, the reranker 91 MB)
+and spends about 130 ms per question on reranking. Both models have standard int8
+versions about four times smaller. Can they replace the full-precision models without
+losing retrieval quality?
+
+This round asks whether the smaller models are **no worse**, not whether they are better.
+
+### Models
+
+The int8 versions are dynamic-quantized ONNX exports from the same publisher as the
+round 7 rerankers, pinned by revision and SHA-256 in `configs/eval.toml`:
+
+| Model | Full precision | int8 |
+| --- | --- | --- |
+| `all-mpnet-base-v2` | 436 MB | 110 MB |
+| `ms-marco-MiniLM-L-6-v2` | 91 MB | 23 MB |
+
+Before writing this plan, both int8 models were loaded and run on four neutral sentences
+(no benchmark text). Both were deterministic. The reranker's scores were within 0.3 of
+full precision. The encoder kept the sentences in the same order of similarity, but its
+vectors agreed with full precision only at cosine 0.82 to 0.92, so it may need a
+different weight in Keel's score.
+
+### Variants
+
+The three combinations other than the current one: int8 encoder with the full reranker,
+full encoder with the int8 reranker, and both int8. The reranker keeps its shipped
+setting (top 20, weight 2.0). The full-precision encoder keeps weight 12. The int8
+encoder's weight is chosen from {8, 12, 16} on the tuning sets; ties go to 12, then to
+the smaller weight.
+
+### Choosing the variant
+
+Every variant is scored on the **mean clean-hit rate over six question sets that have all
+been seen**: dev and the round 2, 4, 5, 6 and 7 held-out sets. A variant more than 0.5
+points below the current retriever there is not taken further. Of the rest, the one with
+the **smallest combined model size** is chosen (ties: higher tuning mean). If none is
+within 0.5 points, nothing changes and the held-out set is not used.
+
+### New held-out questions
+
+A seventh set, `HOLDOUT6` in `keel.evaluation.scenarios`, was written and committed before
+any quantized model was run on benchmark text. It has one direct and one indirect wording
+per detail, and repeats no earlier wording.
+
+### Pass rule
+
+The chosen variant is compared with the current retriever on `HOLDOUT6` at `k = 5`. It is
+**adopted if the 95% persona-bootstrap interval of the paired clean-hit difference has a
+lower bound of at least −1 point**: a non-inferiority test with a 1-point margin. A
+variant that is better also passes.
+
+### Reported, not part of the rule
+
+- Every variant and int8 encoder weight on every tuning set.
+- Direct and indirect wordings separately.
+- Model sizes, embedding speed and reranking time per question on one CPU thread.
+
+### Outcome
+
+Run once, as planned. On the six already-seen sets the current models scored 88.6%:
+
+| Variant | Best encoder weight | Mean clean hit |
+| --- | --- | --- |
+| int8 encoder, full reranker | 8 | 86.3% |
+| full encoder, int8 reranker | 12 (fixed) | 88.4% |
+| both int8 | 8 | 86.1% |
+
+Only the int8 reranker came within 0.5 points, so it was the variant tested. On the
+seventh held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+rerank` (current models) | 91.5% | 99.6% | 83.5% |
+| `keel+rerank(int8)` (int8 reranker) | 91.7% | 99.5% | 83.8% |
+
+`keel+rerank(int8)` − `keel+rerank`: **+0.1 points** (95% CI −0.0 to +0.3). The lower
+bound is far above −1 point, so **the int8 reranker is adopted**. The encoder stays at full
+precision. Full tables: `reports/metrics/round8.md`.
+
+Things to keep in mind:
+
+- **The int8 encoder lost at every weight.** Re-choosing its weight did not recover the
+  loss: 86.3% at best, against 88.6%. The drift seen on neutral sentences before the run
+  (cosine 0.82 to 0.92 against full precision) showed up as lost retrieval.
+- **The reranker saving is real but modest in absolute terms.** The download falls from
+  91 to 23 MB, while the encoder's 436 MB is unchanged. Reranking time per question
+  halved on this machine (133 to 65 ms for 20 memories).
+- **The held-out set was easier than round 7's.** The current models scored 91.5% here
+  against 88.1% on round 7's set. That is a property of the questions, which is why each
+  comparison is made within one set.
+

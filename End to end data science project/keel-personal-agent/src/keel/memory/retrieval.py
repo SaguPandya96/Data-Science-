@@ -254,8 +254,9 @@ def default_retriever(core_max: int = 2) -> KeelMemory | RerankedMemory:
     """The agent's retriever, best available first.
 
     1. Keel with the all-mpnet-base-v2 transformer encoder (round 6's winner), with its top
-       candidates reranked by the ms-marco-MiniLM-L-6-v2 cross-encoder (round 7's winner),
-       if ONNX Runtime is installed and both models are on disk or can be downloaded.
+       candidates reranked by the ms-marco-MiniLM-L-6-v2 cross-encoder (round 7's winner, in
+       the int8 version round 8 adopted), if ONNX Runtime is installed and both models are on
+       disk or can be downloaded.
     2. The same without reranking, if only the encoder is available.
     3. Keel with WordLlama embeddings (round 2's winner), if installed.
     4. Keel on BM25 alone.

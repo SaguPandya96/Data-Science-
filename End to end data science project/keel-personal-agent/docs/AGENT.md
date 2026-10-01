@@ -140,16 +140,17 @@ when this fails.
    against a pinned SHA-256 and discarded on mismatch. Inference is single-threaded so a
    given text always produces the same vector.
 4. **Reranking.** When the encoder is mpnet and the reranker is available, the 20
-   highest-scoring candidates are rescored by `ms-marco-MiniLM-L-6-v2`, a cross-encoder
-   that reads the question and the memory's key and text together:
+   highest-scoring candidates are rescored by an int8 version of `ms-marco-MiniLM-L-6-v2`,
+   a cross-encoder that reads the question and the memory's key and text together:
 
    ```text
    final = score + 2.0 × cross-encoder logit
    ```
 
-   Memories outside those 20 are never shown. The model (about 90 MB) is downloaded and
+   Memories outside those 20 are never shown. The model (about 23 MB) is downloaded and
    verified like the encoder; without it, step 3's score is used as is. The list size and
-   weight were chosen by round 7 of the benchmark.
+   weight were chosen by round 7 of the benchmark, and round 8 found the int8 model no
+   worse than full precision.
 5. A candidate whose words match one already chosen is skipped.
 
 The `recall` tool uses the same retriever without the always-on constraints, so the model
@@ -250,13 +251,14 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are the weak spot: 76.2% retrieved correctly on
-  the latest held-out set (benchmark round 7), against 99.9% for direct questions.
-- The first run of the agent downloads the encoder and reranker (about 400 MB and 90 MB).
+- Questions that only imply their topic are the weak spot: 83.8% retrieved correctly on
+  the latest held-out set (benchmark round 8), against 99.5% for direct questions.
+- The first run of the agent downloads the encoder and reranker (about 400 MB and 23 MB).
   Offline, it falls back to WordLlama without reranking, which retrieves less well.
-- Reranking adds about 130 ms to every turn on one CPU thread. Unlike embedding, this
+- Reranking adds about 65 ms to every turn on one CPU thread. Unlike embedding, this
   cost is paid per question, not once per memory.
-- The encoder embeds about 50 texts a second on one CPU thread. Fine for one person's
+- The encoder embeds about 25 to 50 texts a second on one CPU thread, depending on the
+  machine. An int8 encoder was about 2.5 times faster but lost about 2.3 points (round 8). Fine for one person's
   memory, since each text is embedded once, but slow for bulk imports.
 - Supersession depends on consistent keys. With every update written under a new key,
   clean retrieval of changed details falls from 67.8% to 26.1%.
@@ -269,8 +271,9 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Try embedding weights above 12, where round 6 stopped, and a quantized mpnet and
-   reranker to cut the download, embedding and reranking time.
+2. Try embedding weights above 12, where round 6 stopped. To shrink the encoder, try a
+   smaller full-precision model or a different quantization scheme; plain int8 lost about
+   2.3 points (round 8).
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.

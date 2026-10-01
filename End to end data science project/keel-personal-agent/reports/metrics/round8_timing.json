@@ -1,0 +1,22 @@
+{
+  "encoder:fp32": {
+    "texts": 79,
+    "seconds": 3.01,
+    "texts_per_second": 26.3
+  },
+  "encoder:int8": {
+    "texts": 79,
+    "seconds": 1.14,
+    "texts_per_second": 69.2
+  },
+  "reranker:fp32": {
+    "questions": 16,
+    "seconds": 2.13,
+    "ms_per_question": 133.1
+  },
+  "reranker:int8": {
+    "questions": 16,
+    "seconds": 1.03,
+    "ms_per_question": 64.5
+  }
+}

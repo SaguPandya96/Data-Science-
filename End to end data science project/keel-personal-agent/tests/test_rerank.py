@@ -11,6 +11,8 @@ import pytest
 
 from keel.evaluation.benchmark import load_config
 from keel.evaluation.round7 import load_rerankers, run_round7, to_markdown
+from keel.evaluation.round8 import run_round8
+from keel.evaluation.round8 import to_markdown as round8_markdown
 from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
@@ -179,20 +181,27 @@ def test_real_rerankers_are_deterministic_and_semantic(monkeypatch):
         assert a[0] > a[1] + 3
 
 
-def test_shipped_reranker_matches_the_benchmark_result():
-    """The agent ships whatever round 7 chose, and nothing else."""
-    round7 = json.loads((ROOT / "reports" / "metrics" / "round7.json").read_text())
-    plan = load_config(CONFIG)["round7"]
+def test_shipped_reranker_matches_the_benchmark_results():
+    """The agent ships what rounds 7 and 8 chose, and nothing else."""
+    metrics = ROOT / "reports" / "metrics"
+    round7 = json.loads((metrics / "round7.json").read_text())
+    round8 = json.loads((metrics / "round8.json").read_text())
+    config = load_config(CONFIG)
+    plan7, plan8 = config["round7"], config["round8"]
     assert round7["pass_rule"]["passed"]
     chosen = round7["chosen"]
-    spec = plan["rerankers"][chosen["reranker"]]
+    assert chosen["candidates"] == RERANK_CANDIDATES == plan8["candidates"]
+    assert chosen["weight"] == RERANK_WEIGHT == plan8["rerank_weight"]
+    # Round 8 started from round 7's model, then chose which precision ships.
+    assert plan8["rerankers"]["fp32"]["files"] == plan7["rerankers"][chosen["reranker"]]["files"]
+    precision = round8["chosen"]["reranker"] if round8["pass_rule"]["passed"] else "fp32"
+    spec = plan8["rerankers"][precision]
     assert {"name": spec["name"], "files": spec["files"]} == DEFAULT_RERANKER
-    assert chosen["candidates"] == RERANK_CANDIDATES
-    assert chosen["weight"] == RERANK_WEIGHT
-    # The first stage round 7 reranked is the encoder and weight the agent ships.
-    first = load_config(CONFIG)["round6"]["encoders"][plan["first_stage"]]
-    assert first["name"] == DEFAULT_ENCODER["name"]
-    assert plan["first_stage_weight"] == TRANSFORMER_WEIGHT
+    # The encoder stays at full precision unless round 8 adopted the int8 one.
+    encoder = round8["chosen"]["encoder"] if round8["pass_rule"]["passed"] else "fp32"
+    assert encoder == "fp32"
+    assert plan8["encoders"]["fp32"]["name"] == DEFAULT_ENCODER["name"]
+    assert plan7["first_stage_weight"] == plan8["encoder_weight"] == TRANSFORMER_WEIGHT
 
 
 def test_offline_agent_runs_without_a_reranker():
@@ -212,3 +221,39 @@ def test_recall_with_a_reranked_retriever_skips_constraints(toolbox):
     found = json.loads(toolbox.run("t", "recall", {"query": "Lisbon", "limit": 1}).output)
     assert [m["text"] for m in found] == ["Moved to Lisbon."]
     assert toolbox.context.retriever.base.core_max == 2  # the agent's own copy is unchanged
+
+
+def test_round8_runner_with_stand_ins(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    plan = load_config(CONFIG)["round8"]
+    ticks = iter(range(100))
+    sizes = {
+        "encoder:fp32": 436.0,
+        "encoder:int8": 110.0,
+        "reranker:fp32": 91.0,
+        "reranker:int8": 23.0,
+    }
+    results, timings = run_round8(
+        small,
+        encoders={"fp32": HashingEmbedder(64), "int8": HashingEmbedder(48)},
+        rerankers={"fp32": OverlapReranker(), "int8": OverlapReranker()},
+        sizes=sizes,
+        clock=lambda: float(next(ticks)),
+    )
+    assert set(results["tuning"]) == {
+        "encoder int8, reranker fp32",
+        "encoder fp32, reranker int8",
+        "encoder int8, reranker int8",
+    }
+    assert set(results["tuning"]["encoder int8, reranker int8"]) == {
+        str(w) for w in plan["int8_encoder_weights"]
+    }
+    # The two rerankers are identical stand-ins, so the int8 reranker ties the current one
+    # on every set and must qualify; the smallest qualifying variant is chosen.
+    assert "encoder fp32, reranker int8" in results["eligible"]
+    assert results["chosen"] is not None
+    assert results["pass_rule"]["passed"] is not None
+    assert set(results["splits"]) == {"holdout6", "holdout6_direct", "holdout6_indirect"}
+    assert set(timings) == {"encoder:fp32", "encoder:int8", "reranker:fp32", "reranker:int8"}
+    assert "Round 8: quantized models" in round8_markdown(results, timings)

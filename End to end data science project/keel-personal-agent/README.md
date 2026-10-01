@@ -80,8 +80,9 @@ The model sees the keys already in use, so when you say "I moved to Austin" it c
 new value under `home_city` and retire Denver.
 
 Sentence similarity comes from `all-mpnet-base-v2`, a transformer encoder run on CPU with
-ONNX Runtime, and the second look from `ms-marco-MiniLM-L-6-v2`. Both are downloaded once
-(about 400 MB and 90 MB, each checked against a pinned SHA-256) and cached. If only the
+ONNX Runtime, and the second look from an int8 version of `ms-marco-MiniLM-L-6-v2`. Both
+are downloaded once (about 400 MB and 23 MB, each checked against a pinned SHA-256) and
+cached. If only the
 encoder is available, Keel skips the second look. Offline, or without the `transformer`
 extra, Keel falls back to
 [WordLlama](https://github.com/dleemiller/WordLlama) embeddings, which ship inside their
@@ -265,16 +266,37 @@ mattered: on the tuning sets, ordering the short list by the cross-encoder alone
 *worse* than not reranking at all, at every list size (84.2% to 86.5% against 87.3%). It
 was trained on web search rather than personal notes, which may be why it does better as
 a correction than as the judge. And it adds time to every question: about 130 ms on one
-CPU thread for 20 candidates. The 12-layer reranker was slower and no better.
+CPU thread for 20 candidates (round 8 halved that). The 12-layer reranker was slower and no better.
+
+### Round 8: smaller models
+
+Both models have standard int8 versions about four times smaller. Round 8 asked a
+different question from the earlier rounds: not whether they are better, but whether they
+are **no worse**. A variant had to stay within 0.5 points on the six question sets already
+seen, and then, on a seventh fresh set, rule out a loss of more than 1 point.
+
+| Model | Size | Result |
+| --- | --- | --- |
+| int8 reranker | 91 → 23 MB | **adopted**: 91.7% against 91.5% on the fresh set (+0.1 points, 95% CI −0.0 to +0.3); reranking time halved, 133 → 65 ms per question |
+| int8 encoder | 436 → 110 MB | rejected: about 2.3 points lower on the already-seen sets at every weight tried (8, 12, 16) |
+
+Source: [`reports/metrics/round8.md`](reports/metrics/round8.md).
+
+So the reranker is now the int8 one, and the encoder stays at full precision. The encoder
+is where the meaning of a memory is captured once and reused for every question, and
+squeezing it to int8 visibly blurred its vectors (cosine 0.82 to 0.92 against the full
+model on neutral test sentences); the reranker only reorders a short list, and int8 cost
+it nothing measurable.
 
 ## What this does not show
 
-- **Indirect questions are still the weak spot.** Direct questions reach 100% (99.9% with
-  reranking), but about one indirect question in four still misses (76.2% on the latest
-  set). The agent also has a `recall` tool it can call with its own rephrasing, which only
+- **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
+  but indirect ones miss far more often (76.2% and 83.8% on the two latest sets; how hard a
+  set is varies, so compare methods within a set, not across sets). The agent also has a `recall` tool it can call with its own rephrasing, which only
   the live check can measure.
 - **The encoder weight is at the top of the range tried.** Round 6 chose weight 12, the
-  largest it tested, so a higher weight might do better still. Round 7 kept it fixed.
+  largest it tested, so a higher weight might do better still. Rounds 7 and 8 kept it
+  fixed.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under
   `residence` instead of `home_city`, nothing is retired. When I renamed the key on every
   update, Keel's clean-hit rate on changed details fell from 67.8% to 26.1%, still above
@@ -316,6 +338,7 @@ python scripts/run_round4.py             # round 4 (transformer encoders; downlo
 python scripts/run_round5.py             # round 5 (weight grid for MiniLM)
 python scripts/run_round6.py             # round 6 (larger encoders; downloads ~600 MB once)
 python scripts/run_round7.py             # round 7 (rerankers; downloads ~225 MB once, ~30 min)
+python scripts/run_round8.py             # round 8 (int8 models; downloads ~135 MB once, ~20 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -332,7 +355,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 7 run transformer models,
+than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 8 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout

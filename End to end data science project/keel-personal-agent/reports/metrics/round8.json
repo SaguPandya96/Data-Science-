@@ -1,0 +1,555 @@
+{
+  "models": {
+    "encoder:fp32": "all-mpnet-base-v2",
+    "encoder:int8": "all-mpnet-base-v2 (int8)",
+    "reranker:fp32": "ms-marco-MiniLM-L-6-v2",
+    "reranker:int8": "ms-marco-MiniLM-L-6-v2 (int8)"
+  },
+  "model_mb": {
+    "encoder:fp32": 435.8,
+    "encoder:int8": 110.1,
+    "reranker:fp32": 91.0,
+    "reranker:int8": 23.1
+  },
+  "k": 5,
+  "personas": 200,
+  "tuning_splits": [
+    "dev",
+    "holdout",
+    "holdout2",
+    "holdout3",
+    "holdout4",
+    "holdout5"
+  ],
+  "baseline": {
+    "dev": 0.9946875,
+    "holdout": 0.88671875,
+    "holdout2": 0.7571875,
+    "holdout3": 0.89921875,
+    "holdout4": 0.89453125,
+    "holdout5": 0.88078125,
+    "mean": 0.8855208333333334
+  },
+  "tuning": {
+    "encoder int8, reranker fp32": {
+      "8.0": {
+        "dev": 0.9853125,
+        "holdout": 0.8653125,
+        "holdout2": 0.72328125,
+        "holdout3": 0.86125,
+        "holdout4": 0.863125,
+        "holdout5": 0.8790625,
+        "mean": 0.8628906249999999
+      },
+      "12.0": {
+        "dev": 0.986875,
+        "holdout": 0.8590625,
+        "holdout2": 0.71796875,
+        "holdout3": 0.8534375,
+        "holdout4": 0.87078125,
+        "holdout5": 0.8715625,
+        "mean": 0.8599479166666667
+      },
+      "16.0": {
+        "dev": 0.98875,
+        "holdout": 0.8546875,
+        "holdout2": 0.71703125,
+        "holdout3": 0.8490625,
+        "holdout4": 0.8746875,
+        "holdout5": 0.8690625,
+        "mean": 0.8588802083333333
+      }
+    },
+    "encoder fp32, reranker int8": {
+      "12.0": {
+        "dev": 0.9928125,
+        "holdout": 0.88390625,
+        "holdout2": 0.75671875,
+        "holdout3": 0.89765625,
+        "holdout4": 0.89515625,
+        "holdout5": 0.88,
+        "mean": 0.884375
+      }
+    },
+    "encoder int8, reranker int8": {
+      "8.0": {
+        "dev": 0.9834375,
+        "holdout": 0.865,
+        "holdout2": 0.721875,
+        "holdout3": 0.85984375,
+        "holdout4": 0.85984375,
+        "holdout5": 0.878125,
+        "mean": 0.8613541666666666
+      },
+      "12.0": {
+        "dev": 0.985,
+        "holdout": 0.85859375,
+        "holdout2": 0.71765625,
+        "holdout3": 0.8503125,
+        "holdout4": 0.869375,
+        "holdout5": 0.871875,
+        "mean": 0.8588020833333334
+      },
+      "16.0": {
+        "dev": 0.9871875,
+        "holdout": 0.85265625,
+        "holdout2": 0.71515625,
+        "holdout3": 0.8471875,
+        "holdout4": 0.87484375,
+        "holdout5": 0.8684375,
+        "mean": 0.857578125
+      }
+    }
+  },
+  "best_weight": {
+    "encoder int8, reranker fp32": 8.0,
+    "encoder fp32, reranker int8": 12.0,
+    "encoder int8, reranker int8": 8.0
+  },
+  "eligible": [
+    "encoder fp32, reranker int8"
+  ],
+  "chosen": {
+    "encoder": "fp32",
+    "reranker": "int8",
+    "encoder_weight": 12.0
+  },
+  "splits": {
+    "holdout6": {
+      "keel+rerank": {
+        "all": {
+          "hit": {
+            "mean": 0.91546875,
+            "low": 0.9109375,
+            "high": 0.91953515625,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.91546875,
+            "low": 0.9109375,
+            "high": 0.91953515625,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 77.1175,
+            "low": 76.91451953125,
+            "high": 77.31457421875,
+            "n": 200
+          }
+        },
+        "updated": {
+          "hit": {
+            "mean": 0.9001467352092354,
+            "low": 0.8899309478715729,
+            "high": 0.9101289547258298,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.9001467352092354,
+            "low": 0.8899309478715729,
+            "high": 0.9101289547258298,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 77.56371058802308,
+            "low": 77.23759698998919,
+            "high": 77.88211443226912,
+            "n": 200
+          }
+        }
+      },
+      "keel+rerank(int8)": {
+        "all": {
+          "hit": {
+            "mean": 0.91671875,
+            "low": 0.91249609375,
+            "high": 0.920625,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.91671875,
+            "low": 0.91249609375,
+            "high": 0.920625,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 77.0928125,
+            "low": 76.89372656249999,
+            "high": 77.29048046875,
+            "n": 200
+          }
+        },
+        "updated": {
+          "hit": {
+            "mean": 0.9028848304473306,
+            "low": 0.8924713045634922,
+            "high": 0.91270487012987,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.9028848304473306,
+            "low": 0.8924713045634922,
+            "high": 0.91270487012987,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 77.54918281024531,
+            "low": 77.21095139565297,
+            "high": 77.88013199404762,
+            "n": 200
+          }
+        }
+      }
+    },
+    "holdout6_direct": {
+      "keel+rerank": {
+        "all": {
+          "hit": {
+            "mean": 0.9959375,
+            "low": 0.99375,
+            "high": 0.9978125,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.9959375,
+            "low": 0.99375,
+            "high": 0.9978125,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 75.5853125,
+            "low": 75.358125,
+            "high": 75.8081328125,
+            "n": 200
+          }
+        },
+        "updated": {
+          "hit": {
+            "mean": 0.9953988095238095,
+            "low": 0.9916428571428572,
+            "high": 0.9985714285714287,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.9953988095238095,
+            "low": 0.9916428571428572,
+            "high": 0.9985714285714287,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 76.18231313131314,
+            "low": 75.76551249098124,
+            "high": 76.57913536255411,
+            "n": 200
+          }
+        }
+      },
+      "keel+rerank(int8)": {
+        "all": {
+          "hit": {
+            "mean": 0.9953125,
+            "low": 0.9928125,
+            "high": 0.9975,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.9953125,
+            "low": 0.9928125,
+            "high": 0.9975,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 75.6490625,
+            "low": 75.425296875,
+            "high": 75.8744375,
+            "n": 200
+          }
+        },
+        "updated": {
+          "hit": {
+            "mean": 0.9961130952380952,
+            "low": 0.992541369047619,
+            "high": 0.9991666666666668,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.9961130952380952,
+            "low": 0.992541369047619,
+            "high": 0.9991666666666668,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 76.28495995670995,
+            "low": 75.86830048701299,
+            "high": 76.69272495490621,
+            "n": 200
+          }
+        }
+      }
+    },
+    "holdout6_indirect": {
+      "keel+rerank": {
+        "all": {
+          "hit": {
+            "mean": 0.835,
+            "low": 0.8259375,
+            "high": 0.843125,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.835,
+            "low": 0.8259375,
+            "high": 0.843125,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 78.6496875,
+            "low": 78.42497656249999,
+            "high": 78.8663203125,
+            "n": 200
+          }
+        },
+        "updated": {
+          "hit": {
+            "mean": 0.8048946608946609,
+            "low": 0.784669439935065,
+            "high": 0.8245181502525252,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.8048946608946609,
+            "low": 0.784669439935065,
+            "high": 0.8245181502525252,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 78.94510804473305,
+            "low": 78.57354803841991,
+            "high": 79.30971413690476,
+            "n": 200
+          }
+        }
+      },
+      "keel+rerank(int8)": {
+        "all": {
+          "hit": {
+            "mean": 0.838125,
+            "low": 0.8296875,
+            "high": 0.845625,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.838125,
+            "low": 0.8296875,
+            "high": 0.845625,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 78.5365625,
+            "low": 78.3125,
+            "high": 78.7506328125,
+            "n": 200
+          }
+        },
+        "updated": {
+          "hit": {
+            "mean": 0.8096565656565656,
+            "low": 0.7889943677849927,
+            "high": 0.8288181231962483,
+            "n": 200
+          },
+          "stale": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 200
+          },
+          "clean_hit": {
+            "mean": 0.8096565656565656,
+            "low": 0.7889943677849927,
+            "high": 0.8288181231962483,
+            "n": 200
+          },
+          "allergy_shown": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 200
+          },
+          "tokens": {
+            "mean": 78.81340566378067,
+            "low": 78.43070571338383,
+            "high": 79.19375756222944,
+            "n": 200
+          }
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "holdout6": {
+      "keel+rerank": {
+        "mean": 0.00125,
+        "low": -0.00046875,
+        "high": 0.00296875,
+        "n": 200
+      }
+    },
+    "holdout6_direct": {
+      "keel+rerank": {
+        "mean": -0.000625,
+        "low": -0.001875,
+        "high": 0.000625,
+        "n": 200
+      }
+    },
+    "holdout6_indirect": {
+      "keel+rerank": {
+        "mean": 0.003125,
+        "low": 0.0,
+        "high": 0.0065625,
+        "n": 200
+      }
+    }
+  },
+  "pass_rule": {
+    "candidate": "keel+rerank(int8)",
+    "must_beat": "keel+rerank",
+    "split": "holdout6",
+    "margin": 0.01,
+    "passed": true,
+    "outcome": "encoder fp32, reranker int8 adopted (no worse than the current models)"
+  }
+}
