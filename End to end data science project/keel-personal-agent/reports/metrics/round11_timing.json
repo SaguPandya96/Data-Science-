@@ -1,0 +1,37 @@
+{
+  "mpnet": {
+    "texts": 79,
+    "seconds": 2.15,
+    "texts_per_second": 36.8
+  },
+  "gte_base": {
+    "texts": 79,
+    "seconds": 2.15,
+    "texts_per_second": 36.7
+  },
+  "multi_qa_mpnet": {
+    "texts": 79,
+    "seconds": 2.22,
+    "texts_per_second": 35.5
+  },
+  "e5_base": {
+    "texts": 79,
+    "seconds": 2.28,
+    "texts_per_second": 34.6
+  },
+  "nomic": {
+    "texts": 79,
+    "seconds": 4.27,
+    "texts_per_second": 18.5
+  },
+  "arctic_m": {
+    "texts": 79,
+    "seconds": 2.37,
+    "texts_per_second": 33.3
+  },
+  "bge_base": {
+    "texts": 79,
+    "seconds": 2.26,
+    "texts_per_second": 35.0
+  }
+}
