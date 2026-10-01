@@ -671,3 +671,38 @@ variant that is better also passes.
 - Every variant and int8 encoder weight on every tuning set.
 - Direct and indirect wordings separately.
 - Model sizes, embedding speed and reranking time per question on one CPU thread.
+
+### Outcome
+
+Run once, as planned. On the six already-seen sets the current models scored 88.6%:
+
+| Variant | Best encoder weight | Mean clean hit |
+| --- | --- | --- |
+| int8 encoder, full reranker | 8 | 86.3% |
+| full encoder, int8 reranker | 12 (fixed) | 88.4% |
+| both int8 | 8 | 86.1% |
+
+Only the int8 reranker came within 0.5 points, so it was the variant tested. On the
+seventh held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+rerank` (current models) | 91.5% | 99.6% | 83.5% |
+| `keel+rerank(int8)` (int8 reranker) | 91.7% | 99.5% | 83.8% |
+
+`keel+rerank(int8)` − `keel+rerank`: **+0.1 points** (95% CI −0.0 to +0.3). The lower
+bound is far above −1 point, so **the int8 reranker is adopted**. The encoder stays at full
+precision. Full tables: `reports/metrics/round8.md`.
+
+Things to keep in mind:
+
+- **The int8 encoder lost at every weight.** Re-choosing its weight did not recover the
+  loss: 86.3% at best, against 88.6%. The drift seen on neutral sentences before the run
+  (cosine 0.82 to 0.92 against full precision) showed up as lost retrieval.
+- **The reranker saving is real but modest in absolute terms.** The download falls from
+  91 to 23 MB, while the encoder's 436 MB is unchanged. Reranking time per question
+  halved on this machine (133 to 65 ms for 20 memories).
+- **The held-out set was easier than round 7's.** The current models scored 91.5% here
+  against 88.1% on round 7's set. That is a property of the questions, which is why each
+  comparison is made within one set.
+

@@ -181,20 +181,27 @@ def test_real_rerankers_are_deterministic_and_semantic(monkeypatch):
         assert a[0] > a[1] + 3
 
 
-def test_shipped_reranker_matches_the_benchmark_result():
-    """The agent ships whatever round 7 chose, and nothing else."""
-    round7 = json.loads((ROOT / "reports" / "metrics" / "round7.json").read_text())
-    plan = load_config(CONFIG)["round7"]
+def test_shipped_reranker_matches_the_benchmark_results():
+    """The agent ships what rounds 7 and 8 chose, and nothing else."""
+    metrics = ROOT / "reports" / "metrics"
+    round7 = json.loads((metrics / "round7.json").read_text())
+    round8 = json.loads((metrics / "round8.json").read_text())
+    config = load_config(CONFIG)
+    plan7, plan8 = config["round7"], config["round8"]
     assert round7["pass_rule"]["passed"]
     chosen = round7["chosen"]
-    spec = plan["rerankers"][chosen["reranker"]]
+    assert chosen["candidates"] == RERANK_CANDIDATES == plan8["candidates"]
+    assert chosen["weight"] == RERANK_WEIGHT == plan8["rerank_weight"]
+    # Round 8 started from round 7's model, then chose which precision ships.
+    assert plan8["rerankers"]["fp32"]["files"] == plan7["rerankers"][chosen["reranker"]]["files"]
+    precision = round8["chosen"]["reranker"] if round8["pass_rule"]["passed"] else "fp32"
+    spec = plan8["rerankers"][precision]
     assert {"name": spec["name"], "files": spec["files"]} == DEFAULT_RERANKER
-    assert chosen["candidates"] == RERANK_CANDIDATES
-    assert chosen["weight"] == RERANK_WEIGHT
-    # The first stage round 7 reranked is the encoder and weight the agent ships.
-    first = load_config(CONFIG)["round6"]["encoders"][plan["first_stage"]]
-    assert first["name"] == DEFAULT_ENCODER["name"]
-    assert plan["first_stage_weight"] == TRANSFORMER_WEIGHT
+    # The encoder stays at full precision unless round 8 adopted the int8 one.
+    encoder = round8["chosen"]["encoder"] if round8["pass_rule"]["passed"] else "fp32"
+    assert encoder == "fp32"
+    assert plan8["encoders"]["fp32"]["name"] == DEFAULT_ENCODER["name"]
+    assert plan7["first_stage_weight"] == plan8["encoder_weight"] == TRANSFORMER_WEIGHT
 
 
 def test_offline_agent_runs_without_a_reranker():
