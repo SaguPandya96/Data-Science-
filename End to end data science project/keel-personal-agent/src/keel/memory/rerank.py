@@ -17,13 +17,14 @@ Two ship:
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 
+from keel.memory.embeddings import download_files
 from keel.memory.retrieval import KeelMemory, _top_k
 from keel.memory.store import Memory
 
@@ -148,3 +149,49 @@ class RerankedMemory:
                 for i, x in zip(short, logits, strict=True)
             ]
         return chosen + _top_k(pool, final, k - len(chosen), dedupe=self.base.use_dedupe)
+
+
+# The reranker and setting chosen in round 7 of the benchmark (reports/metrics/round7.json).
+DEFAULT_RERANKER: dict[str, Any] = {
+    "name": "ms-marco-MiniLM-L-6-v2",
+    "files": {
+        "model.onnx": {
+            "url": "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/"
+            "a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model.onnx",
+            "sha256": "c623d0bcb99f4622beb413eaef00cfbe5db20df9f1dd982da4b4f26022881870",
+        },
+        "tokenizer.json": {
+            "url": "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/"
+            "a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json",
+            "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
+        },
+    },
+}
+RERANK_CANDIDATES = 20
+RERANK_WEIGHT = 2.0
+
+
+def default_reranker() -> Reranker | None:
+    """The default reranker when ONNX Runtime is installed and the model is on disk or
+    downloadable.
+
+    Returns None rather than raising, so the agent still starts offline or without the
+    ``transformer`` extra; it then runs without a second stage.
+    """
+    try:
+        import onnxruntime  # noqa: F401
+        import tokenizers  # noqa: F401
+    except ImportError:
+        return None
+    try:
+        folder = download_files(DEFAULT_RERANKER["files"])
+    except (OSError, ValueError):  # offline, blocked, or a corrupted download
+        return None
+    return OnnxCrossEncoder(folder, name=DEFAULT_RERANKER["name"])
+
+
+def without_constraints(retriever: KeelMemory | RerankedMemory) -> KeelMemory | RerankedMemory:
+    """The same retriever with no always-on constraints, for an explicit memory search."""
+    if isinstance(retriever, RerankedMemory):
+        return replace(retriever, base=replace(retriever.base, core_max=0))
+    return replace(retriever, core_max=0)

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import re
-from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import Any
 
+from keel.memory.rerank import without_constraints
 from keel.memory.retrieval import KeelMemory, bm25_scores
 from keel.memory.store import KINDS
 from keel.memory.text import canonical_key, expand
@@ -58,7 +58,7 @@ def _recall(ctx: ToolContext, args: dict[str, Any]) -> list[dict[str, Any]]:
     if not 1 <= limit <= 25:
         raise ToolError("limit must be between 1 and 25")
     # Same retriever as the context block, minus the always-on constraints.
-    retriever = replace(ctx.retriever or KeelMemory(), core_max=0)
+    retriever = without_constraints(ctx.retriever or KeelMemory())
     found = retriever.retrieve(ctx.memory.all(), query, ctx.clock.now(), limit)
     return [
         {

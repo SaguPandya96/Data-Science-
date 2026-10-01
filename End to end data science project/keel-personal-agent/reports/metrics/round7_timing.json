@@ -1,0 +1,14 @@
+{
+  "minilm_l6": {
+    "questions": 16,
+    "pairs": 480,
+    "seconds": 3.05,
+    "ms_per_question": 190.4
+  },
+  "minilm_l12": {
+    "questions": 16,
+    "pairs": 480,
+    "seconds": 6.12,
+    "ms_per_question": 382.8
+  }
+}

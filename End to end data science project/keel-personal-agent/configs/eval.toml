@@ -36,11 +36,11 @@ also_compare = ["embedding", "lexical", "recent"]
 [live]
 personas = 30
 split = "holdout"                  # the round 2 held-out wordings, direct and indirect
-# Amended before any run, after round 4 changed the agent's default; see the plan.
-arms = ["recent", "lexical", "transformer", "keel+embed", "keel+transformer", "full"]
+# Amended before any run, after rounds 4 and 7 changed the agent's default; see the plan.
+arms = ["recent", "lexical", "transformer", "keel+transformer", "keel+rerank", "full"]
 model = "claude-opus-5-5"
 effort = "low"
-candidate = "keel+transformer"
+candidate = "keel+rerank"
 must_beat = "transformer"
 
 # Round 4: transformer sentence encoders. Fixed before any transformer run.
@@ -102,7 +102,7 @@ sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
 pooling = "mean"
 
 # Round 7: cross-encoder reranking. Fixed before any cross-encoder was run on benchmark text.
-# The rerankers' SHA-256s are recorded on first download, before any benchmark run.
+# The rerankers' revisions and SHA-256s were pinned on first download, before any benchmark run.
 [round7]
 split = "holdout5"                 # sixth held-out set, 16 direct + 16 indirect wordings
 tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4"]   # all already seen
@@ -117,10 +117,10 @@ must_beat = "keel+larger"          # the shipped default: mpnet at w = 12.0, no 
 
 [round7.rerankers.minilm_l6]
 name = "ms-marco-MiniLM-L-6-v2"
-files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/onnx/model.onnx", sha256 = "" }
-files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/tokenizer.json", sha256 = "" }
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model.onnx", sha256 = "c623d0bcb99f4622beb413eaef00cfbe5db20df9f1dd982da4b4f26022881870" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 
 [round7.rerankers.minilm_l12]
 name = "ms-marco-MiniLM-L-12-v2"
-files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/main/onnx/model.onnx", sha256 = "" }
-files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/main/tokenizer.json", sha256 = "" }
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/42a4a787e30451cf9dbd09080c2a5b8dde332c1e/onnx/model.onnx", sha256 = "3a6d50ce60de831c8c68197df674eeb878d4ff34bb1aca5d1f3cb346c9075dba" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/42a4a787e30451cf9dbd09080c2a5b8dde332c1e/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }

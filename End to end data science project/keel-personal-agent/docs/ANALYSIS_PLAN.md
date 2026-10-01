@@ -564,3 +564,46 @@ and nothing changes.
 - Every setting on every tuning set.
 - Direct and indirect wordings separately.
 - Reranking speed for each model on one CPU thread.
+
+### Outcome
+
+Run once, as planned, after both rerankers' revisions and checksums were committed. On the
+five already-seen sets, `ms-marco-MiniLM-L-6-v2` on the top 20 at `w_r = 2` had the highest
+mean clean-hit rate (88.6%, against 87.3% without reranking and 88.0% at best for the
+12-layer model). On the sixth held-out set at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+larger` (mpnet, `w = 12.0`, no reranking) | 85.8% | 100.0% | 71.6% |
+| `keel+rerank` (+ L-6 reranker, top 20, `w_r = 2`) | 88.1% | 99.9% | 76.2% |
+
+`keel+rerank` − `keel+larger`: **+2.3 points** (95% CI +1.9 to +2.6). Indirect wordings
+gained 4.6 points (+3.9 to +5.3); direct wordings lost 0.1 (−0.2 to 0.0). The lower bound
+clears the 1-point bar, so **the L-6 reranker on the top 20 at `w_r = 2` is adopted** as
+the agent's default second stage. Full tables: `reports/metrics/round7.md`.
+
+Things to keep in mind:
+
+- **The logit alone is worse than no reranking.** On the tuning sets, every reranker-only
+  setting scored below the current retriever (84.2% to 86.5% against 87.3%), and longer
+  lists made it worse. The gain comes from blending.
+- **The chosen setting is inside the grid.** Neither the list size nor the weight is at an
+  edge; 20 and 30 candidates were within 0.1 points of each other.
+- **Direct questions moved slightly the wrong way.** −0.1 points, with an interval
+  touching zero: a handful of direct questions that were right are now wrong.
+- **Cost.** A 91 MB download, and about 130 ms per question on one CPU thread for 20
+  candidates (the 12-layer model takes twice as long). Unlike embeddings, this cost is
+  paid on every question, not once per memory.
+- **CI reproduction.** The run took 30 minutes on one CPU thread.
+
+## Round 3 amendment 2
+
+Made after round 7 and **before any live run**, for the same reason as the first
+amendment: round 7 changed what ships. The number of arms and API calls is unchanged:
+
+- **Arms:** `recent`, `lexical`, `transformer`, `keel+transformer`, `keel+rerank`, `full`.
+  `keel+embed` (the WordLlama fallback) is dropped to make room for `keel+rerank`.
+- **Pass rule:** `keel+rerank` must beat `transformer` (plain dense retrieval with the
+  same encoder) on answer accuracy, with the 95% paired interval entirely above zero.
+  `keel+transformer` stays as an arm, so the reranker's own effect on answers is reported.
+
