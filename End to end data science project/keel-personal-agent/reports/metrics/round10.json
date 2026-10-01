@@ -1,0 +1,160 @@
+{
+  "encoders": {
+    "mpnet": "all-mpnet-base-v2",
+    "minilm": "all-MiniLM-L6-v2",
+    "minilm_l12": "all-MiniLM-L12-v2"
+  },
+  "model_mb": {
+    "mpnet": 435.8,
+    "minilm": 90.4,
+    "minilm_l12": 133.1
+  },
+  "reranker": "ms-marco-MiniLM-L-6-v2 (int8)",
+  "k": 5,
+  "personas": 200,
+  "tuning_splits": [
+    "dev",
+    "holdout",
+    "holdout2",
+    "holdout3",
+    "holdout4",
+    "holdout5",
+    "holdout6"
+  ],
+  "current": {
+    "encoder": "mpnet",
+    "weight": 12.0
+  },
+  "baseline": {
+    "dev": 0.9928125,
+    "holdout": 0.88390625,
+    "holdout2": 0.75671875,
+    "holdout3": 0.89765625,
+    "holdout4": 0.89515625,
+    "holdout5": 0.88,
+    "holdout6": 0.91671875,
+    "mean": 0.8889955357142858
+  },
+  "tuning": {
+    "minilm": {
+      "0.5": {
+        "dev": 0.9815625,
+        "holdout": 0.87859375,
+        "holdout2": 0.76734375,
+        "holdout3": 0.84828125,
+        "holdout4": 0.8575,
+        "holdout5": 0.85546875,
+        "holdout6": 0.91546875,
+        "mean": 0.8720312499999999
+      },
+      "1.0": {
+        "dev": 0.980625,
+        "holdout": 0.87578125,
+        "holdout2": 0.768125,
+        "holdout3": 0.8453125,
+        "holdout4": 0.86375,
+        "holdout5": 0.86484375,
+        "holdout6": 0.91546875,
+        "mean": 0.8734151785714287
+      },
+      "2.0": {
+        "dev": 0.9790625,
+        "holdout": 0.8740625,
+        "holdout2": 0.76921875,
+        "holdout3": 0.8465625,
+        "holdout4": 0.86703125,
+        "holdout5": 0.8665625,
+        "holdout6": 0.91453125,
+        "mean": 0.8738616071428572
+      },
+      "3.0": {
+        "dev": 0.979375,
+        "holdout": 0.875,
+        "holdout2": 0.77140625,
+        "holdout3": 0.8640625,
+        "holdout4": 0.86734375,
+        "holdout5": 0.8640625,
+        "holdout6": 0.913125,
+        "mean": 0.8763392857142858
+      },
+      "4.0": {
+        "dev": 0.9809375,
+        "holdout": 0.87796875,
+        "holdout2": 0.77046875,
+        "holdout3": 0.87640625,
+        "holdout4": 0.8659375,
+        "holdout5": 0.863125,
+        "holdout6": 0.9121875,
+        "mean": 0.8781473214285714
+      }
+    },
+    "minilm_l12": {
+      "0.5": {
+        "dev": 0.98125,
+        "holdout": 0.87515625,
+        "holdout2": 0.76265625,
+        "holdout3": 0.85265625,
+        "holdout4": 0.85828125,
+        "holdout5": 0.87171875,
+        "holdout6": 0.9159375,
+        "mean": 0.8739508928571429
+      },
+      "1.0": {
+        "dev": 0.978125,
+        "holdout": 0.8709375,
+        "holdout2": 0.7640625,
+        "holdout3": 0.85,
+        "holdout4": 0.8609375,
+        "holdout5": 0.87859375,
+        "holdout6": 0.91390625,
+        "mean": 0.8737946428571429
+      },
+      "2.0": {
+        "dev": 0.980625,
+        "holdout": 0.869375,
+        "holdout2": 0.76328125,
+        "holdout3": 0.8503125,
+        "holdout4": 0.86421875,
+        "holdout5": 0.88171875,
+        "holdout6": 0.91390625,
+        "mean": 0.8747767857142857
+      },
+      "3.0": {
+        "dev": 0.980625,
+        "holdout": 0.86921875,
+        "holdout2": 0.76171875,
+        "holdout3": 0.88109375,
+        "holdout4": 0.865625,
+        "holdout5": 0.883125,
+        "holdout6": 0.91171875,
+        "mean": 0.8790178571428571
+      },
+      "4.0": {
+        "dev": 0.983125,
+        "holdout": 0.86828125,
+        "holdout2": 0.76046875,
+        "holdout3": 0.885625,
+        "holdout4": 0.86640625,
+        "holdout5": 0.884375,
+        "holdout6": 0.90734375,
+        "mean": 0.8793750000000001
+      }
+    }
+  },
+  "best_weight": {
+    "minilm": 4.0,
+    "minilm_l12": 4.0
+  },
+  "eligible": [],
+  "chosen": null,
+  "splits": {},
+  "comparisons": {},
+  "pass_rule": {
+    "candidate": "keel+smaller",
+    "must_beat": "keel+rerank",
+    "split": "holdout7",
+    "margin": 0.01,
+    "passed": null,
+    "outcome": "no smaller encoder came within 0.5 points on the tuning sets; mpnet kept"
+  }
+}

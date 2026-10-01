@@ -287,3 +287,25 @@ def test_round9_runner_with_stand_ins(tmp_path):
     assert set(results["splits"]) == {"holdout7", "holdout7_direct", "holdout7_indirect"}
     assert set(timings) == set(plan["encoders"])
     assert "Round 9: smaller encoders" in round9_markdown(results, timings)
+
+
+def test_round10_reuses_round9_with_its_own_grid(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    plan = load_config(CONFIG)["round10"]
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    sizes = {key: 100.0 + i for i, key in enumerate(plan["encoders"])}
+    results, timings = run_round9(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=sizes,
+        clock=lambda: float(next(ticks)),
+        section="round10",
+    )
+    assert set(results["tuning"]) == {"minilm", "minilm_l12"}
+    for row in results["tuning"].values():
+        assert set(row) == {str(w) for w in plan["weight_grid"]}
+    assert all(w < 4.5 for w in results["best_weight"].values())
+    assert "Round 10: MiniLM below weight 4" in round9_markdown(results, timings, section="round10")

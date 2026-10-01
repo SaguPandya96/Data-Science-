@@ -1,0 +1,17 @@
+{
+  "mpnet": {
+    "texts": 79,
+    "seconds": 2.51,
+    "texts_per_second": 31.5
+  },
+  "minilm": {
+    "texts": 79,
+    "seconds": 0.34,
+    "texts_per_second": 232.5
+  },
+  "minilm_l12": {
+    "texts": 79,
+    "seconds": 0.82,
+    "texts_per_second": 96.1
+  }
+}

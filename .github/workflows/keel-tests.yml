@@ -101,18 +101,22 @@ jobs:
       - name: Rerun round 9 (smaller encoders)
         run: python scripts/run_round9.py > /dev/null
 
+      - name: Rerun round 10 (MiniLM below weight 4)
+        run: python scripts/run_round10.py > /dev/null
+
       - name: Real encoders and rerankers are deterministic
         run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py tests/test_rerank.py
 
       - name: Committed metrics match a fresh run
         # Every number in the README comes from these files. Rounds 1 and 2 must regenerate
-        # exactly. Rounds 4 to 9 use transformer models, whose last bits vary with the
+        # exactly. Rounds 4 to 10 use transformer models, whose last bits vary with the
         # runner's CPU, so their decisions must match exactly and their rates to within 0.1
         # points (scripts/check_metrics.py). Timing files depend on the machine and are left out.
         run: |
           git diff --exit-code -- reports/metrics ':!reports/metrics/*_timing.json' \
             ':!reports/metrics/round4.*' ':!reports/metrics/round5.*' ':!reports/metrics/round6.*' \
-            ':!reports/metrics/round7.*' ':!reports/metrics/round8.*' ':!reports/metrics/round9.*'
+            ':!reports/metrics/round7.*' ':!reports/metrics/round8.*' ':!reports/metrics/round9.*' \
+            ':!reports/metrics/round10.*'
           python scripts/check_metrics.py reports/metrics/round4.json \
             reports/metrics/round5.json reports/metrics/round6.json reports/metrics/round7.json \
-            reports/metrics/round8.json reports/metrics/round9.json
+            reports/metrics/round8.json reports/metrics/round9.json reports/metrics/round10.json

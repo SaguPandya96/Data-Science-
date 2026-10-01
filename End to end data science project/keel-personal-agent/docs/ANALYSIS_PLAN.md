@@ -800,3 +800,61 @@ Things to keep in mind:
   against about 40 for mpnet. Each memory is embedded once, so for one person this is
   seconds either way.
 
+
+## Round 10: MiniLM below weight 4
+
+Written after round 9 was merged and before any weight below 4 was run in this round.
+
+### The question
+
+In round 9, both MiniLM encoders did best at `w = 4`, the smallest weight tried, and got
+steadily worse above it: MiniLM-L6 scored 87.8% and MiniLM-L12 87.9%, against 88.9% for
+mpnet. With a weight below 4, does either come within 0.5 points of mpnet?
+
+This round was prompted by round 9's own tuning results, which come from the same
+already-seen sets used here. Picking a weight on them is fine, but the gain they show
+will be optimistic. That is why the held-out test below matters.
+
+### Encoders and weights
+
+`all-MiniLM-L6-v2` (90 MB) and `all-MiniLM-L12-v2` (133 MB), as pinned in round 9, each at
+`w` ∈ {0.5, 1, 2, 3, 4}. Weight 4 repeats round 9's best as an anchor. Both run under the
+shipped int8 reranker on the top 20, weight 2.0, exactly as in round 9.
+
+### Choosing and testing
+
+Exactly as in round 9:
+
+1. Each encoder's weight is chosen on the mean clean-hit rate over the same seven
+   already-seen sets. Ties go to the smaller weight.
+2. An encoder more than 0.5 points below mpnet there is not taken further.
+3. Of the rest, the smaller model is chosen (MiniLM-L6 before MiniLM-L12).
+
+The test set is `HOLDOUT7`. It was committed for round 9, which never reached it, so it
+has still not been run by any method.
+
+### Pass rule
+
+**Adopted if the 95% persona-bootstrap interval of the paired clean-hit difference against
+mpnet on `HOLDOUT7` has a lower bound of at least −1 point.** If no encoder qualifies on
+the tuning sets, `HOLDOUT7` stays unseen.
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the seven already-seen sets (mpnet: 88.9%):
+
+| Encoder | `w = 0.5` | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- | --- |
+| `all-MiniLM-L6-v2` | 87.2% | 87.3% | 87.4% | 87.6% | 87.8% |
+| `all-MiniLM-L12-v2` | 87.4% | 87.4% | 87.5% | 87.9% | 87.9% |
+
+**Weight 4 was the peak after all.** Both encoders get worse below it, so round 9's
+best weights stand, and neither comes within 0.5 points of mpnet. **mpnet is kept** and
+`HOLDOUT7` is still unseen. Full tables: `reports/metrics/round10.md`.
+
+The weight-4 anchor came out 0.01 to 0.02 points below round 9's figure (87.815% against
+87.828% for MiniLM-L6, 87.938% against 87.949% for MiniLM-L12). The code and models are the
+same, but a different weight grid sends texts through the encoder in different batches.
+That can change the last bits of a few vectors and flip one or two near-ties among 22,400
+questions: the same effect that led CI to compare transformer rounds within 0.1 points.
+

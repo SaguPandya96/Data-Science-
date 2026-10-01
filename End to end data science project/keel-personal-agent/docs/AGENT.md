@@ -274,7 +274,7 @@ correct. Unknown tools are rejected the same way.
 2. Try embedding weights above 12, where round 6 stopped. Shrinking the encoder has not
    worked yet: plain int8 lost about 2.3 points (round 8), and four full-precision
    encoders a third of the size or less lost 1.0 to 3.1 points even with the reranker on
-   top (round 9). Weights below 4 for the small MiniLM models are untested.
+   top (round 9), and lower weights did not help MiniLM (round 10).
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.
