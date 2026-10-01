@@ -13,6 +13,8 @@ from keel.evaluation.benchmark import load_config
 from keel.evaluation.round7 import load_rerankers, run_round7, to_markdown
 from keel.evaluation.round8 import run_round8
 from keel.evaluation.round8 import to_markdown as round8_markdown
+from keel.evaluation.round9 import run_round9
+from keel.evaluation.round9 import to_markdown as round9_markdown
 from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
@@ -257,3 +259,31 @@ def test_round8_runner_with_stand_ins(tmp_path):
     assert set(results["splits"]) == {"holdout6", "holdout6_direct", "holdout6_indirect"}
     assert set(timings) == {"encoder:fp32", "encoder:int8", "reranker:fp32", "reranker:int8"}
     assert "Round 8: quantized models" in round8_markdown(results, timings)
+
+
+def test_round9_runner_with_stand_ins(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    plan = load_config(CONFIG)["round9"]
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    # The current encoder is also offered as a stand-in "smaller" one, so one must qualify.
+    encoders["minilm"] = encoders[plan["current"]["encoder"]]
+    sizes = {key: 100.0 + i for i, key in enumerate(plan["encoders"])}
+    results, timings = run_round9(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=sizes,
+        clock=lambda: float(next(ticks)),
+    )
+    smaller = set(plan["encoders"]) - {plan["current"]["encoder"]}
+    assert set(results["tuning"]) == smaller
+    for row in results["tuning"].values():
+        assert set(row) == {str(w) for w in plan["weight_grid"]}
+    assert "minilm" in results["eligible"]
+    assert results["chosen"] is not None
+    assert results["pass_rule"]["passed"] is not None
+    assert set(results["splits"]) == {"holdout7", "holdout7_direct", "holdout7_indirect"}
+    assert set(timings) == set(plan["encoders"])
+    assert "Round 9: smaller encoders" in round9_markdown(results, timings)
