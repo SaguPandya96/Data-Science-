@@ -208,3 +208,39 @@ files."tokenizer.json" = { url = "https://huggingface.co/Xenova/gte-small/resolv
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+# Round 10: MiniLM below weight 4. Fixed before any weight below 4 was run in this round.
+[round10]
+split = "holdout7"                 # still unseen: round 9 never reached it
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6"]
+current = { encoder = "mpnet", weight = 12.0 }
+weight_grid = [0.5, 1.0, 2.0, 3.0, 4.0]   # 4 repeats round 9's best, as an anchor
+candidates = 20
+rerank_weight = 2.0
+max_tuning_drop = 0.005
+margin = 0.01
+candidate = "keel+smaller"
+must_beat = "keel+rerank"
+
+[round10.encoders.mpnet]
+name = "all-mpnet-base-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
+sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+pooling = "mean"
+
+[round10.encoders.minilm]
+name = "all-MiniLM-L6-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
+sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+pooling = "mean"
+
+[round10.encoders.minilm_l12]
+name = "all-MiniLM-L12-v2"
+pooling = "mean"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-MiniLM-L12-v2/resolve/beeb2e4b69e95f188a15cc2e90d09fd035dac229/onnx/model.onnx", sha256 = "ac10e6b99832408b7a505c07226d48b1c7d4d7fbd12bf3421095ad0ce31fff51" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-MiniLM-L12-v2/resolve/beeb2e4b69e95f188a15cc2e90d09fd035dac229/tokenizer.json", sha256 = "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0" }
+
+[round10.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
