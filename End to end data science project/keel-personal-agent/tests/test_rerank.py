@@ -11,6 +11,8 @@ import pytest
 
 from keel.evaluation.benchmark import load_config
 from keel.evaluation.round7 import load_rerankers, run_round7, to_markdown
+from keel.evaluation.round8 import run_round8
+from keel.evaluation.round8 import to_markdown as round8_markdown
 from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
@@ -212,3 +214,39 @@ def test_recall_with_a_reranked_retriever_skips_constraints(toolbox):
     found = json.loads(toolbox.run("t", "recall", {"query": "Lisbon", "limit": 1}).output)
     assert [m["text"] for m in found] == ["Moved to Lisbon."]
     assert toolbox.context.retriever.base.core_max == 2  # the agent's own copy is unchanged
+
+
+def test_round8_runner_with_stand_ins(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    plan = load_config(CONFIG)["round8"]
+    ticks = iter(range(100))
+    sizes = {
+        "encoder:fp32": 436.0,
+        "encoder:int8": 110.0,
+        "reranker:fp32": 91.0,
+        "reranker:int8": 23.0,
+    }
+    results, timings = run_round8(
+        small,
+        encoders={"fp32": HashingEmbedder(64), "int8": HashingEmbedder(48)},
+        rerankers={"fp32": OverlapReranker(), "int8": OverlapReranker()},
+        sizes=sizes,
+        clock=lambda: float(next(ticks)),
+    )
+    assert set(results["tuning"]) == {
+        "encoder int8, reranker fp32",
+        "encoder fp32, reranker int8",
+        "encoder int8, reranker int8",
+    }
+    assert set(results["tuning"]["encoder int8, reranker int8"]) == {
+        str(w) for w in plan["int8_encoder_weights"]
+    }
+    # The two rerankers are identical stand-ins, so the int8 reranker ties the current one
+    # on every set and must qualify; the smallest qualifying variant is chosen.
+    assert "encoder fp32, reranker int8" in results["eligible"]
+    assert results["chosen"] is not None
+    assert results["pass_rule"]["passed"] is not None
+    assert set(results["splits"]) == {"holdout6", "holdout6_direct", "holdout6_indirect"}
+    assert set(timings) == {"encoder:fp32", "encoder:int8", "reranker:fp32", "reranker:int8"}
+    assert "Round 8: quantized models" in round8_markdown(results, timings)
