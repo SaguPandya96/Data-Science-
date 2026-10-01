@@ -288,6 +288,28 @@ squeezing it to int8 visibly blurred its vectors (cosine 0.82 to 0.92 against th
 model on neutral test sentences); the reranker only reorders a short list, and int8 cost
 it nothing measurable.
 
+### Round 9: a smaller encoder
+
+After round 8, almost all of the first download is the encoder (mpnet, 436 MB). Round 9
+asked whether a full-precision encoder a third of the size or less, with the reranker on
+top, is no worse than mpnet. Four were tried, each at weights from 4 to 48 chosen on the
+seven question sets already seen. Any within 0.5 points of mpnet would have gone on to a
+fresh set.
+
+| Encoder | Size | Best weight | Already-seen sets | vs mpnet (88.9%) |
+| --- | --- | --- | --- | --- |
+| `all-MiniLM-L12-v2` | 133 MB | 4 | 87.9% | −1.0 |
+| `all-MiniLM-L6-v2` | 90 MB | 4 | 87.8% | −1.1 |
+| `gte-small` | 133 MB | 24 | 87.6% | −1.3 |
+| `bge-small-en-v1.5` | 133 MB | 4 | 85.8% | −3.1 |
+
+Source: [`reports/metrics/round9.md`](reports/metrics/round9.md).
+
+**None qualified, so mpnet stays** and the fresh set was not used. The reranker did close
+most of the gap: before it existed, MiniLM trailed mpnet by 3.8 points (round 6); with it,
+by about 1.1, still more than the 0.5-point bar set in advance. One caveat: three of the four did best at the
+lowest weight tried (4), so a weight below 4 might narrow the gap a little further.
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
@@ -339,6 +361,7 @@ python scripts/run_round5.py             # round 5 (weight grid for MiniLM)
 python scripts/run_round6.py             # round 6 (larger encoders; downloads ~600 MB once)
 python scripts/run_round7.py             # round 7 (rerankers; downloads ~225 MB once, ~30 min)
 python scripts/run_round8.py             # round 8 (int8 models; downloads ~135 MB once, ~20 min)
+python scripts/run_round9.py             # round 9 (smaller encoders; downloads ~490 MB once, ~20 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -355,7 +378,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 8 run transformer models,
+than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 9 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout

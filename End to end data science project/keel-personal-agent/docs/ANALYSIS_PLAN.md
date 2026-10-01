@@ -772,3 +772,31 @@ lower bound of at least −1 point**.
 - Every encoder at every weight on every tuning set.
 - Direct and indirect wordings separately.
 - Model sizes and embedding speed on one CPU thread.
+
+### Outcome
+
+Run once, as planned. On the seven already-seen sets, mpnet at `w = 12` with the int8
+reranker scored 88.9%:
+
+| Encoder | Best weight | Mean clean hit | vs mpnet |
+| --- | --- | --- | --- |
+| `all-MiniLM-L12-v2` | 4 | 87.9% | −1.0 |
+| `all-MiniLM-L6-v2` | 4 | 87.8% | −1.1 |
+| `gte-small` | 24 | 87.6% | −1.3 |
+| `bge-small-en-v1.5` | 4 | 85.8% | −3.1 |
+
+**No encoder came within 0.5 points, so mpnet is kept** and `HOLDOUT7` was not used; it
+stays unseen for a later round. Full tables: `reports/metrics/round9.md`.
+
+Things to keep in mind:
+
+- **The reranker narrows the gap but does not close it.** MiniLM trailed mpnet by 3.8
+  points in round 6, without reranking; here, with it, by 1.1.
+- **Three encoders peaked at the edge of the grid.** MiniLM-L6, MiniLM-L12 and bge-small
+  all did best at `w = 4`, the smallest weight tried, and declined steadily above it. A
+  smaller weight might do somewhat better; this round cannot say. `gte-small` peaked in
+  the middle of the grid, at 24, as expected from its compressed similarity range.
+- **Speed.** The small encoders embedded 130 to 280 texts a second on one CPU thread,
+  against about 40 for mpnet. Each memory is embedded once, so for one person this is
+  seconds either way.
+
