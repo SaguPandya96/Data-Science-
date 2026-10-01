@@ -189,12 +189,20 @@ class KeelMemory:
     def retrieve(
         self, memories: Sequence[Memory], query: str, now: datetime, k: int
     ) -> list[Memory]:
+        chosen, rest, scores = self.score_pool(memories, query, now, k)
+        return chosen + _top_k(rest, scores, k - len(chosen), dedupe=self.use_dedupe)
+
+    def score_pool(
+        self, memories: Sequence[Memory], query: str, now: datetime, k: int
+    ) -> tuple[list[Memory], list[Memory], list[float]]:
+        """Steps 1 to 3: the constraints that always go in, then every other candidate with
+        its hybrid score."""
         if self.use_supersession:
             pool = [m for m in memories if m.active]
         else:
             pool = [m for m in memories if not m.deleted]
         if k <= 0 or not pool:
-            return []
+            return [], [], []
 
         chosen: list[Memory] = []
         if self.use_core and self.core_max > 0:
@@ -205,9 +213,9 @@ class KeelMemory:
 
         rest = [m for m in pool if m not in chosen]
         if not rest:
-            return chosen
+            return chosen, [], []
         weights = expand(query) if self.use_expansion else dict.fromkeys(tokens(query), 1.0)
-        docs = [indexed_text(m) if self.use_keys else m.text for m in rest]
+        docs = [self.document(m) for m in rest]
         lexical = bm25_scores(docs, weights)
         top = max(lexical) or 1.0
         semantic = [0.0] * len(rest)
@@ -225,7 +233,11 @@ class KeelMemory:
                 + self.recency_weight * recency
                 + self.importance_weight * importance
             )
-        return chosen + _top_k(rest, scores, k - len(chosen), dedupe=self.use_dedupe)
+        return chosen, rest, scores
+
+    def document(self, memory: Memory) -> str:
+        """The text Keel searches for this memory."""
+        return indexed_text(memory) if self.use_keys else memory.text
 
 
 # Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).

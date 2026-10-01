@@ -487,3 +487,80 @@ Things to keep in mind:
   embedded about 50 texts a second against about 340 for MiniLM. Each memory is embedded
   once and cached, so for one person's memory this is a one-off cost of seconds, but it
   would matter at scale.
+
+## Round 7: cross-encoder reranking
+
+Written after round 6 was merged and before any cross-encoder was run on benchmark text.
+
+### The question
+
+Direct questions are at 100%, so what remains is indirect ones: 78.5% clean hit on the
+round 6 held-out set. Keel compares a question and a memory through two separate vectors.
+A cross-encoder reads them together, which should be better at implied links such as
+"Whose local sports team should I cheer for?" and "Moved to Lisbon". It is too slow to run
+on every memory, so it only reorders a short list chosen by Keel's existing score.
+
+Before writing this plan, one thing was measured on question sets that have already been
+seen: how often the current memory is anywhere in that short list. For indirect wordings,
+it is in the 5 that get shown 49% to 79% of the time, but in the top 20 candidates 86% to
+93% of the time. So a reranker has room to help. It cannot fix a miss that the short
+list leaves out.
+
+### Rerankers
+
+Both are from the ms-marco MiniLM family, trained on web search queries and passages, and
+run on CPU with ONNX Runtime. The ONNX exports are fetched as separate files, and each
+file's SHA-256 is written into `configs/eval.toml` on first download, before any benchmark
+run:
+
+| Reranker | Layers | Download |
+| --- | --- | --- |
+| `ms-marco-MiniLM-L-6-v2` | 6 | about 90 MB |
+| `ms-marco-MiniLM-L-12-v2` | 12 | about 130 MB |
+
+Larger rerankers such as `bge-reranker-base` (about 1.1 GB) are not tried, for the same
+download-size reason that E5-large was left out of round 6.
+
+Memories are short first-person notes, not web passages. Whether a search-trained
+reranker transfers to them is part of what this round tests.
+
+### The arm
+
+The first stage is the shipped retriever, unchanged: Keel with `all-mpnet-base-v2` at
+`w = 12.0`. The always-on constraints are chosen as before. The `n` best other memories by
+Keel's hybrid score are then rescored, either as
+
+- the hybrid score plus `w_r` × the cross-encoder's logit, or
+- the cross-encoder's logit alone.
+
+Memories outside the short list are never shown.
+
+### Choosing the setting
+
+Every combination of reranker, `n` ∈ {10, 20, 30} and `w_r` ∈ {0.25, 0.5, 1, 2, 4,
+logit alone} is scored on the **mean clean-hit rate over five question sets that have all
+been seen**: dev and the round 2, 4, 5 and 6 held-out sets. The best combination is
+chosen. Ties go to the smaller model, then the shorter list, then blending before logit
+alone, then the smaller weight. If no combination beats the current retriever's mean on
+those sets, nothing changes and the held-out set is not used.
+
+### New held-out questions
+
+A sixth set, `HOLDOUT5` in `keel.evaluation.scenarios`, was written and committed before
+any cross-encoder was run: one direct and one indirect wording per detail, none repeating
+an earlier wording, and none written with any reranker's output in view. It is run once,
+after the choice is made.
+
+### Pass rule
+
+The chosen setting is compared with the current retriever on `HOLDOUT5` at `k = 5`. A
+reranker adds a download and a model call on every question, so it is **adopted only if
+the 95% persona-bootstrap interval of the paired clean-hit difference has a lower bound of
+at least 1 point**. If the interval is above zero but below that bar, the gain is reported
+and nothing changes.
+
+### Reported, not part of the rule
+
+- Every setting on every tuning set.
+- Direct and indirect wordings separately.
+- Reranking speed for each model on one CPU thread.

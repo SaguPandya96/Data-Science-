@@ -253,8 +253,11 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Try embedding weights above 12, where round 6 stopped, and a quantized mpnet to cut
+2. Run round 7, cross-encoder reranking of Keel's short list. The plan, held-out set and
+   runner are committed (`docs/ANALYSIS_PLAN.md`, `scripts/run_round7.py`); the run
+   needs the two rerankers downloaded and their checksums pinned.
+3. Try embedding weights above 12, where round 6 stopped, and a quantized mpnet to cut
    the download and embedding time.
-3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
+4. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
-4. Real calendar and mail integrations behind the existing approval gate.
+5. Real calendar and mail integrations behind the existing approval gate.

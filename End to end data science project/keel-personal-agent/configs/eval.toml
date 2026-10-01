@@ -100,3 +100,27 @@ name = "all-mpnet-base-v2"
 url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
 sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
 pooling = "mean"
+
+# Round 7: cross-encoder reranking. Fixed before any cross-encoder was run on benchmark text.
+# The rerankers' SHA-256s are recorded on first download, before any benchmark run.
+[round7]
+split = "holdout5"                 # sixth held-out set, 16 direct + 16 indirect wordings
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4"]   # all already seen
+first_stage = "mpnet"              # round6.encoders key: the shipped encoder, at its weight
+first_stage_weight = 12.0
+candidates_grid = [10, 20, 30]     # short list the cross-encoder reorders
+weight_grid = [0.25, 0.5, 1.0, 2.0, 4.0]   # hybrid score + weight * cross-encoder logit
+rerank_only = true                 # also try ordering the short list by the logit alone
+min_gain = 0.01                    # adopt only if the 95% interval's lower bound is >= 1 point
+candidate = "keel+rerank"
+must_beat = "keel+larger"          # the shipped default: mpnet at w = 12.0, no reranking
+
+[round7.rerankers.minilm_l6]
+name = "ms-marco-MiniLM-L-6-v2"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/onnx/model.onnx", sha256 = "" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/tokenizer.json", sha256 = "" }
+
+[round7.rerankers.minilm_l12]
+name = "ms-marco-MiniLM-L-12-v2"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/main/onnx/model.onnx", sha256 = "" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/main/tokenizer.json", sha256 = "" }
