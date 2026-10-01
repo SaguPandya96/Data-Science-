@@ -1,4 +1,8 @@
-"""Round 9: can a smaller encoder replace mpnet under the reranker? (docs/ANALYSIS_PLAN.md)"""
+"""Rounds 9 and 10: can a smaller encoder replace mpnet under the reranker?
+
+Round 10 reruns round 9's procedure with a different weight grid (docs/ANALYSIS_PLAN.md),
+so both use this module, each with its own section of configs/eval.toml.
+"""
 
 from __future__ import annotations
 
@@ -18,6 +22,7 @@ from keel.memory.rerank import OnnxCrossEncoder, RerankedMemory, Reranker
 from keel.memory.retrieval import Retriever
 
 SPLITS = ("holdout7", "holdout7_direct", "holdout7_indirect")
+TITLES = {"round9": "Round 9: smaller encoders", "round10": "Round 10: MiniLM below weight 4"}
 
 
 def load_reranker(plan: dict[str, Any], cache_dir: Path | None = None) -> Reranker:
@@ -41,11 +46,12 @@ def run_round9(
     reranker: Reranker | None = None,
     sizes: Mapping[str, float] | None = None,
     clock: Callable[[], float] = time.perf_counter,
+    section: str = "round9",
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Returns (results, timings). Timings vary by machine, so they are kept apart."""
     config = load_config(config_path)
     bench, retrieval, analysis = config["benchmark"], config["retrieval"], config["analysis"]
-    plan = config["round9"]
+    plan = config[section]
     seed, k, core_max = bench["seed"], retrieval["k"], retrieval["core_max"]
     resamples, confidence = analysis["bootstrap_resamples"], analysis["confidence"]
     encoders = dict(encoders or load_encoders(plan))
@@ -171,7 +177,9 @@ def run_round9(
     )
 
 
-def to_markdown(results: dict[str, Any], timings: dict[str, Any] | None = None) -> str:
+def to_markdown(
+    results: dict[str, Any], timings: dict[str, Any] | None = None, section: str = "round9"
+) -> str:
     def pct(stat: dict) -> str:
         return f"{100 * stat['mean']:.1f}% ({100 * stat['low']:.1f} to {100 * stat['high']:.1f})"
 
@@ -184,7 +192,7 @@ def to_markdown(results: dict[str, Any], timings: dict[str, Any] | None = None) 
     names = results["encoders"]
     current = results["current"]
     lines = [
-        "# Round 9: smaller encoders",
+        f"# {TITLES[section]}",
         "",
         f"Every encoder runs under `{results['reranker']}` on the top 20. "
         f"{results['personas']} personas, k = {results['k']}. Intervals are 95% persona "
