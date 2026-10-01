@@ -706,3 +706,69 @@ Things to keep in mind:
   against 88.1% on round 7's set. That is a property of the questions, which is why each
   comparison is made within one set.
 
+
+## Round 9: smaller encoders
+
+Written after round 8 was merged and before any of the smaller encoders was run on
+benchmark text in this round.
+
+### The question
+
+After round 8, almost all of Keel's first download is the encoder: `all-mpnet-base-v2`,
+436 MB as ONNX. An int8 copy of it lost about 2.3 points. Since round 7, a cross-encoder
+reranker now sits on top of the encoder and reorders its top 20. Can a full-precision
+encoder a third of the size or less, with that reranker on top, do as well as mpnet?
+
+Like round 8, this asks whether a smaller encoder is **no worse**, not whether it is
+better.
+
+### Encoders
+
+All four are full precision, need no query prefix, and are pinned by SHA-256 in
+`configs/eval.toml`. MiniLM and bge-small were run in rounds 4 to 6, before the reranker
+existed.
+
+| Encoder | Parameters | ONNX size | Pooling |
+| --- | --- | --- | --- |
+| `all-mpnet-base-v2` (current) | 110M | 436 MB | mean |
+| `all-MiniLM-L6-v2` | 22M | 90 MB | mean |
+| `bge-small-en-v1.5` | 33M | 133 MB | CLS |
+| `all-MiniLM-L12-v2` | 33M | 133 MB | mean |
+| `gte-small` | 33M | 133 MB | mean |
+
+Before writing this plan, the two new ones were run on four neutral sentences (no
+benchmark text). Both were deterministic. `gte-small` puts unrelated sentences at 0.69
+to 0.77 similarity, where the others put them near 0, so it may need a much larger weight
+in Keel's score. The weight grid is wide for that reason.
+
+### The arm
+
+Every encoder is paired with the shipped second stage: the int8 reranker on the top 20,
+blend weight 2.0. Only the encoder and its weight change.
+
+### Choosing the encoder
+
+Each smaller encoder's weight is chosen from {4, 8, 12, 16, 24, 32, 48} on the **mean
+clean-hit rate over seven question sets that have all been seen**: dev and the round 2,
+4, 5, 6, 7 and 8 held-out sets. Ties go to the smaller weight. An encoder more than 0.5
+points below the current retriever there is not taken further. Of the rest, the one with
+the **smallest model** is chosen (ties: higher tuning mean). If none is within 0.5
+points, nothing changes and the held-out set is not used.
+
+### New held-out questions
+
+An eighth set, `HOLDOUT7` in `keel.evaluation.scenarios`, was written and committed before
+any of the smaller encoders was run in this round. It has one direct and one indirect
+wording per detail, and repeats no earlier wording.
+
+### Pass rule
+
+The chosen encoder is compared with the current retriever on `HOLDOUT7` at `k = 5`. It is
+**adopted if the 95% persona-bootstrap interval of the paired clean-hit difference has a
+lower bound of at least −1 point**.
+
+### Reported, not part of the rule
+
+- Every encoder at every weight on every tuning set.
+- Direct and indirect wordings separately.
+- Model sizes and embedding speed on one CPU thread.

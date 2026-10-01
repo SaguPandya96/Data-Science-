@@ -160,3 +160,51 @@ files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+# Round 9: smaller encoders. Fixed before any of them was run on benchmark text in this round.
+[round9]
+split = "holdout7"                 # eighth held-out set, 16 direct + 16 indirect wordings
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6"]
+current = { encoder = "mpnet", weight = 12.0 }   # the shipped encoder and weight
+weight_grid = [4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0]   # chosen per smaller encoder
+candidates = 20                    # the shipped int8 reranker and its setting, unchanged
+rerank_weight = 2.0
+max_tuning_drop = 0.005            # an encoder more than 0.5 points below on tuning is not tried
+margin = 0.01                      # adopt if the 95% interval's lower bound is >= -1 point
+candidate = "keel+smaller"
+must_beat = "keel+rerank"
+
+[round9.encoders.mpnet]
+name = "all-mpnet-base-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
+sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+pooling = "mean"
+
+[round9.encoders.minilm]
+name = "all-MiniLM-L6-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
+sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+pooling = "mean"
+
+[round9.encoders.bge_small]
+name = "bge-small-en-v1.5"
+url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-small-en-v1.5.tar.gz"
+sha256 = "3858004b3822f64f940280874b8f2d2dc25b34a4f3eb3cdf617bdceeb21ed9ed"
+pooling = "cls"
+
+[round9.encoders.minilm_l12]
+name = "all-MiniLM-L12-v2"
+pooling = "mean"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-MiniLM-L12-v2/resolve/beeb2e4b69e95f188a15cc2e90d09fd035dac229/onnx/model.onnx", sha256 = "ac10e6b99832408b7a505c07226d48b1c7d4d7fbd12bf3421095ad0ce31fff51" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-MiniLM-L12-v2/resolve/beeb2e4b69e95f188a15cc2e90d09fd035dac229/tokenizer.json", sha256 = "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0" }
+
+[round9.encoders.gte_small]
+name = "gte-small"
+pooling = "mean"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/gte-small/resolve/5927d1727bb12db490052a1b33265ad78058de08/onnx/model.onnx", sha256 = "398a29991324e0b383afa13375d681ced3079c83e097fb1ebd9290d7498523b3" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/gte-small/resolve/5927d1727bb12db490052a1b33265ad78058de08/tokenizer.json", sha256 = "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0" }
+
+[round9.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
