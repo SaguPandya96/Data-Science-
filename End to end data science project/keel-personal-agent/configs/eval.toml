@@ -244,3 +244,73 @@ files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-MiniLM-L12-v
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+# Round 11: other encoders of mpnet's size. Fixed before any of them was run on benchmark text.
+[round11]
+split = "holdout7"                 # still unseen: rounds 9 and 10 never reached it
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6"]
+current = { encoder = "mpnet", weight = 12.0 }
+weight_grid = [4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0]   # chosen per encoder
+candidates = 20                    # the shipped int8 reranker and its setting, unchanged
+rerank_weight = 2.0
+candidate = "keel+other"
+must_beat = "keel+rerank"          # adopt only if the 95% interval's lower bound is above 0
+
+[round11.encoders.mpnet]
+name = "all-mpnet-base-v2"
+url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
+sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+pooling = "mean"
+
+[round11.encoders.gte_base]
+name = "gte-base"
+pooling = "mean"
+query_prefix = ""
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Xenova/gte-base/resolve/ffdeea73386c8c0f73931ebed6878aa715eca7d3/onnx/model.onnx", sha256 = "5a2a2a94a85a7e4645bfe7bf7635b010ba1a3e46752780f4d4172af062a260e1" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/gte-base/resolve/ffdeea73386c8c0f73931ebed6878aa715eca7d3/tokenizer.json", sha256 = "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0" }
+
+[round11.encoders.multi_qa_mpnet]
+name = "multi-qa-mpnet-base-dot-v1"
+pooling = "cls"
+query_prefix = ""
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Xenova/multi-qa-mpnet-base-dot-v1/resolve/24f038d7d7a487902c7d1430c9fae500bf2af4f5/onnx/model.onnx", sha256 = "5b9d1cb90c462fe086afb7685cb8ba31da0002701b500c9eeb3a9a732dcedba3" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/multi-qa-mpnet-base-dot-v1/resolve/24f038d7d7a487902c7d1430c9fae500bf2af4f5/tokenizer.json", sha256 = "b464564756de4c4ec0bf1354e23430e6681a363b2667770d6a453bb35ec92755" }
+
+[round11.encoders.e5_base]
+name = "e5-base-v2"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/Xenova/e5-base-v2/resolve/21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/onnx/model.onnx", sha256 = "157f97ef1957d34f52efa26f8031371bf9043acc45460cec7ebe94631ac0e96b" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/e5-base-v2/resolve/21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round11.encoders.nomic]
+name = "nomic-embed-text-v1.5"
+pooling = "mean"
+query_prefix = "search_query: "
+doc_prefix = "search_document: "
+files."model.onnx" = { url = "https://huggingface.co/nomic-ai/nomic-embed-text-v1.5/resolve/e9b6763023c676ca8431644204f50c2b100d9aab/onnx/model.onnx", sha256 = "147d5aa88c2101237358e17796cf3a227cead1ec304ec34b465bb08e9d952965" }
+files."tokenizer.json" = { url = "https://huggingface.co/nomic-ai/nomic-embed-text-v1.5/resolve/e9b6763023c676ca8431644204f50c2b100d9aab/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round11.encoders.arctic_m]
+name = "snowflake-arctic-embed-m-v1.5"
+pooling = "cls"
+query_prefix = "Represent this sentence for searching relevant passages: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-m-v1.5/resolve/e58a8f756156a1293d763f17e3aae643474e9b8a/onnx/model.onnx", sha256 = "bc6f7662487a0796e6f86229c8e5c3ab2f7059e08e0bb2f524125273f72171c4" }
+files."tokenizer.json" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-m-v1.5/resolve/e58a8f756156a1293d763f17e3aae643474e9b8a/tokenizer.json", sha256 = "91f1def9b9391fdabe028cd3f3fcc4efd34e5d1f08c3bf2de513ebb5911a1854" }
+
+[round11.encoders.bge_base]
+name = "bge-base-en-v1.5 (with query instruction)"
+pooling = "cls"
+query_prefix = "Represent this sentence for searching relevant passages: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5/resolve/4d6cd88e18e51a5e020c2c305726d76ada9c03cf/onnx/model.onnx", sha256 = "9bc579acdba21c253c62a9bf866891355a63ffa3442b52c8a37d75b2ccb91848" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5/resolve/4d6cd88e18e51a5e020c2c305726d76ada9c03cf/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round11.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
