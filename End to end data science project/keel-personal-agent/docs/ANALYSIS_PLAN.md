@@ -607,3 +607,67 @@ amendment: round 7 changed what ships. The number of arms and API calls is uncha
   same encoder) on answer accuracy, with the 95% paired interval entirely above zero.
   `keel+transformer` stays as an arm, so the reranker's own effect on answers is reported.
 
+
+## Round 8: quantized models
+
+Written after round 7 was merged and before any quantized model was run on benchmark text.
+
+### The question
+
+The shipped retriever downloads about 500 MB (mpnet 436 MB as ONNX, the reranker 91 MB)
+and spends about 130 ms per question on reranking. Both models have standard int8
+versions about four times smaller. Can they replace the full-precision models without
+losing retrieval quality?
+
+This round asks whether the smaller models are **no worse**, not whether they are better.
+
+### Models
+
+The int8 versions are dynamic-quantized ONNX exports from the same publisher as the
+round 7 rerankers, pinned by revision and SHA-256 in `configs/eval.toml`:
+
+| Model | Full precision | int8 |
+| --- | --- | --- |
+| `all-mpnet-base-v2` | 436 MB | 110 MB |
+| `ms-marco-MiniLM-L-6-v2` | 91 MB | 23 MB |
+
+Before writing this plan, both int8 models were loaded and run on four neutral sentences
+(no benchmark text). Both were deterministic. The reranker's scores were within 0.3 of
+full precision. The encoder kept the sentences in the same order of similarity, but its
+vectors agreed with full precision only at cosine 0.82 to 0.92, so it may need a
+different weight in Keel's score.
+
+### Variants
+
+The three combinations other than the current one: int8 encoder with the full reranker,
+full encoder with the int8 reranker, and both int8. The reranker keeps its shipped
+setting (top 20, weight 2.0). The full-precision encoder keeps weight 12. The int8
+encoder's weight is chosen from {8, 12, 16} on the tuning sets; ties go to 12, then to
+the smaller weight.
+
+### Choosing the variant
+
+Every variant is scored on the **mean clean-hit rate over six question sets that have all
+been seen**: dev and the round 2, 4, 5, 6 and 7 held-out sets. A variant more than 0.5
+points below the current retriever there is not taken further. Of the rest, the one with
+the **smallest combined model size** is chosen (ties: higher tuning mean). If none is
+within 0.5 points, nothing changes and the held-out set is not used.
+
+### New held-out questions
+
+A seventh set, `HOLDOUT6` in `keel.evaluation.scenarios`, was written and committed before
+any quantized model was run on benchmark text. It has one direct and one indirect wording
+per detail, and repeats no earlier wording.
+
+### Pass rule
+
+The chosen variant is compared with the current retriever on `HOLDOUT6` at `k = 5`. It is
+**adopted if the 95% persona-bootstrap interval of the paired clean-hit difference has a
+lower bound of at least −1 point**: a non-inferiority test with a 1-point margin. A
+variant that is better also passes.
+
+### Reported, not part of the rule
+
+- Every variant and int8 encoder weight on every tuning set.
+- Direct and indirect wordings separately.
+- Model sizes, embedding speed and reranking time per question on one CPU thread.
