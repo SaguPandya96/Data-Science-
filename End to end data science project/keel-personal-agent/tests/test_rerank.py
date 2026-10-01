@@ -17,7 +17,7 @@ from keel.evaluation.round9 import run_round9
 from keel.evaluation.round9 import to_markdown as round9_markdown
 from keel.evaluation.round11 import run_round11
 from keel.evaluation.round11 import to_markdown as round11_markdown
-from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
+from keel.memory.embeddings import HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
     RERANK_CANDIDATES,
@@ -26,7 +26,7 @@ from keel.memory.rerank import (
     RerankedMemory,
     default_reranker,
 )
-from keel.memory.retrieval import TRANSFORMER_WEIGHT, KeelMemory, default_retriever
+from keel.memory.retrieval import KeelMemory, default_retriever
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "eval.toml"
@@ -201,11 +201,10 @@ def test_shipped_reranker_matches_the_benchmark_results():
     precision = round8["chosen"]["reranker"] if round8["pass_rule"]["passed"] else "fp32"
     spec = plan8["rerankers"][precision]
     assert {"name": spec["name"], "files": spec["files"]} == DEFAULT_RERANKER
-    # The encoder stays at full precision unless round 8 adopted the int8 one.
+    # Round 8 kept the encoder at full precision; tests/test_transformer.py checks which
+    # encoder ships.
     encoder = round8["chosen"]["encoder"] if round8["pass_rule"]["passed"] else "fp32"
     assert encoder == "fp32"
-    assert plan8["encoders"]["fp32"]["name"] == DEFAULT_ENCODER["name"]
-    assert plan7["first_stage_weight"] == plan8["encoder_weight"] == TRANSFORMER_WEIGHT
 
 
 def test_offline_agent_runs_without_a_reranker():

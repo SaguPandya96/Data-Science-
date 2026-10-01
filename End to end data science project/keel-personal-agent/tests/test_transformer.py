@@ -21,7 +21,7 @@ from keel.memory.embeddings import (
     default_transformer,
     download_model,
 )
-from keel.memory.retrieval import TRANSFORMER_WEIGHT, default_retriever
+from keel.memory.retrieval import TRANSFORMER_WEIGHT, default_retriever, embed_query_and_docs
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "eval.toml"
@@ -78,15 +78,23 @@ def test_offline_agent_falls_back_without_error():
 def test_shipped_defaults_match_the_benchmark_results():
     """The agent ships whatever the latest adopted round chose, and nothing else."""
     metrics = ROOT / "reports" / "metrics"
-    round6 = json.loads((metrics / "round6.json").read_text())
-    plan = load_config(CONFIG)["round6"]
-    if round6["pass_rule"]["passed"]:
-        key, weight = round6["chosen"]["encoder"], round6["chosen"]["weight"]
+    config = load_config(CONFIG)
+    round11 = json.loads((metrics / "round11.json").read_text())
+    plan11 = config["round11"]
+    if round11["pass_rule"]["passed"]:
+        key, weight = round11["chosen"]["encoder"], round11["chosen"]["weight"]
     else:
-        key, weight = plan["current"]["encoder"], plan["current"]["weight"]
-    spec = plan["encoders"][key]
-    assert {k: spec[k] for k in ("name", "url", "sha256", "pooling")} == DEFAULT_ENCODER
+        key, weight = plan11["current"]["encoder"], plan11["current"]["weight"]
+    spec = plan11["encoders"][key]
+    fields = ("name", "pooling", "query_prefix", "doc_prefix", "files")
+    assert {k: spec[k] for k in fields} == DEFAULT_ENCODER
     assert weight == TRANSFORMER_WEIGHT
+    # Round 11's baseline must be what round 6 adopted and rounds 7 to 10 kept.
+    round6 = json.loads((metrics / "round6.json").read_text())
+    plan = config["round6"]
+    assert plan11["current"]["encoder"] == round6["chosen"]["encoder"]
+    assert plan11["current"]["weight"] == round6["chosen"]["weight"]
+    assert plan11["encoders"]["mpnet"]["sha256"] == plan["encoders"]["mpnet"]["sha256"]
     # Round 6's baseline must be what rounds 4 and 5 had shipped.
     round5 = json.loads((metrics / "round5.json").read_text())
     assert plan["current"]["weight"] == round5["chosen_weight"]
@@ -128,17 +136,17 @@ def test_round4_runner_with_stand_in_encoders(tmp_path):
 @pytest.mark.skipif(not os.environ.get("KEEL_TEST_MODEL_DIR"), reason="needs a downloaded encoder")
 def test_real_default_encoder_is_deterministic_and_semantic(monkeypatch):
     pytest.importorskip("onnxruntime")
-    from keel.memory.embeddings import OnnxSentenceEmbedder
 
     monkeypatch.setenv("KEEL_MODEL_DIR", os.environ["KEEL_TEST_MODEL_DIR"])
-    folder = download_model(DEFAULT_ENCODER["url"], DEFAULT_ENCODER["sha256"])
-    texts = ["A man is playing a guitar.", "Someone strums a guitar.", "Stocks fell today."]
-    pooling, name = DEFAULT_ENCODER["pooling"], DEFAULT_ENCODER["name"]
-    first = OnnxSentenceEmbedder(folder, pooling=pooling, name=name).embed(texts)
-    second = OnnxSentenceEmbedder(folder, pooling=pooling, name=name).embed(texts)
-    assert first.shape[0] == 3
-    assert (first == second).all()
-    assert first[0] @ first[1] > first[0] @ first[2] + 0.3
+    first, second = default_transformer(), default_transformer()
+    assert first is not None and second is not None
+    query = "How many people live in Berlin?"
+    docs = ["Berlin has a population of 3.5 million people.", "The cat sat on the mat."]
+    a = embed_query_and_docs(first, query, docs)
+    b = embed_query_and_docs(second, query, docs)
+    assert a.shape[0] == 3
+    assert (a == b).all()
+    assert a[0] @ a[1] > a[0] @ a[2] + 0.1
 
 
 def test_round6_runner_with_stand_in_encoders(tmp_path):

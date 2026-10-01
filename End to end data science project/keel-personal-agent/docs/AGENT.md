@@ -57,7 +57,7 @@ The design is built around three commitments:
 | Model | `model.py` | Claude client; a scripted model with the same interface for tests. |
 | Memory store | `memory/store.py` | Writes memories, retires superseded values, deletes on request. |
 | Retriever | `memory/retrieval.py` | Chooses which memories enter the prompt. |
-| Embeddings | `memory/embeddings.py` | Sentence vectors: mpnet (ONNX), WordLlama fallback; model download and checksum. |
+| Embeddings | `memory/embeddings.py` | Sentence vectors: e5 (ONNX), WordLlama fallback; model download and checksum. |
 | Reranker | `memory/rerank.py` | Cross-encoder second stage over the retriever's short list. |
 | Toolbox | `tools/registry.py` | Tool schemas, input validation, risk handling, audit log. |
 | Tools | `tools/builtin.py` | Memory, calendar, tasks, goals, notes, email, brief. |
@@ -128,18 +128,19 @@ when this fails.
 
    BM25 uses Snowball stemming and a fixed list of synonym groups for personal topics,
    with synonyms weighted at 0.6. The embedding term uses the best encoder available, with
-   its weight `w` chosen by the benchmark (rounds 2 and 6):
+   its weight `w` chosen by the benchmark (rounds 2 and 11):
 
    | Encoder | `w` | Used when |
    | --- | --- | --- |
-   | `all-mpnet-base-v2` (ONNX Runtime, CPU) | 12.0 | the `transformer` extra is installed and the model is cached or downloadable |
+   | `e5-base-v2` (ONNX Runtime, CPU) | 48.0 | the `transformer` extra is installed and the model is cached or downloadable |
    | WordLlama `l2_supercat` | 0.5 | the `embed` extra is installed |
    | none | — | neither; BM25 hybrid only |
 
-   The mpnet archive (about 400 MB) is downloaded once to `~/.cache/keel/models`, checked
-   against a pinned SHA-256 and discarded on mismatch. Inference is single-threaded so a
-   given text always produces the same vector.
-4. **Reranking.** When the encoder is mpnet and the reranker is available, the 20
+   e5 was trained with prefixes, so the question is embedded as `query: …` and each
+   memory as `passage: …`. The model (about 440 MB) is downloaded once to
+   `~/.cache/keel/models`, checked against a pinned SHA-256 and discarded on mismatch.
+   Inference is single-threaded so a given text always produces the same vector.
+4. **Reranking.** When the encoder is e5 and the reranker is available, the 20
    highest-scoring candidates are rescored by an int8 version of `ms-marco-MiniLM-L-6-v2`,
    a cross-encoder that reads the question and the memory's key and text together:
 
@@ -251,15 +252,16 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are the weak spot: 83.8% retrieved correctly on
-  the latest held-out set (benchmark round 8), against 99.5% for direct questions.
-- The first run of the agent downloads the encoder and reranker (about 400 MB and 23 MB).
+- Questions that only imply their topic are the weak spot: 84.9% retrieved correctly on
+  the latest held-out set (benchmark round 11), against 99.9% for direct questions.
+- The first run of the agent downloads the encoder and reranker (about 440 MB and 23 MB).
   Offline, it falls back to WordLlama without reranking, which retrieves less well.
 - Reranking adds about 65 ms to every turn on one CPU thread. Unlike embedding, this
   cost is paid per question, not once per memory.
 - The encoder embeds about 25 to 50 texts a second on one CPU thread, depending on the
-  machine. An int8 encoder was about 2.5 times faster but lost about 2.3 points (round 8). Fine for one person's
-  memory, since each text is embedded once, but slow for bulk imports.
+  machine. That is fine for one person's memory, since each text is embedded once, but
+  slow for bulk imports. Smaller or int8 encoders were faster but lost at least a point
+  (rounds 8 to 10).
 - Supersession depends on consistent keys. With every update written under a new key,
   clean retrieval of changed details falls from 67.8% to 26.1%.
 - The benchmark assumes perfect memory writing; how well the model chooses what to
@@ -271,10 +273,9 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Try embedding weights above 12, where round 6 stopped. Shrinking the encoder has not
-   worked yet: plain int8 lost about 2.3 points (round 8), and four full-precision
-   encoders a third of the size or less lost 1.0 to 3.1 points even with the reranker on
-   top (round 9), and lower weights did not help MiniLM (round 10).
+2. Try e5 at weights above 48, where round 11 stopped, and `multi-qa-mpnet-base-dot-v1`,
+   a close second there. Shrinking the encoder has not worked yet: int8 and smaller
+   encoders all lost at least a point (rounds 8 to 10).
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.

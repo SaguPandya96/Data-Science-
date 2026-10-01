@@ -908,3 +908,40 @@ The candidate is compared with mpnet on `HOLDOUT7`, which no method has run on y
 encoders cost about the same to download and run as mpnet (nomic is 25% larger), so a
 gain only has to be real: **the candidate is adopted if the 95% persona-bootstrap interval
 of the paired clean-hit difference is entirely above zero.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the seven already-seen sets at each encoder's
+best weight (mpnet at `w = 12`: 88.9%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `e5-base-v2` | 48 | 90.4% |
+| `multi-qa-mpnet-base-dot-v1` | 12 | 90.1% |
+| `nomic-embed-text-v1.5` | 24 | 89.8% |
+| `gte-base` | 32 | 88.6% |
+| `bge-base-en-v1.5` (search instruction) | 4 | 87.1% |
+| `snowflake-arctic-embed-m-v1.5` | 4 | 86.4% |
+
+e5 at `w = 48` was the candidate. On `HOLDOUT7` at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+rerank` (mpnet, `w = 12`) | 91.1% | 99.9% | 82.3% |
+| `keel+other` (e5, `w = 48`) | 92.4% | 99.9% | 84.9% |
+
+`keel+other` − `keel+rerank`: **+1.3 points** (95% CI +0.7 to +1.8), all on indirect
+wordings (+2.6, +1.4 to +3.7). The interval is above zero, so **e5-base-v2 at `w = 48` is
+adopted** as the agent's encoder. Full tables: `reports/metrics/round11.md`.
+
+Things to keep in mind:
+
+- **The chosen weight is at the top of the grid.** e5 scored 90.4% at both 32 and 48 (48
+  slightly higher before rounding). A larger weight was not tried.
+- **Three of six beat mpnet on tuning.** e5, multi-qa-mpnet and nomic all did; the search
+  instruction did not rescue bge-base, and arctic-embed was the worst of the six.
+- **The gain is modest but consistent with the tuning sets**: 1.5 points there, 1.3 on the
+  fresh set.
+- **No cost change.** e5 is the same size and speed as mpnet (nomic would have been 25%
+  larger and half as fast).
+

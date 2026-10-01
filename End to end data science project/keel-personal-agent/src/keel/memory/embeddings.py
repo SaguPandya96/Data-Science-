@@ -114,13 +114,25 @@ def offline() -> bool:
     return os.environ.get("KEEL_OFFLINE", "").lower() in ("1", "true", "yes")
 
 
-# The encoder chosen in round 6 of the benchmark (reports/metrics/round6.json). Rounds 4
-# and 5 had shipped all-MiniLM-L6-v2.
-DEFAULT_ENCODER = {
-    "name": "all-mpnet-base-v2",
-    "url": "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz",
-    "sha256": "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93",
+# The encoder chosen in round 11 of the benchmark (reports/metrics/round11.json). Rounds 4
+# and 5 had shipped all-MiniLM-L6-v2, and rounds 6 to 10 all-mpnet-base-v2.
+DEFAULT_ENCODER: dict[str, Any] = {
+    "name": "e5-base-v2",
     "pooling": "mean",
+    "query_prefix": "query: ",
+    "doc_prefix": "passage: ",
+    "files": {
+        "model.onnx": {
+            "url": "https://huggingface.co/Xenova/e5-base-v2/resolve/"
+            "21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/onnx/model.onnx",
+            "sha256": "157f97ef1957d34f52efa26f8031371bf9043acc45460cec7ebe94631ac0e96b",
+        },
+        "tokenizer.json": {
+            "url": "https://huggingface.co/Xenova/e5-base-v2/resolve/"
+            "21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/tokenizer.json",
+            "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
+        },
+    },
 }
 
 
@@ -289,9 +301,13 @@ def default_transformer() -> Embedder | None:
     except ImportError:
         return None
     try:
-        folder = download_model(DEFAULT_ENCODER["url"], DEFAULT_ENCODER["sha256"])
+        folder = download_files(DEFAULT_ENCODER["files"])
     except (OSError, ValueError):  # offline, blocked, or a corrupted download
         return None
     return OnnxSentenceEmbedder(
-        folder, pooling=DEFAULT_ENCODER["pooling"], name=DEFAULT_ENCODER["name"]
+        folder,
+        pooling=DEFAULT_ENCODER["pooling"],
+        name=DEFAULT_ENCODER["name"],
+        query_prefix=DEFAULT_ENCODER["query_prefix"],
+        doc_prefix=DEFAULT_ENCODER["doc_prefix"],
     )
