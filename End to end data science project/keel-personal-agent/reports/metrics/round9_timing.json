@@ -1,0 +1,27 @@
+{
+  "mpnet": {
+    "texts": 79,
+    "seconds": 1.94,
+    "texts_per_second": 40.6
+  },
+  "minilm": {
+    "texts": 79,
+    "seconds": 0.28,
+    "texts_per_second": 282.8
+  },
+  "bge_small": {
+    "texts": 79,
+    "seconds": 0.6,
+    "texts_per_second": 132.3
+  },
+  "minilm_l12": {
+    "texts": 79,
+    "seconds": 0.58,
+    "texts_per_second": 137.4
+  },
+  "gte_small": {
+    "texts": 79,
+    "seconds": 0.58,
+    "texts_per_second": 136.4
+  }
+}
