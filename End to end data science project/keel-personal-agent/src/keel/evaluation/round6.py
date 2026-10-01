@@ -17,11 +17,6 @@ from keel.memory.retrieval import EmbeddingMemory, KeelMemory, Retriever
 
 SPLITS = ("holdout4", "holdout4_direct", "holdout4_indirect")
 
-# Question sets added after round 6 are left out of the warm-up below, so its batches stay
-# as they were when round 6's numbers were committed. On some CPUs, how a text is padded
-# within its batch changes the last bits of its vector, and that can flip a near-tie.
-LATER_SPLITS = ("holdout5",)
-
 
 def run_round6(
     config_path: str | Path,
@@ -41,13 +36,7 @@ def run_round6(
     texts = sorted(
         {m.text for p in personas for m in p.memories}
         | {f"{m.key.replace('_', ' ')}. {m.text}" for p in personas for m in p.memories if m.key}
-        | {
-            q.question
-            for p in personas
-            for split, probes in p.probes.items()
-            if not split.startswith(LATER_SPLITS)
-            for q in probes
-        }
+        | {q.question for p in personas for probes in p.probes.values() for q in probes}
     )
     timings = {}
     for key in order:
