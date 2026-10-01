@@ -20,7 +20,7 @@ import shutil
 import tarfile
 import tempfile
 import urllib.request
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Protocol
@@ -151,6 +151,54 @@ def download_model(url: str, sha256: str, cache_dir: Path | None = None) -> Path
         archive.unlink(missing_ok=True)
     marker.write_text(url + "\n")
     return _model_folder(root)
+
+
+def download_files(files: Mapping[str, Mapping[str, str]], cache_dir: Path | None = None) -> Path:
+    """Fetch a model published as separate files rather than one archive.
+
+    ``files`` maps each local file name to its ``url`` and ``sha256``. Every hash must be
+    pinned; a file whose hash doesn't match is deleted, not used. Returns the folder.
+    """
+    if any(not spec.get("sha256") for spec in files.values()):
+        raise ValueError("every file needs a pinned sha256")
+    digest = hashlib.sha256("".join(sorted(s["sha256"] for s in files.values())).encode())
+    root = (cache_dir or model_dir()) / digest.hexdigest()[:16]
+    marker = root / ".verified"
+    if marker.exists():
+        return root
+    if offline():
+        raise FileNotFoundError(f"{root.name} is not downloaded yet and KEEL_OFFLINE is set")
+    root.mkdir(parents=True, exist_ok=True)
+    for name, spec in files.items():
+        target = root / name
+        if target.exists() and _sha256(target) == spec["sha256"]:
+            continue
+        with tempfile.NamedTemporaryFile(dir=root, delete=False) as tmp:
+            partial = Path(tmp.name)
+        try:
+            with (
+                urllib.request.urlopen(spec["url"], timeout=120) as response,
+                partial.open("wb") as out,
+            ):
+                shutil.copyfileobj(response, out)
+            got = _sha256(partial)
+            if got != spec["sha256"]:
+                raise ValueError(
+                    f"checksum mismatch for {spec['url']}: got {got}, expected {spec['sha256']}"
+                )
+            partial.replace(target)
+        finally:
+            partial.unlink(missing_ok=True)
+    marker.write_text("".join(f"{name} {spec['url']}\n" for name, spec in files.items()))
+    return root
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _model_folder(root: Path) -> Path:
