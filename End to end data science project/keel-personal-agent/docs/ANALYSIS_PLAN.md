@@ -838,3 +838,23 @@ has still not been run by any method.
 **Adopted if the 95% persona-bootstrap interval of the paired clean-hit difference against
 mpnet on `HOLDOUT7` has a lower bound of at least −1 point.** If no encoder qualifies on
 the tuning sets, `HOLDOUT7` stays unseen.
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the seven already-seen sets (mpnet: 88.9%):
+
+| Encoder | `w = 0.5` | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- | --- |
+| `all-MiniLM-L6-v2` | 87.2% | 87.3% | 87.4% | 87.6% | 87.8% |
+| `all-MiniLM-L12-v2` | 87.4% | 87.4% | 87.5% | 87.9% | 87.9% |
+
+**Weight 4 was the peak after all.** Both encoders get worse below it, so round 9's
+best weights stand, and neither comes within 0.5 points of mpnet. **mpnet is kept** and
+`HOLDOUT7` is still unseen. Full tables: `reports/metrics/round10.md`.
+
+The weight-4 anchor came out 0.01 to 0.02 points below round 9's figure (87.815% against
+87.828% for MiniLM-L6, 87.938% against 87.949% for MiniLM-L12). The code and models are the
+same, but a different weight grid sends texts through the encoder in different batches.
+That can change the last bits of a few vectors and flip one or two near-ties among 22,400
+questions: the same effect that led CI to compare transformer rounds within 0.1 points.
+
