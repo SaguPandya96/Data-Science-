@@ -10,8 +10,8 @@ Short answer: **yes, by a wide margin, with limits worth knowing.** On held-out 
 from 200 synthetic users, Keel put the current answer in the prompt, with no outdated
 version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer embedding
 search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%. Tuning the
-encoder's weight added another **3.0 points** on a fresh set, and a larger encoder another
-**3.8**. The limits:
+encoder's weight added another **3.0 points** on a fresh set, a larger encoder another
+**3.8**, and a cross-encoder reranker another **2.3**. The limits:
 questions that only hint at their topic ("What should I tell the valet to bring around?")
 are still the weak spot, and forgetting depends on the model labeling updates
 consistently.
@@ -72,13 +72,18 @@ eight memories for the prompt:
    synonym expansion ("live" also matches "based", "home", "city"), plus similarity from a
    transformer sentence encoder, plus small boosts for recent and important memories.
    Repeats of the same small talk are skipped.
+4. **A second look at the short list.** The 20 best candidates are rescored by a
+   cross-encoder, which reads the question and each memory together, and its score is
+   blended with the hybrid score.
 
 The model sees the keys already in use, so when you say "I moved to Austin" it can save the
 new value under `home_city` and retire Denver.
 
 Sentence similarity comes from `all-mpnet-base-v2`, a transformer encoder run on CPU with
-ONNX Runtime. It is downloaded once (about 400 MB, checked against a pinned SHA-256) and
-cached. Offline, or without the `transformer` extra, Keel falls back to
+ONNX Runtime, and the second look from `ms-marco-MiniLM-L-6-v2`. Both are downloaded once
+(about 400 MB and 90 MB, each checked against a pinned SHA-256) and cached. If only the
+encoder is available, Keel skips the second look. Offline, or without the `transformer`
+extra, Keel falls back to
 [WordLlama](https://github.com/dleemiller/WordLlama) embeddings, which ship inside their
 Python package, and without those to the BM25 hybrid alone.
 
@@ -236,14 +241,40 @@ mpnet from MiniLM (0.2 points), so most of the evidence comes from one fresh set
 is a 400 MB first download and embedding about seven times slower than MiniLM (about 50
 texts a second on one CPU thread), which for one person's memory is a few seconds once.
 
+### Round 7: a second look with a cross-encoder
+
+The encoder compares a question and a memory through two separate vectors. A cross-encoder
+reads them together, which is slower but better at implied links. On question sets already
+seen, the right memory was in the top 20 candidates far more often than in the 5 shown
+(86% to 93% against 49% to 79% for indirect wordings), so round 7 let a cross-encoder
+reorder that short list. Two ms-marco MiniLM rerankers were tried, on short lists of 10,
+20 or 30, blended with Keel's score at five weights or used alone. The setting was chosen
+on five question sets already seen and judged once on a sixth, fresh set, with the same
+1-point bar as round 6.
+
+| Retriever | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| mpnet, weight 12 (round 6) | 85.8% | 100.0% | 71.6% |
+| **+ `ms-marco-MiniLM-L-6-v2` on the top 20, weight 2 (chosen)** | **88.1% (87.7 to 88.5)** | **99.9%** | **76.2%** |
+
+Source: [`reports/metrics/round7.md`](reports/metrics/round7.md).
+
+**It cleared the bar**: the reranker added **2.3 points** (95% CI 1.9 to 2.6), and **4.6**
+on indirect questions, so it is now the default. Two things worth knowing. Blending
+mattered: on the tuning sets, ordering the short list by the cross-encoder alone was
+*worse* than not reranking at all, at every list size (84.2% to 86.5% against 87.3%). It
+was trained on web search rather than personal notes, which may be why it does better as
+a correction than as the judge. And it adds time to every question: about 130 ms on one
+CPU thread for 20 candidates. The 12-layer reranker was slower and no better.
+
 ## What this does not show
 
-- **Indirect questions are still the weak spot.** Direct questions reach 100%, but with the
-  current encoder about one indirect question in five still misses (78.5% on the latest
+- **Indirect questions are still the weak spot.** Direct questions reach 100% (99.9% with
+  reranking), but about one indirect question in four still misses (76.2% on the latest
   set). The agent also has a `recall` tool it can call with its own rephrasing, which only
   the live check can measure.
-- **The current weight is at the top of the range tried.** Round 6 chose weight 12, the
-  largest it tested, so a higher weight might do better still.
+- **The encoder weight is at the top of the range tried.** Round 6 chose weight 12, the
+  largest it tested, so a higher weight might do better still. Round 7 kept it fixed.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under
   `residence` instead of `home_city`, nothing is retired. When I renamed the key on every
   update, Keel's clean-hit rate on changed details fell from 67.8% to 26.1%, still above
@@ -284,6 +315,7 @@ python scripts/run_round2.py             # round 2 (WordLlama embeddings)
 python scripts/run_round4.py             # round 4 (transformer encoders; downloads ~160 MB once)
 python scripts/run_round5.py             # round 5 (weight grid for MiniLM)
 python scripts/run_round6.py             # round 6 (larger encoders; downloads ~600 MB once)
+python scripts/run_round7.py             # round 7 (rerankers; downloads ~225 MB once, ~30 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -299,7 +331,9 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
-benchmark round and fails if any committed number changes.
+benchmark round and fails if any committed decision changes or any number moves by more
+than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 7 run transformer models,
+whose last bits vary with the CPU).
 
 ## Project layout
 
@@ -321,5 +355,5 @@ reports/metrics/      every number in this README
 ```
 
 *Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web
-search), SQLite, BM25, mpnet and MiniLM via ONNX Runtime, WordLlama, NumPy, Streamlit, pytest, Ruff,
-mypy, GitHub Actions.
+search), SQLite, BM25, mpnet, MiniLM and an ms-marco cross-encoder via ONNX Runtime,
+WordLlama, NumPy, Streamlit, pytest, Ruff, mypy, GitHub Actions.

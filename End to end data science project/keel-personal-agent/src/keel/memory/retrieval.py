@@ -13,11 +13,14 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from keel.memory.embeddings import Embedder, default_embedder, default_transformer
 from keel.memory.store import Memory
 from keel.memory.text import expand, tokens
+
+if TYPE_CHECKING:
+    from keel.memory.rerank import RerankedMemory
 
 
 class Retriever(Protocol):
@@ -247,18 +250,36 @@ EMBEDDING_WEIGHT = 0.5
 TRANSFORMER_WEIGHT = 12.0
 
 
-def default_retriever(core_max: int = 2) -> KeelMemory:
+def default_retriever(core_max: int = 2) -> KeelMemory | RerankedMemory:
     """The agent's retriever, best available first.
 
-    1. Keel with the all-mpnet-base-v2 transformer encoder (round 6's winner), if ONNX
-       Runtime is installed and the model is on disk or can be downloaded.
-    2. Keel with WordLlama embeddings (round 2's winner), if installed.
-    3. Keel on BM25 alone.
+    1. Keel with the all-mpnet-base-v2 transformer encoder (round 6's winner), with its top
+       candidates reranked by the ms-marco-MiniLM-L-6-v2 cross-encoder (round 7's winner),
+       if ONNX Runtime is installed and both models are on disk or can be downloaded.
+    2. The same without reranking, if only the encoder is available.
+    3. Keel with WordLlama embeddings (round 2's winner), if installed.
+    4. Keel on BM25 alone.
     """
+    from keel.memory.rerank import (
+        RERANK_CANDIDATES,
+        RERANK_WEIGHT,
+        RerankedMemory,
+        default_reranker,
+    )
+
     transformer = default_transformer()
     if transformer is not None:
-        return KeelMemory(
+        keel = KeelMemory(
             core_max=core_max, embedder=transformer, embedding_weight=TRANSFORMER_WEIGHT
+        )
+        reranker = default_reranker()
+        if reranker is None:
+            return keel
+        return RerankedMemory(
+            base=keel,
+            reranker=reranker,
+            candidates=RERANK_CANDIDATES,
+            rerank_weight=RERANK_WEIGHT,
         )
     embedder = default_embedder()
     return KeelMemory(

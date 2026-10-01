@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -10,9 +11,16 @@ import pytest
 
 from keel.evaluation.benchmark import load_config
 from keel.evaluation.round7 import load_rerankers, run_round7, to_markdown
-from keel.memory.embeddings import HashingEmbedder, download_files
-from keel.memory.rerank import OverlapReranker, RerankedMemory
-from keel.memory.retrieval import KeelMemory
+from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
+from keel.memory.rerank import (
+    DEFAULT_RERANKER,
+    RERANK_CANDIDATES,
+    RERANK_WEIGHT,
+    OverlapReranker,
+    RerankedMemory,
+    default_reranker,
+)
+from keel.memory.retrieval import TRANSFORMER_WEIGHT, KeelMemory, default_retriever
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "eval.toml"
@@ -169,3 +177,38 @@ def test_real_rerankers_are_deterministic_and_semantic(monkeypatch):
         a, b = first[key].score(query, docs), second[key].score(query, docs)
         assert (a == b).all()
         assert a[0] > a[1] + 3
+
+
+def test_shipped_reranker_matches_the_benchmark_result():
+    """The agent ships whatever round 7 chose, and nothing else."""
+    round7 = json.loads((ROOT / "reports" / "metrics" / "round7.json").read_text())
+    plan = load_config(CONFIG)["round7"]
+    assert round7["pass_rule"]["passed"]
+    chosen = round7["chosen"]
+    spec = plan["rerankers"][chosen["reranker"]]
+    assert {"name": spec["name"], "files": spec["files"]} == DEFAULT_RERANKER
+    assert chosen["candidates"] == RERANK_CANDIDATES
+    assert chosen["weight"] == RERANK_WEIGHT
+    # The first stage round 7 reranked is the encoder and weight the agent ships.
+    first = load_config(CONFIG)["round6"]["encoders"][plan["first_stage"]]
+    assert first["name"] == DEFAULT_ENCODER["name"]
+    assert plan["first_stage_weight"] == TRANSFORMER_WEIGHT
+
+
+def test_offline_agent_runs_without_a_reranker():
+    assert default_reranker() is None
+    assert isinstance(default_retriever(), KeelMemory)
+
+
+def test_recall_with_a_reranked_retriever_skips_constraints(toolbox):
+    for text, kind, key in (
+        ("Allergic to peanuts.", "constraint", "allergy"),
+        ("Moved to Lisbon.", "fact", "home_city"),
+    ):
+        assert not toolbox.run("t", "remember", {"text": text, "kind": kind, "key": key}).is_error
+    toolbox.context.retriever = RerankedMemory(
+        base=KeelMemory(core_max=2), reranker=OverlapReranker(), candidates=5, rerank_weight=1.0
+    )
+    found = json.loads(toolbox.run("t", "recall", {"query": "Lisbon", "limit": 1}).output)
+    assert [m["text"] for m in found] == ["Moved to Lisbon."]
+    assert toolbox.context.retriever.base.core_max == 2  # the agent's own copy is unchanged

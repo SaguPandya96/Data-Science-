@@ -17,6 +17,7 @@ from keel.evaluation.live import (
 )
 from keel.evaluation.scenarios import Probe
 from keel.memory.embeddings import HashingEmbedder
+from keel.memory.rerank import OverlapReranker
 from keel.model import text
 
 CONFIG = Path(__file__).resolve().parents[1] / "configs" / "eval.toml"
@@ -45,16 +46,19 @@ def _run(model: EchoModel, cache: Path, arms: list[str]) -> dict:
         arms=arms,
         embedder=HashingEmbedder(),
         transformer=HashingEmbedder(64),
+        reranker=OverlapReranker(),
         cache_path=cache,
         workers=4,
     )
 
 
 def test_live_arms_match_the_plan():
-    names = [a.name for a in live_arms(2, HashingEmbedder(), HashingEmbedder(64))]
-    planned = load_config(CONFIG)["live"]["arms"]
-    assert set(planned) <= set(names)
-    assert "keel+transformer" in planned
+    names = [
+        a.name for a in live_arms(2, HashingEmbedder(), HashingEmbedder(64), OverlapReranker())
+    ]
+    plan = load_config(CONFIG)["live"]
+    assert set(plan["arms"]) <= set(names)
+    assert plan["candidate"] == "keel+rerank"  # the retriever the agent ships
 
 
 def test_grading_separates_current_stale_and_both():
@@ -68,10 +72,10 @@ def test_grading_separates_current_stale_and_both():
 def test_run_scores_arms_and_resumes_from_cache(tmp_path):
     cache = tmp_path / "answers.jsonl"
     model = EchoModel()
-    results = _run(model, cache, ["recent", "keel+transformer", "transformer"])
-    assert model.calls == planned_calls(2, ["recent", "keel+transformer", "transformer"]) == 192
-    assert set(results["accuracy"]) == {"recent", "keel+transformer", "transformer"}
-    keel = results["accuracy"]["keel+transformer"]["all"]["correct"]["mean"]
+    results = _run(model, cache, ["recent", "keel+rerank", "transformer"])
+    assert model.calls == planned_calls(2, ["recent", "keel+rerank", "transformer"]) == 192
+    assert set(results["accuracy"]) == {"recent", "keel+rerank", "transformer"}
+    keel = results["accuracy"]["keel+rerank"]["all"]["correct"]["mean"]
     assert keel > results["accuracy"]["recent"]["all"]["correct"]["mean"]
     assert set(results["comparisons"]) == {"recent", "transformer"}
     assert results["pass_rule"]["passed"] in (True, False)
@@ -79,7 +83,7 @@ def test_run_scores_arms_and_resumes_from_cache(tmp_path):
 
     # A second run pays for nothing and reproduces the same numbers.
     again = EchoModel()
-    assert _run(again, cache, ["recent", "keel+transformer", "transformer"]) == results
+    assert _run(again, cache, ["recent", "keel+rerank", "transformer"]) == results
     assert again.calls == 0
     assert len(AnswerCache(cache)) == 192
 
@@ -111,5 +115,19 @@ def test_transformer_arms_need_the_encoder(tmp_path):
             personas=1,
             arms=["keel+transformer"],
             embedder=HashingEmbedder(),
+            cache_path=tmp_path / "a.jsonl",
+        )
+
+
+def test_rerank_arm_needs_the_reranker(tmp_path):
+    with pytest.raises(RuntimeError, match="default reranker"):
+        run_live(
+            CONFIG,
+            EchoModel(),
+            model_name="echo",
+            personas=1,
+            arms=["keel+rerank"],
+            embedder=HashingEmbedder(),
+            transformer=HashingEmbedder(64),
             cache_path=tmp_path / "a.jsonl",
         )

@@ -19,6 +19,7 @@ from datetime import datetime
 from typing import Any
 
 from keel.clock import Clock
+from keel.memory.rerank import RerankedMemory
 from keel.memory.retrieval import KeelMemory
 from keel.memory.store import MemoryStore
 
@@ -35,7 +36,8 @@ class ToolContext:
     clock: Clock
     memory: MemoryStore
     session_id: str | None = None
-    retriever: KeelMemory | None = None  # used by recall; plain Keel (BM25) when unset
+    # Used by recall; plain Keel (BM25) when unset.
+    retriever: KeelMemory | RerankedMemory | None = None
 
 
 Handler = Callable[[ToolContext, dict[str, Any]], Any]

@@ -22,6 +22,7 @@ from typing import Any
 
 from keel.briefing import build_brief
 from keel.clock import Clock, SystemClock
+from keel.memory.rerank import RerankedMemory
 from keel.memory.retrieval import KeelMemory, default_retriever, render_context
 from keel.memory.store import Memory, MemoryStore
 from keel.model import Model, ModelReply
@@ -88,7 +89,7 @@ class Agent:
         memory_k: int = 8,
         max_steps: int = 12,
         session_id: str | None = None,
-        retriever: KeelMemory | None = None,
+        retriever: KeelMemory | RerankedMemory | None = None,
     ) -> None:
         self.conn = conn
         self.model = model

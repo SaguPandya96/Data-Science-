@@ -58,6 +58,7 @@ The design is built around three commitments:
 | Memory store | `memory/store.py` | Writes memories, retires superseded values, deletes on request. |
 | Retriever | `memory/retrieval.py` | Chooses which memories enter the prompt. |
 | Embeddings | `memory/embeddings.py` | Sentence vectors: mpnet (ONNX), WordLlama fallback; model download and checksum. |
+| Reranker | `memory/rerank.py` | Cross-encoder second stage over the retriever's short list. |
 | Toolbox | `tools/registry.py` | Tool schemas, input validation, risk handling, audit log. |
 | Tools | `tools/builtin.py` | Memory, calendar, tasks, goals, notes, email, brief. |
 | Approvals | `approvals.py` | Queue for outward actions; approve or reject. |
@@ -138,7 +139,18 @@ when this fails.
    The mpnet archive (about 400 MB) is downloaded once to `~/.cache/keel/models`, checked
    against a pinned SHA-256 and discarded on mismatch. Inference is single-threaded so a
    given text always produces the same vector.
-4. A candidate whose words match one already chosen is skipped.
+4. **Reranking.** When the encoder is mpnet and the reranker is available, the 20
+   highest-scoring candidates are rescored by `ms-marco-MiniLM-L-6-v2`, a cross-encoder
+   that reads the question and the memory's key and text together:
+
+   ```text
+   final = score + 2.0 × cross-encoder logit
+   ```
+
+   Memories outside those 20 are never shown. The model (about 90 MB) is downloaded and
+   verified like the encoder; without it, step 3's score is used as is. The list size and
+   weight were chosen by round 7 of the benchmark.
+5. A candidate whose words match one already chosen is skipped.
 
 The `recall` tool uses the same retriever without the always-on constraints, so the model
 can search again with its own wording when the context block is not enough.
@@ -205,6 +217,7 @@ correct. Unknown tools are rejected the same way.
 | Memories per turn | 8 | `Agent(memory_k=...)` |
 | Step limit | 12 | `Agent(max_steps=...)` |
 | Embedding search | Best available encoder | `pip install -e ".[embed,transformer]"` |
+| Reranking | On when the encoder and reranker are available | the `transformer` extra |
 | Model cache | `~/.cache/keel/models` | `KEEL_MODEL_DIR` |
 | Forbid model downloads | off | `KEEL_OFFLINE=1` |
 | Credentials | `ANTHROPIC_API_KEY` or an `ant auth login` profile | Environment |
@@ -224,10 +237,11 @@ correct. Unknown tools are rejected the same way.
   turns, append-only history, approvals, the brief, the CLI and the Streamlit app. They
   also cover model download, checksum rejection and offline fallback. They need no key and
   never download a model.
-- **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`,
-  `run_round5.py`, `run_round6.py`):
-  200 synthetic users with pre-registered pass rules. CI reruns every round and fails if
-  any committed number changes.
+- **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`
+  to `run_round7.py`): 200 synthetic users with pre-registered pass rules. CI reruns every
+  round. Rounds 1 and 2 must match exactly; rounds 4 to 7 run transformer models, whose
+  last bits vary with the CPU, so their decisions must match exactly and their numbers to
+  within 0.1 points (`scripts/check_metrics.py`).
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
   questions from each retriever's memories, and the answers are graded automatically. It
   costs money, so it is run manually. Calls run in parallel, and every answer is saved to
@@ -236,10 +250,12 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are the weak spot: 78.5% retrieved correctly on
-  the latest held-out set (benchmark round 6), against 100% for direct questions.
-- The first run of the agent downloads the encoder (about 400 MB). Offline, it falls back
-  to WordLlama, which retrieves less well.
+- Questions that only imply their topic are the weak spot: 76.2% retrieved correctly on
+  the latest held-out set (benchmark round 7), against 99.9% for direct questions.
+- The first run of the agent downloads the encoder and reranker (about 400 MB and 90 MB).
+  Offline, it falls back to WordLlama without reranking, which retrieves less well.
+- Reranking adds about 130 ms to every turn on one CPU thread. Unlike embedding, this
+  cost is paid per question, not once per memory.
 - The encoder embeds about 50 texts a second on one CPU thread. Fine for one person's
   memory, since each text is embedded once, but slow for bulk imports.
 - Supersession depends on consistent keys. With every update written under a new key,
@@ -253,11 +269,8 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Run round 7, cross-encoder reranking of Keel's short list. The plan, held-out set and
-   runner are committed (`docs/ANALYSIS_PLAN.md`, `scripts/run_round7.py`); the run
-   needs the two rerankers downloaded and their checksums pinned.
-3. Try embedding weights above 12, where round 6 stopped, and a quantized mpnet to cut
-   the download and embedding time.
-4. Suggest existing keys to the model when a new key looks like a near-duplicate of one
+2. Try embedding weights above 12, where round 6 stopped, and a quantized mpnet and
+   reranker to cut the download, embedding and reranking time.
+3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
-5. Real calendar and mail integrations behind the existing approval gate.
+4. Real calendar and mail integrations behind the existing approval gate.
