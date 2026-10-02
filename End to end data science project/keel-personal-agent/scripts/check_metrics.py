@@ -1,7 +1,7 @@
 """Check that freshly regenerated metrics match the committed ones.
 
 Every decision, label and count must match exactly. Rates and intervals may differ by at
-most ``--tolerance`` (default 0.002, a fifth of a percentage point). Transformer encoders
+most ``--tolerance`` (default 0.005, half a percentage point). Transformer encoders
 run through ONNX Runtime, whose CPU kernels differ between processor types, so the last
 bits of a vector can change from one CI runner to the next; very rarely that flips a single
 near-tie, which moves a rate by about 0.0002.
