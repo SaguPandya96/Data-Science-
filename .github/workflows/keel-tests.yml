@@ -71,11 +71,17 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,embed,transformer]"
 
       - name: Restore downloaded encoders
-        # Keyed on the pinned checksums, so a changed model is always downloaded fresh.
+        # Keyed on the pinned checksums. Each model sits in a folder named after its own
+        # checksum, so falling back to an older cache is safe: a changed model is still
+        # downloaded fresh. The fallback matters because qdrant-fastembed's storage bucket,
+        # the source of the MiniLM, bge-small, mpnet and bge-base archives used in rounds 4
+        # to 11, stopped serving public downloads in October 2026; those archives now come
+        # only from an earlier cache.
         uses: actions/cache@v4
         with:
           path: ~/.cache/keel/models
           key: keel-encoders-${{ hashFiles('End to end data science project/keel-personal-agent/configs/eval.toml') }}
+          restore-keys: keel-encoders-
 
       - name: Rerun round 1 and its question breakdown
         run: python scripts/run_benchmark.py > /dev/null && python scripts/question_breakdown.py > /dev/null
