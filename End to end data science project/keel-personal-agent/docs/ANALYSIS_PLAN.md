@@ -998,32 +998,51 @@ that bar is reported and not adopted.
 
 ### Outcome
 
-Run once, as planned. Mean clean hit over the eight already-seen sets (e5-base at its
-shipped `w = 48`: 90.6%):
+Mean clean hit over the eight already-seen sets (e5-base at its shipped `w = 48`: 90.6%):
 
 | Encoder | Best `w` | Mean clean hit |
 | --- | --- | --- |
-| `e5-large-v2` | 96 | 91.2% |
+| `e5-large-v2` | 64 | 91.2% |
 | `mxbai-embed-large-v1` | 8 | 87.9% |
-| `bge-large-en-v1.5` (search instruction) | 12 | 86.9% |
+| `bge-large-en-v1.5` (search instruction) | 4 | 86.9% |
 
-e5-large at `w = 96` was the candidate. On `HOLDOUT8` at `k = 5`:
+e5-large at `w = 64` was the candidate. On `HOLDOUT8` at `k = 5`:
 
 | Arm | Clean hit | Direct | Indirect |
 | --- | --- | --- | --- |
 | `keel+e5` (e5-base, `w = 48`) | 90.1% | 100.0% | 80.2% |
-| `keel+larger` (e5-large, `w = 96`) | 93.7% | 100.0% | 87.4% |
+| `keel+larger` (e5-large, `w = 64`) | 93.9% | 100.0% | 87.8% |
 
-`keel+larger` − `keel+e5`: **+3.5 points** (95% CI +3.1 to +4.0), all on indirect
-wordings (+7.1, +6.3 to +8.0). The lower bound clears the 1-point bar, so **e5-large-v2 at
-`w = 96` is adopted** as the agent's encoder. Full tables: `reports/metrics/round12.md`.
+`keel+larger` − `keel+e5`: **+3.8 points** (95% CI +3.4 to +4.2), all on indirect
+wordings (+7.6, +6.7 to +8.4). The lower bound clears the 1-point bar, so **e5-large-v2 at
+`w = 64` is adopted** as the agent's encoder. Full tables: `reports/metrics/round12.md`.
+
+### Amendment after the first run: ties between weights
+
+**This rule was added after the round had been run once, and after `HOLDOUT8` had been
+used.** The first run, as planned, chose `w = 96` for e5-large: 91.1777% on the tuning
+sets against 91.1719% at `w = 64`, a gap of about two questions out of 25,600. On the CI
+runner's processor the order reversed and it chose 64, so the committed decision did not
+reproduce. ONNX Runtime's last bits differ between processors, and a gap that small is
+inside that noise.
+
+The weight choice now treats tuning means within **0.05 points** of the best as tied, and a
+tie goes to the smaller weight, extending the planned "ties: smaller weight" rule. For
+e5-large that gives 64 on any processor (48 is 0.09 points below the best, outside the
+margin); for bge-large it moves the choice from 12 to 4, which changes nothing else. Round
+11 is not affected. The comparison above is from the rerun at `w = 64`. In the first run,
+at `w = 96`, e5-large scored 93.7% on `HOLDOUT8` (+3.5 points, 95% CI +3.1 to +4.0), so
+the decision to adopt e5-large is the same either way; only the weight changed.
 
 Things to keep in mind:
 
-- **The chosen weight is at the top of the grid again.** e5-large scored 91.2% at both 64
-  and 96 (96 very slightly higher). A larger weight was not tried.
+- **`HOLDOUT8` has now been used twice**, once for each weight. Both runs adopt e5-large,
+  and the two weights differ by 0.2 points there, so the second look did not decide
+  anything, but the 93.9% is not a first-look number.
+- **The weight curve is flat at the top.** e5-large scored 91.1% at 48 and 91.2% at both
+  64 and 96. A larger weight would probably not change much.
 - **The gain on the fresh set is much larger than on tuning**: 0.6 points on the
-  already-seen sets, 3.5 on `HOLDOUT8`. e5-base did worse on `HOLDOUT8`'s indirect
+  already-seen sets, 3.8 on `HOLDOUT8`. e5-base did worse on `HOLDOUT8`'s indirect
   wordings (80.2%) than on `HOLDOUT7`'s (84.9%), so this set happens to be harder for it.
   The direction is the same on both; the size depends on the questions.
 - **Only the e5 family helped.** mxbai and bge-large, both strong on public benchmarks,

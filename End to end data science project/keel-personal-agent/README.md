@@ -348,13 +348,13 @@ end of the 95% interval).
 
 | Encoder | Already-seen sets (weight) |
 | --- | --- |
-| **`e5-large-v2`** | **91.2% (96)** |
+| **`e5-large-v2`** | **91.2% (64)** |
 | `e5-base-v2` (shipped) | 90.6% (48) |
 | `mxbai-embed-large-v1` | 87.9% (8) |
-| `bge-large-en-v1.5` | 86.9% (12) |
+| `bge-large-en-v1.5` | 86.9% (4) |
 
-On the fresh set, e5-large scored **93.7% against 90.1%** for e5-base: **+3.5 points**
-(95% CI 3.1 to 4.0), all of it on indirect questions (+7.1; 87.4% against 80.2%). That
+On the fresh set, e5-large scored **93.9% against 90.1%** for e5-base: **+3.8 points**
+(95% CI 3.4 to 4.2), all of it on indirect questions (+7.6; 87.8% against 80.2%). That
 clears the 1-point bar, so it is now the default. The cost: a 1.3 GB first download
 instead of 440 MB, and embedding about a quarter as fast on one CPU thread. Source:
 [`reports/metrics/round12.md`](reports/metrics/round12.md).
@@ -362,15 +362,18 @@ instead of 440 MB, and embedding about a quarter as fast on one CPU thread. Sour
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
-  but about one indirect question in eight still misses (87.4% on the latest set; how hard a
+  but about one indirect question in eight still misses (87.8% on the latest set; how hard a
   set is varies, so compare methods within a set, not across sets). The agent also has a
   `recall` tool it can call with its own rephrasing, which only the live check can
   measure.
-- **The encoder weight is at the top of the range tried, again.** Round 12 chose weight 96
-  for e5-large, the largest it tested (64 scored the same to one decimal), so a higher
-  weight might do slightly better still.
+- **Round 12's weight rule was amended after the run.** The first run chose weight 96,
+  but 64 was only about two questions behind out of 25,600, and on CI's processor the two
+  swapped places. Weights that close now count as tied and the smaller one wins, so 64 is
+  chosen everywhere. The fresh set had already been used once at 96 (93.7%, +3.5 points);
+  both runs adopt e5-large, but the 93.9% is a second look, not a first. Details in the
+  [analysis plan](docs/ANALYSIS_PLAN.md#amendment-after-the-first-run-ties-between-weights).
 - **The tuning gain was smaller than the fresh-set gain.** e5-large led e5-base by 0.6
-  points on the sets already seen but by 3.5 on the fresh one. The fresh set's indirect
+  points on the sets already seen but by 3.8 on the fresh one. The fresh set's indirect
   wordings seem to be harder for e5-base than earlier sets were, so the size of the gain
   depends on the questions; its direction held on both.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under

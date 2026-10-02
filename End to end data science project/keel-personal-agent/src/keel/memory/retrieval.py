@@ -260,7 +260,7 @@ EMBEDDING_WEIGHT = 0.5
 # Chosen with the encoder in round 12 on already-seen question sets, then confirmed on a
 # fresh held-out set (reports/metrics/round12.json). MiniLM had shipped at 2.0, then 6.0,
 # mpnet at 12.0 and e5-base at 48.0.
-TRANSFORMER_WEIGHT = 96.0
+TRANSFORMER_WEIGHT = 64.0
 
 
 def default_retriever(core_max: int = 2) -> KeelMemory | RerankedMemory:

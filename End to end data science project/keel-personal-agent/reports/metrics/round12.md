@@ -2,7 +2,7 @@
 
 Every encoder runs under `ms-marco-MiniLM-L-6-v2 (int8)` on the top 20. 200 personas, k = 5. Intervals are 95% persona bootstrap.
 
-**Outcome: e5-large-v2 at w = 96.0 adopted.**
+**Outcome: e5-large-v2 at w = 64.0 adopted.**
 
 ## Choosing the encoder (mean clean hit over `dev`, `holdout`, `holdout2`, `holdout3`, `holdout4`, `holdout5`, `holdout6`, `holdout7`)
 
@@ -19,30 +19,30 @@ Current: `e5-base-v2` at w = 48.0, 90.6%.
 | Arm | Clean hit | Stale shown | Allergy shown |
 | --- | --- | --- | --- |
 | `keel+e5` | 90.1% (89.8 to 90.5) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
-| `keel+larger` | 93.7% (93.3 to 94.1) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
+| `keel+larger` | 93.9% (93.5 to 94.3) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
 
 `keel+larger` minus:
 
-- `keel+e5`: +3.5 pts (+3.1 to +4.0)
+- `keel+e5`: +3.8 pts (+3.4 to +4.2)
 
 ## New held-out set: direct
 
 | Arm | Clean hit | Stale shown | Allergy shown |
 | --- | --- | --- | --- |
 | `keel+e5` | 100.0% (100.0 to 100.0) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
-| `keel+larger` | 100.0% (99.9 to 100.0) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
+| `keel+larger` | 100.0% (100.0 to 100.0) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
 
 `keel+larger` minus:
 
-- `keel+e5`: -0.0 pts (-0.1 to +0.0)
+- `keel+e5`: +0.0 pts (+0.0 to +0.0)
 
 ## New held-out set: indirect
 
 | Arm | Clean hit | Stale shown | Allergy shown |
 | --- | --- | --- | --- |
 | `keel+e5` | 80.2% (79.5 to 81.0) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
-| `keel+larger` | 87.4% (86.6 to 88.2) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
+| `keel+larger` | 87.8% (87.1 to 88.6) | 0.0% (0.0 to 0.0) | 100.0% (100.0 to 100.0) |
 
 `keel+larger` minus:
 
-- `keel+e5`: +7.1 pts (+6.3 to +8.0)
+- `keel+e5`: +7.6 pts (+6.7 to +8.4)
