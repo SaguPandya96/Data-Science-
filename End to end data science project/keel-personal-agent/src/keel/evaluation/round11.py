@@ -1,8 +1,8 @@
-"""Rounds 11 to 13: is another encoder better than the shipped one under the reranker?
+"""Rounds 11 to 14: is another encoder better than the shipped one under the reranker?
 
-Round 11 tried encoders of mpnet's size, round 12 larger ones and round 13 others of
-e5-large's size (docs/ANALYSIS_PLAN.md). All use this module, each with its own section of
-configs/eval.toml.
+Round 11 tried encoders of mpnet's size, round 12 larger ones, round 13 others of
+e5-large's size and round 14 larger ones again (docs/ANALYSIS_PLAN.md). All use this module,
+each with its own section of configs/eval.toml.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ TITLES = {
     "round11": "Round 11: other encoders of mpnet's size",
     "round12": "Round 12: larger encoders",
     "round13": "Round 13: other encoders of e5-large's size",
+    "round14": "Round 14: encoders of about 2.2 GB",
 }
 
 

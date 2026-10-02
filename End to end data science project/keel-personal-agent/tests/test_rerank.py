@@ -421,3 +421,36 @@ def test_round13_reuses_round11_with_the_tie_rule_set_in_advance(tmp_path):
         low = results["comparisons"]["holdout9"][plan["must_beat"]]["low"]
         assert rule["passed"] == (low > 0)
     assert "Round 13: other encoders" in round11_markdown(results, timings, section="round13")
+
+
+def test_round14_tests_on_the_set_round13_left_unseen(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round14"]
+    assert plan["split"] == config["round13"]["split"] == "holdout9"
+    assert plan["min_gain"] == 0.01
+    assert plan["current"] == config["round13"]["current"]
+    assert all(
+        "model.onnx_data" in spec["files"]
+        for spec in plan["encoders"].values()
+        if spec is not plan["encoders"]["e5_large_v2"]
+    )
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    results, timings = run_round11(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=dict.fromkeys(plan["encoders"], 2236.0),
+        clock=lambda: float(next(ticks)),
+        section="round14",
+    )
+    assert set(results["tuning"]) == set(plan["encoders"]) - {"e5_large_v2"}
+    rule = results["pass_rule"]
+    if rule["passed"] is not None:
+        low = results["comparisons"]["holdout9"][plan["must_beat"]]["low"]
+        assert rule["passed"] == (low >= 0.01)
+    assert "Round 14: encoders of about 2.2 GB" in round11_markdown(
+        results, timings, section="round14"
+    )

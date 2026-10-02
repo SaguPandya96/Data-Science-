@@ -411,3 +411,55 @@ files."tokenizer.json" = { url = "https://huggingface.co/Xenova/gte-large/resolv
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round14]
+split = "holdout9"                 # written for round 13, which did not reach it; still unseen
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6", "holdout7", "holdout8"]
+current = { encoder = "e5_large_v2", weight = 64.0 }
+weight_grid = [4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0, 64.0, 96.0]   # chosen per encoder
+tie_margin = 0.0005                # weights within 0.05 points tie, and the smaller wins
+candidates = 20                    # the shipped int8 reranker and its setting, unchanged
+rerank_weight = 2.0
+candidate = "keel+larger"
+must_beat = "keel+e5large"
+min_gain = 0.01                    # a 70% larger download: the 95% lower bound must reach 1 point
+
+[round14.encoders.e5_large_v2]
+name = "e5-large-v2"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/onnx/model.onnx", sha256 = "339329575d9c103ab4c08ae8d9d8334adaddda476d1d45f8c65abb7156445002" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round14.encoders.me5_large]
+name = "multilingual-e5-large"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/intfloat/multilingual-e5-large/resolve/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/onnx/model.onnx", sha256 = "bb5a52503a3ef35247f5b5ae6c473aaae60505dd3ffaef56d7b69e2f84683c05" }
+files."model.onnx_data" = { url = "https://huggingface.co/intfloat/multilingual-e5-large/resolve/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/onnx/model.onnx_data", sha256 = "0cf1883fee81c63819a44e2ba0efa51d4043d9759685a4ebebbde97e0623d15c" }
+files."tokenizer.json" = { url = "https://huggingface.co/intfloat/multilingual-e5-large/resolve/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/tokenizer.json", sha256 = "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626" }
+
+[round14.encoders.me5_large_instruct]
+name = "multilingual-e5-large-instruct"
+pooling = "mean"
+query_prefix = "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/intfloat/multilingual-e5-large-instruct/resolve/274baa43b0e13e37fafa6428dbc7938e62e5c439/onnx/model.onnx", sha256 = "e3aeea5355352d826bd952a9a96fab206c6c72d1a429c8773c9da5ac16e44af5" }
+files."model.onnx_data" = { url = "https://huggingface.co/intfloat/multilingual-e5-large-instruct/resolve/274baa43b0e13e37fafa6428dbc7938e62e5c439/onnx/model.onnx_data", sha256 = "4c13ca44e40a7ee86b461398cdee003d656e39f3fa87e1b3152fbada3e61b506" }
+files."tokenizer.json" = { url = "https://huggingface.co/intfloat/multilingual-e5-large-instruct/resolve/274baa43b0e13e37fafa6428dbc7938e62e5c439/tokenizer.json", sha256 = "f59925fcb90c92b894cb93e51bb9b4a6105c5c249fe54ce1c704420ac39b81af" }
+
+[round14.encoders.arctic_l_v2]
+name = "snowflake-arctic-embed-l-v2.0"
+pooling = "cls"
+query_prefix = "query: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/resolve/ac6544c8a46e00af67e330e85a9028c66b8cfd9a/onnx/model.onnx", sha256 = "f74aa79745ccfb1e75daa7e8e6552a78402d4de193eb8ca67a931358d3e0a25e" }
+files."model.onnx_data" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/resolve/ac6544c8a46e00af67e330e85a9028c66b8cfd9a/onnx/model.onnx_data", sha256 = "fe7d75ff258fbda10a6bea63c5422df5579d625355b1aca69ba6923c0ba604a9" }
+files."tokenizer.json" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/resolve/ac6544c8a46e00af67e330e85a9028c66b8cfd9a/tokenizer.json", sha256 = "39feb9863a378165ab9c5c689047203d789422966c0c58721c5309fd039a8edc" }
+
+[round14.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }

@@ -1126,3 +1126,59 @@ Things to keep in mind:
 - **Two chosen weights sit near the tie margin.** For arctic-embed-l, weight 32 was 0.045
   points behind 24, and for e5-large, weight 12 was 0.04 behind 4. A processor that moved
   those by a few questions could change which weight is recorded, though not the outcome.
+
+## Round 14: encoders of about 2.2 GB
+
+Written after round 13 was merged and before any of these encoders was run on benchmark
+text.
+
+### The question
+
+Round 13 found no other encoder of e5-large-v2's size that did better. The step up from
+there is encoders built on the 24-layer XLM-RoBERTa: about 2.2 GB each, because of a much
+larger vocabulary, but the same depth and width as e5-large-v2 and so about the same speed.
+This round asks whether one of them retrieves enough better to be worth the larger download.
+Two are from the e5 family, which won rounds 11 and 12.
+
+### Encoders
+
+All are pinned by revision and SHA-256 in `configs/eval.toml`, and each gets the prefixes it
+was trained with. Models this size keep their weights in a separate `model.onnx_data` file,
+which is pinned too.
+
+| Encoder | ONNX size | Pooling | Question prefix | Memory prefix |
+| --- | --- | --- | --- | --- |
+| `e5-large-v2` (current) | 1,337 MB | mean | `query: ` | `passage: ` |
+| `multilingual-e5-large` | 2,236 MB | mean | `query: ` | `passage: ` |
+| `multilingual-e5-large-instruct` | 2,236 MB | mean | web-search instruction | none |
+| `snowflake-arctic-embed-l-v2.0` | 2,268 MB | CLS | `query: ` | none |
+
+The instruct model's question prefix is the retrieval instruction from its model card:
+`Instruct: Given a web search query, retrieve relevant passages that answer the query`,
+then a new line and `Query: `.
+
+Before writing this plan, each was run on one neutral question and three passages (no
+benchmark text). All three were deterministic and ranked the right passage first, at about
+the same speed as e5-large-v2 (10.6 to 11.4 texts a second against 11.8 on one CPU thread).
+`bge-m3`, the same size, is left out to limit what CI has to download and store.
+
+### The arm and choosing
+
+As in round 13: the shipped int8 reranker on the top 20 at weight 2.0; each encoder's weight
+chosen from {4, 8, 12, 16, 24, 32, 48, 64, 96} on the mean clean-hit rate over the nine
+already-seen sets, with weights within 0.05 points tied and the smaller winning. The single
+best (encoder, weight) pair is the candidate. If it does not beat e5-large-v2's tuning mean
+at its shipped `w = 64`, nothing changes and `HOLDOUT9` stays unseen.
+
+### Held-out questions
+
+`HOLDOUT9`, written for round 13. No round 13 encoder qualified to run on it, so no method
+has seen it yet.
+
+### Pass rule
+
+The candidate is compared with e5-large-v2 at `w = 64` on `HOLDOUT9`. It runs at about the
+same speed but is a 70% larger download, so, as in round 12, **the candidate is adopted
+only if the 95% persona-bootstrap interval of the paired clean-hit difference has a lower
+bound of at least 1 point**. A gain above zero but below that bar is reported and not
+adopted.
