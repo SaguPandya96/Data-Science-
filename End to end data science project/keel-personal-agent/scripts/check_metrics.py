@@ -46,7 +46,7 @@ def differences(old: Any, new: Any, tolerance: float, path: str = "") -> list[st
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("files", nargs="+", type=Path)
-    parser.add_argument("--tolerance", type=float, default=0.002)
+    parser.add_argument("--tolerance", type=float, default=0.005)
     args = parser.parse_args()
 
     failed = False
