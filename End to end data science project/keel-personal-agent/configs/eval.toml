@@ -314,3 +314,51 @@ files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round12]
+split = "holdout8"                 # new: written for this round, never run by any method
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6", "holdout7"]
+current = { encoder = "e5_base", weight = 48.0 }
+weight_grid = [4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0, 64.0, 96.0]   # chosen per encoder
+candidates = 20                    # the shipped int8 reranker and its setting, unchanged
+rerank_weight = 2.0
+candidate = "keel+larger"
+must_beat = "keel+e5"
+min_gain = 0.01                    # three times the size and a quarter of the speed: the 95% lower bound must reach 1 point
+
+[round12.encoders.e5_base]
+name = "e5-base-v2"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/Xenova/e5-base-v2/resolve/21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/onnx/model.onnx", sha256 = "157f97ef1957d34f52efa26f8031371bf9043acc45460cec7ebe94631ac0e96b" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/e5-base-v2/resolve/21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round12.encoders.e5_large]
+name = "e5-large-v2"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/onnx/model.onnx", sha256 = "339329575d9c103ab4c08ae8d9d8334adaddda476d1d45f8c65abb7156445002" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round12.encoders.bge_large]
+name = "bge-large-en-v1.5 (with query instruction)"
+pooling = "cls"
+query_prefix = "Represent this sentence for searching relevant passages: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-large-en-v1.5/resolve/dfeef6070b90658e1b391a6940efdb0925c1de6f/onnx/model.onnx", sha256 = "69ed3f810d3b6d13f70dff9ca89966f39c0a0e877fb88211be7bcc070df2a2ce" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-large-en-v1.5/resolve/dfeef6070b90658e1b391a6940efdb0925c1de6f/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round12.encoders.mxbai_large]
+name = "mxbai-embed-large-v1"
+pooling = "cls"
+query_prefix = "Represent this sentence for searching relevant passages: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1/resolve/b33106f585b9ce46904ad7443a3b52b7a63e231c/onnx/model.onnx", sha256 = "adb53ed475faa339bfad3bd2bdb7e6a30b4f47280ade9811f81bef7953f9ab77" }
+files."tokenizer.json" = { url = "https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1/resolve/b33106f585b9ce46904ad7443a3b52b7a63e231c/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round12.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }

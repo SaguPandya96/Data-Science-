@@ -945,3 +945,53 @@ Things to keep in mind:
 - **No cost change.** e5 is the same size and speed as mpnet (nomic would have been 25%
   larger and half as fast).
 
+
+## Round 12: larger encoders
+
+Written after round 11 was merged and before any of these encoders was run on benchmark
+text.
+
+### The question
+
+Round 11 adopted `e5-base-v2`, and the misses left are still mostly indirect questions.
+This round asks whether a **larger** encoder, of about three times the size, retrieves
+enough better to be worth its cost.
+
+### Encoders
+
+All are pinned by revision and SHA-256 in `configs/eval.toml`, and each gets the prefixes
+it was trained with.
+
+| Encoder | ONNX size | Pooling | Question prefix | Memory prefix |
+| --- | --- | --- | --- | --- |
+| `e5-base-v2` (current) | 436 MB | mean | `query: ` | `passage: ` |
+| `e5-large-v2` | 1,337 MB | mean | `query: ` | `passage: ` |
+| `bge-large-en-v1.5` | 1,337 MB | CLS | search instruction | none |
+| `mxbai-embed-large-v1` | 1,337 MB | CLS | search instruction | none |
+
+Before writing this plan, each was run on one neutral question and three passages (no
+benchmark text). All three were deterministic and ranked the right passage first. On one
+CPU thread they embedded about 9 texts a second against e5-base's 33.
+
+### The arm and choosing
+
+Every encoder runs under the shipped second stage: the int8 reranker on the top 20,
+weight 2.0. Each encoder's weight is chosen from {4, 8, 12, 16, 24, 32, 48, 64, 96} on the
+mean clean-hit rate over the eight already-seen sets, which now include `HOLDOUT7` (ties:
+smaller weight). The grid goes past 48 because e5-base's chosen weight was at the top of
+round 11's grid. The single best (encoder, weight) pair is the candidate. If it does not
+beat e5-base's tuning mean at its shipped `w = 48`, nothing changes and `HOLDOUT8` stays
+unseen.
+
+### New held-out questions
+
+`HOLDOUT8` in `src/keel/evaluation/scenarios.py`: one direct and one indirect wording per
+detail, written for this round and checked against every earlier wording for duplicates.
+
+### Pass rule
+
+The candidate is compared with e5-base at `w = 48` on `HOLDOUT8`. A larger encoder triples
+the first download and runs at about a quarter of the speed, so, as in rounds 6 and 7,
+**the candidate is adopted only if the 95% persona-bootstrap interval of the paired
+clean-hit difference has a lower bound of at least 1 point**. A gain above zero but below
+that bar is reported and not adopted.
