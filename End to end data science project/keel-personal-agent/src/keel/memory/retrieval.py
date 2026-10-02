@@ -15,6 +15,8 @@ from datetime import datetime
 from functools import lru_cache
 from typing import TYPE_CHECKING, Protocol
 
+import numpy as np
+
 from keel.memory.embeddings import Embedder, default_embedder, default_transformer
 from keel.memory.store import Memory
 from keel.memory.text import expand, tokens
@@ -79,6 +81,16 @@ def _top_k(
         seen.add(signature)
         chosen.append(memories[i])
     return chosen
+
+
+def embed_query_and_docs(embedder: Embedder, query: str, docs: Sequence[str]) -> np.ndarray:
+    """Embed a question and the texts it is compared with, adding the encoder's prefixes.
+
+    With no prefixes (most encoders) the texts are embedded exactly as given.
+    """
+    query_prefix = getattr(embedder, "query_prefix", "")
+    doc_prefix = getattr(embedder, "doc_prefix", "")
+    return embedder.embed([query_prefix + query, *(doc_prefix + d for d in docs)])
 
 
 def indexed_text(memory: Memory) -> str:
@@ -152,7 +164,7 @@ class EmbeddingMemory:
         visible = [m for m in memories if not m.deleted]
         if not visible or k <= 0:
             return []
-        vectors = self.embedder.embed([query, *(m.text for m in visible)])
+        vectors = embed_query_and_docs(self.embedder, query, [m.text for m in visible])
         similarity = vectors[1:] @ vectors[0]
         return _top_k(visible, [float(x) for x in similarity], k)
 
@@ -223,7 +235,7 @@ class KeelMemory:
         top = max(lexical) or 1.0
         semantic = [0.0] * len(rest)
         if self.embedder is not None and self.embedding_weight:
-            vectors = self.embedder.embed([query, *docs])
+            vectors = embed_query_and_docs(self.embedder, query, docs)
             semantic = [float(x) for x in vectors[1:] @ vectors[0]]
         scores = []
         for memory, lex, sim in zip(rest, lexical, semantic, strict=True):
@@ -245,15 +257,16 @@ class KeelMemory:
 
 # Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).
 EMBEDDING_WEIGHT = 0.5
-# Chosen with the encoder in round 6 on already-seen question sets, then confirmed on a
-# fresh held-out set (reports/metrics/round6.json). MiniLM had shipped at 2.0, then 6.0.
-TRANSFORMER_WEIGHT = 12.0
+# Chosen with the encoder in round 11 on already-seen question sets, then confirmed on a
+# fresh held-out set (reports/metrics/round11.json). MiniLM had shipped at 2.0, then 6.0,
+# and mpnet at 12.0.
+TRANSFORMER_WEIGHT = 48.0
 
 
 def default_retriever(core_max: int = 2) -> KeelMemory | RerankedMemory:
     """The agent's retriever, best available first.
 
-    1. Keel with the all-mpnet-base-v2 transformer encoder (round 6's winner), with its top
+    1. Keel with the e5-base-v2 transformer encoder (round 11's winner), with its top
        candidates reranked by the ms-marco-MiniLM-L-6-v2 cross-encoder (round 7's winner, in
        the int8 version round 8 adopted), if ONNX Runtime is installed and both models are on
        disk or can be downloaded.

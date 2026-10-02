@@ -858,3 +858,90 @@ same, but a different weight grid sends texts through the encoder in different b
 That can change the last bits of a few vectors and flip one or two near-ties among 22,400
 questions: the same effect that led CI to compare transformer rounds within 0.1 points.
 
+
+## Round 11: other encoders of mpnet's size
+
+Written after round 10 was merged and before any of these encoders was run on benchmark
+text.
+
+### The question
+
+Rounds 8 to 10 tried to make the encoder smaller and lost at least a point every time.
+This round asks the other question: among encoders about the size of `all-mpnet-base-v2`,
+is there one that retrieves **better**? The remaining misses are almost all indirect
+questions, so an encoder trained for question-to-passage search might help.
+
+### Encoders
+
+All are pinned by revision and SHA-256 in `configs/eval.toml`. Several were trained with
+fixed prefixes on questions and on the text being searched. Keel now adds those prefixes
+(`query_prefix`, `doc_prefix`); with none, an encoder sees exactly the text it saw before,
+so earlier rounds are unaffected.
+
+| Encoder | ONNX size | Pooling | Question prefix | Memory prefix |
+| --- | --- | --- | --- | --- |
+| `all-mpnet-base-v2` (current) | 436 MB | mean | none | none |
+| `gte-base` | 436 MB | mean | none | none |
+| `multi-qa-mpnet-base-dot-v1` | 436 MB | CLS | none | none |
+| `e5-base-v2` | 436 MB | mean | `query: ` | `passage: ` |
+| `nomic-embed-text-v1.5` | 547 MB | mean | `search_query: ` | `search_document: ` |
+| `snowflake-arctic-embed-m-v1.5` | 436 MB | CLS | search instruction | none |
+| `bge-base-en-v1.5` | 436 MB | CLS | search instruction | none |
+
+Round 6 tried `bge-base-en-v1.5` without its search instruction and found it worse than
+MiniLM, so this is a fairer test of it.
+
+Before writing this plan, each was run on one neutral question and three passages (no
+benchmark text). All six were deterministic and ranked the right passage first.
+
+### The arm and choosing
+
+Every encoder runs under the shipped second stage: the int8 reranker on the top 20,
+weight 2.0. Each encoder's weight is chosen from {4, 8, 12, 16, 24, 32, 48} on the mean
+clean-hit rate over the seven already-seen sets (ties: smaller weight). The single best
+(encoder, weight) pair is the candidate. If it does not beat mpnet's tuning mean, nothing
+changes and `HOLDOUT7` stays unseen.
+
+### Pass rule
+
+The candidate is compared with mpnet on `HOLDOUT7`, which no method has run on yet. These
+encoders cost about the same to download and run as mpnet (nomic is 25% larger), so a
+gain only has to be real: **the candidate is adopted if the 95% persona-bootstrap interval
+of the paired clean-hit difference is entirely above zero.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the seven already-seen sets at each encoder's
+best weight (mpnet at `w = 12`: 88.9%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `e5-base-v2` | 48 | 90.4% |
+| `multi-qa-mpnet-base-dot-v1` | 12 | 90.1% |
+| `nomic-embed-text-v1.5` | 24 | 89.8% |
+| `gte-base` | 32 | 88.6% |
+| `bge-base-en-v1.5` (search instruction) | 4 | 87.1% |
+| `snowflake-arctic-embed-m-v1.5` | 4 | 86.4% |
+
+e5 at `w = 48` was the candidate. On `HOLDOUT7` at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+rerank` (mpnet, `w = 12`) | 91.1% | 99.9% | 82.3% |
+| `keel+other` (e5, `w = 48`) | 92.4% | 99.9% | 84.9% |
+
+`keel+other` − `keel+rerank`: **+1.3 points** (95% CI +0.7 to +1.8), all on indirect
+wordings (+2.6, +1.4 to +3.7). The interval is above zero, so **e5-base-v2 at `w = 48` is
+adopted** as the agent's encoder. Full tables: `reports/metrics/round11.md`.
+
+Things to keep in mind:
+
+- **The chosen weight is at the top of the grid.** e5 scored 90.4% at both 32 and 48 (48
+  slightly higher before rounding). A larger weight was not tried.
+- **Three of six beat mpnet on tuning.** e5, multi-qa-mpnet and nomic all did; the search
+  instruction did not rescue bge-base, and arctic-embed was the worst of the six.
+- **The gain is modest but consistent with the tuning sets**: 1.5 points there, 1.3 on the
+  fresh set.
+- **No cost change.** e5 is the same size and speed as mpnet (nomic would have been 25%
+  larger and half as fast).
+

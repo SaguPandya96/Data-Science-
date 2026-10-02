@@ -11,7 +11,8 @@ from 200 synthetic users, Keel put the current answer in the prompt, with no out
 version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer embedding
 search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%. Tuning the
 encoder's weight added another **3.0 points** on a fresh set, a larger encoder another
-**3.8**, and a cross-encoder reranker another **2.3**. The limits:
+**3.8**, a cross-encoder reranker another **2.3**, and a search-trained encoder another
+**1.3**. The limits:
 questions that only hint at their topic ("What should I tell the valet to bring around?")
 are still the weak spot, and forgetting depends on the model labeling updates
 consistently.
@@ -79,8 +80,9 @@ eight memories for the prompt:
 The model sees the keys already in use, so when you say "I moved to Austin" it can save the
 new value under `home_city` and retire Denver.
 
-Sentence similarity comes from `all-mpnet-base-v2`, a transformer encoder run on CPU with
-ONNX Runtime, and the second look from an int8 version of `ms-marco-MiniLM-L-6-v2`. Both
+Sentence similarity comes from `e5-base-v2`, a transformer encoder trained for search and
+run on CPU with ONNX Runtime; questions get a `query: ` prefix and memories `passage: `, as
+the model expects. The second look comes from an int8 version of `ms-marco-MiniLM-L-6-v2`. Both
 are downloaded once (about 400 MB and 23 MB, each checked against a pinned SHA-256) and
 cached. If only the
 encoder is available, Keel skips the second look. Offline, or without the `transformer`
@@ -314,15 +316,38 @@ MiniLM models at weights 0.5 to 4 under the same rules. Both got worse below 4 (
 87.2% to 87.8%, MiniLM-L12 87.4% to 87.9%), so weight 4 was the real peak and the gap to
 mpnet stands at about a point. Source: [`reports/metrics/round10.md`](reports/metrics/round10.md).
 
+### Round 11: a better encoder
+
+If smaller does not work, does *different*? Round 11 tried six encoders about mpnet's size
+under the reranker, several trained specifically for question-to-passage search, with the
+question and memory prefixes each expects. Each chose its weight on the seven question
+sets already seen; the best was then tested once on a fresh set.
+
+| Encoder | Already-seen sets (best weight) |
+| --- | --- |
+| **`e5-base-v2`** | **90.4% (48)** |
+| `multi-qa-mpnet-base-dot-v1` | 90.1% (12) |
+| `nomic-embed-text-v1.5` | 89.8% (24) |
+| `all-mpnet-base-v2` (shipped) | 88.9% (12) |
+| `gte-base` | 88.6% (32) |
+| `bge-base-en-v1.5` | 87.1% (4) |
+| `snowflake-arctic-embed-m-v1.5` | 86.4% (4) |
+
+On the fresh set, e5 scored **92.4% against 91.1%** for mpnet: **+1.3 points** (95% CI 0.7
+to 1.8), all of it on indirect questions (+2.6; 84.9% against 82.3%). It is the same size
+and speed as mpnet, so it is now the default. The weight it chose, 48, is the top of the
+range tried, though 32 scored almost the same. Source:
+[`reports/metrics/round11.md`](reports/metrics/round11.md).
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
-  but indirect ones miss far more often (76.2% and 83.8% on the two latest sets; how hard a
-  set is varies, so compare methods within a set, not across sets). The agent also has a `recall` tool it can call with its own rephrasing, which only
-  the live check can measure.
-- **The encoder weight is at the top of the range tried.** Round 6 chose weight 12, the
-  largest it tested, so a higher weight might do better still. Rounds 7 and 8 kept it
-  fixed.
+  but about one indirect question in six still misses (84.9% on the latest set; how hard a
+  set is varies, so compare methods within a set, not across sets). The agent also has a
+  `recall` tool it can call with its own rephrasing, which only the live check can
+  measure.
+- **The encoder weight is at the top of the range tried.** Round 11 chose weight 48 for
+  e5, the largest it tested, so a higher weight might do slightly better still.
 - **Forgetting depends on consistent keys.** If the model saves "moved to Austin" under
   `residence` instead of `home_city`, nothing is retired. When I renamed the key on every
   update, Keel's clean-hit rate on changed details fell from 67.8% to 26.1%, still above
@@ -367,6 +392,7 @@ python scripts/run_round7.py             # round 7 (rerankers; downloads ~225 MB
 python scripts/run_round8.py             # round 8 (int8 models; downloads ~135 MB once, ~20 min)
 python scripts/run_round9.py             # round 9 (smaller encoders; downloads ~490 MB once, ~20 min)
 python scripts/run_round10.py            # round 10 (MiniLM below weight 4; ~20 min)
+python scripts/run_round11.py            # round 11 (six other encoders; downloads ~2.7 GB once, ~35 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -383,7 +409,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 10 run transformer models,
+than 0.1 points (rounds 1 and 2 must match exactly; rounds 4 to 11 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout
@@ -406,5 +432,5 @@ reports/metrics/      every number in this README
 ```
 
 *Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web
-search), SQLite, BM25, mpnet, MiniLM and an ms-marco cross-encoder via ONNX Runtime,
+search), SQLite, BM25, e5, mpnet, MiniLM and an ms-marco cross-encoder via ONNX Runtime,
 WordLlama, NumPy, Streamlit, pytest, Ruff, mypy, GitHub Actions.

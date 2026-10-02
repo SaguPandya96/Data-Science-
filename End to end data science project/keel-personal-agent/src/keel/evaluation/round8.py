@@ -34,7 +34,11 @@ def _folder(spec: Mapping[str, Any], cache_dir: Path | None) -> Path:
 def load_encoders(plan: dict[str, Any], cache_dir: Path | None = None) -> dict[str, Embedder]:
     return {
         key: OnnxSentenceEmbedder(
-            _folder(spec, cache_dir), pooling=spec["pooling"], name=spec["name"]
+            _folder(spec, cache_dir),
+            pooling=spec["pooling"],
+            name=spec["name"],
+            query_prefix=spec.get("query_prefix", ""),
+            doc_prefix=spec.get("doc_prefix", ""),
         )
         for key, spec in plan["encoders"].items()
     }
