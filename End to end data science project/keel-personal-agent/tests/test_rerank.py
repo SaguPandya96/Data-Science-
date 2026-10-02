@@ -380,6 +380,10 @@ def test_round12_reuses_round11_with_a_one_point_bar(tmp_path):
     assert all(
         set(row) == {str(w) for w in plan["weight_grid"]} for row in results["tuning"].values()
     )
+    for key, row in results["tuning"].items():
+        top = max(r["mean"] for r in row.values())
+        tied = [float(w) for w, r in row.items() if r["mean"] > top - plan["tie_margin"]]
+        assert results["best_weight"][key] == min(tied)
     rule = results["pass_rule"]
     assert rule["split"] == "holdout8"
     assert rule["min_gain"] == 0.01

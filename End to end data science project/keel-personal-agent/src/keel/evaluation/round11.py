@@ -44,6 +44,10 @@ def run_round11(
     # Round 11 adopts any gain whose interval is above zero; round 12's encoders cost more,
     # so it asks for a lower bound of at least ``min_gain``.
     min_gain = plan.get("min_gain", 0.0)
+    # Weights whose tuning means differ by less than ``tie_margin`` count as tied, and a tie
+    # goes to the smaller weight. Round 12 added this after its first run: two weights a
+    # few questions apart swapped places from one CPU to another (docs/ANALYSIS_PLAN.md).
+    tie_margin = plan.get("tie_margin", 0.0)
     seed, k, core_max = bench["seed"], retrieval["k"], retrieval["core_max"]
     resamples, confidence = analysis["bootstrap_resamples"], analysis["confidence"]
     encoders = dict(encoders or load_encoders(plan))
@@ -77,7 +81,15 @@ def run_round11(
     best_weight: dict[str, float] = {}
     for key in others:
         tuning[key] = {str(w): tuning_row(arm(key, w, f"{key} w={w}")) for w in plan["weight_grid"]}
-        best_weight[key] = max(plan["weight_grid"], key=lambda w: (tuning[key][str(w)]["mean"], -w))
+        top = max(tuning[key][str(w)]["mean"] for w in plan["weight_grid"])
+        if tie_margin:
+            best_weight[key] = min(
+                w for w in plan["weight_grid"] if tuning[key][str(w)]["mean"] > top - tie_margin
+            )
+        else:
+            best_weight[key] = max(
+                plan["weight_grid"], key=lambda w: (tuning[key][str(w)]["mean"], -w)
+            )
 
     def best_mean(key: str) -> float:
         return tuning[key][str(best_weight[key])]["mean"]

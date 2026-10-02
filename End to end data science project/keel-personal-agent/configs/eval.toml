@@ -325,6 +325,7 @@ rerank_weight = 2.0
 candidate = "keel+larger"
 must_beat = "keel+e5"
 min_gain = 0.01                    # three times the size and a quarter of the speed: the 95% lower bound must reach 1 point
+tie_margin = 0.0005                # added after the first run: weights within 0.05 points tie, and the smaller wins
 
 [round12.encoders.e5_base]
 name = "e5-base-v2"
