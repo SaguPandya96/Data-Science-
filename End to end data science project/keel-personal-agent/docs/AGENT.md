@@ -243,7 +243,7 @@ correct. Unknown tools are rejected the same way.
   to `run_round12.py`): 200 synthetic users with pre-registered pass rules. CI reruns every
   round. Rounds 1 and 2 must match exactly; rounds 4 to 12 run transformer models, whose
   last bits vary with the CPU, so their decisions must match exactly and their numbers to
-  within 0.2 points (`scripts/check_metrics.py`).
+  within 0.5 points (`scripts/check_metrics.py`).
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
   questions from each retriever's memories, and the answers are graded automatically. It
   costs money, so it is run manually. Calls run in parallel, and every answer is saved to

@@ -438,7 +438,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.2 points (rounds 1 and 2 must match exactly; rounds 4 to 12 run transformer models,
+than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 12 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout
