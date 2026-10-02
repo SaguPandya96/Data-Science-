@@ -53,7 +53,7 @@ jobs:
   reproduce:
     name: Benchmark numbers reproduce
     runs-on: ubuntu-latest
-    timeout-minutes: 300  # rounds 7 to 11 each take 20 minutes or more on one CPU thread
+    timeout-minutes: 360  # rounds 7 to 12 each take 20 minutes or more on one CPU thread
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
@@ -107,20 +107,24 @@ jobs:
       - name: Rerun round 11 (other encoders of mpnet's size)
         run: python scripts/run_round11.py > /dev/null
 
+      - name: Rerun round 12 (larger encoders)
+        run: python scripts/run_round12.py > /dev/null
+
       - name: Real encoders and rerankers are deterministic
         run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py tests/test_rerank.py
 
       - name: Committed metrics match a fresh run
         # Every number in the README comes from these files. Rounds 1 and 2 must regenerate
-        # exactly. Rounds 4 to 11 use transformer models, whose last bits vary with the
-        # runner's CPU, so their decisions must match exactly and their rates to within 0.1
+        # exactly. Rounds 4 to 12 use transformer models, whose last bits vary with the
+        # runner's CPU, so their decisions must match exactly and their rates to within 0.2
         # points (scripts/check_metrics.py). Timing files depend on the machine and are left out.
         run: |
           git diff --exit-code -- reports/metrics ':!reports/metrics/*_timing.json' \
             ':!reports/metrics/round4.*' ':!reports/metrics/round5.*' ':!reports/metrics/round6.*' \
             ':!reports/metrics/round7.*' ':!reports/metrics/round8.*' ':!reports/metrics/round9.*' \
-            ':!reports/metrics/round10.*' ':!reports/metrics/round11.*'
+            ':!reports/metrics/round10.*' ':!reports/metrics/round11.*' \
+            ':!reports/metrics/round12.*'
           python scripts/check_metrics.py reports/metrics/round4.json \
             reports/metrics/round5.json reports/metrics/round6.json reports/metrics/round7.json \
             reports/metrics/round8.json reports/metrics/round9.json reports/metrics/round10.json \
-            reports/metrics/round11.json
+            reports/metrics/round11.json reports/metrics/round12.json

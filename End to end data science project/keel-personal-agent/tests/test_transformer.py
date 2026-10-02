@@ -79,16 +79,23 @@ def test_shipped_defaults_match_the_benchmark_results():
     """The agent ships whatever the latest adopted round chose, and nothing else."""
     metrics = ROOT / "reports" / "metrics"
     config = load_config(CONFIG)
-    round11 = json.loads((metrics / "round11.json").read_text())
-    plan11 = config["round11"]
-    if round11["pass_rule"]["passed"]:
-        key, weight = round11["chosen"]["encoder"], round11["chosen"]["weight"]
+    round12 = json.loads((metrics / "round12.json").read_text())
+    plan12 = config["round12"]
+    if round12["pass_rule"]["passed"]:
+        key, weight = round12["chosen"]["encoder"], round12["chosen"]["weight"]
     else:
-        key, weight = plan11["current"]["encoder"], plan11["current"]["weight"]
-    spec = plan11["encoders"][key]
+        key, weight = plan12["current"]["encoder"], plan12["current"]["weight"]
+    spec = plan12["encoders"][key]
     fields = ("name", "pooling", "query_prefix", "doc_prefix", "files")
     assert {k: spec[k] for k in fields} == DEFAULT_ENCODER
     assert weight == TRANSFORMER_WEIGHT
+    # Round 12's baseline must be what round 11 adopted.
+    round11 = json.loads((metrics / "round11.json").read_text())
+    plan11 = config["round11"]
+    assert round11["pass_rule"]["passed"]
+    assert plan12["current"]["weight"] == round11["chosen"]["weight"]
+    current = plan12["encoders"][plan12["current"]["encoder"]]
+    assert current == plan11["encoders"][round11["chosen"]["encoder"]]
     # Round 11's baseline must be what round 6 adopted and rounds 7 to 10 kept.
     round6 = json.loads((metrics / "round6.json").read_text())
     plan = config["round6"]

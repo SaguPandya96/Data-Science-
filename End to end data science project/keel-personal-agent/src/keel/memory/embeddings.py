@@ -114,22 +114,23 @@ def offline() -> bool:
     return os.environ.get("KEEL_OFFLINE", "").lower() in ("1", "true", "yes")
 
 
-# The encoder chosen in round 11 of the benchmark (reports/metrics/round11.json). Rounds 4
-# and 5 had shipped all-MiniLM-L6-v2, and rounds 6 to 10 all-mpnet-base-v2.
+# The encoder chosen in round 12 of the benchmark (reports/metrics/round12.json). Rounds 4
+# and 5 had shipped all-MiniLM-L6-v2, rounds 6 to 10 all-mpnet-base-v2, and round 11
+# e5-base-v2.
 DEFAULT_ENCODER: dict[str, Any] = {
-    "name": "e5-base-v2",
+    "name": "e5-large-v2",
     "pooling": "mean",
     "query_prefix": "query: ",
     "doc_prefix": "passage: ",
     "files": {
         "model.onnx": {
-            "url": "https://huggingface.co/Xenova/e5-base-v2/resolve/"
-            "21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/onnx/model.onnx",
-            "sha256": "157f97ef1957d34f52efa26f8031371bf9043acc45460cec7ebe94631ac0e96b",
+            "url": "https://huggingface.co/Xenova/e5-large-v2/resolve/"
+            "840fd2207f68e253697ed85392a482ff7657ad11/onnx/model.onnx",
+            "sha256": "339329575d9c103ab4c08ae8d9d8334adaddda476d1d45f8c65abb7156445002",
         },
         "tokenizer.json": {
-            "url": "https://huggingface.co/Xenova/e5-base-v2/resolve/"
-            "21f8d0e36fdfe76e6a023802dfb293fc6d750ad1/tokenizer.json",
+            "url": "https://huggingface.co/Xenova/e5-large-v2/resolve/"
+            "840fd2207f68e253697ed85392a482ff7657ad11/tokenizer.json",
             "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
         },
     },
