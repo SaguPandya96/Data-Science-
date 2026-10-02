@@ -1050,3 +1050,79 @@ Things to keep in mind:
 - **The cost is real.** The first download grows from 440 MB to 1.3 GB, and embedding runs
   at about a quarter of the speed. Each memory is embedded once, so for one person's memory
   this is seconds, not minutes.
+
+## Round 13: other encoders of e5-large's size
+
+Written after round 12 was merged and before any of these encoders was run on benchmark
+text.
+
+### The question
+
+Round 12 adopted `e5-large-v2`. Round 11 found that the right encoder of a given size mattered
+more than the size alone, so this round asks whether another encoder of e5-large's size
+retrieves **better** at the same cost.
+
+### Encoders
+
+All are pinned by revision and SHA-256 in `configs/eval.toml`, and each gets the prefixes it
+was trained with.
+
+| Encoder | ONNX size | Pooling | Question prefix | Memory prefix |
+| --- | --- | --- | --- | --- |
+| `e5-large-v2` (current) | 1,337 MB | mean | `query: ` | `passage: ` |
+| `e5-large` (the first version) | 1,337 MB | mean | `query: ` | `passage: ` |
+| `snowflake-arctic-embed-l` | 1,337 MB | CLS | search instruction | none |
+| `gte-large` | 1,337 MB | mean | none | none |
+
+Before writing this plan, each was run on one neutral question and three passages (no
+benchmark text). All three were deterministic and ranked the right passage first, at about
+the same speed as e5-large-v2.
+
+Encoders larger again (about 2.2 GB each: `multilingual-e5-large`, `bge-m3`,
+`snowflake-arctic-embed-l-v2.0`) are left out, to keep this a same-cost comparison and to
+limit what the CI job that reruns every round has to download and store.
+
+### The arm and choosing
+
+Every encoder runs under the shipped second stage: the int8 reranker on the top 20, weight
+2.0. Each encoder's weight is chosen from {4, 8, 12, 16, 24, 32, 48, 64, 96} on the mean
+clean-hit rate over the nine already-seen sets, which now include `HOLDOUT8`. Weights whose
+means are within 0.05 points of the best count as tied, and a tie goes to the smaller
+weight (round 12's amended rule, set here in advance). The single best (encoder, weight)
+pair is the candidate. If it does not beat e5-large-v2's tuning mean at its shipped
+`w = 64`, nothing changes and `HOLDOUT9` stays unseen.
+
+### New held-out questions
+
+`HOLDOUT9` in `src/keel/evaluation/scenarios.py`: one direct and one indirect wording per
+detail, written for this round and checked against every earlier wording for duplicates.
+
+### Pass rule
+
+The candidate is compared with e5-large-v2 at `w = 64` on `HOLDOUT9`. These encoders cost
+the same to download and run, so, as in round 11, **the candidate is adopted if the 95%
+persona-bootstrap interval of the paired clean-hit difference is entirely above zero.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the nine already-seen sets (e5-large-v2 at its
+shipped `w = 64`: 91.5%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `gte-large` | 32 | 89.5% |
+| `snowflake-arctic-embed-l` | 24 | 88.5% |
+| `e5-large` (first version) | 4 | 86.8% |
+
+None beat e5-large-v2 on the tuning sets, so **e5-large-v2 stays** and `HOLDOUT9` was not
+used; it remains unseen for a later round. Full tables: `reports/metrics/round13.md`.
+
+Things to keep in mind:
+
+- **The gap is not close.** The best of the three was 2.0 points behind, a much larger gap
+  than processor-level differences could close.
+- **The second version of e5 matters.** The first e5-large, with the same size and prefixes,
+  was the weakest of the three, 4.7 points behind e5-large-v2.
+- **Two chosen weights sit near the tie margin.** For arctic-embed-l, weight 32 was 0.045
+  points behind 24, and for e5-large, weight 12 was 0.04 behind 4. A processor that moved
+  those by a few questions could change which weight is recorded, though not the outcome.

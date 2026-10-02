@@ -392,3 +392,32 @@ def test_round12_reuses_round11_with_a_one_point_bar(tmp_path):
         low = results["comparisons"]["holdout8"][plan["must_beat"]]["low"]
         assert rule["passed"] == (low >= 0.01)
     assert "Round 12: larger encoders" in round11_markdown(results, timings, section="round12")
+
+
+def test_round13_reuses_round11_with_the_tie_rule_set_in_advance(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round13"]
+    assert "min_gain" not in plan
+    assert plan["tie_margin"] == config["round12"]["tie_margin"]
+    # The baseline is what round 12 shipped.
+    assert plan["current"] == {"encoder": "e5_large_v2", "weight": 64.0}
+    assert plan["encoders"]["e5_large_v2"] == config["round12"]["encoders"]["e5_large"]
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    results, timings = run_round11(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=dict.fromkeys(plan["encoders"], 1337.0),
+        clock=lambda: float(next(ticks)),
+        section="round13",
+    )
+    assert set(results["tuning"]) == set(plan["encoders"]) - {"e5_large_v2"}
+    rule = results["pass_rule"]
+    assert rule["split"] == "holdout9"
+    if rule["passed"] is not None:
+        low = results["comparisons"]["holdout9"][plan["must_beat"]]["low"]
+        assert rule["passed"] == (low > 0)
+    assert "Round 13: other encoders" in round11_markdown(results, timings, section="round13")

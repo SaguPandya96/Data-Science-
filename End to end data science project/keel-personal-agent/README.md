@@ -359,6 +359,21 @@ clears the 1-point bar, so it is now the default. The cost: a 1.3 GB first downl
 instead of 440 MB, and embedding about a quarter as fast on one CPU thread. Source:
 [`reports/metrics/round12.md`](reports/metrics/round12.md).
 
+### Round 13: another encoder of the same size
+
+Round 13 tried three more encoders of e5-large-v2's size under the same rules as round 11,
+on the nine question sets already seen:
+
+| Encoder | Already-seen sets (weight) |
+| --- | --- |
+| **`e5-large-v2`** (shipped) | **91.5% (64)** |
+| `gte-large` | 89.5% (32) |
+| `snowflake-arctic-embed-l` | 88.5% (24) |
+| `e5-large` (first version) | 86.8% (4) |
+
+**None came close, so e5-large-v2 stays**, and the fresh question set was not used. Source:
+[`reports/metrics/round13.md`](reports/metrics/round13.md).
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
@@ -422,6 +437,7 @@ python scripts/run_round9.py             # round 9 (smaller encoders; downloads 
 python scripts/run_round10.py            # round 10 (MiniLM below weight 4; ~20 min)
 python scripts/run_round11.py            # round 11 (six other encoders; downloads ~2.7 GB once, ~35 min)
 python scripts/run_round12.py            # round 12 (larger encoders; downloads ~4 GB once, ~50 min)
+python scripts/run_round13.py            # round 13 (other large encoders; downloads ~4 GB once, ~40 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -438,7 +454,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 12 run transformer models,
+than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 13 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout
