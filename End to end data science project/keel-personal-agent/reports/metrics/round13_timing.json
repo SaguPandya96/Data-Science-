@@ -1,0 +1,22 @@
+{
+  "e5_large_v2": {
+    "texts": 79,
+    "seconds": 8.5,
+    "texts_per_second": 9.3
+  },
+  "e5_large_v1": {
+    "texts": 79,
+    "seconds": 8.41,
+    "texts_per_second": 9.4
+  },
+  "arctic_l": {
+    "texts": 79,
+    "seconds": 8.03,
+    "texts_per_second": 9.8
+  },
+  "gte_large": {
+    "texts": 79,
+    "seconds": 7.48,
+    "texts_per_second": 10.6
+  }
+}

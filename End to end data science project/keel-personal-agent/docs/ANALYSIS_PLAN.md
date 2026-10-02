@@ -1102,3 +1102,27 @@ detail, written for this round and checked against every earlier wording for dup
 The candidate is compared with e5-large-v2 at `w = 64` on `HOLDOUT9`. These encoders cost
 the same to download and run, so, as in round 11, **the candidate is adopted if the 95%
 persona-bootstrap interval of the paired clean-hit difference is entirely above zero.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the nine already-seen sets (e5-large-v2 at its
+shipped `w = 64`: 91.5%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `gte-large` | 32 | 89.5% |
+| `snowflake-arctic-embed-l` | 24 | 88.5% |
+| `e5-large` (first version) | 4 | 86.8% |
+
+None beat e5-large-v2 on the tuning sets, so **e5-large-v2 stays** and `HOLDOUT9` was not
+used; it remains unseen for a later round. Full tables: `reports/metrics/round13.md`.
+
+Things to keep in mind:
+
+- **The gap is not close.** The best of the three was 2.0 points behind, a much larger gap
+  than processor-level differences could close.
+- **The second version of e5 matters.** The first e5-large, with the same size and prefixes,
+  was the weakest of the three, 4.7 points behind e5-large-v2.
+- **Two chosen weights sit near the tie margin.** For arctic-embed-l, weight 32 was 0.045
+  points behind 24, and for e5-large, weight 12 was 0.04 behind 4. A processor that moved
+  those by a few questions could change which weight is recorded, though not the outcome.
