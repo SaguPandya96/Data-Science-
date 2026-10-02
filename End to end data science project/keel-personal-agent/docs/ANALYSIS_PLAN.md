@@ -1182,3 +1182,29 @@ same speed but is a 70% larger download, so, as in round 12, **the candidate is 
 only if the 95% persona-bootstrap interval of the paired clean-hit difference has a lower
 bound of at least 1 point**. A gain above zero but below that bar is reported and not
 adopted.
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the nine already-seen sets (e5-large-v2 at its
+shipped `w = 64`: 91.5%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `multilingual-e5-large` | 64 | 91.3% |
+| `multilingual-e5-large-instruct` | 64 | 90.3% |
+| `snowflake-arctic-embed-l-v2.0` | 4 | 86.6% |
+
+None beat e5-large-v2 on the tuning sets, so **e5-large-v2 stays** and `HOLDOUT9` is still
+unseen. Full tables: `reports/metrics/round14.md`.
+
+Things to keep in mind:
+
+- **The closest was 0.26 points behind.** multilingual-e5-large came nearest, but still
+  about 65 questions short over 25,600, well beyond processor-level differences.
+- **The search instruction did not help e5.** The instruct version scored a point below the
+  plain multilingual model, and its long question prefix made it embed a third slower.
+- **arctic-embed-l-v2.0 did best at the lowest weight tried and worse at every step up**,
+  like arctic-embed-l in round 13 and bge and mxbai in round 12.
+- **One chosen weight sits near the tie margin.** For the instruct model, weight 64 was
+  0.045 points behind 96 and weight 48 was 0.061 behind. A processor that moved those by a
+  question or two could change which weight is recorded, though not the outcome.

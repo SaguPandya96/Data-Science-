@@ -1,0 +1,395 @@
+{
+  "encoders": {
+    "e5_large_v2": "e5-large-v2",
+    "me5_large": "multilingual-e5-large",
+    "me5_large_instruct": "multilingual-e5-large-instruct",
+    "arctic_l_v2": "snowflake-arctic-embed-l-v2.0"
+  },
+  "model_mb": {
+    "e5_large_v2": 1336.9,
+    "me5_large": 2235.9,
+    "me5_large_instruct": 2236.1,
+    "arctic_l_v2": 2267.6
+  },
+  "reranker": "ms-marco-MiniLM-L-6-v2 (int8)",
+  "k": 5,
+  "personas": 200,
+  "tuning_splits": [
+    "dev",
+    "holdout",
+    "holdout2",
+    "holdout3",
+    "holdout4",
+    "holdout5",
+    "holdout6",
+    "holdout7",
+    "holdout8"
+  ],
+  "current": {
+    "encoder": "e5_large_v2",
+    "weight": 64.0
+  },
+  "baseline": {
+    "dev": 0.99875,
+    "holdout": 0.905625,
+    "holdout2": 0.81546875,
+    "holdout3": 0.925625,
+    "holdout4": 0.88796875,
+    "holdout5": 0.8928125,
+    "holdout6": 0.9503125,
+    "holdout7": 0.9228125,
+    "holdout8": 0.9390625,
+    "mean": 0.9153819444444444
+  },
+  "tuning": {
+    "me5_large": {
+      "4.0": {
+        "dev": 0.9865625,
+        "holdout": 0.89953125,
+        "holdout2": 0.78609375,
+        "holdout3": 0.86203125,
+        "holdout4": 0.86765625,
+        "holdout5": 0.8746875,
+        "holdout6": 0.91953125,
+        "holdout7": 0.85890625,
+        "holdout8": 0.90984375,
+        "mean": 0.8849826388888888
+      },
+      "8.0": {
+        "dev": 0.9878125,
+        "holdout": 0.90328125,
+        "holdout2": 0.79546875,
+        "holdout3": 0.865,
+        "holdout4": 0.87109375,
+        "holdout5": 0.8809375,
+        "holdout6": 0.92015625,
+        "holdout7": 0.87046875,
+        "holdout8": 0.91390625,
+        "mean": 0.8897916666666666
+      },
+      "12.0": {
+        "dev": 0.99,
+        "holdout": 0.90640625,
+        "holdout2": 0.80828125,
+        "holdout3": 0.87,
+        "holdout4": 0.87265625,
+        "holdout5": 0.88421875,
+        "holdout6": 0.9215625,
+        "holdout7": 0.8759375,
+        "holdout8": 0.91328125,
+        "mean": 0.8935937500000001
+      },
+      "16.0": {
+        "dev": 0.99125,
+        "holdout": 0.90625,
+        "holdout2": 0.81421875,
+        "holdout3": 0.87921875,
+        "holdout4": 0.87578125,
+        "holdout5": 0.88859375,
+        "holdout6": 0.9225,
+        "holdout7": 0.8790625,
+        "holdout8": 0.91125,
+        "mean": 0.8964583333333334
+      },
+      "24.0": {
+        "dev": 0.99375,
+        "holdout": 0.90765625,
+        "holdout2": 0.8240625,
+        "holdout3": 0.90125,
+        "holdout4": 0.8809375,
+        "holdout5": 0.8959375,
+        "holdout6": 0.9246875,
+        "holdout7": 0.89125,
+        "holdout8": 0.91,
+        "mean": 0.9032812499999999
+      },
+      "32.0": {
+        "dev": 0.994375,
+        "holdout": 0.908125,
+        "holdout2": 0.82734375,
+        "holdout3": 0.90421875,
+        "holdout4": 0.88734375,
+        "holdout5": 0.90046875,
+        "holdout6": 0.9290625,
+        "holdout7": 0.903125,
+        "holdout8": 0.91375,
+        "mean": 0.9075347222222222
+      },
+      "48.0": {
+        "dev": 0.995,
+        "holdout": 0.90609375,
+        "holdout2": 0.8309375,
+        "holdout3": 0.9053125,
+        "holdout4": 0.89703125,
+        "holdout5": 0.90609375,
+        "holdout6": 0.9325,
+        "holdout7": 0.91,
+        "holdout8": 0.9221875,
+        "mean": 0.9116840277777778
+      },
+      "64.0": {
+        "dev": 0.9965625,
+        "holdout": 0.90328125,
+        "holdout2": 0.8303125,
+        "holdout3": 0.9040625,
+        "holdout4": 0.90796875,
+        "holdout5": 0.90640625,
+        "holdout6": 0.9334375,
+        "holdout7": 0.90859375,
+        "holdout8": 0.924375,
+        "mean": 0.9127777777777778
+      },
+      "96.0": {
+        "dev": 0.9978125,
+        "holdout": 0.8990625,
+        "holdout2": 0.83125,
+        "holdout3": 0.90328125,
+        "holdout4": 0.91359375,
+        "holdout5": 0.90671875,
+        "holdout6": 0.93015625,
+        "holdout7": 0.90546875,
+        "holdout8": 0.9209375,
+        "mean": 0.9120312500000001
+      }
+    },
+    "me5_large_instruct": {
+      "4.0": {
+        "dev": 0.9840625,
+        "holdout": 0.89390625,
+        "holdout2": 0.78,
+        "holdout3": 0.8603125,
+        "holdout4": 0.868125,
+        "holdout5": 0.87671875,
+        "holdout6": 0.91578125,
+        "holdout7": 0.8446875,
+        "holdout8": 0.904375,
+        "mean": 0.8808854166666666
+      },
+      "8.0": {
+        "dev": 0.9834375,
+        "holdout": 0.89140625,
+        "holdout2": 0.7884375,
+        "holdout3": 0.863125,
+        "holdout4": 0.87234375,
+        "holdout5": 0.88171875,
+        "holdout6": 0.9175,
+        "holdout7": 0.8515625,
+        "holdout8": 0.9075,
+        "mean": 0.8841145833333333
+      },
+      "12.0": {
+        "dev": 0.9834375,
+        "holdout": 0.8896875,
+        "holdout2": 0.79609375,
+        "holdout3": 0.86640625,
+        "holdout4": 0.87453125,
+        "holdout5": 0.88828125,
+        "holdout6": 0.91796875,
+        "holdout7": 0.85375,
+        "holdout8": 0.9053125,
+        "mean": 0.8861631944444445
+      },
+      "16.0": {
+        "dev": 0.9834375,
+        "holdout": 0.8909375,
+        "holdout2": 0.80328125,
+        "holdout3": 0.87859375,
+        "holdout4": 0.87796875,
+        "holdout5": 0.89359375,
+        "holdout6": 0.916875,
+        "holdout7": 0.8571875,
+        "holdout8": 0.90421875,
+        "mean": 0.8895659722222222
+      },
+      "24.0": {
+        "dev": 0.9840625,
+        "holdout": 0.8921875,
+        "holdout2": 0.81078125,
+        "holdout3": 0.895625,
+        "holdout4": 0.88375,
+        "holdout5": 0.8996875,
+        "holdout6": 0.9253125,
+        "holdout7": 0.87,
+        "holdout8": 0.905,
+        "mean": 0.8962673611111112
+      },
+      "32.0": {
+        "dev": 0.985625,
+        "holdout": 0.89578125,
+        "holdout2": 0.81328125,
+        "holdout3": 0.89890625,
+        "holdout4": 0.89015625,
+        "holdout5": 0.9003125,
+        "holdout6": 0.92875,
+        "holdout7": 0.8765625,
+        "holdout8": 0.9071875,
+        "mean": 0.8996180555555556
+      },
+      "48.0": {
+        "dev": 0.9875,
+        "holdout": 0.89984375,
+        "holdout2": 0.815,
+        "holdout3": 0.89734375,
+        "holdout4": 0.90765625,
+        "holdout5": 0.89796875,
+        "holdout6": 0.9353125,
+        "holdout7": 0.873125,
+        "holdout8": 0.9121875,
+        "mean": 0.9028819444444446
+      },
+      "64.0": {
+        "dev": 0.990625,
+        "holdout": 0.89953125,
+        "holdout2": 0.81640625,
+        "holdout3": 0.89625,
+        "holdout4": 0.9115625,
+        "holdout5": 0.8934375,
+        "holdout6": 0.9334375,
+        "holdout7": 0.87078125,
+        "holdout8": 0.9153125,
+        "mean": 0.9030381944444444
+      },
+      "96.0": {
+        "dev": 0.994375,
+        "holdout": 0.89890625,
+        "holdout2": 0.81546875,
+        "holdout3": 0.9,
+        "holdout4": 0.91609375,
+        "holdout5": 0.8871875,
+        "holdout6": 0.9325,
+        "holdout7": 0.8665625,
+        "holdout8": 0.9203125,
+        "mean": 0.9034895833333333
+      }
+    },
+    "arctic_l_v2": {
+      "4.0": {
+        "dev": 0.97875,
+        "holdout": 0.8475,
+        "holdout2": 0.75546875,
+        "holdout3": 0.8578125,
+        "holdout4": 0.8596875,
+        "holdout5": 0.87765625,
+        "holdout6": 0.91,
+        "holdout7": 0.839375,
+        "holdout8": 0.8634375,
+        "mean": 0.8655208333333333
+      },
+      "8.0": {
+        "dev": 0.9765625,
+        "holdout": 0.8353125,
+        "holdout2": 0.7528125,
+        "holdout3": 0.85421875,
+        "holdout4": 0.86234375,
+        "holdout5": 0.8771875,
+        "holdout6": 0.90625,
+        "holdout7": 0.8340625,
+        "holdout8": 0.86078125,
+        "mean": 0.8621701388888889
+      },
+      "12.0": {
+        "dev": 0.9725,
+        "holdout": 0.825,
+        "holdout2": 0.7503125,
+        "holdout3": 0.863125,
+        "holdout4": 0.861875,
+        "holdout5": 0.86421875,
+        "holdout6": 0.901875,
+        "holdout7": 0.833125,
+        "holdout8": 0.8640625,
+        "mean": 0.8595659722222222
+      },
+      "16.0": {
+        "dev": 0.96875,
+        "holdout": 0.8165625,
+        "holdout2": 0.74703125,
+        "holdout3": 0.8721875,
+        "holdout4": 0.85609375,
+        "holdout5": 0.8590625,
+        "holdout6": 0.89796875,
+        "holdout7": 0.8340625,
+        "holdout8": 0.86328125,
+        "mean": 0.8572222222222222
+      },
+      "24.0": {
+        "dev": 0.966875,
+        "holdout": 0.80390625,
+        "holdout2": 0.74125,
+        "holdout3": 0.87078125,
+        "holdout4": 0.84578125,
+        "holdout5": 0.85609375,
+        "holdout6": 0.8909375,
+        "holdout7": 0.83421875,
+        "holdout8": 0.84796875,
+        "mean": 0.8508680555555554
+      },
+      "32.0": {
+        "dev": 0.965,
+        "holdout": 0.79390625,
+        "holdout2": 0.73875,
+        "holdout3": 0.869375,
+        "holdout4": 0.83875,
+        "holdout5": 0.85296875,
+        "holdout6": 0.88421875,
+        "holdout7": 0.83203125,
+        "holdout8": 0.83953125,
+        "mean": 0.8460590277777779
+      },
+      "48.0": {
+        "dev": 0.9634375,
+        "holdout": 0.78234375,
+        "holdout2": 0.734375,
+        "holdout3": 0.86578125,
+        "holdout4": 0.8284375,
+        "holdout5": 0.84828125,
+        "holdout6": 0.87625,
+        "holdout7": 0.825,
+        "holdout8": 0.82859375,
+        "mean": 0.8391666666666667
+      },
+      "64.0": {
+        "dev": 0.9628125,
+        "holdout": 0.77828125,
+        "holdout2": 0.731875,
+        "holdout3": 0.8603125,
+        "holdout4": 0.82296875,
+        "holdout5": 0.844375,
+        "holdout6": 0.86984375,
+        "holdout7": 0.82171875,
+        "holdout8": 0.82671875,
+        "mean": 0.8354340277777779
+      },
+      "96.0": {
+        "dev": 0.9628125,
+        "holdout": 0.770625,
+        "holdout2": 0.73125,
+        "holdout3": 0.856875,
+        "holdout4": 0.81875,
+        "holdout5": 0.838125,
+        "holdout6": 0.86390625,
+        "holdout7": 0.818125,
+        "holdout8": 0.82125,
+        "mean": 0.8313020833333333
+      }
+    }
+  },
+  "best_weight": {
+    "me5_large": 64.0,
+    "me5_large_instruct": 64.0,
+    "arctic_l_v2": 4.0
+  },
+  "chosen": {
+    "encoder": "me5_large",
+    "weight": 64.0
+  },
+  "splits": {},
+  "comparisons": {},
+  "pass_rule": {
+    "candidate": "keel+larger",
+    "must_beat": "keel+e5large",
+    "split": "holdout9",
+    "min_gain": 0.01,
+    "passed": null,
+    "outcome": "no encoder beat e5-large-v2 on the tuning sets (best: multilingual-e5-large at w = 64.0); e5-large-v2 kept"
+  }
+}
