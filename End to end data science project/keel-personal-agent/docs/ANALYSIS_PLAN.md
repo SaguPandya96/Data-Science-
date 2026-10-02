@@ -995,3 +995,39 @@ the first download and runs at about a quarter of the speed, so, as in rounds 6 
 **the candidate is adopted only if the 95% persona-bootstrap interval of the paired
 clean-hit difference has a lower bound of at least 1 point**. A gain above zero but below
 that bar is reported and not adopted.
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the eight already-seen sets (e5-base at its
+shipped `w = 48`: 90.6%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `e5-large-v2` | 96 | 91.2% |
+| `mxbai-embed-large-v1` | 8 | 87.9% |
+| `bge-large-en-v1.5` (search instruction) | 12 | 86.9% |
+
+e5-large at `w = 96` was the candidate. On `HOLDOUT8` at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+e5` (e5-base, `w = 48`) | 90.1% | 100.0% | 80.2% |
+| `keel+larger` (e5-large, `w = 96`) | 93.7% | 100.0% | 87.4% |
+
+`keel+larger` − `keel+e5`: **+3.5 points** (95% CI +3.1 to +4.0), all on indirect
+wordings (+7.1, +6.3 to +8.0). The lower bound clears the 1-point bar, so **e5-large-v2 at
+`w = 96` is adopted** as the agent's encoder. Full tables: `reports/metrics/round12.md`.
+
+Things to keep in mind:
+
+- **The chosen weight is at the top of the grid again.** e5-large scored 91.2% at both 64
+  and 96 (96 very slightly higher). A larger weight was not tried.
+- **The gain on the fresh set is much larger than on tuning**: 0.6 points on the
+  already-seen sets, 3.5 on `HOLDOUT8`. e5-base did worse on `HOLDOUT8`'s indirect
+  wordings (80.2%) than on `HOLDOUT7`'s (84.9%), so this set happens to be harder for it.
+  The direction is the same on both; the size depends on the questions.
+- **Only the e5 family helped.** mxbai and bge-large, both strong on public benchmarks,
+  were 2.7 and 3.7 points below e5-base here and got worse as their weight rose.
+- **The cost is real.** The first download grows from 440 MB to 1.3 GB, and embedding runs
+  at about a quarter of the speed. Each memory is embedded once, so for one person's memory
+  this is seconds, not minutes.
