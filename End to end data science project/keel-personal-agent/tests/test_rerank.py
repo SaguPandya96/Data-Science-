@@ -357,3 +357,38 @@ def test_round11_runner_with_stand_ins(tmp_path):
     assert bool(results["splits"]) == tested
     assert set(timings) == set(plan["encoders"])
     assert "Round 11: other encoders" in round11_markdown(results, timings)
+
+
+def test_round12_reuses_round11_with_a_one_point_bar(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    plan = load_config(CONFIG)["round12"]
+    assert plan["min_gain"] == 0.01
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    sizes = dict.fromkeys(plan["encoders"], 1337.0)
+    results, timings = run_round11(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=sizes,
+        clock=lambda: float(next(ticks)),
+        section="round12",
+    )
+    others = set(plan["encoders"]) - {plan["current"]["encoder"]}
+    assert set(results["tuning"]) == others
+    assert all(
+        set(row) == {str(w) for w in plan["weight_grid"]} for row in results["tuning"].values()
+    )
+    for key, row in results["tuning"].items():
+        top = max(r["mean"] for r in row.values())
+        tied = [float(w) for w, r in row.items() if r["mean"] > top - plan["tie_margin"]]
+        assert results["best_weight"][key] == min(tied)
+    rule = results["pass_rule"]
+    assert rule["split"] == "holdout8"
+    assert rule["min_gain"] == 0.01
+    if rule["passed"] is not None:
+        assert set(results["splits"]) == {"holdout8", "holdout8_direct", "holdout8_indirect"}
+        low = results["comparisons"]["holdout8"][plan["must_beat"]]["low"]
+        assert rule["passed"] == (low >= 0.01)
+    assert "Round 12: larger encoders" in round11_markdown(results, timings, section="round12")

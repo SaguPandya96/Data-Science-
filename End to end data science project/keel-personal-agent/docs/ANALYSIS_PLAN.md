@@ -945,3 +945,108 @@ Things to keep in mind:
 - **No cost change.** e5 is the same size and speed as mpnet (nomic would have been 25%
   larger and half as fast).
 
+
+## Round 12: larger encoders
+
+Written after round 11 was merged and before any of these encoders was run on benchmark
+text.
+
+### The question
+
+Round 11 adopted `e5-base-v2`, and the misses left are still mostly indirect questions.
+This round asks whether a **larger** encoder, of about three times the size, retrieves
+enough better to be worth its cost.
+
+### Encoders
+
+All are pinned by revision and SHA-256 in `configs/eval.toml`, and each gets the prefixes
+it was trained with.
+
+| Encoder | ONNX size | Pooling | Question prefix | Memory prefix |
+| --- | --- | --- | --- | --- |
+| `e5-base-v2` (current) | 436 MB | mean | `query: ` | `passage: ` |
+| `e5-large-v2` | 1,337 MB | mean | `query: ` | `passage: ` |
+| `bge-large-en-v1.5` | 1,337 MB | CLS | search instruction | none |
+| `mxbai-embed-large-v1` | 1,337 MB | CLS | search instruction | none |
+
+Before writing this plan, each was run on one neutral question and three passages (no
+benchmark text). All three were deterministic and ranked the right passage first. On one
+CPU thread they embedded about 9 texts a second against e5-base's 33.
+
+### The arm and choosing
+
+Every encoder runs under the shipped second stage: the int8 reranker on the top 20,
+weight 2.0. Each encoder's weight is chosen from {4, 8, 12, 16, 24, 32, 48, 64, 96} on the
+mean clean-hit rate over the eight already-seen sets, which now include `HOLDOUT7` (ties:
+smaller weight). The grid goes past 48 because e5-base's chosen weight was at the top of
+round 11's grid. The single best (encoder, weight) pair is the candidate. If it does not
+beat e5-base's tuning mean at its shipped `w = 48`, nothing changes and `HOLDOUT8` stays
+unseen.
+
+### New held-out questions
+
+`HOLDOUT8` in `src/keel/evaluation/scenarios.py`: one direct and one indirect wording per
+detail, written for this round and checked against every earlier wording for duplicates.
+
+### Pass rule
+
+The candidate is compared with e5-base at `w = 48` on `HOLDOUT8`. A larger encoder triples
+the first download and runs at about a quarter of the speed, so, as in rounds 6 and 7,
+**the candidate is adopted only if the 95% persona-bootstrap interval of the paired
+clean-hit difference has a lower bound of at least 1 point**. A gain above zero but below
+that bar is reported and not adopted.
+
+### Outcome
+
+Mean clean hit over the eight already-seen sets (e5-base at its shipped `w = 48`: 90.6%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `e5-large-v2` | 64 | 91.2% |
+| `mxbai-embed-large-v1` | 8 | 87.9% |
+| `bge-large-en-v1.5` (search instruction) | 4 | 86.9% |
+
+e5-large at `w = 64` was the candidate. On `HOLDOUT8` at `k = 5`:
+
+| Arm | Clean hit | Direct | Indirect |
+| --- | --- | --- | --- |
+| `keel+e5` (e5-base, `w = 48`) | 90.1% | 100.0% | 80.2% |
+| `keel+larger` (e5-large, `w = 64`) | 93.9% | 100.0% | 87.8% |
+
+`keel+larger` − `keel+e5`: **+3.8 points** (95% CI +3.4 to +4.2), all on indirect
+wordings (+7.6, +6.7 to +8.4). The lower bound clears the 1-point bar, so **e5-large-v2 at
+`w = 64` is adopted** as the agent's encoder. Full tables: `reports/metrics/round12.md`.
+
+### Amendment after the first run: ties between weights
+
+**This rule was added after the round had been run once, and after `HOLDOUT8` had been
+used.** The first run, as planned, chose `w = 96` for e5-large: 91.1777% on the tuning
+sets against 91.1719% at `w = 64`, a gap of about two questions out of 25,600. On the CI
+runner's processor the order reversed and it chose 64, so the committed decision did not
+reproduce. ONNX Runtime's last bits differ between processors, and a gap that small is
+inside that noise.
+
+The weight choice now treats tuning means within **0.05 points** of the best as tied, and a
+tie goes to the smaller weight, extending the planned "ties: smaller weight" rule. For
+e5-large that gives 64 on any processor (48 is 0.09 points below the best, outside the
+margin); for bge-large it moves the choice from 12 to 4, which changes nothing else. Round
+11 is not affected. The comparison above is from the rerun at `w = 64`. In the first run,
+at `w = 96`, e5-large scored 93.7% on `HOLDOUT8` (+3.5 points, 95% CI +3.1 to +4.0), so
+the decision to adopt e5-large is the same either way; only the weight changed.
+
+Things to keep in mind:
+
+- **`HOLDOUT8` has now been used twice**, once for each weight. Both runs adopt e5-large,
+  and the two weights differ by 0.2 points there, so the second look did not decide
+  anything, but the 93.9% is not a first-look number.
+- **The weight curve is flat at the top.** e5-large scored 91.1% at 48 and 91.2% at both
+  64 and 96. A larger weight would probably not change much.
+- **The gain on the fresh set is much larger than on tuning**: 0.6 points on the
+  already-seen sets, 3.8 on `HOLDOUT8`. e5-base did worse on `HOLDOUT8`'s indirect
+  wordings (80.2%) than on `HOLDOUT7`'s (84.9%), so this set happens to be harder for it.
+  The direction is the same on both; the size depends on the questions.
+- **Only the e5 family helped.** mxbai and bge-large, both strong on public benchmarks,
+  were 2.7 and 3.7 points below e5-base here and got worse as their weight rose.
+- **The cost is real.** The first download grows from 440 MB to 1.3 GB, and embedding runs
+  at about a quarter of the speed. Each memory is embedded once, so for one person's memory
+  this is seconds, not minutes.

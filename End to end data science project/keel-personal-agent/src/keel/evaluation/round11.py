@@ -1,6 +1,7 @@
-"""Round 11: is another encoder of mpnet's size better under the reranker?
+"""Rounds 11 and 12: is another encoder better than the shipped one under the reranker?
 
-See docs/ANALYSIS_PLAN.md.
+Round 11 tried encoders of mpnet's size and round 12 larger ones (docs/ANALYSIS_PLAN.md).
+Both use this module, each with its own section of configs/eval.toml.
 """
 
 from __future__ import annotations
@@ -21,7 +22,10 @@ from keel.memory.embeddings import Embedder
 from keel.memory.rerank import RerankedMemory, Reranker
 from keel.memory.retrieval import Retriever
 
-SPLITS = ("holdout7", "holdout7_direct", "holdout7_indirect")
+TITLES = {
+    "round11": "Round 11: other encoders of mpnet's size",
+    "round12": "Round 12: larger encoders",
+}
 
 
 def run_round11(
@@ -30,11 +34,20 @@ def run_round11(
     reranker: Reranker | None = None,
     sizes: Mapping[str, float] | None = None,
     clock: Callable[[], float] = time.perf_counter,
+    section: str = "round11",
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Returns (results, timings). Timings vary by machine, so they are kept apart."""
     config = load_config(config_path)
     bench, retrieval, analysis = config["benchmark"], config["retrieval"], config["analysis"]
-    plan = config["round11"]
+    plan = config[section]
+    splits = (plan["split"], f"{plan['split']}_direct", f"{plan['split']}_indirect")
+    # Round 11 adopts any gain whose interval is above zero; round 12's encoders cost more,
+    # so it asks for a lower bound of at least ``min_gain``.
+    min_gain = plan.get("min_gain", 0.0)
+    # Weights whose tuning means differ by less than ``tie_margin`` count as tied, and a tie
+    # goes to the smaller weight. Round 12 added this after its first run: two weights a
+    # few questions apart swapped places from one CPU to another (docs/ANALYSIS_PLAN.md).
+    tie_margin = plan.get("tie_margin", 0.0)
     seed, k, core_max = bench["seed"], retrieval["k"], retrieval["core_max"]
     resamples, confidence = analysis["bootstrap_resamples"], analysis["confidence"]
     encoders = dict(encoders or load_encoders(plan))
@@ -68,7 +81,15 @@ def run_round11(
     best_weight: dict[str, float] = {}
     for key in others:
         tuning[key] = {str(w): tuning_row(arm(key, w, f"{key} w={w}")) for w in plan["weight_grid"]}
-        best_weight[key] = max(plan["weight_grid"], key=lambda w: (tuning[key][str(w)]["mean"], -w))
+        top = max(tuning[key][str(w)]["mean"] for w in plan["weight_grid"])
+        if tie_margin:
+            best_weight[key] = min(
+                w for w in plan["weight_grid"] if tuning[key][str(w)]["mean"] > top - tie_margin
+            )
+        else:
+            best_weight[key] = max(
+                plan["weight_grid"], key=lambda w: (tuning[key][str(w)]["mean"], -w)
+            )
 
     def best_mean(key: str) -> float:
         return tuning[key][str(best_weight[key])]["mean"]
@@ -76,7 +97,7 @@ def run_round11(
     best = max(others, key=lambda key_: (best_mean(key_), -others.index(key_)))
     tested = best_mean(best) > baseline["mean"]
 
-    # 2. Test the best one on the new held-out set, only if it beat mpnet on tuning.
+    # 2. Test the best one on the new held-out set, only if it beat the current one there.
     results: dict[str, Any] = {}
     comparisons: dict[str, Any] = {}
     if tested:
@@ -84,7 +105,7 @@ def run_round11(
             arm(current["encoder"], current["weight"], plan["must_beat"]),
             arm(best, best_weight[best], plan["candidate"]),
         ]
-        for split in SPLITS:
+        for split in splits:
             scores = [score_arm(a, personas, split, k) for a in arms]
             by_name = {s.name: s for s in scores}
             results[split] = summarize(scores, analysis, seed)
@@ -100,15 +121,22 @@ def run_round11(
 
     names = {key: spec["name"] for key, spec in plan["encoders"].items()}
     setting = f"{names[best]} at w = {best_weight[best]}"
+    kept = "mpnet" if section == "round11" else names[current["encoder"]]
     if not tested:
         verdict: bool | None = None
-        outcome = f"no encoder beat mpnet on the tuning sets (best: {setting}); mpnet kept"
+        outcome = f"no encoder beat {kept} on the tuning sets (best: {setting}); {kept} kept"
     else:
-        verdict = comparisons[plan["split"]][plan["must_beat"]]["low"] > 0
+        low = comparisons[plan["split"]][plan["must_beat"]]["low"]
+        verdict = low >= min_gain if min_gain else low > 0
         if verdict:
             outcome = f"{setting} adopted"
+        elif min_gain and low > 0:
+            outcome = (
+                f"{setting} better on the held-out set but short of the "
+                f"{100 * min_gain:g}-point bar; {kept} kept"
+            )
         else:
-            outcome = f"{setting} not better on the held-out set; mpnet kept"
+            outcome = f"{setting} not better on the held-out set; {kept} kept"
 
     # Speed: each encoder on one persona's memories and dev questions. A trailing space
     # bypasses the cache from scoring; the tokenizer ignores it.
@@ -149,6 +177,7 @@ def run_round11(
                 "candidate": plan["candidate"],
                 "must_beat": plan["must_beat"],
                 "split": plan["split"],
+                **({"min_gain": min_gain} if min_gain else {}),
                 "passed": verdict,
                 "outcome": outcome,
             },
@@ -157,7 +186,9 @@ def run_round11(
     )
 
 
-def to_markdown(results: dict[str, Any], timings: dict[str, Any] | None = None) -> str:
+def to_markdown(
+    results: dict[str, Any], timings: dict[str, Any] | None = None, section: str = "round11"
+) -> str:
     def pct(stat: dict) -> str:
         return f"{100 * stat['mean']:.1f}% ({100 * stat['low']:.1f} to {100 * stat['high']:.1f})"
 
@@ -170,7 +201,7 @@ def to_markdown(results: dict[str, Any], timings: dict[str, Any] | None = None) 
     names = results["encoders"]
     current = results["current"]
     lines = [
-        "# Round 11: other encoders of mpnet's size",
+        f"# {TITLES[section]}",
         "",
         f"Every encoder runs under `{results['reranker']}` on the top 20. "
         f"{results['personas']} personas, k = {results['k']}. Intervals are 95% persona "
@@ -197,10 +228,11 @@ def to_markdown(results: dict[str, Any], timings: dict[str, Any] | None = None) 
     lines.append("")
     if not results["splits"]:
         lines += ["The held-out set was not used.", ""]
+    split = rule["split"]
     titles = {
-        "holdout7": "New held-out set (all)",
-        "holdout7_direct": "New held-out set: direct",
-        "holdout7_indirect": "New held-out set: indirect",
+        split: "New held-out set (all)",
+        f"{split}_direct": "New held-out set: direct",
+        f"{split}_indirect": "New held-out set: indirect",
     }
     for split, title in titles.items():
         if split not in results["splits"]:

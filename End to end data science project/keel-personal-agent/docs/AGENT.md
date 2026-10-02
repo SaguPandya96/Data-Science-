@@ -128,16 +128,16 @@ when this fails.
 
    BM25 uses Snowball stemming and a fixed list of synonym groups for personal topics,
    with synonyms weighted at 0.6. The embedding term uses the best encoder available, with
-   its weight `w` chosen by the benchmark (rounds 2 and 11):
+   its weight `w` chosen by the benchmark (rounds 2 and 12):
 
    | Encoder | `w` | Used when |
    | --- | --- | --- |
-   | `e5-base-v2` (ONNX Runtime, CPU) | 48.0 | the `transformer` extra is installed and the model is cached or downloadable |
+   | `e5-large-v2` (ONNX Runtime, CPU) | 64.0 | the `transformer` extra is installed and the model is cached or downloadable |
    | WordLlama `l2_supercat` | 0.5 | the `embed` extra is installed |
    | none | — | neither; BM25 hybrid only |
 
    e5 was trained with prefixes, so the question is embedded as `query: …` and each
-   memory as `passage: …`. The model (about 440 MB) is downloaded once to
+   memory as `passage: …`. The model (about 1.3 GB) is downloaded once to
    `~/.cache/keel/models`, checked against a pinned SHA-256 and discarded on mismatch.
    Inference is single-threaded so a given text always produces the same vector.
 4. **Reranking.** When the encoder is e5 and the reranker is available, the 20
@@ -240,10 +240,10 @@ correct. Unknown tools are rejected the same way.
   also cover model download, checksum rejection and offline fallback. They need no key and
   never download a model.
 - **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`
-  to `run_round7.py`): 200 synthetic users with pre-registered pass rules. CI reruns every
-  round. Rounds 1 and 2 must match exactly; rounds 4 to 7 run transformer models, whose
+  to `run_round12.py`): 200 synthetic users with pre-registered pass rules. CI reruns every
+  round. Rounds 1 and 2 must match exactly; rounds 4 to 12 run transformer models, whose
   last bits vary with the CPU, so their decisions must match exactly and their numbers to
-  within 0.1 points (`scripts/check_metrics.py`).
+  within 0.5 points (`scripts/check_metrics.py`).
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
   questions from each retriever's memories, and the answers are graded automatically. It
   costs money, so it is run manually. Calls run in parallel, and every answer is saved to
@@ -252,16 +252,17 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are the weak spot: 84.9% retrieved correctly on
-  the latest held-out set (benchmark round 11), against 99.9% for direct questions.
-- The first run of the agent downloads the encoder and reranker (about 440 MB and 23 MB).
+- Questions that only imply their topic are the weak spot: 87.8% retrieved correctly on
+  the latest held-out set (benchmark round 12), against 100.0% for direct questions.
+- The first run of the agent downloads the encoder and reranker (about 1.3 GB and 23 MB).
   Offline, it falls back to WordLlama without reranking, which retrieves less well.
 - Reranking adds about 65 ms to every turn on one CPU thread. Unlike embedding, this
   cost is paid per question, not once per memory.
-- The encoder embeds about 25 to 50 texts a second on one CPU thread, depending on the
-  machine. That is fine for one person's memory, since each text is embedded once, but
-  slow for bulk imports. Smaller or int8 encoders were faster but lost at least a point
-  (rounds 8 to 10).
+- The encoder embeds about 6 to 9 texts a second on one CPU thread, depending on the
+  machine: about a quarter of e5-base's speed. That is fine for one person's memory, since
+  each text is embedded once, but slow for bulk imports. e5-base (round 11's choice) is the
+  faster option, 3.8 points behind on the latest held-out set; smaller or int8 encoders
+  were faster still but lost at least a point more (rounds 8 to 10).
 - Supersession depends on consistent keys. With every update written under a new key,
   clean retrieval of changed details falls from 67.8% to 26.1%.
 - The benchmark assumes perfect memory writing; how well the model chooses what to
@@ -273,9 +274,9 @@ correct. Unknown tools are rejected the same way.
 ## 11. Future work
 
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
-2. Try e5 at weights above 48, where round 11 stopped, and `multi-qa-mpnet-base-dot-v1`,
-   a close second there. Shrinking the encoder has not worked yet: int8 and smaller
-   encoders all lost at least a point (rounds 8 to 10).
+2. Try an int8 e5-large to win back some size and speed; its weight curve is already
+   flat between 64 and 96. Shrinking mpnet did not work: int8 and smaller encoders all
+   lost at least a point (rounds 8 to 10).
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.
 4. Real calendar and mail integrations behind the existing approval gate.

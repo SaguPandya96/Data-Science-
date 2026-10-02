@@ -257,16 +257,16 @@ class KeelMemory:
 
 # Chosen on the dev wordings in round 2 of the benchmark (reports/metrics/round2.json).
 EMBEDDING_WEIGHT = 0.5
-# Chosen with the encoder in round 11 on already-seen question sets, then confirmed on a
-# fresh held-out set (reports/metrics/round11.json). MiniLM had shipped at 2.0, then 6.0,
-# and mpnet at 12.0.
-TRANSFORMER_WEIGHT = 48.0
+# Chosen with the encoder in round 12 on already-seen question sets, then confirmed on a
+# fresh held-out set (reports/metrics/round12.json). MiniLM had shipped at 2.0, then 6.0,
+# mpnet at 12.0 and e5-base at 48.0.
+TRANSFORMER_WEIGHT = 64.0
 
 
 def default_retriever(core_max: int = 2) -> KeelMemory | RerankedMemory:
     """The agent's retriever, best available first.
 
-    1. Keel with the e5-base-v2 transformer encoder (round 11's winner), with its top
+    1. Keel with the e5-large-v2 transformer encoder (round 12's winner), with its top
        candidates reranked by the ms-marco-MiniLM-L-6-v2 cross-encoder (round 7's winner, in
        the int8 version round 8 adopted), if ONNX Runtime is installed and both models are on
        disk or can be downloaded.

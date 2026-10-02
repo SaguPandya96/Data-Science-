@@ -1,0 +1,22 @@
+{
+  "e5_base": {
+    "texts": 79,
+    "seconds": 2.92,
+    "texts_per_second": 27.0
+  },
+  "e5_large": {
+    "texts": 79,
+    "seconds": 12.7,
+    "texts_per_second": 6.2
+  },
+  "bge_large": {
+    "texts": 79,
+    "seconds": 12.51,
+    "texts_per_second": 6.3
+  },
+  "mxbai_large": {
+    "texts": 79,
+    "seconds": 12.68,
+    "texts_per_second": 6.2
+  }
+}
