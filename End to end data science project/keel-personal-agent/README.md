@@ -390,6 +390,24 @@ used for round 12, because of the larger download.
 **None beat it, so e5-large-v2 stays**, and the fresh question set is still unused. Source:
 [`reports/metrics/round14.md`](reports/metrics/round14.md).
 
+### Round 15: a newer design
+
+Every encoder so far was built on the original BERT or XLM-RoBERTa designs. Round 15 tried
+four built on newer ones (ModernBERT, and Alibaba's gte-v1.5), two of them base size and so
+about two and a half times as fast as e5-large-v2.
+
+| Encoder | Already-seen sets (weight) |
+| --- | --- |
+| **`e5-large-v2`** (shipped) | **91.5% (64)** |
+| `gte-modernbert-base` | 90.2% (24) |
+| `modernbert-embed-base` | 88.9% (8) |
+| `modernbert-embed-large` | 88.4% (8) |
+| `gte-large-en-v1.5` | 88.3% (12) |
+
+**None beat it, so e5-large-v2 stays**, and the fresh question set is still unused.
+gte-modernbert-base is the fastest option within 1.3 points. Source:
+[`reports/metrics/round15.md`](reports/metrics/round15.md).
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
@@ -455,6 +473,7 @@ python scripts/run_round11.py            # round 11 (six other encoders; downloa
 python scripts/run_round12.py            # round 12 (larger encoders; downloads ~4 GB once, ~50 min)
 python scripts/run_round13.py            # round 13 (other large encoders; downloads ~4 GB once, ~40 min)
 python scripts/run_round14.py            # round 14 (2.2 GB encoders; downloads ~7 GB once, ~45 min)
+python scripts/run_round15.py            # round 15 (newer designs; downloads ~4.5 GB once, ~45 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -471,7 +490,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 14 run transformer models,
+than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 15 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout

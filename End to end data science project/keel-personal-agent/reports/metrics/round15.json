@@ -1,0 +1,507 @@
+{
+  "encoders": {
+    "e5_large_v2": "e5-large-v2",
+    "gte_modernbert_base": "gte-modernbert-base",
+    "modernbert_embed_base": "modernbert-embed-base",
+    "modernbert_embed_large": "modernbert-embed-large",
+    "gte_large_v15": "gte-large-en-v1.5"
+  },
+  "model_mb": {
+    "e5_large_v2": 1336.9,
+    "gte_modernbert_base": 596.4,
+    "modernbert_embed_base": 596.5,
+    "modernbert_embed_large": 1579.6,
+    "gte_large_v15": 1745.6
+  },
+  "reranker": "ms-marco-MiniLM-L-6-v2 (int8)",
+  "k": 5,
+  "personas": 200,
+  "tuning_splits": [
+    "dev",
+    "holdout",
+    "holdout2",
+    "holdout3",
+    "holdout4",
+    "holdout5",
+    "holdout6",
+    "holdout7",
+    "holdout8"
+  ],
+  "current": {
+    "encoder": "e5_large_v2",
+    "weight": 64.0
+  },
+  "baseline": {
+    "dev": 0.99875,
+    "holdout": 0.905625,
+    "holdout2": 0.81546875,
+    "holdout3": 0.925625,
+    "holdout4": 0.88796875,
+    "holdout5": 0.8928125,
+    "holdout6": 0.9503125,
+    "holdout7": 0.9228125,
+    "holdout8": 0.9390625,
+    "mean": 0.9153819444444444
+  },
+  "tuning": {
+    "gte_modernbert_base": {
+      "4.0": {
+        "dev": 0.9840625,
+        "holdout": 0.88578125,
+        "holdout2": 0.78578125,
+        "holdout3": 0.8646875,
+        "holdout4": 0.873125,
+        "holdout5": 0.8875,
+        "holdout6": 0.91953125,
+        "holdout7": 0.8875,
+        "holdout8": 0.90140625,
+        "mean": 0.8877083333333333
+      },
+      "8.0": {
+        "dev": 0.9834375,
+        "holdout": 0.8871875,
+        "holdout2": 0.80421875,
+        "holdout3": 0.87484375,
+        "holdout4": 0.883125,
+        "holdout5": 0.894375,
+        "holdout6": 0.920625,
+        "holdout7": 0.89703125,
+        "holdout8": 0.89828125,
+        "mean": 0.8936805555555556
+      },
+      "12.0": {
+        "dev": 0.9840625,
+        "holdout": 0.885,
+        "holdout2": 0.81203125,
+        "holdout3": 0.898125,
+        "holdout4": 0.88703125,
+        "holdout5": 0.89671875,
+        "holdout6": 0.9246875,
+        "holdout7": 0.9040625,
+        "holdout8": 0.8990625,
+        "mean": 0.8989756944444444
+      },
+      "16.0": {
+        "dev": 0.9853125,
+        "holdout": 0.88125,
+        "holdout2": 0.81546875,
+        "holdout3": 0.90078125,
+        "holdout4": 0.89328125,
+        "holdout5": 0.89390625,
+        "holdout6": 0.92671875,
+        "holdout7": 0.90921875,
+        "holdout8": 0.90359375,
+        "mean": 0.9010590277777778
+      },
+      "24.0": {
+        "dev": 0.988125,
+        "holdout": 0.87671875,
+        "holdout2": 0.816875,
+        "holdout3": 0.89578125,
+        "holdout4": 0.89953125,
+        "holdout5": 0.8884375,
+        "holdout6": 0.9353125,
+        "holdout7": 0.911875,
+        "holdout8": 0.9065625,
+        "mean": 0.9021354166666666
+      },
+      "32.0": {
+        "dev": 0.9884375,
+        "holdout": 0.87265625,
+        "holdout2": 0.81765625,
+        "holdout3": 0.8925,
+        "holdout4": 0.9040625,
+        "holdout5": 0.885,
+        "holdout6": 0.939375,
+        "holdout7": 0.91,
+        "holdout8": 0.90796875,
+        "mean": 0.9019618055555555
+      },
+      "48.0": {
+        "dev": 0.99125,
+        "holdout": 0.8684375,
+        "holdout2": 0.815,
+        "holdout3": 0.89109375,
+        "holdout4": 0.906875,
+        "holdout5": 0.87921875,
+        "holdout6": 0.9384375,
+        "holdout7": 0.90046875,
+        "holdout8": 0.90640625,
+        "mean": 0.8996875000000001
+      },
+      "64.0": {
+        "dev": 0.9921875,
+        "holdout": 0.86890625,
+        "holdout2": 0.81421875,
+        "holdout3": 0.8928125,
+        "holdout4": 0.906875,
+        "holdout5": 0.87671875,
+        "holdout6": 0.9396875,
+        "holdout7": 0.898125,
+        "holdout8": 0.90375,
+        "mean": 0.8992534722222223
+      },
+      "96.0": {
+        "dev": 0.9890625,
+        "holdout": 0.86484375,
+        "holdout2": 0.81484375,
+        "holdout3": 0.8928125,
+        "holdout4": 0.9075,
+        "holdout5": 0.8725,
+        "holdout6": 0.93890625,
+        "holdout7": 0.89359375,
+        "holdout8": 0.89953125,
+        "mean": 0.8970659722222223
+      }
+    },
+    "modernbert_embed_base": {
+      "4.0": {
+        "dev": 0.980625,
+        "holdout": 0.88609375,
+        "holdout2": 0.78296875,
+        "holdout3": 0.8690625,
+        "holdout4": 0.86734375,
+        "holdout5": 0.88328125,
+        "holdout6": 0.91609375,
+        "holdout7": 0.870625,
+        "holdout8": 0.883125,
+        "mean": 0.8821354166666666
+      },
+      "8.0": {
+        "dev": 0.9825,
+        "holdout": 0.889375,
+        "holdout2": 0.79453125,
+        "holdout3": 0.89140625,
+        "holdout4": 0.8721875,
+        "holdout5": 0.88125,
+        "holdout6": 0.92015625,
+        "holdout7": 0.88703125,
+        "holdout8": 0.88515625,
+        "mean": 0.8892881944444445
+      },
+      "12.0": {
+        "dev": 0.9834375,
+        "holdout": 0.8875,
+        "holdout2": 0.79359375,
+        "holdout3": 0.8896875,
+        "holdout4": 0.874375,
+        "holdout5": 0.8765625,
+        "holdout6": 0.9209375,
+        "holdout7": 0.88421875,
+        "holdout8": 0.885625,
+        "mean": 0.8884374999999999
+      },
+      "16.0": {
+        "dev": 0.9853125,
+        "holdout": 0.88515625,
+        "holdout2": 0.7915625,
+        "holdout3": 0.88734375,
+        "holdout4": 0.87546875,
+        "holdout5": 0.8746875,
+        "holdout6": 0.91953125,
+        "holdout7": 0.883125,
+        "holdout8": 0.88546875,
+        "mean": 0.8875173611111111
+      },
+      "24.0": {
+        "dev": 0.9878125,
+        "holdout": 0.883125,
+        "holdout2": 0.78671875,
+        "holdout3": 0.888125,
+        "holdout4": 0.87265625,
+        "holdout5": 0.874375,
+        "holdout6": 0.91296875,
+        "holdout7": 0.8753125,
+        "holdout8": 0.8846875,
+        "mean": 0.8850868055555555
+      },
+      "32.0": {
+        "dev": 0.9925,
+        "holdout": 0.88234375,
+        "holdout2": 0.78375,
+        "holdout3": 0.88625,
+        "holdout4": 0.87546875,
+        "holdout5": 0.8725,
+        "holdout6": 0.90671875,
+        "holdout7": 0.87078125,
+        "holdout8": 0.88390625,
+        "mean": 0.8838020833333333
+      },
+      "48.0": {
+        "dev": 0.9925,
+        "holdout": 0.879375,
+        "holdout2": 0.77796875,
+        "holdout3": 0.8828125,
+        "holdout4": 0.8784375,
+        "holdout5": 0.87125,
+        "holdout6": 0.904375,
+        "holdout7": 0.86875,
+        "holdout8": 0.88171875,
+        "mean": 0.8819097222222222
+      },
+      "64.0": {
+        "dev": 0.991875,
+        "holdout": 0.87609375,
+        "holdout2": 0.7740625,
+        "holdout3": 0.88109375,
+        "holdout4": 0.87921875,
+        "holdout5": 0.87,
+        "holdout6": 0.9009375,
+        "holdout7": 0.86859375,
+        "holdout8": 0.87984375,
+        "mean": 0.8801909722222222
+      },
+      "96.0": {
+        "dev": 0.9934375,
+        "holdout": 0.87515625,
+        "holdout2": 0.77125,
+        "holdout3": 0.87734375,
+        "holdout4": 0.87671875,
+        "holdout5": 0.869375,
+        "holdout6": 0.898125,
+        "holdout7": 0.8659375,
+        "holdout8": 0.8778125,
+        "mean": 0.8783506944444445
+      }
+    },
+    "modernbert_embed_large": {
+      "4.0": {
+        "dev": 0.98,
+        "holdout": 0.89328125,
+        "holdout2": 0.77078125,
+        "holdout3": 0.8659375,
+        "holdout4": 0.86140625,
+        "holdout5": 0.874375,
+        "holdout6": 0.9078125,
+        "holdout7": 0.859375,
+        "holdout8": 0.88859375,
+        "mean": 0.8779513888888889
+      },
+      "8.0": {
+        "dev": 0.9809375,
+        "holdout": 0.89484375,
+        "holdout2": 0.7778125,
+        "holdout3": 0.8915625,
+        "holdout4": 0.86984375,
+        "holdout5": 0.87125,
+        "holdout6": 0.9159375,
+        "holdout7": 0.8659375,
+        "holdout8": 0.88671875,
+        "mean": 0.8838715277777778
+      },
+      "12.0": {
+        "dev": 0.98125,
+        "holdout": 0.8925,
+        "holdout2": 0.7815625,
+        "holdout3": 0.88796875,
+        "holdout4": 0.87328125,
+        "holdout5": 0.86578125,
+        "holdout6": 0.92125,
+        "holdout7": 0.8634375,
+        "holdout8": 0.8875,
+        "mean": 0.8838368055555555
+      },
+      "16.0": {
+        "dev": 0.980625,
+        "holdout": 0.88796875,
+        "holdout2": 0.78375,
+        "holdout3": 0.88296875,
+        "holdout4": 0.876875,
+        "holdout5": 0.86140625,
+        "holdout6": 0.91671875,
+        "holdout7": 0.85921875,
+        "holdout8": 0.8878125,
+        "mean": 0.8819270833333333
+      },
+      "24.0": {
+        "dev": 0.9803125,
+        "holdout": 0.8815625,
+        "holdout2": 0.78078125,
+        "holdout3": 0.87421875,
+        "holdout4": 0.878125,
+        "holdout5": 0.85828125,
+        "holdout6": 0.905625,
+        "holdout7": 0.85625,
+        "holdout8": 0.88734375,
+        "mean": 0.8780555555555556
+      },
+      "32.0": {
+        "dev": 0.98,
+        "holdout": 0.879375,
+        "holdout2": 0.77828125,
+        "holdout3": 0.8653125,
+        "holdout4": 0.87609375,
+        "holdout5": 0.85765625,
+        "holdout6": 0.9003125,
+        "holdout7": 0.85109375,
+        "holdout8": 0.88421875,
+        "mean": 0.8747048611111112
+      },
+      "48.0": {
+        "dev": 0.9790625,
+        "holdout": 0.87484375,
+        "holdout2": 0.77421875,
+        "holdout3": 0.8590625,
+        "holdout4": 0.87328125,
+        "holdout5": 0.85734375,
+        "holdout6": 0.89453125,
+        "holdout7": 0.84671875,
+        "holdout8": 0.88265625,
+        "mean": 0.8713020833333334
+      },
+      "64.0": {
+        "dev": 0.98,
+        "holdout": 0.87125,
+        "holdout2": 0.771875,
+        "holdout3": 0.85421875,
+        "holdout4": 0.87109375,
+        "holdout5": 0.85765625,
+        "holdout6": 0.89078125,
+        "holdout7": 0.84515625,
+        "holdout8": 0.8775,
+        "mean": 0.8688368055555554
+      },
+      "96.0": {
+        "dev": 0.980625,
+        "holdout": 0.86703125,
+        "holdout2": 0.77046875,
+        "holdout3": 0.84953125,
+        "holdout4": 0.86640625,
+        "holdout5": 0.85546875,
+        "holdout6": 0.88296875,
+        "holdout7": 0.84015625,
+        "holdout8": 0.87140625,
+        "mean": 0.8648958333333333
+      }
+    },
+    "gte_large_v15": {
+      "4.0": {
+        "dev": 0.9809375,
+        "holdout": 0.880625,
+        "holdout2": 0.74734375,
+        "holdout3": 0.8678125,
+        "holdout4": 0.86515625,
+        "holdout5": 0.8815625,
+        "holdout6": 0.91140625,
+        "holdout7": 0.8825,
+        "holdout8": 0.8825,
+        "mean": 0.8777604166666667
+      },
+      "8.0": {
+        "dev": 0.98375,
+        "holdout": 0.8759375,
+        "holdout2": 0.745625,
+        "holdout3": 0.8946875,
+        "holdout4": 0.86921875,
+        "holdout5": 0.8790625,
+        "holdout6": 0.90609375,
+        "holdout7": 0.8953125,
+        "holdout8": 0.8828125,
+        "mean": 0.8813888888888889
+      },
+      "12.0": {
+        "dev": 0.984375,
+        "holdout": 0.8784375,
+        "holdout2": 0.74375,
+        "holdout3": 0.8975,
+        "holdout4": 0.8759375,
+        "holdout5": 0.875,
+        "holdout6": 0.90390625,
+        "holdout7": 0.901875,
+        "holdout8": 0.88890625,
+        "mean": 0.8832986111111111
+      },
+      "16.0": {
+        "dev": 0.985625,
+        "holdout": 0.87890625,
+        "holdout2": 0.73859375,
+        "holdout3": 0.8940625,
+        "holdout4": 0.88609375,
+        "holdout5": 0.86875,
+        "holdout6": 0.9040625,
+        "holdout7": 0.8946875,
+        "holdout8": 0.89203125,
+        "mean": 0.8825347222222223
+      },
+      "24.0": {
+        "dev": 0.989375,
+        "holdout": 0.8765625,
+        "holdout2": 0.7340625,
+        "holdout3": 0.884375,
+        "holdout4": 0.88984375,
+        "holdout5": 0.86078125,
+        "holdout6": 0.89859375,
+        "holdout7": 0.87984375,
+        "holdout8": 0.89203125,
+        "mean": 0.8783854166666667
+      },
+      "32.0": {
+        "dev": 0.990625,
+        "holdout": 0.87328125,
+        "holdout2": 0.7328125,
+        "holdout3": 0.87671875,
+        "holdout4": 0.8903125,
+        "holdout5": 0.85625,
+        "holdout6": 0.9021875,
+        "holdout7": 0.86734375,
+        "holdout8": 0.889375,
+        "mean": 0.8754340277777778
+      },
+      "48.0": {
+        "dev": 0.993125,
+        "holdout": 0.87359375,
+        "holdout2": 0.731875,
+        "holdout3": 0.86546875,
+        "holdout4": 0.88828125,
+        "holdout5": 0.84828125,
+        "holdout6": 0.8921875,
+        "holdout7": 0.85390625,
+        "holdout8": 0.88390625,
+        "mean": 0.8700694444444443
+      },
+      "64.0": {
+        "dev": 0.9946875,
+        "holdout": 0.866875,
+        "holdout2": 0.73171875,
+        "holdout3": 0.85484375,
+        "holdout4": 0.88703125,
+        "holdout5": 0.8459375,
+        "holdout6": 0.885,
+        "holdout7": 0.8434375,
+        "holdout8": 0.8815625,
+        "mean": 0.8656770833333334
+      },
+      "96.0": {
+        "dev": 0.9953125,
+        "holdout": 0.8596875,
+        "holdout2": 0.73375,
+        "holdout3": 0.848125,
+        "holdout4": 0.8871875,
+        "holdout5": 0.8425,
+        "holdout6": 0.8659375,
+        "holdout7": 0.83109375,
+        "holdout8": 0.87765625,
+        "mean": 0.8601388888888889
+      }
+    }
+  },
+  "best_weight": {
+    "gte_modernbert_base": 24.0,
+    "modernbert_embed_base": 8.0,
+    "modernbert_embed_large": 8.0,
+    "gte_large_v15": 12.0
+  },
+  "chosen": {
+    "encoder": "gte_modernbert_base",
+    "weight": 24.0
+  },
+  "splits": {},
+  "comparisons": {},
+  "pass_rule": {
+    "candidate": "keel+other",
+    "must_beat": "keel+e5large",
+    "split": "holdout9",
+    "passed": null,
+    "outcome": "no encoder beat e5-large-v2 on the tuning sets (best: gte-modernbert-base at w = 24.0); e5-large-v2 kept"
+  }
+}

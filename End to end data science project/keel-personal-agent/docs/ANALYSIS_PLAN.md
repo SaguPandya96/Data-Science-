@@ -1273,3 +1273,28 @@ encoders are 18% and 30% larger downloads and run at about the same speed; the b
 smaller and faster. As with nomic in round 11 (25% larger), that is close enough in cost
 that a gain only has to be real: **the candidate is adopted if the 95% persona-bootstrap
 interval of the paired clean-hit difference is entirely above zero.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the nine already-seen sets (e5-large-v2 at its
+shipped `w = 64`: 91.5%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `gte-modernbert-base` | 24 | 90.2% |
+| `modernbert-embed-base` | 8 | 88.9% |
+| `modernbert-embed-large` | 8 | 88.4% |
+| `gte-large-en-v1.5` | 12 | 88.3% |
+
+None beat e5-large-v2 on the tuning sets, so **e5-large-v2 stays** and `HOLDOUT9` is still
+unseen. Full tables: `reports/metrics/round15.md`.
+
+Things to keep in mind:
+
+- **The newer designs did not help here.** The best, gte-modernbert-base, was 1.3 points
+  behind; the two large ones were the weakest of the four.
+- **The best base model is a speed option, not a replacement.** gte-modernbert-base embeds
+  about two and a half times as fast as e5-large-v2 at under half the size, but costs 1.3
+  points on these sets. It sits close to e5-base-v2 (round 11), not above it.
+- **The chosen weights are clear of the tie margin.** The nearest runner-up outside it is
+  gte-large-en-v1.5's weight 16, 0.076 points behind 12.

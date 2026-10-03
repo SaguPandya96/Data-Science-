@@ -1,0 +1,27 @@
+{
+  "e5_large_v2": {
+    "texts": 79,
+    "seconds": 9.32,
+    "texts_per_second": 8.5
+  },
+  "gte_modernbert_base": {
+    "texts": 79,
+    "seconds": 3.77,
+    "texts_per_second": 21.0
+  },
+  "modernbert_embed_base": {
+    "texts": 79,
+    "seconds": 4.68,
+    "texts_per_second": 16.9
+  },
+  "modernbert_embed_large": {
+    "texts": 79,
+    "seconds": 12.58,
+    "texts_per_second": 6.3
+  },
+  "gte_large_v15": {
+    "texts": 79,
+    "seconds": 11.69,
+    "texts_per_second": 6.8
+  }
+}
