@@ -53,14 +53,14 @@ also_compare = ["transformer", "embedding", "keel", "lexical", "recent"]
 
 [round4.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round4.encoders.bge]
 name = "bge-small-en-v1.5"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-small-en-v1.5.tar.gz"
-sha256 = "3858004b3822f64f940280874b8f2d2dc25b34a4f3eb3cdf617bdceeb21ed9ed"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/onnx/model.onnx", sha256 = "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 pooling = "cls"
 
 # Round 5: a wider weight grid for the MiniLM encoder. Fixed before any round 5 run.
@@ -85,20 +85,20 @@ must_beat = "keel+transformer"     # the current default: MiniLM at w = 6.0
 
 [round6.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round6.encoders.bge_base]
 name = "bge-base-en-v1.5"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-base-en-v1.5.tar.gz"
-sha256 = "b2e829f86bb0933e7d7fabce2d881f718464880c22658d189a2f70de4527d991"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5/resolve/4d6cd88e18e51a5e020c2c305726d76ada9c03cf/onnx/model.onnx", sha256 = "9bc579acdba21c253c62a9bf866891355a63ffa3442b52c8a37d75b2ccb91848" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5/resolve/4d6cd88e18e51a5e020c2c305726d76ada9c03cf/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 pooling = "cls"
 
 [round6.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 # Round 7: cross-encoder reranking. Fixed before any cross-encoder was run on benchmark text.
@@ -141,8 +141,8 @@ must_beat = "keel+rerank"
 
 [round8.encoders.fp32]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round8.encoders.int8]
@@ -176,20 +176,20 @@ must_beat = "keel+rerank"
 
 [round9.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round9.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round9.encoders.bge_small]
 name = "bge-small-en-v1.5"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-small-en-v1.5.tar.gz"
-sha256 = "3858004b3822f64f940280874b8f2d2dc25b34a4f3eb3cdf617bdceeb21ed9ed"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/onnx/model.onnx", sha256 = "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 pooling = "cls"
 
 [round9.encoders.minilm_l12]
@@ -224,14 +224,14 @@ must_beat = "keel+rerank"
 
 [round10.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round10.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round10.encoders.minilm_l12]
@@ -258,8 +258,8 @@ must_beat = "keel+rerank"          # adopt only if the 95% interval's lower boun
 
 [round11.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round11.encoders.gte_base]

@@ -101,7 +101,7 @@ def test_shipped_defaults_match_the_benchmark_results():
     plan = config["round6"]
     assert plan11["current"]["encoder"] == round6["chosen"]["encoder"]
     assert plan11["current"]["weight"] == round6["chosen"]["weight"]
-    assert plan11["encoders"]["mpnet"]["sha256"] == plan["encoders"]["mpnet"]["sha256"]
+    assert plan11["encoders"]["mpnet"]["files"] == plan["encoders"]["mpnet"]["files"]
     # Round 6's baseline must be what rounds 4 and 5 had shipped.
     round5 = json.loads((metrics / "round5.json").read_text())
     assert plan["current"]["weight"] == round5["chosen_weight"]

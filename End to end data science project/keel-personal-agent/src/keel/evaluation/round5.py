@@ -13,7 +13,7 @@ from keel.memory.embeddings import (
     Embedder,
     OnnxSentenceEmbedder,
     WordLlamaEmbedder,
-    download_model,
+    fetch_model,
 )
 from keel.memory.retrieval import EMBEDDING_WEIGHT, EmbeddingMemory, KeelMemory, Retriever
 
@@ -23,7 +23,7 @@ SPLITS = ("holdout3", "holdout3_direct", "holdout3_indirect")
 def load_minilm(config: dict[str, Any]) -> Embedder:
     """The MiniLM encoder round 5 tuned, pinned in the config (not the agent's default)."""
     spec = config["round4"]["encoders"]["minilm"]
-    folder = download_model(spec["url"], spec["sha256"])
+    folder = fetch_model(spec)
     return OnnxSentenceEmbedder(folder, pooling=spec["pooling"], name=spec["name"])
 
 

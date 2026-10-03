@@ -15,8 +15,7 @@ from keel.evaluation.scenarios import build_personas
 from keel.memory.embeddings import (
     Embedder,
     OnnxSentenceEmbedder,
-    download_files,
-    download_model,
+    fetch_model,
 )
 from keel.memory.rerank import RerankedMemory, Reranker
 from keel.memory.retrieval import Retriever
@@ -26,9 +25,7 @@ VARIANTS = (("int8", "fp32"), ("fp32", "int8"), ("int8", "int8"))  # (encoder, r
 
 
 def _folder(spec: Mapping[str, Any], cache_dir: Path | None) -> Path:
-    if "files" in spec:
-        return download_files(spec["files"], cache_dir)
-    return download_model(spec["url"], spec["sha256"], cache_dir)
+    return fetch_model(spec, cache_dir)
 
 
 def load_encoders(plan: dict[str, Any], cache_dir: Path | None = None) -> dict[str, Embedder]:

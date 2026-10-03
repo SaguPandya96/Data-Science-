@@ -1208,3 +1208,17 @@ Things to keep in mind:
 - **One chosen weight sits near the tie margin.** For the instruct model, weight 64 was
   0.045 points behind 96 and weight 48 was 0.061 behind. A processor that moved those by a
   question or two could change which weight is recorded, though not the outcome.
+
+## Note on model downloads (October 2026)
+
+Rounds 4 to 11 first downloaded four encoders (`all-MiniLM-L6-v2`, `bge-small-en-v1.5`,
+`bge-base-en-v1.5` and `all-mpnet-base-v2`) as archives from the `qdrant-fastembed` storage
+bucket. That bucket stopped serving public downloads in October 2026. The same models are
+now pinned, by revision and SHA-256, to ONNX exports on Hugging Face: `all-MiniLM-L6-v2`
+from Qdrant's own upload, and the other three from Xenova's full-precision exports.
+
+They are not byte-for-byte the files the rounds were first run with, so rounds 4 to 11 were
+rerun with them before the switch and compared with the committed results by
+`scripts/check_metrics.py`, the same check CI applies. Every decision matched exactly and
+every number was within the check's tolerance. Nothing in rounds 4 to 11 was rerun for its
+result, and no committed number or decision changed.
