@@ -1222,3 +1222,79 @@ rerun with them before the switch and compared with the committed results by
 `scripts/check_metrics.py`, the same check CI applies. Every decision matched exactly and
 every number was within the check's tolerance. Nothing in rounds 4 to 11 was rerun for its
 result, and no committed number or decision changed.
+
+## Round 15: newer encoder architectures
+
+Written after round 14 was merged and before any of these encoders was run on benchmark
+text.
+
+### The question
+
+Every encoder tried so far is built on the original BERT or XLM-RoBERTa designs. This round
+asks whether encoders built on newer designs (ModernBERT, and Alibaba's gte-v1.5 model with
+rotary position embeddings) retrieve better than e5-large-v2 at a similar cost. Two are base
+size: if either matched e5-large-v2, it would also be three times faster.
+
+### Encoders
+
+All are pinned by revision and SHA-256 in `configs/eval.toml`, and each gets the prefixes and
+pooling its model card gives.
+
+| Encoder | Design | ONNX size | Pooling | Question prefix | Memory prefix |
+| --- | --- | --- | --- | --- | --- |
+| `e5-large-v2` (current) | BERT | 1,337 MB | mean | `query: ` | `passage: ` |
+| `gte-modernbert-base` | ModernBERT | 596 MB | CLS | none | none |
+| `modernbert-embed-base` | ModernBERT | 597 MB | mean | `search_query: ` | `search_document: ` |
+| `modernbert-embed-large` | ModernBERT | 1,580 MB | mean | `search_query: ` | `search_document: ` |
+| `gte-large-en-v1.5` | gte-v1.5 | 1,746 MB | CLS | none | none |
+
+Before writing this plan, each was run on one neutral question and three passages (no
+benchmark text). All four were deterministic and ranked the right passage first. On one CPU
+thread the two base models embedded about 35 texts a second and the two large ones about
+10, against 12 for e5-large-v2.
+
+### The arm and choosing
+
+As in rounds 13 and 14: the shipped int8 reranker on the top 20 at weight 2.0; each encoder's
+weight chosen from {4, 8, 12, 16, 24, 32, 48, 64, 96} on the mean clean-hit rate over the
+nine already-seen sets, with weights within 0.05 points tied and the smaller winning. The
+single best (encoder, weight) pair is the candidate. If it does not beat e5-large-v2's
+tuning mean at its shipped `w = 64`, nothing changes and `HOLDOUT9` stays unseen.
+
+### Held-out questions
+
+`HOLDOUT9`, written for round 13. Neither round 13 nor round 14 qualified an encoder to run
+on it, so no method has seen it yet.
+
+### Pass rule
+
+The candidate is compared with e5-large-v2 at `w = 64` on `HOLDOUT9`. The two large
+encoders are 18% and 30% larger downloads and run at about the same speed; the base ones are
+smaller and faster. As with nomic in round 11 (25% larger), that is close enough in cost
+that a gain only has to be real: **the candidate is adopted if the 95% persona-bootstrap
+interval of the paired clean-hit difference is entirely above zero.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the nine already-seen sets (e5-large-v2 at its
+shipped `w = 64`: 91.5%):
+
+| Encoder | Best `w` | Mean clean hit |
+| --- | --- | --- |
+| `gte-modernbert-base` | 24 | 90.2% |
+| `modernbert-embed-base` | 8 | 88.9% |
+| `modernbert-embed-large` | 8 | 88.4% |
+| `gte-large-en-v1.5` | 12 | 88.3% |
+
+None beat e5-large-v2 on the tuning sets, so **e5-large-v2 stays** and `HOLDOUT9` is still
+unseen. Full tables: `reports/metrics/round15.md`.
+
+Things to keep in mind:
+
+- **The newer designs did not help here.** The best, gte-modernbert-base, was 1.3 points
+  behind; the two large ones were the weakest of the four.
+- **The best base model is a speed option, not a replacement.** gte-modernbert-base embeds
+  about two and a half times as fast as e5-large-v2 at under half the size, but costs 1.3
+  points on these sets. It sits close to e5-base-v2 (round 11), not above it.
+- **The chosen weights are clear of the tie margin.** The nearest runner-up outside it is
+  gte-large-en-v1.5's weight 16, 0.076 points behind 12.

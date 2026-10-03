@@ -463,3 +463,59 @@ files."tokenizer.json" = { url = "https://huggingface.co/Snowflake/snowflake-arc
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round15]
+split = "holdout9"                 # written for round 13; rounds 13 and 14 did not reach it, so still unseen
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6", "holdout7", "holdout8"]
+current = { encoder = "e5_large_v2", weight = 64.0 }
+weight_grid = [4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0, 64.0, 96.0]   # chosen per encoder
+tie_margin = 0.0005                # weights within 0.05 points tie, and the smaller wins
+candidates = 20                    # the shipped int8 reranker and its setting, unchanged
+rerank_weight = 2.0
+candidate = "keel+other"
+must_beat = "keel+e5large"         # about the same cost to run (up to 30% larger download): adopt if the 95% lower bound is above 0
+
+[round15.encoders.e5_large_v2]
+name = "e5-large-v2"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/onnx/model.onnx", sha256 = "339329575d9c103ab4c08ae8d9d8334adaddda476d1d45f8c65abb7156445002" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round15.encoders.gte_modernbert_base]
+name = "gte-modernbert-base"
+pooling = "cls"
+query_prefix = ""
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Alibaba-NLP/gte-modernbert-base/resolve/e7f32e3c00f91d699e8c43b53106206bcc72bb22/onnx/model.onnx", sha256 = "947f31df7effaeec4edb57c50e4ed7e0f2034d9336063f92615b92e3e0d24d78" }
+files."tokenizer.json" = { url = "https://huggingface.co/Alibaba-NLP/gte-modernbert-base/resolve/e7f32e3c00f91d699e8c43b53106206bcc72bb22/tokenizer.json", sha256 = "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30" }
+
+[round15.encoders.modernbert_embed_base]
+name = "modernbert-embed-base"
+pooling = "mean"
+query_prefix = "search_query: "
+doc_prefix = "search_document: "
+files."model.onnx" = { url = "https://huggingface.co/nomic-ai/modernbert-embed-base/resolve/d556a88e332558790b210f7bdbe87da2fa94a8d8/onnx/model.onnx", sha256 = "3b9dbe455b29fa24f50e7aa7c3ae923b0ad08ea87530cf2fe8e28ebc57a6ddc7" }
+files."tokenizer.json" = { url = "https://huggingface.co/nomic-ai/modernbert-embed-base/resolve/d556a88e332558790b210f7bdbe87da2fa94a8d8/tokenizer.json", sha256 = "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30" }
+
+[round15.encoders.modernbert_embed_large]
+name = "modernbert-embed-large"
+pooling = "mean"
+query_prefix = "search_query: "
+doc_prefix = "search_document: "
+files."model.onnx" = { url = "https://huggingface.co/lightonai/modernbert-embed-large/resolve/95a19bff4963b66d3c14fd4a20d147ebb4aaccfc/onnx/model.onnx", sha256 = "71890860122f39eb922f6bf96714fda22ba10eb5bf1bc57bfdcf02ec93acc5d0" }
+files."tokenizer.json" = { url = "https://huggingface.co/lightonai/modernbert-embed-large/resolve/95a19bff4963b66d3c14fd4a20d147ebb4aaccfc/tokenizer.json", sha256 = "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30" }
+
+[round15.encoders.gte_large_v15]
+name = "gte-large-en-v1.5"
+pooling = "cls"
+query_prefix = ""
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Alibaba-NLP/gte-large-en-v1.5/resolve/104333d6af6f97649377c2afbde10a7704870c7b/onnx/model.onnx", sha256 = "9052c26e0ffaa4f2016f91236d9536b28ec5748100d8f4e5e5881cc59e7cf910" }
+files."tokenizer.json" = { url = "https://huggingface.co/Alibaba-NLP/gte-large-en-v1.5/resolve/104333d6af6f97649377c2afbde10a7704870c7b/tokenizer.json", sha256 = "cb374d6bc042c22455946f4e09a89d29882a199fdaf8fb25be00dc8b8857a448" }
+
+[round15.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
