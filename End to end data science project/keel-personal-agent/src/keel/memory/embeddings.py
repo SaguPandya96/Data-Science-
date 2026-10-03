@@ -206,6 +206,13 @@ def download_files(files: Mapping[str, Mapping[str, str]], cache_dir: Path | Non
     return root
 
 
+def fetch_model(spec: Mapping[str, Any], cache_dir: Path | None = None) -> Path:
+    """The folder of a pinned model: separate ``files``, or one archive at ``url``."""
+    if "files" in spec:
+        return download_files(spec["files"], cache_dir)
+    return download_model(spec["url"], spec["sha256"], cache_dir)
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:

@@ -31,12 +31,18 @@ def load_reranker(plan: dict[str, Any], cache_dir: Path | None = None) -> Rerank
 
 
 def encoder_sizes(plan: dict[str, Any], cache_dir: Path | None = None) -> dict[str, float]:
-    """Size of each encoder's ONNX model in MB, as downloaded."""
+    """Size of each encoder's ONNX model in MB, as downloaded.
+
+    Models over 2 GB keep their weights in a separate ``<name>.onnx_data`` file beside the
+    graph; it is counted too.
+    """
     sizes = {}
     for key, spec in plan["encoders"].items():
         folder = _folder(spec, cache_dir)
         onnx = next(p for p in folder.glob("*.onnx") if not p.name.startswith("._"))
-        sizes[key] = round(onnx.stat().st_size / 1e6, 1)
+        weights = onnx.with_name(onnx.name + "_data")
+        total = onnx.stat().st_size + (weights.stat().st_size if weights.exists() else 0)
+        sizes[key] = round(total / 1e6, 1)
     return sizes
 
 

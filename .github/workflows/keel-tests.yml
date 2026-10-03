@@ -53,7 +53,7 @@ jobs:
   reproduce:
     name: Benchmark numbers reproduce
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # rounds 7 to 13 each take 20 minutes or more on one CPU thread
+    timeout-minutes: 360  # rounds 7 to 14 each take 20 minutes or more on one CPU thread
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
@@ -70,13 +70,20 @@ jobs:
       - name: Install project
         run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,embed,transformer]"
 
+      - name: Free disk space for the models
+        # Rounds 4 to 14 keep about 19 GB of models on disk. Removing toolchains this job does
+        # not use (.NET, Android, Haskell) leaves room for them and the cache archive.
+        working-directory: .
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup
+          df -h /
+
       - name: Restore downloaded encoders
         # Keyed on the pinned checksums. Each model sits in a folder named after its own
         # checksum, so falling back to an older cache is safe: a changed model is still
-        # downloaded fresh. The fallback matters because qdrant-fastembed's storage bucket,
-        # the source of the MiniLM, bge-small, mpnet and bge-base archives used in rounds 4
-        # to 11, stopped serving public downloads in October 2026; those archives now come
-        # only from an earlier cache.
+        # downloaded fresh. Every model is pinned on Hugging Face, so a cache miss only
+        # costs download time.
         uses: actions/cache@v4
         with:
           path: ~/.cache/keel/models
@@ -119,12 +126,15 @@ jobs:
       - name: Rerun round 13 (other encoders of e5-large's size)
         run: python scripts/run_round13.py > /dev/null
 
+      - name: Rerun round 14 (encoders of about 2.2 GB)
+        run: python scripts/run_round14.py > /dev/null
+
       - name: Real encoders and rerankers are deterministic
         run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py tests/test_rerank.py
 
       - name: Committed metrics match a fresh run
         # Every number in the README comes from these files. Rounds 1 and 2 must regenerate
-        # exactly. Rounds 4 to 13 use transformer models, whose last bits vary with the
+        # exactly. Rounds 4 to 14 use transformer models, whose last bits vary with the
         # runner's CPU, so their decisions must match exactly and their rates to within 0.5
         # points (scripts/check_metrics.py). Timing files depend on the machine and are left out.
         run: |
@@ -132,8 +142,10 @@ jobs:
             ':!reports/metrics/round4.*' ':!reports/metrics/round5.*' ':!reports/metrics/round6.*' \
             ':!reports/metrics/round7.*' ':!reports/metrics/round8.*' ':!reports/metrics/round9.*' \
             ':!reports/metrics/round10.*' ':!reports/metrics/round11.*' \
-            ':!reports/metrics/round12.*' ':!reports/metrics/round13.*'
+            ':!reports/metrics/round12.*' ':!reports/metrics/round13.*' \
+            ':!reports/metrics/round14.*'
           python scripts/check_metrics.py reports/metrics/round4.json \
             reports/metrics/round5.json reports/metrics/round6.json reports/metrics/round7.json \
             reports/metrics/round8.json reports/metrics/round9.json reports/metrics/round10.json \
-            reports/metrics/round11.json reports/metrics/round12.json reports/metrics/round13.json
+            reports/metrics/round11.json reports/metrics/round12.json reports/metrics/round13.json \
+            reports/metrics/round14.json

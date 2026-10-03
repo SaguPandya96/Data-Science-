@@ -874,8 +874,8 @@ HOLDOUT8: dict[str, tuple[str, str]] = {
     ),
 }
 
-# Tenth held-out set, for round 13 (other encoders of e5-large's size). Written after round 12
-# was merged and before any of these encoders was run on benchmark text.
+# Tenth held-out set, written for round 13 (other encoders of e5-large's size) after round 12
+# was merged. No round 13 encoder qualified to use it, so round 14 is the first to run it.
 HOLDOUT9: dict[str, tuple[str, str]] = {
     "home_city": (
         "In which city is my home?",

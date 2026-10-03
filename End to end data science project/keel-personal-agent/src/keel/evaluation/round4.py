@@ -16,7 +16,7 @@ from keel.memory.embeddings import (
     Embedder,
     OnnxSentenceEmbedder,
     WordLlamaEmbedder,
-    download_model,
+    fetch_model,
 )
 from keel.memory.retrieval import (
     EMBEDDING_WEIGHT,
@@ -33,7 +33,7 @@ SPLITS = ("holdout2", "holdout2_direct", "holdout2_indirect", "holdout")
 def load_encoders(plan: dict[str, Any], cache_dir: Path | None = None) -> dict[str, Embedder]:
     encoders: dict[str, Embedder] = {}
     for key, spec in plan["encoders"].items():
-        folder = download_model(spec["url"], spec["sha256"], cache_dir)
+        folder = fetch_model(spec, cache_dir)
         encoders[key] = OnnxSentenceEmbedder(folder, pooling=spec["pooling"], name=spec["name"])
     return encoders
 

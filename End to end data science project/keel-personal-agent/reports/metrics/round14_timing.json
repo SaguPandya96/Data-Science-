@@ -1,0 +1,22 @@
+{
+  "e5_large_v2": {
+    "texts": 79,
+    "seconds": 8.84,
+    "texts_per_second": 8.9
+  },
+  "me5_large": {
+    "texts": 79,
+    "seconds": 9.74,
+    "texts_per_second": 8.1
+  },
+  "me5_large_instruct": {
+    "texts": 79,
+    "seconds": 14.88,
+    "texts_per_second": 5.3
+  },
+  "arctic_l_v2": {
+    "texts": 79,
+    "seconds": 9.59,
+    "texts_per_second": 8.2
+  }
+}

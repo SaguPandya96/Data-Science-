@@ -240,8 +240,8 @@ correct. Unknown tools are rejected the same way.
   also cover model download, checksum rejection and offline fallback. They need no key and
   never download a model.
 - **Retrieval benchmark** (`scripts/run_benchmark.py`, `run_round2.py`, `run_round4.py`
-  to `run_round13.py`): 200 synthetic users with pre-registered pass rules. CI reruns every
-  round. Rounds 1 and 2 must match exactly; rounds 4 to 13 run transformer models, whose
+  to `run_round14.py`): 200 synthetic users with pre-registered pass rules. CI reruns every
+  round. Rounds 1 and 2 must match exactly; rounds 4 to 14 run transformer models, whose
   last bits vary with the CPU, so their decisions must match exactly and their numbers to
   within 0.5 points (`scripts/check_metrics.py`).
 - **End-to-end check** (`keel eval-live`): the model answers the held-out benchmark
@@ -276,7 +276,7 @@ correct. Unknown tools are rejected the same way.
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
 2. Try an int8 e5-large-v2 to win back some size and speed; its weight curve is already
    flat between 64 and 96. Other encoders of its size were 2 points or more behind
-   (round 13), and shrinking mpnet did not work: int8 and smaller encoders all lost at
+   (round 13), 2.2 GB ones did no better (round 14), and shrinking mpnet did not work: int8 and smaller encoders all lost at
    least a point (rounds 8 to 10).
 3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
    already in use.

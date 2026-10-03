@@ -374,6 +374,22 @@ on the nine question sets already seen:
 **None came close, so e5-large-v2 stays**, and the fresh question set was not used. Source:
 [`reports/metrics/round13.md`](reports/metrics/round13.md).
 
+### Round 14: a still larger encoder
+
+Round 14 tried three encoders of about 2.2 GB, built on a model with a much larger vocabulary
+but the same depth as e5-large-v2, so about as fast. A winner had to clear the 1-point bar
+used for round 12, because of the larger download.
+
+| Encoder | Already-seen sets (weight) |
+| --- | --- |
+| **`e5-large-v2`** (shipped) | **91.5% (64)** |
+| `multilingual-e5-large` | 91.3% (64) |
+| `multilingual-e5-large-instruct` | 90.3% (64) |
+| `snowflake-arctic-embed-l-v2.0` | 86.6% (4) |
+
+**None beat it, so e5-large-v2 stays**, and the fresh question set is still unused. Source:
+[`reports/metrics/round14.md`](reports/metrics/round14.md).
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
@@ -438,6 +454,7 @@ python scripts/run_round10.py            # round 10 (MiniLM below weight 4; ~20 
 python scripts/run_round11.py            # round 11 (six other encoders; downloads ~2.7 GB once, ~35 min)
 python scripts/run_round12.py            # round 12 (larger encoders; downloads ~4 GB once, ~50 min)
 python scripts/run_round13.py            # round 13 (other large encoders; downloads ~4 GB once, ~40 min)
+python scripts/run_round14.py            # round 14 (2.2 GB encoders; downloads ~7 GB once, ~45 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
@@ -454,7 +471,7 @@ Set `KEEL_OFFLINE=1` to forbid model downloads; Keel then uses whatever is alrea
 Run the checks with `make check` (Ruff, mypy, pytest). The tests use a scripted model and
 never download anything, so they need no key and cost nothing. CI also reruns every
 benchmark round and fails if any committed decision changes or any number moves by more
-than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 13 run transformer models,
+than 0.5 points (rounds 1 and 2 must match exactly; rounds 4 to 14 run transformer models,
 whose last bits vary with the CPU).
 
 ## Project layout

@@ -53,14 +53,14 @@ also_compare = ["transformer", "embedding", "keel", "lexical", "recent"]
 
 [round4.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round4.encoders.bge]
 name = "bge-small-en-v1.5"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-small-en-v1.5.tar.gz"
-sha256 = "3858004b3822f64f940280874b8f2d2dc25b34a4f3eb3cdf617bdceeb21ed9ed"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/onnx/model.onnx", sha256 = "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 pooling = "cls"
 
 # Round 5: a wider weight grid for the MiniLM encoder. Fixed before any round 5 run.
@@ -85,20 +85,20 @@ must_beat = "keel+transformer"     # the current default: MiniLM at w = 6.0
 
 [round6.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round6.encoders.bge_base]
 name = "bge-base-en-v1.5"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-base-en-v1.5.tar.gz"
-sha256 = "b2e829f86bb0933e7d7fabce2d881f718464880c22658d189a2f70de4527d991"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5/resolve/4d6cd88e18e51a5e020c2c305726d76ada9c03cf/onnx/model.onnx", sha256 = "9bc579acdba21c253c62a9bf866891355a63ffa3442b52c8a37d75b2ccb91848" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-base-en-v1.5/resolve/4d6cd88e18e51a5e020c2c305726d76ada9c03cf/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 pooling = "cls"
 
 [round6.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 # Round 7: cross-encoder reranking. Fixed before any cross-encoder was run on benchmark text.
@@ -141,8 +141,8 @@ must_beat = "keel+rerank"
 
 [round8.encoders.fp32]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round8.encoders.int8]
@@ -176,20 +176,20 @@ must_beat = "keel+rerank"
 
 [round9.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round9.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round9.encoders.bge_small]
 name = "bge-small-en-v1.5"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-bge-small-en-v1.5.tar.gz"
-sha256 = "3858004b3822f64f940280874b8f2d2dc25b34a4f3eb3cdf617bdceeb21ed9ed"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/onnx/model.onnx", sha256 = "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/ea104dacec62c0de699686887e3f920caeb4f3e3/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
 pooling = "cls"
 
 [round9.encoders.minilm_l12]
@@ -224,14 +224,14 @@ must_beat = "keel+rerank"
 
 [round10.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round10.encoders.minilm]
 name = "all-MiniLM-L6-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/sentence-transformers-all-MiniLM-L6-v2.tar.gz"
-sha256 = "2735afe656e156af64ed603dbb1c96f3cae7f937286a8feb27fff7fa979f6a77"
+files."model.onnx" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx", sha256 = "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5" }
+files."tokenizer.json" = { url = "https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx/resolve/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json", sha256 = "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c" }
 pooling = "mean"
 
 [round10.encoders.minilm_l12]
@@ -258,8 +258,8 @@ must_beat = "keel+rerank"          # adopt only if the 95% interval's lower boun
 
 [round11.encoders.mpnet]
 name = "all-mpnet-base-v2"
-url = "https://storage.googleapis.com/qdrant-fastembed/fast-all-mpnet-base-v2.tar.gz"
-sha256 = "e5b3307cf0e980b0f5c482a2520a902957834a7ca01c62d26cf95b623e59ac93"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/onnx/model.onnx", sha256 = "a488b290590d86da3b81c502b242343ca8312e83cfc618b2cd1ae50c09d8f669" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/all-mpnet-base-v2/resolve/e086c5e0b3a57b0ce46dd6d9c0662948860b35f3/tokenizer.json", sha256 = "d00dad6f80b7eab804479a58634a58a50966366627f847e47848bac52873995d" }
 pooling = "mean"
 
 [round11.encoders.gte_base]
@@ -408,6 +408,58 @@ files."model.onnx" = { url = "https://huggingface.co/Xenova/gte-large/resolve/06
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/gte-large/resolve/06a8d51d496ebe830042b7323a904b4da81ac500/tokenizer.json", sha256 = "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0" }
 
 [round13.reranker]
+name = "ms-marco-MiniLM-L-6-v2 (int8)"
+files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round14]
+split = "holdout9"                 # written for round 13, which did not reach it; still unseen
+tuning_splits = ["dev", "holdout", "holdout2", "holdout3", "holdout4", "holdout5", "holdout6", "holdout7", "holdout8"]
+current = { encoder = "e5_large_v2", weight = 64.0 }
+weight_grid = [4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0, 64.0, 96.0]   # chosen per encoder
+tie_margin = 0.0005                # weights within 0.05 points tie, and the smaller wins
+candidates = 20                    # the shipped int8 reranker and its setting, unchanged
+rerank_weight = 2.0
+candidate = "keel+larger"
+must_beat = "keel+e5large"
+min_gain = 0.01                    # a 70% larger download: the 95% lower bound must reach 1 point
+
+[round14.encoders.e5_large_v2]
+name = "e5-large-v2"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/onnx/model.onnx", sha256 = "339329575d9c103ab4c08ae8d9d8334adaddda476d1d45f8c65abb7156445002" }
+files."tokenizer.json" = { url = "https://huggingface.co/Xenova/e5-large-v2/resolve/840fd2207f68e253697ed85392a482ff7657ad11/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
+
+[round14.encoders.me5_large]
+name = "multilingual-e5-large"
+pooling = "mean"
+query_prefix = "query: "
+doc_prefix = "passage: "
+files."model.onnx" = { url = "https://huggingface.co/intfloat/multilingual-e5-large/resolve/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/onnx/model.onnx", sha256 = "bb5a52503a3ef35247f5b5ae6c473aaae60505dd3ffaef56d7b69e2f84683c05" }
+files."model.onnx_data" = { url = "https://huggingface.co/intfloat/multilingual-e5-large/resolve/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/onnx/model.onnx_data", sha256 = "0cf1883fee81c63819a44e2ba0efa51d4043d9759685a4ebebbde97e0623d15c" }
+files."tokenizer.json" = { url = "https://huggingface.co/intfloat/multilingual-e5-large/resolve/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/tokenizer.json", sha256 = "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626" }
+
+[round14.encoders.me5_large_instruct]
+name = "multilingual-e5-large-instruct"
+pooling = "mean"
+query_prefix = "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/intfloat/multilingual-e5-large-instruct/resolve/274baa43b0e13e37fafa6428dbc7938e62e5c439/onnx/model.onnx", sha256 = "e3aeea5355352d826bd952a9a96fab206c6c72d1a429c8773c9da5ac16e44af5" }
+files."model.onnx_data" = { url = "https://huggingface.co/intfloat/multilingual-e5-large-instruct/resolve/274baa43b0e13e37fafa6428dbc7938e62e5c439/onnx/model.onnx_data", sha256 = "4c13ca44e40a7ee86b461398cdee003d656e39f3fa87e1b3152fbada3e61b506" }
+files."tokenizer.json" = { url = "https://huggingface.co/intfloat/multilingual-e5-large-instruct/resolve/274baa43b0e13e37fafa6428dbc7938e62e5c439/tokenizer.json", sha256 = "f59925fcb90c92b894cb93e51bb9b4a6105c5c249fe54ce1c704420ac39b81af" }
+
+[round14.encoders.arctic_l_v2]
+name = "snowflake-arctic-embed-l-v2.0"
+pooling = "cls"
+query_prefix = "query: "
+doc_prefix = ""
+files."model.onnx" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/resolve/ac6544c8a46e00af67e330e85a9028c66b8cfd9a/onnx/model.onnx", sha256 = "f74aa79745ccfb1e75daa7e8e6552a78402d4de193eb8ca67a931358d3e0a25e" }
+files."model.onnx_data" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/resolve/ac6544c8a46e00af67e330e85a9028c66b8cfd9a/onnx/model.onnx_data", sha256 = "fe7d75ff258fbda10a6bea63c5422df5579d625355b1aca69ba6923c0ba604a9" }
+files."tokenizer.json" = { url = "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/resolve/ac6544c8a46e00af67e330e85a9028c66b8cfd9a/tokenizer.json", sha256 = "39feb9863a378165ab9c5c689047203d789422966c0c58721c5309fd039a8edc" }
+
+[round14.reranker]
 name = "ms-marco-MiniLM-L-6-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx", sha256 = "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
