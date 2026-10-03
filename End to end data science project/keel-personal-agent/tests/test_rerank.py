@@ -454,3 +454,31 @@ def test_round14_tests_on_the_set_round13_left_unseen(tmp_path):
     assert "Round 14: encoders of about 2.2 GB" in round11_markdown(
         results, timings, section="round14"
     )
+
+
+def test_round15_keeps_holdout9_and_the_round11_rule(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round15"]
+    assert plan["split"] == config["round14"]["split"] == "holdout9"
+    assert "min_gain" not in plan
+    assert plan["current"] == config["round14"]["current"]
+    ticks = iter(range(100))
+    encoders = {key: HashingEmbedder(32 + 16 * i) for i, key in enumerate(plan["encoders"])}
+    results, timings = run_round11(
+        small,
+        encoders=encoders,
+        reranker=OverlapReranker(),
+        sizes=dict.fromkeys(plan["encoders"], 596.0),
+        clock=lambda: float(next(ticks)),
+        section="round15",
+    )
+    assert set(results["tuning"]) == set(plan["encoders"]) - {"e5_large_v2"}
+    rule = results["pass_rule"]
+    if rule["passed"] is not None:
+        low = results["comparisons"]["holdout9"][plan["must_beat"]]["low"]
+        assert rule["passed"] == (low > 0)
+    assert "Round 15: newer encoder architectures" in round11_markdown(
+        results, timings, section="round15"
+    )
