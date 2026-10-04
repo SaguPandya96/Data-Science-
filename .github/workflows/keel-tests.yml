@@ -51,9 +51,26 @@ jobs:
         run: python -m pytest
 
   reproduce:
-    name: Benchmark numbers reproduce
+    # Each round reruns on its own, so the rounds are split across parallel jobs. One job
+    # running all of them took about five hours on a slow runner, close to the six-hour limit.
+    # The groups are balanced on the slowest timings seen so far (about 90 minutes at most).
+    name: Benchmark numbers reproduce (rounds ${{ matrix.group }})
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # rounds 7 to 15 each take 20 minutes or more on one CPU thread
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: "1-10"
+            rounds: "4 5 6 7 8 9 10"
+            tests: tests/test_rerank.py
+          - group: "11-12"
+            rounds: "11 12"
+            tests: tests/test_transformer.py
+          - group: "13-14"
+            rounds: "13 14"
+          - group: "15"
+            rounds: "15"
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
@@ -71,8 +88,8 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install -e ".[dev,embed,transformer]"
 
       - name: Free disk space for the models
-        # Rounds 4 to 15 keep about 24 GB of models on disk. Removing toolchains this job does
-        # not use (.NET, Android, Haskell) leaves room for them and the cache archive.
+        # Rounds 13 and 14 keep about 12 GB of models on disk. Removing toolchains this job
+        # does not use (.NET, Android, Haskell) leaves room for them and the cache archive.
         working-directory: .
         run: |
           df -h /
@@ -87,68 +104,39 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/keel/models
-          key: keel-encoders-${{ hashFiles('End to end data science project/keel-personal-agent/configs/eval.toml') }}
-          restore-keys: keel-encoders-
+          key: keel-encoders-${{ matrix.group }}-${{ hashFiles('End to end data science project/keel-personal-agent/configs/eval.toml') }}
+          restore-keys: keel-encoders-${{ matrix.group }}-
 
-      - name: Rerun round 1 and its question breakdown
-        run: python scripts/run_benchmark.py > /dev/null && python scripts/question_breakdown.py > /dev/null
+      - name: Rerun rounds 1 and 2, which must match exactly
+        # Rounds 1 and 2 use no transformer models, so their metrics regenerate bit for bit.
+        if: matrix.group == '1-10'
+        run: |
+          python scripts/run_benchmark.py > /dev/null
+          python scripts/question_breakdown.py > /dev/null
+          python scripts/run_round2.py > /dev/null
+          git diff --exit-code -- reports/metrics ':!reports/metrics/*_timing.json' \
+            ':!reports/metrics/round[4-9].*' ':!reports/metrics/round1[0-9].*'
 
-      - name: Rerun round 2 (embedding search)
-        run: python scripts/run_round2.py > /dev/null
-
-      - name: Rerun round 4 (transformer encoders)
-        run: python scripts/run_round4.py > /dev/null
-
-      - name: Rerun round 5 (weight grid for the transformer encoder)
-        run: python scripts/run_round5.py > /dev/null
-
-      - name: Rerun round 6 (larger transformer encoders)
-        run: python scripts/run_round6.py > /dev/null
-
-      - name: Rerun round 7 (cross-encoder reranking)
-        run: python scripts/run_round7.py > /dev/null
-
-      - name: Rerun round 8 (quantized models)
-        run: python scripts/run_round8.py > /dev/null
-
-      - name: Rerun round 9 (smaller encoders)
-        run: python scripts/run_round9.py > /dev/null
-
-      - name: Rerun round 10 (MiniLM below weight 4)
-        run: python scripts/run_round10.py > /dev/null
-
-      - name: Rerun round 11 (other encoders of mpnet's size)
-        run: python scripts/run_round11.py > /dev/null
-
-      - name: Rerun round 12 (larger encoders)
-        run: python scripts/run_round12.py > /dev/null
-
-      - name: Rerun round 13 (other encoders of e5-large's size)
-        run: python scripts/run_round13.py > /dev/null
-
-      - name: Rerun round 14 (encoders of about 2.2 GB)
-        run: python scripts/run_round14.py > /dev/null
-
-      - name: Rerun round 15 (newer encoder architectures)
-        run: python scripts/run_round15.py > /dev/null
+      - name: Rerun rounds ${{ matrix.rounds }}
+        run: |
+          for round in ${{ matrix.rounds }}; do
+            echo "::group::Round $round"
+            python "scripts/run_round$round.py" > /dev/null
+            echo "::endgroup::"
+          done
 
       - name: Real encoders and rerankers are deterministic
-        run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest tests/test_transformer.py tests/test_rerank.py
+        if: matrix.tests
+        run: KEEL_TEST_MODEL_DIR="$HOME/.cache/keel/models" python -m pytest ${{ matrix.tests }}
 
       - name: Committed metrics match a fresh run
-        # Every number in the README comes from these files. Rounds 1 and 2 must regenerate
-        # exactly. Rounds 4 to 15 use transformer models, whose last bits vary with the
-        # runner's CPU, so their decisions must match exactly and their rates to within 0.5
-        # points (scripts/check_metrics.py). Timing files depend on the machine and are left out.
+        # Every number in the README comes from these files. Rounds 4 onwards use transformer
+        # models, whose last bits vary with the runner's CPU, so their decisions must match
+        # exactly and their rates to within 0.5 points (scripts/check_metrics.py). Timing
+        # files depend on the machine and are left out.
         run: |
-          git diff --exit-code -- reports/metrics ':!reports/metrics/*_timing.json' \
-            ':!reports/metrics/round4.*' ':!reports/metrics/round5.*' ':!reports/metrics/round6.*' \
-            ':!reports/metrics/round7.*' ':!reports/metrics/round8.*' ':!reports/metrics/round9.*' \
-            ':!reports/metrics/round10.*' ':!reports/metrics/round11.*' \
-            ':!reports/metrics/round12.*' ':!reports/metrics/round13.*' \
-            ':!reports/metrics/round14.*' ':!reports/metrics/round15.*'
-          python scripts/check_metrics.py reports/metrics/round4.json \
-            reports/metrics/round5.json reports/metrics/round6.json reports/metrics/round7.json \
-            reports/metrics/round8.json reports/metrics/round9.json reports/metrics/round10.json \
-            reports/metrics/round11.json reports/metrics/round12.json reports/metrics/round13.json \
-            reports/metrics/round14.json reports/metrics/round15.json
+          files=()
+          for round in ${{ matrix.rounds }}; do
+            files+=("reports/metrics/round$round.json")
+          done
+          python scripts/check_metrics.py "${files[@]}"
