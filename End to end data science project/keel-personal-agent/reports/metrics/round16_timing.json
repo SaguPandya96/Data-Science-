@@ -1,0 +1,12 @@
+{
+  "e5_large_v2": {
+    "texts": 79,
+    "seconds": 8.48,
+    "texts_per_second": 9.3
+  },
+  "e5_large_v2_int8": {
+    "texts": 79,
+    "seconds": 1.33,
+    "texts_per_second": 59.2
+  }
+}

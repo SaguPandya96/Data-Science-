@@ -1298,3 +1298,74 @@ Things to keep in mind:
   points on these sets. It sits close to e5-base-v2 (round 11), not above it.
 - **The chosen weights are clear of the tie margin.** The nearest runner-up outside it is
   gte-large-en-v1.5's weight 16, 0.076 points behind 12.
+
+## Round 16: an int8 e5-large-v2
+
+Written after round 15 was merged and before the int8 model was run on benchmark text.
+
+### The question
+
+e5-large-v2 is a 1.3 GB first download and the slowest encoder Keel has shipped. Round 8
+found that an int8 copy of the reranker lost nothing, while an int8 mpnet lost at every
+weight. This round asks the same question of the current encoder: does an int8 copy of
+e5-large-v2 retrieve about as well, at a quarter of the download?
+
+### Models
+
+Both come from the same pinned revision of `Xenova/e5-large-v2` and share its tokenizer,
+prefixes (`query: `, `passage: `) and mean pooling. Both are pinned by SHA-256 in
+`configs/eval.toml`.
+
+| Encoder | ONNX size |
+| --- | --- |
+| `e5-large-v2` (current) | 1,337 MB |
+| `e5-large-v2 (int8)` | 337 MB |
+
+Before writing this plan, both were run on one neutral question and three passages (no
+benchmark text). Both were deterministic and ranked the right passage first, with cosine
+scores within 0.01 of each other. On one CPU thread the int8 model embedded about 76 texts
+a second, against 15 for the full-precision one.
+
+### The arm and choosing
+
+As in rounds 13 to 15: the shipped int8 reranker on the top 20 at weight 2.0. The int8
+model's weight is re-chosen from {4, 8, 12, 16, 24, 32, 48, 64, 96} on the mean clean-hit
+rate over the nine already-seen sets, with weights within 0.05 points tied and the smaller
+winning. As in round 8, it goes on to the held-out set only if its tuning mean is no more
+than 0.5 points below e5-large-v2's at the shipped `w = 64`. Otherwise nothing changes and
+`HOLDOUT9` stays unseen.
+
+### Held-out questions
+
+`HOLDOUT9`, written for round 13. No round has qualified a candidate to run on it, so no
+method has seen it yet.
+
+### Pass rule
+
+The int8 model is compared with e5-large-v2 at `w = 64` on `HOLDOUT9`. It is a quarter of
+the download and about five times as fast, so, as with the int8 reranker in round 8, it
+does not have to be better: **it is adopted if the 95% persona-bootstrap interval of the
+paired clean-hit difference has a lower bound of −1 point or more.**
+
+### Outcome
+
+Run once, as planned. Mean clean hit over the nine already-seen sets: e5-large-v2 at its
+shipped `w = 64`, 91.5%; the int8 copy at its best weight, `w = 64`, 91.3%. That is 0.2
+points lower, inside the 0.5-point gate, so it went on to `HOLDOUT9`.
+
+`keel+e5large(int8)` − `keel+e5large`: **−0.4 points** (95% CI −0.7 to −0.0); direct
+wordings −0.2 (−0.6 to +0.1), indirect −0.5 (−1.1 to +0.1). The lower bound is above −1
+point, so **the int8 e5-large-v2 at `w = 64` is adopted** as the agent's encoder. Full
+tables: `reports/metrics/round16.md`.
+
+Things to keep in mind:
+
+- **It is a small, real loss.** The interval sits just below zero, so the int8 copy is
+  slightly worse, not equal. The trade is a quarter of the download (337 MB against
+  1,337 MB) and five to six times the embedding speed.
+- **Indirect wordings lose the most.** Their lower bound, −1.1 points, is just past the
+  margin; the rule is on all wordings together, as planned.
+- **The weight sits inside the tie margin.** `w = 96` scored 0.041 points above `w = 64`
+  on tuning, less than the 0.05-point margin, so the smaller weight won under the tie rule
+  and the shipped weight is unchanged.
+- **Every held-out set written so far has now been used.** A further round needs a new one.

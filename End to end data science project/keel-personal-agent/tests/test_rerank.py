@@ -482,3 +482,33 @@ def test_round15_keeps_holdout9_and_the_round11_rule(tmp_path):
     assert "Round 15: newer encoder architectures" in round11_markdown(
         results, timings, section="round15"
     )
+
+
+def test_round16_tries_the_int8_model_if_it_is_within_half_a_point(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round16"]
+    assert plan["split"] == config["round15"]["split"] == "holdout9"
+    assert plan["current"] == config["round15"]["current"]
+    assert plan["encoders"]["e5_large_v2"] == config["round15"]["encoders"]["e5_large_v2"]
+    assert plan["min_gain"] == -0.01 and plan["max_tuning_drop"] == 0.005
+    # The same stand-in for both: its best weight is at least as good on tuning as the
+    # shipped weight (64 is in the grid), so it always reaches the held-out set.
+    same = HashingEmbedder(64)
+    ticks = iter(range(100))
+    results, timings = run_round11(
+        small,
+        encoders=dict.fromkeys(plan["encoders"], same),
+        reranker=OverlapReranker(),
+        sizes={"e5_large_v2": 1336.9, "e5_large_v2_int8": 337.0},
+        clock=lambda: float(next(ticks)),
+        section="round16",
+    )
+    assert set(results["tuning"]) == {"e5_large_v2_int8"}
+    rule = results["pass_rule"]
+    assert rule["max_tuning_drop"] == 0.005
+    assert set(results["splits"]) == {"holdout9", "holdout9_direct", "holdout9_indirect"}
+    low = results["comparisons"]["holdout9"][plan["must_beat"]]["low"]
+    assert rule["passed"] == (low >= -0.01)
+    assert "Round 16: an int8 e5-large-v2" in round11_markdown(results, timings, section="round16")

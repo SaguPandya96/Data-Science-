@@ -80,10 +80,10 @@ eight memories for the prompt:
 The model sees the keys already in use, so when you say "I moved to Austin" it can save the
 new value under `home_city` and retire Denver.
 
-Sentence similarity comes from `e5-large-v2`, a transformer encoder trained for search and
-run on CPU with ONNX Runtime; questions get a `query: ` prefix and memories `passage: `, as
+Sentence similarity comes from an int8 version of `e5-large-v2`, a transformer encoder
+trained for search and run on CPU with ONNX Runtime; questions get a `query: ` prefix and memories `passage: `, as
 the model expects. The second look comes from an int8 version of `ms-marco-MiniLM-L-6-v2`. Both
-are downloaded once (about 1.3 GB and 23 MB, each checked against a pinned SHA-256) and
+are downloaded once (about 340 MB and 23 MB, each checked against a pinned SHA-256) and
 cached. If only the
 encoder is available, Keel skips the second look. Offline, or without the `transformer`
 extra, Keel falls back to
@@ -408,6 +408,22 @@ about two and a half times as fast as e5-large-v2.
 gte-modernbert-base is the fastest option within 1.3 points. Source:
 [`reports/metrics/round15.md`](reports/metrics/round15.md).
 
+### Round 16: a smaller copy of the same encoder
+
+e5-large-v2 is a 1.3 GB download and the slowest encoder Keel has shipped. Round 16 tried
+its int8 copy: a quarter of the size and five to six times as fast on one CPU thread. Since
+it costs less, it only had to be no more than 1 point worse on the fresh question set (the
+rule round 8 used for the int8 reranker).
+
+| Encoder | Already-seen sets (weight) | Fresh set |
+| --- | --- | --- |
+| `e5-large-v2` | 91.5% (64) | 93.4% |
+| **`e5-large-v2` (int8)** (shipped) | **91.3% (64)** | **93.0%** |
+
+The int8 copy scored **0.4 points lower** on the fresh set (95% CI −0.7 to −0.0), well
+inside the 1-point margin, so **it is now the default**. The first download falls from
+about 1.3 GB to 340 MB. Source: [`reports/metrics/round16.md`](reports/metrics/round16.md).
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
@@ -474,6 +490,7 @@ python scripts/run_round12.py            # round 12 (larger encoders; downloads 
 python scripts/run_round13.py            # round 13 (other large encoders; downloads ~4 GB once, ~40 min)
 python scripts/run_round14.py            # round 14 (2.2 GB encoders; downloads ~7 GB once, ~45 min)
 python scripts/run_round15.py            # round 15 (newer designs; downloads ~4.5 GB once, ~45 min)
+python scripts/run_round16.py            # round 16 (int8 e5-large-v2; downloads ~1.7 GB once, ~30 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods
