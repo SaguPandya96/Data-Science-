@@ -1,9 +1,9 @@
-"""Rounds 11 to 15: is another encoder better than the shipped one under the reranker?
+"""Rounds 11 to 16: is another encoder better than the shipped one under the reranker?
 
 Round 11 tried encoders of mpnet's size, round 12 larger ones, round 13 others of
-e5-large's size, round 14 larger ones again and round 15 newer architectures
-(docs/ANALYSIS_PLAN.md). All use this module, each with its own section of
-configs/eval.toml.
+e5-large's size, round 14 larger ones again, round 15 newer architectures and round 16 an
+int8 copy of the shipped encoder (docs/ANALYSIS_PLAN.md). All use this module, each with
+its own section of configs/eval.toml.
 """
 
 from __future__ import annotations
@@ -30,6 +30,7 @@ TITLES = {
     "round13": "Round 13: other encoders of e5-large's size",
     "round14": "Round 14: encoders of about 2.2 GB",
     "round15": "Round 15: newer encoder architectures",
+    "round16": "Round 16: an int8 e5-large-v2",
 }
 
 
@@ -47,8 +48,12 @@ def run_round11(
     plan = config[section]
     splits = (plan["split"], f"{plan['split']}_direct", f"{plan['split']}_indirect")
     # Round 11 adopts any gain whose interval is above zero; round 12's encoders cost more,
-    # so it asks for a lower bound of at least ``min_gain``.
+    # so it asks for a lower bound of at least ``min_gain``. Round 16's candidate costs less,
+    # so its ``min_gain`` is negative: it only has to be no more than that much worse.
     min_gain = plan.get("min_gain", 0.0)
+    # Without ``max_tuning_drop`` the candidate must beat the current encoder on tuning to
+    # reach the held-out set; with it, it may trail by up to that much.
+    max_tuning_drop = plan.get("max_tuning_drop", 0.0)
     # Weights whose tuning means differ by less than ``tie_margin`` count as tied, and a tie
     # goes to the smaller weight. Round 12 added this after its first run: two weights a
     # few questions apart swapped places from one CPU to another (docs/ANALYSIS_PLAN.md).
@@ -100,9 +105,12 @@ def run_round11(
         return tuning[key][str(best_weight[key])]["mean"]
 
     best = max(others, key=lambda key_: (best_mean(key_), -others.index(key_)))
-    tested = best_mean(best) > baseline["mean"]
+    if max_tuning_drop:
+        tested = best_mean(best) >= baseline["mean"] - max_tuning_drop
+    else:
+        tested = best_mean(best) > baseline["mean"]
 
-    # 2. Test the best one on the new held-out set, only if it beat the current one there.
+    # 2. Test the best one on the new held-out set, only if it qualified on tuning.
     results: dict[str, Any] = {}
     comparisons: dict[str, Any] = {}
     if tested:
@@ -127,14 +135,25 @@ def run_round11(
     names = {key: spec["name"] for key, spec in plan["encoders"].items()}
     setting = f"{names[best]} at w = {best_weight[best]}"
     kept = "mpnet" if section == "round11" else names[current["encoder"]]
-    if not tested:
+    if not tested and max_tuning_drop:
         verdict: bool | None = None
+        outcome = (
+            f"{setting} more than {100 * max_tuning_drop:g} points below {kept} on the "
+            f"tuning sets; {kept} kept"
+        )
+    elif not tested:
+        verdict = None
         outcome = f"no encoder beat {kept} on the tuning sets (best: {setting}); {kept} kept"
     else:
         low = comparisons[plan["split"]][plan["must_beat"]]["low"]
         verdict = low >= min_gain if min_gain else low > 0
         if verdict:
             outcome = f"{setting} adopted"
+        elif min_gain < 0:
+            outcome = (
+                f"{setting} may be more than {-100 * min_gain:g} points worse on the "
+                f"held-out set; {kept} kept"
+            )
         elif min_gain and low > 0:
             outcome = (
                 f"{setting} better on the held-out set but short of the "
@@ -183,6 +202,7 @@ def run_round11(
                 "must_beat": plan["must_beat"],
                 "split": plan["split"],
                 **({"min_gain": min_gain} if min_gain else {}),
+                **({"max_tuning_drop": max_tuning_drop} if max_tuning_drop else {}),
                 "passed": verdict,
                 "outcome": outcome,
             },

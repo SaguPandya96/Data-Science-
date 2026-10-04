@@ -69,8 +69,8 @@ jobs:
             tests: tests/test_transformer.py
           - group: "13-14"
             rounds: "13 14"
-          - group: "15"
-            rounds: "15"
+          - group: "15-16"
+            rounds: "15 16"
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
