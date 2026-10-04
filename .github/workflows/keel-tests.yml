@@ -66,11 +66,11 @@ jobs:
             tests: tests/test_rerank.py
           - group: "11-12"
             rounds: "11 12"
-            tests: tests/test_transformer.py
           - group: "13-14"
             rounds: "13 14"
           - group: "15-16"
             rounds: "15 16"
+            tests: tests/test_transformer.py  # the shipped encoder is round 16's int8 model
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
