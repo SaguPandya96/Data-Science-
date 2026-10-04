@@ -114,19 +114,19 @@ def offline() -> bool:
     return os.environ.get("KEEL_OFFLINE", "").lower() in ("1", "true", "yes")
 
 
-# The encoder chosen in round 12 of the benchmark (reports/metrics/round12.json). Rounds 4
-# and 5 had shipped all-MiniLM-L6-v2, rounds 6 to 10 all-mpnet-base-v2, and round 11
-# e5-base-v2.
+# The int8 copy of the encoder chosen in round 12, adopted in round 16 of the benchmark
+# (reports/metrics/round16.json). Rounds 4 and 5 had shipped all-MiniLM-L6-v2, rounds 6 to
+# 10 all-mpnet-base-v2, round 11 e5-base-v2 and rounds 12 to 15 full-precision e5-large-v2.
 DEFAULT_ENCODER: dict[str, Any] = {
-    "name": "e5-large-v2",
+    "name": "e5-large-v2 (int8)",
     "pooling": "mean",
     "query_prefix": "query: ",
     "doc_prefix": "passage: ",
     "files": {
         "model.onnx": {
             "url": "https://huggingface.co/Xenova/e5-large-v2/resolve/"
-            "840fd2207f68e253697ed85392a482ff7657ad11/onnx/model.onnx",
-            "sha256": "339329575d9c103ab4c08ae8d9d8334adaddda476d1d45f8c65abb7156445002",
+            "840fd2207f68e253697ed85392a482ff7657ad11/onnx/model_quantized.onnx",
+            "sha256": "80779f47fd485869cb5d12338e3956cab089075f136c39498f67d53bcc41b357",
         },
         "tokenizer.json": {
             "url": "https://huggingface.co/Xenova/e5-large-v2/resolve/"
