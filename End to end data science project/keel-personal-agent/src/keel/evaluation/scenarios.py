@@ -943,6 +943,75 @@ HOLDOUT9: dict[str, tuple[str, str]] = {
     ),
 }
 
+# Eleventh held-out set, written after round 16 was merged, when every earlier set had been
+# used. No method has been run on it.
+HOLDOUT10: dict[str, tuple[str, str]] = {
+    "home_city": (
+        "Which town or city is my address in?",
+        "Which city should the local news alerts on my phone follow?",
+    ),
+    "employer": (
+        "Which organisation pays my salary?",
+        "Whose intranet do I log in to each morning?",
+    ),
+    "job_title": (
+        "Tell me my current job title.",
+        "How should I describe what I do on a conference name tag?",
+    ),
+    "diet": (
+        "Are there foods I avoid for lifestyle reasons?",
+        "Which meal option should I choose on the airline booking?",
+    ),
+    "allergy": (
+        "Tell me about the allergy I have.",
+        "What ingredient must the bakery leave out of my birthday cake?",
+    ),
+    "partner_name": (
+        "Remind me what my significant other is called.",
+        "Who should be the second guest on a table for two this Friday?",
+    ),
+    "pet": (
+        "Which creature shares my flat?",
+        "Who should the house sitter look after while I travel?",
+    ),
+    "gym_days": (
+        "Remind me of my weekly exercise schedule.",
+        "When will I be lifting weights this week?",
+    ),
+    "wake_time": (
+        "How early am I normally out of bed?",
+        "How early can I take a call before work?",
+    ),
+    "favorite_cuisine": (
+        "Remind me which dishes from around the world I enjoy most.",
+        "Which delivery menu should I browse for a Friday night treat?",
+    ),
+    "dining_budget": (
+        "What is my spending cap for eating out?",
+        "Will a meal at the new steakhouse blow my monthly allowance?",
+    ),
+    "doctor": (
+        "Which GP am I registered with?",
+        "Whose surgery should send my vaccination reminder?",
+    ),
+    "car": (
+        "Remind me which vehicle I have.",
+        "What should the parking permit be registered to?",
+    ),
+    "sibling": (
+        "Name the sibling I grew up with.",
+        "Who would I share a childhood bedroom story with at a family reunion?",
+    ),
+    "language_goal": (
+        "What vocabulary am I drilling with flashcards?",
+        "Which second keyboard layout should I add to my laptop?",
+    ),
+    "race_goal": (
+        "Remind me what race is on my calendar.",
+        "What event is my training plan building up to?",
+    ),
+}
+
 # Small talk. "{city}", "{food}" and similar are filled with values from the slot pools,
 # usually not the user's own, to create near misses for the retriever.
 DISTRACTORS: tuple[str, ...] = (
@@ -1121,7 +1190,7 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
                     )
                 )
             persona.probes[split] = probes
-        # Held-out wordings for rounds 2 and 4 to 13: fixed, so they use no randomness and
+        # Held-out wordings for rounds 2 and 4 onwards: fixed, so they use no randomness and
         # leave the dev and test probes above exactly as they were.
         for prefix, wordings in (
             ("holdout", HOLDOUT),
@@ -1133,6 +1202,7 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
             ("holdout7", HOLDOUT7),
             ("holdout8", HOLDOUT8),
             ("holdout9", HOLDOUT9),
+            ("holdout10", HOLDOUT10),
         ):
             for style, position in (("direct", 0), ("indirect", 1)):
                 persona.probes[f"{prefix}_{style}"] = [

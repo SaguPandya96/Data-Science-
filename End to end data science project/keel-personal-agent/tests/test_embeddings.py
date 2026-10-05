@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from keel.evaluation import scenarios
 from keel.evaluation.benchmark import load_config
 from keel.evaluation.round2 import run_round2, to_markdown
 from keel.evaluation.scenarios import HOLDOUT, SLOTS, build_personas
@@ -62,6 +63,23 @@ def test_holdout_has_one_direct_and_one_indirect_wording_per_detail():
     assert len(persona.probes["holdout"]) == 2 * len(SLOTS)
     for slot in SLOTS:
         assert not set(HOLDOUT[slot.key]) & (set(slot.dev) | set(slot.test))
+
+
+def test_every_held_out_set_is_new_and_complete():
+    """Each held-out set covers every detail and repeats no wording used anywhere else."""
+    names = ["HOLDOUT"] + [f"HOLDOUT{i}" for i in range(2, 11)]
+    sets = [getattr(scenarios, name) for name in names]
+    keys = {slot.key for slot in SLOTS}
+    seen = {q.lower() for slot in SLOTS for q in (*slot.dev, *slot.test)}
+    for name, wordings in zip(names, sets, strict=True):
+        assert set(wordings) == keys, name
+        for key in keys:
+            new = {q.lower() for q in wordings[key]}
+            assert len(new) == 2, (name, key)
+            assert not new & seen, (name, key, new & seen)
+            seen |= new
+    persona = build_personas(dict(load_config(CONFIG)["benchmark"], personas=1))[0]
+    assert len(persona.probes["holdout10"]) == 2 * len(SLOTS)
 
 
 def test_round2_runner_with_a_stand_in_embedder(tmp_path):
