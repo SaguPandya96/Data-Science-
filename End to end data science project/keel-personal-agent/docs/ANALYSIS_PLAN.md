@@ -1369,3 +1369,18 @@ Things to keep in mind:
   on tuning, less than the 0.05-point margin, so the smaller weight won under the tie rule
   and the shipped weight is unchanged.
 - **Every held-out set written so far has now been used.** A further round needs a new one.
+
+## A new held-out set: `HOLDOUT10`
+
+Written after round 16 was merged, when every earlier held-out set had been used, and before
+any round was planned around it. Like the others, it has one direct and one indirect wording
+for each of the 16 details, in `src/keel/evaluation/scenarios.py`.
+
+- **No method has been run on it.** Adding it builds the questions but scores nothing; rounds
+  1 and 2, which must reproduce exactly, came out unchanged.
+- **The wordings are new.** None repeats a wording from the dev, test or earlier held-out
+  sets (a test checks this for every set). The closest any of them comes to an earlier
+  wording is 56% of words in common, against 71% to 100% for each earlier set against the
+  ones before it, so it is the least familiar set so far.
+- **It is reserved for the next round's final comparison.** As before, a round chooses its
+  candidate on already-seen sets and uses `HOLDOUT10` once.
