@@ -109,8 +109,12 @@ moved to Austin.
 
 Supersession only works if the model reuses the key. To make that likely, the context
 block lists every key in use, the `remember` tool's description asks for reuse, and the
-tool's result reports what was replaced. The benchmark's key-noise test measures the cost
-when this fails.
+tool's result reports what was replaced. A new key that looks like a variant of one already
+in use (reordered words such as `city_home` for `home_city`, an added or dropped word such
+as `diet_type` for `diet`, or a misspelling) is refused with the existing key and its text,
+so the model can save again under that key; if the detail really is different, it saves
+again with `new_key` set. Synonyms with no word in common (`residence` for `home_city`) are
+not caught. The benchmark's key-noise test measures the cost when reuse fails.
 
 ### Retrieval
 
@@ -262,7 +266,8 @@ correct. Unknown tools are rejected the same way.
   16), in exchange for a quarter of the download and five to six times the speed. It
   embeds about 60 to 75 texts a second on one CPU thread, depending on the machine.
 - Supersession depends on consistent keys. With every update written under a new key,
-  clean retrieval of changed details falls from 67.8% to 26.1%.
+  clean retrieval of changed details falls from 67.8% to 26.1%. Near-duplicate keys are
+  refused, but a synonym key still gets through.
 - The benchmark assumes perfect memory writing; how well the model chooses what to
   remember has not been measured.
 - Single user, single process, local SQLite. No authentication, because there is no
@@ -275,6 +280,6 @@ correct. Unknown tools are rejected the same way.
 2. Look for a better encoder than e5-large-v2. Other encoders of its size were 2 points
    or more behind (round 13), and 2.2 GB ones and newer designs did no better (rounds 14
    and 15). A fresh held-out set, `HOLDOUT10`, is ready for the next round.
-3. Suggest existing keys to the model when a new key looks like a near-duplicate of one
-   already in use.
+3. Catch synonym keys too (`residence` for `home_city`), for example by comparing a new
+   key's meaning with the keys in use using the encoder.
 4. Real calendar and mail integrations behind the existing approval gate.

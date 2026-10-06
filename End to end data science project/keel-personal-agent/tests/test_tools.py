@@ -139,3 +139,29 @@ def test_tool_definitions_are_sorted_and_closed(toolbox):
     names = [d["name"] for d in toolbox.definitions()]
     assert names == sorted(names)
     assert all(d["input_schema"]["additionalProperties"] is False for d in toolbox.definitions())
+
+
+def test_remember_refuses_a_near_duplicate_key_until_confirmed(toolbox, store):
+    run(toolbox, "remember", text="Lives in Denver.", kind="fact", key="home_city")
+    result = run(toolbox, "remember", text="Moved to Austin.", kind="fact", key="city_home")
+    assert result.is_error
+    assert "'home_city'" in result.output and "Lives in Denver." in result.output
+    assert len(store.all()) == 1
+    # Saved under the existing key, the new value retires the old one.
+    payload = json.loads(
+        run(toolbox, "remember", text="Moved to Austin.", kind="fact", key="home_city").output
+    )
+    assert payload["replaced"][0]["text"] == "Lives in Denver."
+    # A different detail that only looks similar goes through once confirmed.
+    result = run(
+        toolbox, "remember", text="Grew up in Boise.", kind="fact", key="city_home", new_key=True
+    )
+    assert not result.is_error
+    assert {m.key for m in store.all()} == {"home_city", "city_home"}
+
+
+def test_remember_allows_unrelated_and_respelled_keys(toolbox, store):
+    run(toolbox, "remember", text="Works at Acme.", kind="fact", key="employer")
+    assert not run(toolbox, "remember", text="Vegan.", kind="preference", key="diet").is_error
+    assert not run(toolbox, "remember", text="Works at Beta.", kind="fact", key="Employer").is_error
+    assert len(store.all()) == 2

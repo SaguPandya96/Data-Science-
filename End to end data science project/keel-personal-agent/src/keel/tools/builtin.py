@@ -9,7 +9,7 @@ from typing import Any
 from keel.memory.rerank import without_constraints
 from keel.memory.retrieval import KeelMemory, bm25_scores
 from keel.memory.store import KINDS
-from keel.memory.text import canonical_key, expand
+from keel.memory.text import canonical_key, expand, similar_keys
 from keel.tools.registry import Tool, ToolContext, ToolError, parse_when, require_text
 
 # Things that must never be written to long-term memory, whatever the model decides.
@@ -34,6 +34,8 @@ def _remember(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
     if kind not in KINDS:
         raise ToolError(f"kind must be one of {', '.join(KINDS)}")
     importance = args.get("importance")
+    if args.get("key") and not args.get("new_key"):
+        _check_key(ctx, args["key"])
     try:
         memory, superseded = ctx.memory.add(
             text,
@@ -50,6 +52,27 @@ def _remember(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
     elif memory.key is None and kind != "episode":
         result["hint"] = "No key given: if this detail can change later, save it with a key."
     return result
+
+
+def _check_key(ctx: ToolContext, key: str) -> None:
+    """Refuse a new key that looks like a variant of one already in use.
+
+    Forgetting relies on a changed detail being saved under the same key; a near-duplicate
+    such as "city_home" for "home_city" would leave the old value active beside the new.
+    """
+    active = {canonical_key(m.key): m for m in ctx.memory.all() if m.key}
+    canon = canonical_key(key)
+    if canon in active:
+        return
+    similar = similar_keys(key, [k for k in active if k is not None])
+    if similar:
+        match = active[similar[0]]
+        raise ToolError(
+            f"Not saved: {key!r} looks like the existing key {similar[0]!r} "
+            f"({match.text!r}). If this is the same detail, save it again with key "
+            f"{similar[0]!r} so the old value is retired; if it is a different detail, "
+            "save it again with new_key set to true."
+        )
 
 
 def _recall(ctx: ToolContext, args: dict[str, Any]) -> list[dict[str, Any]]:
@@ -348,6 +371,11 @@ def builtin_tools() -> list[Tool]:
                 "kind": {"type": "string", "enum": list(KINDS)},
                 "key": {"type": "string"},
                 "importance": {"type": "integer", "minimum": 1, "maximum": 5},
+                "new_key": {
+                    "type": "boolean",
+                    "description": "Set only when told a key looks like an existing one "
+                    "but the detail really is different.",
+                },
             },
             ("text", "kind"),
             "write",
