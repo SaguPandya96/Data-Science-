@@ -8,6 +8,8 @@ in general terms; they were written before the benchmark's test templates were f
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
+from difflib import SequenceMatcher
 from functools import lru_cache
 
 import snowballstemmer
@@ -99,6 +101,29 @@ def canonical_key(key: str | None) -> str | None:
         if slug.startswith(prefix):
             slug = slug[len(prefix) :]
     return slug.removesuffix("_current") or None
+
+
+def similar_keys(key: str | None, existing: Iterable[str]) -> list[str]:
+    """Existing canonical keys that look like a variant of ``key``, closest first.
+
+    Catches reordered words ("city_home" for "home_city"), an added or dropped word
+    ("diet_type" for "diet") and misspellings ("employeer"). Synonyms with no word in
+    common ("residence" for "home_city") are not caught; the prompt's list of keys in use
+    is what guards against those.
+    """
+    canon = canonical_key(key)
+    if canon is None:
+        return []
+    words = set(canon.split("_"))
+    scored = []
+    for other in set(existing) - {canon}:
+        other_words = set(other.split("_"))
+        overlap = len(words & other_words) / len(words | other_words)
+        spelling = SequenceMatcher(None, canon, other).ratio()
+        score = max(overlap, spelling)
+        if overlap >= 0.5 or spelling >= 0.85:
+            scored.append((-score, other))
+    return [other for _, other in sorted(scored)]
 
 
 def estimate_tokens(text: str) -> int:

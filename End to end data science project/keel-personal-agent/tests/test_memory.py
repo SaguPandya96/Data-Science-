@@ -4,14 +4,30 @@ from datetime import timedelta
 
 import pytest
 
+from keel.evaluation.scenarios import SLOTS
 from keel.memory.retrieval import KeelMemory, LexicalMemory, RecentMemory, bm25_scores
-from keel.memory.text import canonical_key, expand, stem, tokens
+from keel.memory.text import canonical_key, expand, similar_keys, stem, tokens
 
 
 def test_canonical_key_merges_spelling_variants_only():
     assert canonical_key("Home City") == canonical_key("user_home-city") == "home_city"
     assert canonical_key("current_employer") == "employer"
     assert canonical_key("residence") != canonical_key("home_city")
+
+
+def test_similar_keys_flags_variants_but_not_other_details():
+    keys = [slot.key for slot in SLOTS]
+    assert similar_keys("city_home", keys) == ["home_city"]
+    assert similar_keys("employeer", keys) == ["employer"]
+    assert similar_keys("diet_type", keys) == ["diet"]
+    assert similar_keys("wake_up_time", keys) == ["wake_time"]
+    # The same key respelled is not a near-duplicate; it already matches.
+    assert similar_keys("Home City", keys) == []
+    # Different details, and synonyms with no word in common, are not flagged.
+    for key in ("work_city", "travel_budget", "gym_schedule", "residence"):
+        assert similar_keys(key, keys) == []
+    # No benchmark key is flagged against the others.
+    assert all(similar_keys(key, keys) == [] for key in keys)
     assert canonical_key(None) is None
 
 
