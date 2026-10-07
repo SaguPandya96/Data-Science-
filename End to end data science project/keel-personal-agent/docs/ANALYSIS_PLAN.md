@@ -1384,3 +1384,45 @@ for each of the 16 details, in `src/keel/evaluation/scenarios.py`.
   ones before it, so it is the least familiar set so far.
 - **It is reserved for the next round's final comparison.** As before, a round chooses its
   candidate on already-seen sets and uses `HOLDOUT10` once.
+
+## Round 17: the reranker's setting for the current encoder
+
+Written after `HOLDOUT10` was added and before any run of this round.
+
+### The question
+
+Round 7 chose how many candidates the reranker reorders (20) and how much its logit counts
+against the hybrid score (weight 2.0) when the encoder was mpnet at weight 12. The encoder
+is now an int8 e5-large-v2 at weight 64, so the hybrid score the logit is added to sits on
+a different scale. Is the round 7 setting still the best one?
+
+### The arm
+
+The shipped first stage (int8 e5-large-v2 at `w = 64`) and the shipped int8
+`ms-marco-MiniLM-L-6-v2`, with every combination of:
+
+| Candidates | Weights |
+| --- | --- |
+| 10, 20, 30, 40 | 0.5, 1, 2, 4, 8, 16 |
+
+### Choosing
+
+Each of the 24 settings is scored by mean clean hit over the ten already-seen sets (`dev`
+and `HOLDOUT` to `HOLDOUT9`). Settings within 0.05 points of the best tie. If the current
+setting (20 at 2.0) is among them, nothing changes and `HOLDOUT10` stays unseen. Otherwise
+the cheapest tied setting is the candidate: the shortest list, then the smallest weight.
+
+### Held-out questions
+
+`HOLDOUT10`, written after round 16. No method has been run on it.
+
+### Pass rule
+
+The candidate is compared with the current setting on `HOLDOUT10`.
+
+- **No more candidates than now** costs the same or less per question: **adopted if the
+  95% persona-bootstrap interval of the paired clean-hit difference is entirely above
+  zero.**
+- **More candidates** makes every question slower (the reranker scores each one): **adopted
+  only if the lower bound is at least 1 point**, the bar used for costlier changes since
+  round 6.

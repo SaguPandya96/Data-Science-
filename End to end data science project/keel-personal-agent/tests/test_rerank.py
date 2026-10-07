@@ -17,7 +17,9 @@ from keel.evaluation.round9 import run_round9
 from keel.evaluation.round9 import to_markdown as round9_markdown
 from keel.evaluation.round11 import run_round11
 from keel.evaluation.round11 import to_markdown as round11_markdown
-from keel.memory.embeddings import HashingEmbedder, download_files
+from keel.evaluation.round17 import run_round17
+from keel.evaluation.round17 import to_markdown as round17_markdown
+from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
     RERANK_CANDIDATES,
@@ -26,7 +28,7 @@ from keel.memory.rerank import (
     RerankedMemory,
     default_reranker,
 )
-from keel.memory.retrieval import KeelMemory, default_retriever
+from keel.memory.retrieval import TRANSFORMER_WEIGHT, KeelMemory, default_retriever
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "eval.toml"
@@ -512,3 +514,38 @@ def test_round16_tries_the_int8_model_if_it_is_within_half_a_point(tmp_path):
     low = results["comparisons"]["holdout9"][plan["must_beat"]]["low"]
     assert rule["passed"] == (low >= -0.01)
     assert "Round 16: an int8 e5-large-v2" in round11_markdown(results, timings, section="round16")
+
+
+def test_round17_retunes_the_reranker_on_holdout10(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round17"]
+    assert plan["split"] == "holdout10"
+    assert plan["current"] == {"candidates": RERANK_CANDIDATES, "weight": RERANK_WEIGHT}
+    assert plan["encoder_weight"] == TRANSFORMER_WEIGHT
+    assert {"name": plan["encoder"]["name"], "files": plan["encoder"]["files"]} == {
+        "name": DEFAULT_ENCODER["name"],
+        "files": DEFAULT_ENCODER["files"],
+    }
+    assert plan["reranker"] == DEFAULT_RERANKER
+    ticks = iter(range(100))
+    results, timings = run_round17(
+        small,
+        encoder=HashingEmbedder(64),
+        reranker=OverlapReranker(),
+        clock=lambda: float(next(ticks)),
+    )
+    grid = {f"n={n} w={w}" for n in plan["candidates_grid"] for w in plan["weight_grid"]}
+    assert set(results["tuning"]) == grid
+    chosen = results["chosen"]
+    rule = results["pass_rule"]
+    if chosen == results["current"]:
+        assert rule["passed"] is None and not results["splits"]
+    else:
+        assert set(results["splits"]) == {"holdout10", "holdout10_direct", "holdout10_indirect"}
+        low = results["comparisons"]["holdout10"][plan["must_beat"]]["low"]
+        bar = plan["min_gain_costlier"] if chosen["candidates"] > 20 else plan["min_gain"]
+        assert rule["passed"] == (low >= bar if bar else low > 0)
+    assert set(timings) == {str(n) for n in plan["candidates_grid"]}
+    assert "Round 17" in round17_markdown(results, timings)
