@@ -21,7 +21,14 @@ from keel.memory.embeddings import (
     default_transformer,
     download_model,
 )
-from keel.memory.retrieval import TRANSFORMER_WEIGHT, default_retriever, embed_query_and_docs
+from keel.memory.retrieval import (
+    TRANSFORMER_WEIGHT,
+    KeelMemory,
+    default_retriever,
+    embed_query_and_docs,
+)
+from keel.tools.builtin import builtin_tools
+from keel.tools.registry import Toolbox, ToolContext
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "eval.toml"
@@ -178,3 +185,26 @@ def test_round6_runner_with_stand_in_encoders(tmp_path):
     unchanged = results["chosen"] == {"encoder": "minilm", "weight": 6.0}
     assert (results["pass_rule"]["passed"] is None) == unchanged
     assert "Round 6: larger transformer encoders" in round6_markdown(results, timings)
+
+
+@pytest.mark.skipif(not os.environ.get("KEEL_TEST_MODEL_DIR"), reason="needs a downloaded encoder")
+def test_shipped_encoder_links_a_synonym_key_to_the_key_in_use(monkeypatch, conn, clock, store):
+    pytest.importorskip("onnxruntime")
+    monkeypatch.setenv("KEEL_MODEL_DIR", os.environ["KEEL_TEST_MODEL_DIR"])
+    retriever = KeelMemory(embedder=default_transformer(), embedding_weight=TRANSFORMER_WEIGHT)
+    box = Toolbox(ToolContext(conn, clock, store, "test", retriever))
+    for tool in builtin_tools():
+        box.register(tool)
+
+    def remember(text: str, key: str) -> dict:
+        return json.loads(
+            box.run("t", "remember", {"text": text, "kind": "fact", "key": key}).output
+        )
+
+    remember("Lives in Denver.", "home_city")
+    remember("Eats a vegetarian diet.", "diet")
+    assert remember("Moved to Austin.", "residence")["possible_same_detail"]["key"] == "home_city"
+    assert (
+        remember("Now eats only plants.", "eating_style")["possible_same_detail"]["key"] == "diet"
+    )
+    assert "possible_same_detail" not in remember("Born on 3 May.", "birthday")

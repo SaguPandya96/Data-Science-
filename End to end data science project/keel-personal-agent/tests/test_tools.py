@@ -3,7 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
 from keel import approvals
+from keel.memory.embeddings import DEFAULT_ENCODER
+from keel.memory.retrieval import KeelMemory
+from keel.tools.builtin import builtin_tools
+from keel.tools.registry import Toolbox, ToolContext
 
 
 def run(toolbox, name, **args):
@@ -165,3 +171,38 @@ def test_remember_allows_unrelated_and_respelled_keys(toolbox, store):
     assert not run(toolbox, "remember", text="Vegan.", kind="preference", key="diet").is_error
     assert not run(toolbox, "remember", text="Works at Beta.", kind="fact", key="Employer").is_error
     assert len(store.all()) == 2
+
+
+class _TopicEmbedder:
+    """Stands in for the shipped encoder: one direction per topic word."""
+
+    name = DEFAULT_ENCODER["name"]
+    query_prefix = "query: "
+
+    def embed(self, texts):  # type: ignore[no-untyped-def]
+        groups = ({"city", "lives", "residence", "moved"}, {"born"})
+        return np.array([[1.0 + float(any(w in t for w in g)) * 9 for g in groups] for t in texts])
+
+
+def test_remember_hints_at_a_key_with_the_same_meaning(conn, clock, store):
+    box = Toolbox(ToolContext(conn, clock, store, "test", KeelMemory(embedder=_TopicEmbedder())))
+    for tool in builtin_tools():
+        box.register(tool)
+    run(box, "remember", text="Lives in Denver.", kind="fact", key="home_city")
+    payload = json.loads(
+        run(box, "remember", text="Moved to Austin.", kind="fact", key="residence").output
+    )
+    assert payload["possible_same_detail"] == {"key": "home_city", "text": "Lives in Denver."}
+    assert f"forget memory {payload['saved']}" in payload["hint"]
+    payload = json.loads(
+        run(box, "remember", text="Born in May.", kind="fact", key="birthday").output
+    )
+    assert "possible_same_detail" not in payload
+
+
+def test_remember_gives_no_meaning_hint_without_the_shipped_encoder(toolbox):
+    run(toolbox, "remember", text="Lives in Denver.", kind="fact", key="home_city")
+    payload = json.loads(
+        run(toolbox, "remember", text="Moved to Austin.", kind="fact", key="residence").output
+    )
+    assert "possible_same_detail" not in payload
