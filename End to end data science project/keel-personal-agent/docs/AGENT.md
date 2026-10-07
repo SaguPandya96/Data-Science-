@@ -161,8 +161,9 @@ cost when reuse fails.
 
    Memories outside those 20 are never shown. The model (about 23 MB) is downloaded and
    verified like the encoder; without it, step 3's score is used as is. The list size and
-   weight were chosen by round 7 of the benchmark, and round 8 found the int8 model no
-   worse than full precision.
+   weight were chosen by round 7 of the benchmark, round 8 found the int8 model no
+   worse than full precision, and round 17 found the setting still within 0.05 points of
+   the best for the current encoder.
 5. A candidate whose words match one already chosen is skipped.
 
 The `recall` tool uses the same retriever without the always-on constraints, so the model
@@ -286,7 +287,8 @@ correct. Unknown tools are rejected the same way.
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
 2. Look for a better encoder than e5-large-v2. Other encoders of its size were 2 points
    or more behind (round 13), and 2.2 GB ones and newer designs did no better (rounds 14
-   and 15). A fresh held-out set, `HOLDOUT10`, is ready for the next round.
+   and 15). `HOLDOUT10` was seen once in round 17, so the next round needs a new held-out
+   set.
 3. Measure how often the model follows the key hints in real conversations, which the
    offline benchmark cannot show.
 4. Real calendar and mail integrations behind the existing approval gate.

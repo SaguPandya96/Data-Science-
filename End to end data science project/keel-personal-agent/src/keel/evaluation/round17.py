@@ -68,7 +68,10 @@ def run_round17(
     grid = [(n, w) for n in plan["candidates_grid"] for w in plan["weight_grid"]]
     tuning = {_setting(n, w): tuning_row(arm(n, w, _setting(n, w))) for n, w in grid}
     top = max(row["mean"] for row in tuning.values())
-    tied = [s for s in grid if tuning[_setting(*s)]["mean"] > top - plan["tie_margin"]]
+    # A gap of exactly the margin counts as a tie. Means are whole questions over a fixed
+    # total, so compare with a small tolerance rather than trusting float subtraction
+    # (added after the first run; docs/ANALYSIS_PLAN.md).
+    tied = [s for s in grid if top - tuning[_setting(*s)]["mean"] <= plan["tie_margin"] + 1e-9]
     # Within the tie margin the current setting is kept; otherwise the cheapest wins:
     # the shortest list, then the smallest weight.
     chosen = current if current in tied else min(tied)
@@ -102,7 +105,9 @@ def run_round17(
     kept = f"the current {current[0]} candidates at weight {current[1]} kept"
     if not tested:
         verdict: bool | None = None
-        outcome = f"no setting beat the current one on the tuning sets; {kept}"
+        outcome = (
+            f"the current setting is within the tie margin of the best on the tuning sets; {kept}"
+        )
     else:
         low = comparisons[split][plan["must_beat"]]["low"]
         verdict = low >= min_gain if min_gain else low > 0

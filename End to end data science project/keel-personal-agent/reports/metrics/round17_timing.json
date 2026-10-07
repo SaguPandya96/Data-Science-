@@ -1,0 +1,18 @@
+{
+  "10": {
+    "questions": 16,
+    "ms_per_question": 16.8
+  },
+  "20": {
+    "questions": 16,
+    "ms_per_question": 35.7
+  },
+  "30": {
+    "questions": 16,
+    "ms_per_question": 58.6
+  },
+  "40": {
+    "questions": 16,
+    "ms_per_question": 79.0
+  }
+}
