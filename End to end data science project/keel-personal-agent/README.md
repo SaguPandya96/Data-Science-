@@ -424,6 +424,26 @@ The int8 copy scored **0.4 points lower** on the fresh set (95% CI −0.7 to −
 inside the 1-point margin, so **it is now the default**. The first download falls from
 about 1.3 GB to 340 MB. Source: [`reports/metrics/round16.md`](reports/metrics/round16.md).
 
+### Round 17: the reranker's setting, rechecked
+
+The reranker reorders the top 20 memories at weight 2.0, a setting round 7 chose when mpnet
+was the encoder. Round 17 tried 24 settings (10 to 40 candidates, weights 0.5 to 16) with
+the current encoder on the ten already-seen question sets.
+
+| Candidates | Best weight | Already-seen sets | Reranking time |
+| --- | --- | --- | --- |
+| 10 | 2.0 | 91.55% | 18 ms |
+| **20** (shipped, weight 2.0) | 1.0 | 91.55% (**91.50%** at 2.0) | 40 ms |
+| 30 | 1.0 | 91.55% | 65 ms |
+| 40 | 1.0 | 91.55% | 86 ms |
+
+**The shipped setting is within 0.05 points of the best, so it stays.** Weights above 4
+hurt at every list size. The gap was exactly 0.05 points (32 questions out of 64,000); a
+rounding slip first counted that as no tie and tested 10 candidates at weight 1.0 on the
+new held-out set, where it scored 0.2 points lower. The tie rule was then fixed to count
+exactly 0.05 as a tie (details in the analysis plan). Source:
+[`reports/metrics/round17.md`](reports/metrics/round17.md).
+
 ## What this does not show
 
 - **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
@@ -491,6 +511,7 @@ python scripts/run_round13.py            # round 13 (other large encoders; downl
 python scripts/run_round14.py            # round 14 (2.2 GB encoders; downloads ~7 GB once, ~45 min)
 python scripts/run_round15.py            # round 15 (newer designs; downloads ~4.5 GB once, ~45 min)
 python scripts/run_round16.py            # round 16 (int8 e5-large-v2; downloads ~1.7 GB once, ~30 min)
+python scripts/run_round17.py            # round 17 (reranker setting; downloads ~360 MB once, ~15 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods

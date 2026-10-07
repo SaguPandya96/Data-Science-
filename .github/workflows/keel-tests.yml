@@ -71,6 +71,8 @@ jobs:
           - group: "15-16"
             rounds: "15 16"
             tests: tests/test_transformer.py  # the shipped encoder is round 16's int8 model
+          - group: "17"
+            rounds: "17"
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:

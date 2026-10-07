@@ -1384,3 +1384,90 @@ for each of the 16 details, in `src/keel/evaluation/scenarios.py`.
   ones before it, so it is the least familiar set so far.
 - **It is reserved for the next round's final comparison.** As before, a round chooses its
   candidate on already-seen sets and uses `HOLDOUT10` once.
+
+## Round 17: the reranker's setting for the current encoder
+
+Written after `HOLDOUT10` was added and before any run of this round.
+
+### The question
+
+Round 7 chose how many candidates the reranker reorders (20) and how much its logit counts
+against the hybrid score (weight 2.0) when the encoder was mpnet at weight 12. The encoder
+is now an int8 e5-large-v2 at weight 64, so the hybrid score the logit is added to sits on
+a different scale. Is the round 7 setting still the best one?
+
+### The arm
+
+The shipped first stage (int8 e5-large-v2 at `w = 64`) and the shipped int8
+`ms-marco-MiniLM-L-6-v2`, with every combination of:
+
+| Candidates | Weights |
+| --- | --- |
+| 10, 20, 30, 40 | 0.5, 1, 2, 4, 8, 16 |
+
+### Choosing
+
+Each of the 24 settings is scored by mean clean hit over the ten already-seen sets (`dev`
+and `HOLDOUT` to `HOLDOUT9`). Settings within 0.05 points of the best tie. If the current
+setting (20 at 2.0) is among them, nothing changes and `HOLDOUT10` stays unseen. Otherwise
+the cheapest tied setting is the candidate: the shortest list, then the smallest weight.
+
+### Held-out questions
+
+`HOLDOUT10`, written after round 16. No method has been run on it.
+
+### Pass rule
+
+The candidate is compared with the current setting on `HOLDOUT10`.
+
+- **No more candidates than now** costs the same or less per question: **adopted if the
+  95% persona-bootstrap interval of the paired clean-hit difference is entirely above
+  zero.**
+- **More candidates** makes every question slower (the reranker scores each one): **adopted
+  only if the lower bound is at least 1 point**, the bar used for costlier changes since
+  round 6.
+
+### Outcome
+
+Mean clean hit over the ten already-seen sets:
+
+| Candidates | w = 0.5 | w = 1 | w = 2 | w = 4 | w = 8 | w = 16 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 10 | 91.49% | 91.54% | 91.55% | 91.31% | 90.99% | 90.54% |
+| 20 | 91.50% | 91.55% | **91.50%** | 91.17% | 90.80% | 90.18% |
+| 30 | 91.50% | 91.55% | 91.42% | 90.95% | 90.49% | 89.75% |
+| 40 | 91.50% | 91.55% | 91.41% | 90.89% | 90.34% | 89.46% |
+
+The best settings (20 or 30 candidates at weight 1) scored 91.553%. The current setting,
+20 at weight 2, scored 91.503%: exactly 0.05 points lower, or 32 questions out of 64,000.
+Under the plan, settings "within 0.05 points of the best tie", so **the current setting is
+kept** and nothing changes. Full tables: `reports/metrics/round17.md`.
+
+### Amendment: a gap of exactly the tie margin
+
+**This was fixed after the round had been run once, and after `HOLDOUT10` had been used.**
+The first run compared means with `mean > best − 0.0005` in floating point. For a gap of
+exactly 0.0005, rounding made that false, so the current setting was not counted as tied
+and the cheapest tied setting, 10 candidates at weight 1.0, was tested on `HOLDOUT10`:
+
+`keel+rerank(retuned)` − `keel+rerank`: −0.2 points (95% CI −0.4 to +0.0); direct −0.2,
+indirect −0.2. Not better, so the current setting was kept.
+
+The comparison now counts a gap of up to the margin as a tie, with a small tolerance for
+float rounding, which matches the plan's wording. With it the current setting ties and
+`HOLDOUT10` would not have been used. Either way the decision is the same: the shipped
+setting stays.
+
+Things to keep in mind:
+
+- **`HOLDOUT10` has now been seen once**, by one setting that was not adopted. The next
+  round should treat it as seen and use a new held-out set.
+- **The current setting sits exactly on the tie line.** A run on a different processor
+  could move a single question and land on either side. Both sides lead to the same
+  decision, but CI's check that decisions reproduce could then fail; that would be a
+  reproduction mismatch, not a change of result.
+- **Big weights hurt now.** With the encoder at weight 64, reranker weights above 4 lose at
+  every list size, and more candidates only help at small weights.
+- **Shorter lists are cheaper and about as good.** 10 candidates at weight 2.0 scored
+  91.55% at under half the reranking time (18 ms against 40 ms a question on one thread),
+  but the plan prefers the current setting within the tie margin.
