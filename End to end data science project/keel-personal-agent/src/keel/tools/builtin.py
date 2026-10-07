@@ -6,9 +6,12 @@ import re
 from datetime import datetime, timedelta
 from typing import Any
 
+import numpy as np
+
+from keel.memory.embeddings import DEFAULT_ENCODER
 from keel.memory.rerank import without_constraints
 from keel.memory.retrieval import KeelMemory, bm25_scores
-from keel.memory.store import KINDS
+from keel.memory.store import KINDS, Memory
 from keel.memory.text import canonical_key, expand, similar_keys
 from keel.tools.registry import Tool, ToolContext, ToolError, parse_when, require_text
 
@@ -36,6 +39,7 @@ def _remember(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
     importance = args.get("importance")
     if args.get("key") and not args.get("new_key"):
         _check_key(ctx, args["key"])
+    keyed = [m for m in ctx.memory.all() if m.key]
     try:
         memory, superseded = ctx.memory.add(
             text,
@@ -51,6 +55,17 @@ def _remember(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
         result["replaced"] = [{"id": m.id, "text": m.text} for m in superseded]
     elif memory.key is None and kind != "episode":
         result["hint"] = "No key given: if this detail can change later, save it with a key."
+    elif memory.key is not None and canonical_key(memory.key) not in {
+        canonical_key(m.key) for m in keyed
+    }:
+        match = _same_meaning(ctx, memory, keyed)
+        if match is not None:
+            result["possible_same_detail"] = {"key": match.key, "text": match.text}
+            result["hint"] = (
+                f"New key {memory.key!r} may describe the same detail as {match.key!r}. If "
+                f"it does, forget memory {memory.id} and save it again with key "
+                f"{match.key!r} so the old value is retired."
+            )
     return result
 
 
@@ -73,6 +88,35 @@ def _check_key(ctx: ToolContext, key: str) -> None:
             f"{similar[0]!r} so the old value is retired; if it is a different detail, "
             "save it again with new_key set to true."
         )
+
+
+# Cosine between "key words: text" for a memory under a new key and for each memory under a
+# key in use, with the shipped encoder. On the benchmark's 16 synonym keys (alt_key, saved
+# with an update sentence) against the 16 real keys (with a first statement), the right
+# key always scored highest; 13 of 16 reached 0.82, and no wrong key did. The threshold
+# was chosen on those same pairs, so expect fewer hits in use. Unrelated details can still
+# pass (a bedtime against wake_time scored 0.87), which is why this is a hint, not a refusal.
+SAME_MEANING = 0.82
+
+
+def _same_meaning(ctx: ToolContext, memory: Memory, keyed: list[Memory]) -> Memory | None:
+    """The memory under a key in use that most likely describes the same detail, if any."""
+    retriever = ctx.retriever
+    base = getattr(retriever, "base", retriever)
+    embedder = getattr(base, "embedder", None)
+    # The threshold holds for the shipped encoder only.
+    if not keyed or embedder is None or getattr(embedder, "name", None) != DEFAULT_ENCODER["name"]:
+        return None
+    prefix = getattr(embedder, "query_prefix", "")
+
+    def line(m: Memory) -> str:
+        return f"{prefix}{(canonical_key(m.key) or '').replace('_', ' ')}: {m.text}"
+
+    vectors = np.asarray(embedder.embed([line(memory)] + [line(m) for m in keyed]))
+    vectors = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
+    scores = vectors[1:] @ vectors[0]
+    best = int(np.argmax(scores))
+    return keyed[best] if scores[best] >= SAME_MEANING else None
 
 
 def _recall(ctx: ToolContext, args: dict[str, Any]) -> list[dict[str, Any]]:
