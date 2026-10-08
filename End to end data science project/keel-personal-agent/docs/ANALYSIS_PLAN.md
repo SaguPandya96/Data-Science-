@@ -1471,3 +1471,18 @@ Things to keep in mind:
 - **Shorter lists are cheaper and about as good.** 10 candidates at weight 2.0 scored
   91.55% at under half the reranking time (18 ms against 40 ms a question on one thread),
   but the plan prefers the current setting within the tie margin.
+
+## A new held-out set: `HOLDOUT11`
+
+Written after round 17 was merged, because round 17 had seen `HOLDOUT10` once, and before
+any round was planned around it. Like the others, it has one direct and one indirect
+wording for each of the 16 details, in `src/keel/evaluation/scenarios.py`.
+
+- **No method has been run on it.** Adding it builds the questions but scores nothing;
+  rounds 1 and 2, which must reproduce exactly, came out unchanged.
+- **The wordings are new.** None repeats a wording from the dev, test or earlier held-out
+  sets (the test that checks this now covers all eleven sets). The closest any of them
+  comes to an earlier wording is 50% of words in common, and that is a question about a
+  different detail; `HOLDOUT10`'s closest was 56%.
+- **It is reserved for the next round's final comparison**, used once, after the
+  candidate has been chosen on already-seen sets.

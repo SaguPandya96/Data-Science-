@@ -67,7 +67,7 @@ def test_holdout_has_one_direct_and_one_indirect_wording_per_detail():
 
 def test_every_held_out_set_is_new_and_complete():
     """Each held-out set covers every detail and repeats no wording used anywhere else."""
-    names = ["HOLDOUT"] + [f"HOLDOUT{i}" for i in range(2, 11)]
+    names = ["HOLDOUT"] + [f"HOLDOUT{i}" for i in range(2, 12)]
     sets = [getattr(scenarios, name) for name in names]
     keys = {slot.key for slot in SLOTS}
     seen = {q.lower() for slot in SLOTS for q in (*slot.dev, *slot.test)}
@@ -80,6 +80,7 @@ def test_every_held_out_set_is_new_and_complete():
             seen |= new
     persona = build_personas(dict(load_config(CONFIG)["benchmark"], personas=1))[0]
     assert len(persona.probes["holdout10"]) == 2 * len(SLOTS)
+    assert len(persona.probes["holdout11"]) == 2 * len(SLOTS)
 
 
 def test_round2_runner_with_a_stand_in_embedder(tmp_path):

@@ -1012,6 +1012,75 @@ HOLDOUT10: dict[str, tuple[str, str]] = {
     ),
 }
 
+# Twelfth held-out set, written after round 17 was merged; round 17 had seen HOLDOUT10 once.
+# No method has been run on it.
+HOLDOUT11: dict[str, tuple[str, str]] = {
+    "home_city": (
+        "What place do I currently reside in?",
+        "Which local council should I contact about my bins?",
+    ),
+    "employer": (
+        "Which company do I report to each day?",
+        "Where would a recruiter say I currently get my paycheck?",
+    ),
+    "job_title": (
+        "Describe my professional rank.",
+        "How do I introduce my line of work at a networking event?",
+    ),
+    "diet": (
+        "Is there a food regime I stick to?",
+        "Which dishes should a dinner host avoid serving me?",
+    ),
+    "allergy": (
+        "Which substance gives me a reaction?",
+        "What must the paramedics be told if I ever collapse?",
+    ),
+    "partner_name": (
+        "Who am I seeing these days?",
+        "Whose name should go on the joint gym membership?",
+    ),
+    "pet": (
+        "Have I got a furry friend at home?",
+        "What should the vet's reminder email be about?",
+    ),
+    "gym_days": (
+        "When in the week do I sweat it out?",
+        "On which mornings should I not book early meetings because I'm exercising?",
+    ),
+    "wake_time": (
+        "How soon after dawn am I usually up and about?",
+        "How early can the plumber come by without waking me?",
+    ),
+    "favorite_cuisine": (
+        "Name the cooking style I crave most.",
+        "Which street-food stall would I head to first at a night market?",
+    ),
+    "dining_budget": (
+        "How much can I put toward meals out?",
+        "Is a three-course anniversary dinner affordable for me right now?",
+    ),
+    "doctor": (
+        "Name the medic I see for check-ups.",
+        "Which practice should my blood test results be sent to?",
+    ),
+    "car": (
+        "Which make and model sits in my garage?",
+        "What vehicle should I get winter tyres for?",
+    ),
+    "sibling": (
+        "Name my sibling.",
+        "Which relative of my generation should get a seat at the family table?",
+    ),
+    "language_goal": (
+        "Which foreign tongue am I picking up?",
+        "Which grammar textbook should I buy next?",
+    ),
+    "race_goal": (
+        "Which running event have I entered?",
+        "What finish should my long runs be preparing me for?",
+    ),
+}
+
 # Small talk. "{city}", "{food}" and similar are filled with values from the slot pools,
 # usually not the user's own, to create near misses for the retriever.
 DISTRACTORS: tuple[str, ...] = (
@@ -1203,6 +1272,7 @@ def build_personas(config: dict, key_noise: float = 0.0) -> list[Persona]:
             ("holdout8", HOLDOUT8),
             ("holdout9", HOLDOUT9),
             ("holdout10", HOLDOUT10),
+            ("holdout11", HOLDOUT11),
         ):
             for style, position in (("direct", 0), ("indirect", 1)):
                 persona.probes[f"{prefix}_{style}"] = [

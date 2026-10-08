@@ -287,8 +287,7 @@ correct. Unknown tools are rejected the same way.
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
 2. Look for a better encoder than e5-large-v2. Other encoders of its size were 2 points
    or more behind (round 13), and 2.2 GB ones and newer designs did no better (rounds 14
-   and 15). `HOLDOUT10` was seen once in round 17, so the next round needs a new held-out
-   set.
+   and 15). A fresh held-out set, `HOLDOUT11`, is ready for the next round.
 3. Measure how often the model follows the key hints in real conversations, which the
    offline benchmark cannot show.
 4. Real calendar and mail integrations behind the existing approval gate.
