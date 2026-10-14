@@ -1486,3 +1486,57 @@ wording for each of the 16 details, in `src/keel/evaluation/scenarios.py`.
   different detail; `HOLDOUT10`'s closest was 56%.
 - **It is reserved for the next round's final comparison**, used once, after the
   candidate has been chosen on already-seen sets.
+
+## Round 18: other cross-encoder rerankers
+
+Written after `HOLDOUT11` was added and before any of these rerankers was run on benchmark
+text.
+
+### The question
+
+Keel reranks with `ms-marco-MiniLM-L-6-v2`, chosen in round 7 against only its 12-layer
+sibling. Several newer cross-encoders have been published since. Does any of them rerank
+better with the current first stage?
+
+### Rerankers
+
+All int8, as Keel ships, and pinned by revision and SHA-256 in `configs/eval.toml`. Before
+writing this plan each was run on one neutral question and three passages (no benchmark
+text): all were deterministic and ranked the right passage first. Time to score 20 short
+memories on one CPU thread:
+
+| Reranker | Download | Time for 20 | vs current |
+| --- | --- | --- | --- |
+| `ms-marco-MiniLM-L-6-v2` (current) | 23 MB | 65 ms | 1.0× |
+| `jina-reranker-v1-turbo-en` | 37 MB | 67 ms | 1.0× |
+| `ms-marco-MiniLM-L-12-v2` | 33 MB | 90 ms | 1.4× |
+| `mxbai-rerank-xsmall-v1` | 84 MB | 261 ms | 4.0× |
+| `bge-reranker-base` | 267 MB | 380 ms | 5.8× |
+
+`gte-reranker-modernbert-base` (8.5×) and `mxbai-rerank-base-v1` (10.9×) were also
+checked and left out: at over half a second a question they are too slow for an
+interactive agent on one CPU thread, and the benchmark would not fit in a CI job.
+
+### The arm and choosing
+
+The shipped first stage (int8 e5-large-v2 at `w = 64`) and short list (20), with each
+reranker at each blend weight in {0.5, 1, 2, 4, 8}; the weight is chosen per reranker
+because their logits sit on different scales. Each of the 25 settings is scored by mean
+clean hit over the eleven already-seen sets (`dev` and `HOLDOUT` to `HOLDOUT10`). Settings
+within 0.05 points of the best (inclusive, as amended in round 17) tie. If the current
+setting is among them, nothing changes and `HOLDOUT11` stays unseen; otherwise the
+fastest tied reranker at its smallest tied weight is the candidate.
+
+### Held-out questions
+
+`HOLDOUT11`, written after round 17. No method has been run on it.
+
+### Pass rule
+
+The candidate is compared with the current setting on `HOLDOUT11`.
+
+- **About the same cost** (jina-turbo or MiniLM-L-12, at most 1.5× the time): **adopted if
+  the 95% persona-bootstrap interval of the paired clean-hit difference is entirely above
+  zero.**
+- **Slower** (mxbai-xsmall or bge-base, 4× to 6× the time, paid on every question):
+  **adopted only if the lower bound is at least 1 point.**

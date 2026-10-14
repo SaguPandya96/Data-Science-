@@ -19,6 +19,8 @@ from keel.evaluation.round11 import run_round11
 from keel.evaluation.round11 import to_markdown as round11_markdown
 from keel.evaluation.round17 import run_round17
 from keel.evaluation.round17 import to_markdown as round17_markdown
+from keel.evaluation.round18 import run_round18
+from keel.evaluation.round18 import to_markdown as round18_markdown
 from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
@@ -549,3 +551,37 @@ def test_round17_retunes_the_reranker_on_holdout10(tmp_path):
         assert rule["passed"] == (low >= bar if bar else low > 0)
     assert set(timings) == {str(n) for n in plan["candidates_grid"]}
     assert "Round 17" in round17_markdown(results, timings)
+
+
+def test_round18_compares_rerankers_on_holdout11(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round18"]
+    assert plan["split"] == "holdout11"
+    assert plan["candidates"] == RERANK_CANDIDATES
+    assert plan["current"] == {"reranker": "minilm_l6", "weight": RERANK_WEIGHT}
+    shipped = plan["rerankers"]["minilm_l6"]
+    assert {"name": shipped["name"], "files": shipped["files"]} == DEFAULT_RERANKER
+    assert plan["encoder"] == config["round17"]["encoder"]
+    ticks = iter(range(100))
+    rerankers = {key: OverlapReranker() for key in plan["rerankers"]}
+    results, timings = run_round18(
+        small, encoder=HashingEmbedder(64), rerankers=rerankers, clock=lambda: float(next(ticks))
+    )
+    assert set(results["tuning"]) == set(plan["rerankers"])
+    chosen = results["chosen"]
+    rule = results["pass_rule"]
+    if chosen == results["current"]:
+        assert rule["passed"] is None and not results["splits"]
+    else:
+        assert set(results["splits"]) == {"holdout11", "holdout11_direct", "holdout11_indirect"}
+        low = results["comparisons"]["holdout11"][plan["must_beat"]]["low"]
+        bar = (
+            plan["min_gain"]
+            if chosen["reranker"] in plan["same_cost"]
+            else plan["min_gain_costlier"]
+        )
+        assert rule["passed"] == (low >= bar if bar else low > 0)
+    assert set(timings) == set(plan["rerankers"])
+    assert "Round 18" in round18_markdown(results, timings)
