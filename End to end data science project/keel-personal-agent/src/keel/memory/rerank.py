@@ -151,26 +151,26 @@ class RerankedMemory:
         return chosen + _top_k(pool, final, k - len(chosen), dedupe=self.base.use_dedupe)
 
 
-# The reranker and setting chosen in round 7 of the benchmark (reports/metrics/round7.json),
-# in the int8 version that round 8 found no worse and four times smaller
-# (reports/metrics/round8.json).
+# The reranker and weight chosen in round 18 of the benchmark (reports/metrics/round18.json).
+# Rounds 7 to 17 had shipped ms-marco-MiniLM-L-6-v2 at weight 2.0 (int8 from round 8); the
+# list size of 20 is round 7's, confirmed in round 17.
 DEFAULT_RERANKER: dict[str, Any] = {
-    "name": "ms-marco-MiniLM-L-6-v2 (int8)",
+    "name": "jina-reranker-v1-turbo-en (int8)",
     "files": {
         "model.onnx": {
-            "url": "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/"
-            "a09144355adeed5f58c8ed011d209bf8ee5a1fec/onnx/model_quantized.onnx",
-            "sha256": "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe",
+            "url": "https://huggingface.co/jinaai/jina-reranker-v1-turbo-en/resolve/"
+            "b8c14f4e723d9e0aab4732a7b7b93741eeeb77c2/onnx/model_quantized.onnx",
+            "sha256": "3defdef1ae34e119bd704216087743e79665934c96aebabcb6077c239dc3ae66",
         },
         "tokenizer.json": {
-            "url": "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/"
-            "a09144355adeed5f58c8ed011d209bf8ee5a1fec/tokenizer.json",
-            "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
+            "url": "https://huggingface.co/jinaai/jina-reranker-v1-turbo-en/resolve/"
+            "b8c14f4e723d9e0aab4732a7b7b93741eeeb77c2/tokenizer.json",
+            "sha256": "0046da43cc8c424b317f56b092b0512aaaa65c4f925d2f16af9d9eeb4d0ef902",
         },
     },
 }
 RERANK_CANDIDATES = 20
-RERANK_WEIGHT = 2.0
+RERANK_WEIGHT = 0.5
 
 
 def default_reranker() -> Reranker | None:

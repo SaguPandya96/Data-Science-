@@ -82,8 +82,8 @@ new value under `home_city` and retire Denver.
 
 Sentence similarity comes from an int8 version of `e5-large-v2`, a transformer encoder
 trained for search and run on CPU with ONNX Runtime; questions get a `query: ` prefix and memories `passage: `, as
-the model expects. The second look comes from an int8 version of `ms-marco-MiniLM-L-6-v2`. Both
-are downloaded once (about 340 MB and 23 MB, each checked against a pinned SHA-256) and
+the model expects. The second look comes from an int8 version of `jina-reranker-v1-turbo-en`.
+Both are downloaded once (about 340 MB and 37 MB, each checked against a pinned SHA-256) and
 cached. If only the
 encoder is available, Keel skips the second look. Offline, or without the `transformer`
 extra, Keel falls back to
@@ -444,10 +444,28 @@ new held-out set, where it scored 0.2 points lower. The tie rule was then fixed 
 exactly 0.05 as a tie (details in the analysis plan). Source:
 [`reports/metrics/round17.md`](reports/metrics/round17.md).
 
+### Round 18: a different reranker
+
+Keel's reranker had been `ms-marco-MiniLM-L-6-v2` since round 7, chosen against only its
+12-layer sibling. Round 18 tried two newer cross-encoders of about the same size, each at
+five weights, on the eleven already-seen question sets.
+
+| Reranker | Best weight | Already-seen sets | Time per question |
+| --- | --- | --- | --- |
+| `ms-marco-MiniLM-L-6-v2` (was shipped) | 1.0 | 91.37% (91.33% at 2.0) | 51 ms |
+| **`jina-reranker-v1-turbo-en`** | **0.5** | **92.43%** | 83 ms |
+| `ms-marco-MiniLM-L-12-v2` | 1.0 | 91.28% | 102 ms |
+
+On the fresh question set the jina reranker scored **91.1% against 88.5%: +2.6 points**
+(95% CI +2.1 to +3.1), +3.3 on indirect wordings, so **it is now the default**. Two larger
+rerankers (mxbai-rerank-xsmall and bge-reranker-base, 4 to 6 times slower) were planned
+but dropped before any result because the round could not finish with them. Source:
+[`reports/metrics/round18.md`](reports/metrics/round18.md).
+
 ## What this does not show
 
-- **Indirect questions are still the weak spot.** Direct questions are at 99.5% or above,
-  but about one indirect question in eight still misses (87.8% on the latest set; how hard a
+- **Indirect questions are still the weak spot.** Direct questions mostly score 97% or
+  above, but about one indirect question in seven still misses (85.4% on the latest set; how hard a
   set is varies, so compare methods within a set, not across sets). The agent also has a
   `recall` tool it can call with its own rephrasing, which only the live check can
   measure.
@@ -512,6 +530,7 @@ python scripts/run_round14.py            # round 14 (2.2 GB encoders; downloads 
 python scripts/run_round15.py            # round 15 (newer designs; downloads ~4.5 GB once, ~45 min)
 python scripts/run_round16.py            # round 16 (int8 e5-large-v2; downloads ~1.7 GB once, ~30 min)
 python scripts/run_round17.py            # round 17 (reranker setting; downloads ~360 MB once, ~15 min)
+python scripts/run_round18.py            # round 18 (other rerankers; downloads ~430 MB once, ~45 min)
 python scripts/question_breakdown.py     # round 1 hit rate per question wording
 keel eval-live --personas 10 --yes       # trial run of the end-to-end check (costs money)
 keel eval-live --yes                     # the planned run: 30 users, 6 methods

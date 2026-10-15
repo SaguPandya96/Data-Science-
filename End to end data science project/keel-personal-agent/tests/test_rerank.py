@@ -19,6 +19,8 @@ from keel.evaluation.round11 import run_round11
 from keel.evaluation.round11 import to_markdown as round11_markdown
 from keel.evaluation.round17 import run_round17
 from keel.evaluation.round17 import to_markdown as round17_markdown
+from keel.evaluation.round18 import run_round18
+from keel.evaluation.round18 import to_markdown as round18_markdown
 from keel.memory.embeddings import DEFAULT_ENCODER, HashingEmbedder, download_files
 from keel.memory.rerank import (
     DEFAULT_RERANKER,
@@ -188,21 +190,33 @@ def test_real_rerankers_are_deterministic_and_semantic(monkeypatch):
 
 
 def test_shipped_reranker_matches_the_benchmark_results():
-    """The agent ships what rounds 7 and 8 chose, and nothing else."""
+    """The agent ships what round 18 chose, and round 18 started from rounds 7, 8 and 17."""
     metrics = ROOT / "reports" / "metrics"
+    config = load_config(CONFIG)
+    round18 = json.loads((metrics / "round18.json").read_text())
+    plan18 = config["round18"]
+    assert round18["pass_rule"]["passed"]
+    spec = plan18["rerankers"][round18["chosen"]["reranker"]]
+    assert {"name": spec["name"], "files": spec["files"]} == DEFAULT_RERANKER
+    assert round18["chosen"]["weight"] == RERANK_WEIGHT
+    assert plan18["candidates"] == RERANK_CANDIDATES
+    # Round 18's baseline is what rounds 7 and 8 chose and round 17 kept.
     round7 = json.loads((metrics / "round7.json").read_text())
     round8 = json.loads((metrics / "round8.json").read_text())
-    config = load_config(CONFIG)
     plan7, plan8 = config["round7"], config["round8"]
     assert round7["pass_rule"]["passed"]
     chosen = round7["chosen"]
-    assert chosen["candidates"] == RERANK_CANDIDATES == plan8["candidates"]
-    assert chosen["weight"] == RERANK_WEIGHT == plan8["rerank_weight"]
+    assert chosen["candidates"] == plan8["candidates"] == plan18["candidates"]
+    assert chosen["weight"] == plan8["rerank_weight"] == plan18["current"]["weight"]
     # Round 8 started from round 7's model, then chose which precision ships.
     assert plan8["rerankers"]["fp32"]["files"] == plan7["rerankers"][chosen["reranker"]]["files"]
     precision = round8["chosen"]["reranker"] if round8["pass_rule"]["passed"] else "fp32"
     spec = plan8["rerankers"][precision]
-    assert {"name": spec["name"], "files": spec["files"]} == DEFAULT_RERANKER
+    current = plan18["rerankers"][plan18["current"]["reranker"]]
+    assert {"name": spec["name"], "files": spec["files"]} == {
+        "name": current["name"],
+        "files": current["files"],
+    }
     # Round 8 kept the encoder at full precision; tests/test_transformer.py checks which
     # encoder ships.
     encoder = round8["chosen"]["encoder"] if round8["pass_rule"]["passed"] else "fp32"
@@ -522,13 +536,14 @@ def test_round17_retunes_the_reranker_on_holdout10(tmp_path):
     config = load_config(CONFIG)
     plan = config["round17"]
     assert plan["split"] == "holdout10"
-    assert plan["current"] == {"candidates": RERANK_CANDIDATES, "weight": RERANK_WEIGHT}
+    # Round 17 checked the setting shipped before round 18: 20 candidates at weight 2.0.
+    assert plan["current"] == {"candidates": RERANK_CANDIDATES, "weight": 2.0}
     assert plan["encoder_weight"] == TRANSFORMER_WEIGHT
     assert {"name": plan["encoder"]["name"], "files": plan["encoder"]["files"]} == {
         "name": DEFAULT_ENCODER["name"],
         "files": DEFAULT_ENCODER["files"],
     }
-    assert plan["reranker"] == DEFAULT_RERANKER
+    assert plan["reranker"] == config["round18"]["rerankers"]["minilm_l6"]
     ticks = iter(range(100))
     results, timings = run_round17(
         small,
@@ -549,3 +564,36 @@ def test_round17_retunes_the_reranker_on_holdout10(tmp_path):
         assert rule["passed"] == (low >= bar if bar else low > 0)
     assert set(timings) == {str(n) for n in plan["candidates_grid"]}
     assert "Round 17" in round17_markdown(results, timings)
+
+
+def test_round18_compares_rerankers_on_holdout11(tmp_path):
+    small = tmp_path / "eval.toml"
+    small.write_text(CONFIG.read_text().replace("personas = 200", "personas = 3"))
+    config = load_config(CONFIG)
+    plan = config["round18"]
+    assert plan["split"] == "holdout11"
+    assert plan["candidates"] == RERANK_CANDIDATES
+    assert plan["current"] == {"reranker": "minilm_l6", "weight": 2.0}
+    assert plan["rerankers"]["minilm_l6"] == config["round17"]["reranker"]
+    assert plan["encoder"] == config["round17"]["encoder"]
+    ticks = iter(range(100))
+    rerankers = {key: OverlapReranker() for key in plan["rerankers"]}
+    results, timings = run_round18(
+        small, encoder=HashingEmbedder(64), rerankers=rerankers, clock=lambda: float(next(ticks))
+    )
+    assert set(results["tuning"]) == set(plan["rerankers"])
+    chosen = results["chosen"]
+    rule = results["pass_rule"]
+    if chosen == results["current"]:
+        assert rule["passed"] is None and not results["splits"]
+    else:
+        assert set(results["splits"]) == {"holdout11", "holdout11_direct", "holdout11_indirect"}
+        low = results["comparisons"]["holdout11"][plan["must_beat"]]["low"]
+        bar = (
+            plan["min_gain"]
+            if chosen["reranker"] in plan["same_cost"]
+            else plan["min_gain_costlier"]
+        )
+        assert rule["passed"] == (low >= bar if bar else low > 0)
+    assert set(timings) == set(plan["rerankers"])
+    assert "Round 18" in round18_markdown(results, timings)
