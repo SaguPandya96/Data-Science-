@@ -593,7 +593,7 @@ weight_grid = [0.5, 1.0, 2.0, 4.0, 8.0]   # chosen per reranker; their logit sca
 tie_margin = 0.0005                # within 0.05 points (inclusive) ties; the current one, then the fastest, then the smaller weight wins
 same_cost = ["minilm_l6", "jina_turbo", "minilm_l12"]   # at most 1.5x the current reranker's time
 min_gain = 0.0                     # same cost: adopt if the 95% lower bound is above 0
-min_gain_costlier = 0.01           # 4x to 6x slower: the lower bound must reach 1 point
+min_gain_costlier = 0.01           # kept for a slower reranker; none is in this round after the amendment
 candidate = "keel+rerank(other)"
 must_beat = "keel+rerank"
 
@@ -611,16 +611,6 @@ files."tokenizer.json" = { url = "https://huggingface.co/jinaai/jina-reranker-v1
 name = "ms-marco-MiniLM-L-12-v2 (int8)"
 files."model.onnx" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/42a4a787e30451cf9dbd09080c2a5b8dde332c1e/onnx/model_quantized.onnx", sha256 = "c5551b3e446396364913c5ad79e9c8411a76d26523b7d87232052ae6c0d0c7fd" }
 files."tokenizer.json" = { url = "https://huggingface.co/Xenova/ms-marco-MiniLM-L-12-v2/resolve/42a4a787e30451cf9dbd09080c2a5b8dde332c1e/tokenizer.json", sha256 = "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66" }
-
-[round18.rerankers.mxbai_xsmall]
-name = "mxbai-rerank-xsmall-v1 (int8)"
-files."model.onnx" = { url = "https://huggingface.co/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/b5c6e9da73abc3711f593f705371cdbe9e0fe422/onnx/model_quantized.onnx", sha256 = "15ef19a6de90be7d52b627f2c784107bd806e64826450f41fb75fa4f0179ab30" }
-files."tokenizer.json" = { url = "https://huggingface.co/mixedbread-ai/mxbai-rerank-xsmall-v1/resolve/b5c6e9da73abc3711f593f705371cdbe9e0fe422/tokenizer.json", sha256 = "305674b4d785287feecfb5f73f24aa75e9b57c87c579cfe24fbd207987d4b4c4" }
-
-[round18.rerankers.bge_base]
-name = "bge-reranker-base (int8)"
-files."model.onnx" = { url = "https://huggingface.co/Xenova/bge-reranker-base/resolve/280bcc27a84e0b898c251e06fddb25171bd9b101/onnx/model_quantized.onnx", sha256 = "dd98f3e67837d23210a6b7550c08cced4f61845b940ac45be3565840a10f3244" }
-files."tokenizer.json" = { url = "https://huggingface.co/Xenova/bge-reranker-base/resolve/280bcc27a84e0b898c251e06fddb25171bd9b101/tokenizer.json", sha256 = "48564c5c7d3fa64d85d95e65414a542385f88b0f128fd8d4163fd7a57f2be05c" }
 
 [round18.encoder]
 name = "e5-large-v2 (int8)"

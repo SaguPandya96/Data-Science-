@@ -1540,3 +1540,15 @@ The candidate is compared with the current setting on `HOLDOUT11`.
   zero.**
 - **Slower** (mxbai-xsmall or bge-base, 4× to 6× the time, paid on every question):
   **adopted only if the lower bound is at least 1 point.**
+
+### Amendment before any result: the two slower rerankers dropped
+
+**Made after the first attempt to run the round, before any setting had been scored.** The
+run was stopped at its two-hour limit without writing a result: scoring 20 candidates for
+every question of the eleven tuning sets with `mxbai-rerank-xsmall-v1` (4×) and
+`bge-reranker-base` (5.8×) takes far longer than the plan allowed for, and would not fit
+in a CI job either. Both were removed, which leaves the current reranker against the two
+of about the same cost, `jina-reranker-v1-turbo-en` and `ms-marco-MiniLM-L-12-v2`. The
+choosing rule, held-out set and pass rule are unchanged; with no slower reranker left, a
+candidate is adopted if the lower bound of the paired difference on `HOLDOUT11` is above
+zero.

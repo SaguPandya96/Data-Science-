@@ -1,6 +1,6 @@
 """Round 18 of the memory benchmark: other cross-encoder rerankers.
 
-Downloads five int8 cross-encoders (about 450 MB in all, pinned by SHA-256) on first use,
+Downloads three int8 cross-encoders (about 95 MB in all, pinned by SHA-256) on first use,
 chooses each one's blend weight on question sets already seen, then tests the best once on
 the twelfth held-out set if it differs from the shipped reranker. Writes
 reports/metrics/round18.json and round18.md, and machine-dependent timings to
