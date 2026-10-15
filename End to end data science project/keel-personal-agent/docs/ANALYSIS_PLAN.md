@@ -1552,3 +1552,34 @@ of about the same cost, `jina-reranker-v1-turbo-en` and `ms-marco-MiniLM-L-12-v2
 choosing rule, held-out set and pass rule are unchanged; with no slower reranker left, a
 candidate is adopted if the lower bound of the paired difference on `HOLDOUT11` is above
 zero.
+
+### Outcome
+
+Run once, as amended. Mean clean hit over the eleven already-seen sets:
+
+| Reranker | w = 0.5 | w = 1 | w = 2 | w = 4 | w = 8 |
+| --- | --- | --- | --- | --- | --- |
+| `ms-marco-MiniLM-L-6-v2` (current) | 91.31% | 91.37% | **91.33%** | 90.97% | 90.47% |
+| `jina-reranker-v1-turbo-en` | **92.43%** | 92.23% | 91.40% | 90.30% | 89.32% |
+| `ms-marco-MiniLM-L-12-v2` | 91.23% | 91.28% | 91.08% | 90.73% | 90.07% |
+
+jina-turbo at `w = 0.5` led by 0.20 points over the next setting, well clear of the tie
+margin, so it was tested on `HOLDOUT11`:
+
+`keel+rerank(other)` − `keel+rerank`: **+2.6 points** (95% CI +2.1 to +3.1); direct +2.0
+(+1.5 to +2.5), indirect +3.3 (+2.4 to +4.2). The lower bound is above zero, so **the int8
+jina-reranker-v1-turbo-en at `w = 0.5` is adopted** as the agent's reranker. Full tables:
+`reports/metrics/round18.md`.
+
+Things to keep in mind:
+
+- **It costs more time than the plan assumed.** In the run it took 83 ms a question
+  against 51 ms for MiniLM-L-6, 1.6×, a little over the 1.5× line the plan used to call it
+  "about the same cost" (the pre-run check had measured 1.0×). Under the stricter
+  1-point bar for a slower reranker it would still be adopted: the lower bound is 2.1.
+- **The chosen weight is at the bottom of the grid.** jina's logits sit on a smaller scale
+  than MiniLM's, and weights below 0.5 were not tried. A later round could.
+- **The gain is the largest since round 12**, and it holds on both wordings. The fresh
+  set also proved harder than the last few: the old reranker scored 88.5% on it against
+  89.5% on `HOLDOUT10` and 93.0% on `HOLDOUT9` (with the same int8 encoder).
+- **`HOLDOUT11` has now been used.** A further round needs a new held-out set.

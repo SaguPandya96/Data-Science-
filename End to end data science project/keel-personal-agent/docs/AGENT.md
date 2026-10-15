@@ -152,18 +152,18 @@ cost when reuse fails.
    `~/.cache/keel/models`, checked against a pinned SHA-256 and discarded on mismatch.
    Inference is single-threaded so a given text always produces the same vector.
 4. **Reranking.** When the encoder is e5 and the reranker is available, the 20
-   highest-scoring candidates are rescored by an int8 version of `ms-marco-MiniLM-L-6-v2`,
-   a cross-encoder that reads the question and the memory's key and text together:
+   highest-scoring candidates are rescored by an int8 version of
+   `jina-reranker-v1-turbo-en`, a cross-encoder that reads the question and the memory's
+   key and text together:
 
    ```text
-   final = score + 2.0 × cross-encoder logit
+   final = score + 0.5 × cross-encoder logit
    ```
 
-   Memories outside those 20 are never shown. The model (about 23 MB) is downloaded and
-   verified like the encoder; without it, step 3's score is used as is. The list size and
-   weight were chosen by round 7 of the benchmark, round 8 found the int8 model no
-   worse than full precision, and round 17 found the setting still within 0.05 points of
-   the best for the current encoder.
+   Memories outside those 20 are never shown. The model (about 37 MB) is downloaded and
+   verified like the encoder; without it, step 3's score is used as is. The list size was
+   chosen in round 7 of the benchmark and confirmed in round 17; the reranker and weight
+   were chosen in round 18, replacing `ms-marco-MiniLM-L-6-v2` at weight 2.0.
 5. A candidate whose words match one already chosen is skipped.
 
 The `recall` tool uses the same retriever without the always-on constraints, so the model
@@ -264,11 +264,11 @@ correct. Unknown tools are rejected the same way.
 
 ## 10. Known limitations
 
-- Questions that only imply their topic are the weak spot: 88.7% retrieved correctly on
-  the latest held-out set (benchmark round 16), against 97.2% for direct questions.
-- The first run of the agent downloads the encoder and reranker (about 340 MB and 23 MB).
+- Questions that only imply their topic are the weak spot: 85.4% retrieved correctly on
+  the latest held-out set (benchmark round 18), against 96.8% for direct questions.
+- The first run of the agent downloads the encoder and reranker (about 340 MB and 37 MB).
   Offline, it falls back to WordLlama without reranking, which retrieves less well.
-- Reranking adds about 65 ms to every turn on one CPU thread. Unlike embedding, this
+- Reranking adds about 80 ms to every turn on one CPU thread. Unlike embedding, this
   cost is paid per question, not once per memory.
 - The int8 encoder costs about 0.4 points against the full-precision e5-large-v2 (round
   16), in exchange for a quarter of the download and five to six times the speed. It
@@ -287,7 +287,7 @@ correct. Unknown tools are rejected the same way.
 1. Run `keel eval-live` to test whether better retrieval produces better answers.
 2. Look for a better encoder than e5-large-v2. Other encoders of its size were 2 points
    or more behind (round 13), and 2.2 GB ones and newer designs did no better (rounds 14
-   and 15). A fresh held-out set, `HOLDOUT11`, is ready for the next round.
+   and 15). `HOLDOUT11` was used in round 18, so the next round needs a new held-out set.
 3. Measure how often the model follows the key hints in real conversations, which the
    offline benchmark cannot show.
 4. Real calendar and mail integrations behind the existing approval gate.

@@ -1,0 +1,14 @@
+{
+  "minilm_l6": {
+    "questions": 16,
+    "ms_per_question": 51.3
+  },
+  "jina_turbo": {
+    "questions": 16,
+    "ms_per_question": 82.9
+  },
+  "minilm_l12": {
+    "questions": 16,
+    "ms_per_question": 102.1
+  }
+}
