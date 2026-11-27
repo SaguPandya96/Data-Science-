@@ -75,6 +75,8 @@ jobs:
             rounds: "17"
           - group: "18"
             rounds: "18"
+            # The shipped reranker is round 18's, and this group already has it on disk.
+            tests: tests/test_rerank.py::test_real_shipped_reranker_is_deterministic_and_semantic
     env:
       KEEL_MODEL_DIR: ~/.cache/keel/models
     steps:
