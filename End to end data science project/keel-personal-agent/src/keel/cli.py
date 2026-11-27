@@ -182,7 +182,13 @@ def cmd_eval_live(args: argparse.Namespace) -> int:
         if done % 200 == 0 or done == total:
             print(f"  {done:,} / {total:,}", flush=True)
 
-    model = ClaudeModel(model=model_name, effort=plan["effort"], web_search=False, max_tokens=2000)
+    model = ClaudeModel(
+        model=model_name,
+        effort=plan["effort"],
+        web_search=False,
+        max_tokens=2000,
+        cache_conversation=False,  # one question per call, so nothing after it is reused
+    )
     results = run_live(
         args.config,
         model,

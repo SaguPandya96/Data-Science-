@@ -145,3 +145,13 @@ def test_claude_model_request_shape():
     assert sent["tools"][-1]["type"] == "web_search_20260209"
     assert reply.content == [{"type": "text", "text": "hi"}]
     assert reply.usage["cache_read_input_tokens"] == 7
+    # The growing conversation is cached as well as the system prompt.
+    assert sent["cache_control"] == {"type": "ephemeral"}
+
+
+def test_claude_model_can_skip_caching_the_conversation():
+    messages = _FakeMessages()
+    client = SimpleNamespace(beta=SimpleNamespace(messages=messages))
+    ClaudeModel(client=client, cache_conversation=False).reply("sys", [], [])
+    assert "cache_control" not in messages.kwargs
+    assert messages.kwargs["system"][0]["cache_control"] == {"type": "ephemeral"}
