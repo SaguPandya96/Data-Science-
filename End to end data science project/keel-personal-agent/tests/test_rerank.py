@@ -189,6 +189,27 @@ def test_real_rerankers_are_deterministic_and_semantic(monkeypatch):
         assert a[0] > a[1] + 3
 
 
+@pytest.mark.skipif(not os.environ.get("KEEL_TEST_MODEL_DIR"), reason="needs downloaded models")
+def test_real_shipped_reranker_is_deterministic_and_semantic(monkeypatch):
+    """The reranker the agent ships (round 18's), not only the ones round 7 compared."""
+    pytest.importorskip("onnxruntime")
+    monkeypatch.setenv("KEEL_MODEL_DIR", os.environ["KEEL_TEST_MODEL_DIR"])
+    first, second = default_reranker(), default_reranker()
+    assert first is not None and second is not None
+    assert first.name == DEFAULT_RERANKER["name"]
+    query = "How many people live in Berlin?"
+    docs = ["Berlin has a population of 3.5 million people.", "The cat sat on the mat."]
+    a, b = first.score(query, docs), second.score(query, docs)
+    assert (a == b).all()
+    assert a[0] > a[1]
+
+    # The agent's own retriever picks it up when the models are on disk.
+    retriever = default_retriever()
+    assert isinstance(retriever, RerankedMemory)
+    assert retriever.reranker.name == DEFAULT_RERANKER["name"]
+    assert (retriever.candidates, retriever.rerank_weight) == (RERANK_CANDIDATES, RERANK_WEIGHT)
+
+
 def test_shipped_reranker_matches_the_benchmark_results():
     """The agent ships what round 18 chose, and round 18 started from rounds 7, 8 and 17."""
     metrics = ROOT / "reports" / "metrics"
