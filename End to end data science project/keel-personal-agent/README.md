@@ -512,7 +512,7 @@ KEEL_DB=~/.keel/demo.db streamlit run app/app.py
 
 export ANTHROPIC_API_KEY=...             # to talk to it
 keel chat                                # /brief, /memories, /approvals, /quit
-keel approvals && keel approve 1         # approved emails are written to ~/.keel/outbox
+keel approvals && keel approve 1         # shows the email, asks, then writes it to ~/.keel/outbox
 
 python scripts/run_benchmark.py          # round 1; writes reports/metrics/
 python scripts/run_round2.py             # round 2 (WordLlama embeddings)
