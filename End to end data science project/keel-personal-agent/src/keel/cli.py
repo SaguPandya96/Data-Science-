@@ -5,7 +5,8 @@ keel brief                today's agenda, due tasks, stale goals, pending approv
 keel memories [--all]     what Keel remembers (--all includes retired values)
 keel forget ID            delete a memory
 keel approvals            actions waiting for you
-keel approve ID | reject ID
+keel approve ID [--yes]   show the action, then ask before carrying it out
+keel reject ID            drop a pending action
 keel demo                 load a made-up user to explore
 keel eval                 run the offline memory benchmark
 keel eval-live --yes      end-to-end benchmark with Claude (costs money)
@@ -123,14 +124,31 @@ def cmd_approvals(args: argparse.Namespace) -> int:
 def cmd_approve(args: argparse.Namespace) -> int:
     conn = connect(args.db)
     item = approvals.get(conn, args.id)
+    if item.status != "pending":
+        raise ValueError(f"approval {item.id} is already {item.status}")
     if item.action == "email_send":
         draft = conn.execute(
             "SELECT * FROM drafts WHERE id = ?", (item.payload["draft_id"],)
         ).fetchone()
-        print(f"To: {draft['to_addr']}\nSubject: {draft['subject']}\n\n{draft['body']}\n")
+        if draft is not None:
+            print(f"To: {draft['to_addr']}\nSubject: {draft['subject']}\n\n{draft['body']}\n")
+    # The full email is shown above before anything goes out, so the yes is to what was read.
+    if not args.yes and not _confirm(f"Send #{item.id} ({item.summary})? [y/N] "):
+        print(f"Not sent. #{item.id} is still waiting; `keel reject {item.id}` to drop it.")
+        return 1
     done = approvals.approve(conn, args.id, SystemClock(), Path(args.outbox))
     print(f"Approved #{done.id}. Written to {done.result}")
     return 0
+
+
+def _confirm(prompt: str) -> bool:
+    """Ask on the terminal; anything but y or yes, or no terminal at all, is a no."""
+    try:
+        answer = input(prompt)
+    except EOFError:
+        print()
+        return False
+    return answer.strip().lower() in {"y", "yes"}
 
 
 def cmd_reject(args: argparse.Namespace) -> int:
@@ -228,6 +246,7 @@ def build_parser() -> argparse.ArgumentParser:
     approve = sub.add_parser("approve", help="approve and carry out an action")
     approve.add_argument("id", type=int)
     approve.add_argument("--outbox", default=os.environ.get("KEEL_OUTBOX", "~/.keel/outbox"))
+    approve.add_argument("--yes", action="store_true", help="skip the send prompt")
     approve.set_defaults(func=cmd_approve)
     reject = sub.add_parser("reject", help="reject an action")
     reject.add_argument("id", type=int)
