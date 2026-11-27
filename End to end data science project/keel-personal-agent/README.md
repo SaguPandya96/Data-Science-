@@ -11,8 +11,11 @@ from 200 synthetic users, Keel put the current answer in the prompt, with no out
 version beside it, **74.9%** of the time (95% CI 74.5 to 75.3). Transformer embedding
 search managed 44.9%, keyword search 20.4%, and showing the newest memories 4.6%. Tuning the
 encoder's weight added another **3.0 points** on a fresh set, a larger encoder another
-**3.8**, a cross-encoder reranker another **2.3**, and a search-trained encoder another
-**1.3**. The limits:
+**3.8**, a cross-encoder reranker another **2.3**, a search-trained encoder another
+**1.3**, a larger search-trained encoder another **3.8**, and a different reranker another
+**2.6**, each on a set it had not seen. The version that ships now scores **91.1%** (95% CI
+90.6 to 91.6) on the newest held-out set. The baselines were not rerun on that set, so the
+comparison above is still round 4's. The limits:
 questions that only hint at their topic ("What should I tell the valet to bring around?")
 are still the weak spot, and forgetting depends on the model labeling updates
 consistently.
@@ -570,5 +573,6 @@ reports/metrics/      every number in this README
 ```
 
 *Built with:* Python, the Claude API (tool use, adaptive thinking, prompt caching, web
-search), SQLite, BM25, e5, mpnet, MiniLM and an ms-marco cross-encoder via ONNX Runtime,
+search), SQLite, BM25, e5, mpnet and MiniLM encoders and jina and ms-marco cross-encoders
+via ONNX Runtime,
 WordLlama, NumPy, Streamlit, pytest, Ruff, mypy, GitHub Actions.
