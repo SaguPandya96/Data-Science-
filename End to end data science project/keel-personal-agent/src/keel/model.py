@@ -42,6 +42,10 @@ class ClaudeModel:
     - Adaptive thinking is always on for this model; ``effort`` sets how hard it thinks.
     - The system prompt and tool list never change during a session, so they are cached.
       Everything that changes per turn (time, memories, agenda) goes in the user message.
+    - The conversation is cached too (``cache_conversation``): a top-level breakpoint
+      follows the end of the history, so each tool step reads everything already sent
+      instead of paying full price for it again. One-off requests, like the live
+      benchmark's single questions, turn this off: their tail is never read back.
     - Server-side fallbacks are on: if a request is declined by a safety classifier, the
       API retries it on a fallback model inside the same call.
     - Web search runs on Anthropic's side, so results arrive already inside the reply.
@@ -53,6 +57,7 @@ class ClaudeModel:
         effort: str = "medium",
         web_search: bool = True,
         max_tokens: int = 16000,
+        cache_conversation: bool = True,
         client: Any = None,
     ) -> None:
         if client is None:
@@ -64,6 +69,7 @@ class ClaudeModel:
         self.effort = effort
         self.web_search = web_search
         self.max_tokens = max_tokens
+        self.cache_conversation = cache_conversation
 
     def reply(
         self, system: str, messages: list[dict[str, Any]], tools: list[dict[str, Any]]
@@ -71,6 +77,9 @@ class ClaudeModel:
         all_tools = list(tools)
         if self.web_search:
             all_tools.append({"type": "web_search_20260209", "name": "web_search", "max_uses": 5})
+        extra: dict[str, Any] = {}
+        if self.cache_conversation:
+            extra["cache_control"] = {"type": "ephemeral"}
         response = self.client.beta.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
@@ -81,6 +90,7 @@ class ClaudeModel:
             output_config={"effort": self.effort},
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
+            **extra,
         )
         usage = response.usage
         category = None
@@ -93,6 +103,8 @@ class ClaudeModel:
                 "input_tokens": usage.input_tokens or 0,
                 "output_tokens": usage.output_tokens or 0,
                 "cache_read_input_tokens": getattr(usage, "cache_read_input_tokens", 0) or 0,
+                "cache_creation_input_tokens": getattr(usage, "cache_creation_input_tokens", 0)
+                or 0,
             },
             refusal_category=category,
         )
