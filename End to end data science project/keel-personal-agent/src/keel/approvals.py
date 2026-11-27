@@ -48,8 +48,24 @@ def _describe(conn: sqlite3.Connection, action: str, payload: dict[str, Any]) ->
             raise ToolError(f"no draft with id {payload.get('draft_id')}; write one first")
         if draft["status"] != "draft":
             raise ToolError(f"draft {draft['id']} is already {draft['status']}")
+        waiting = _pending_for_draft(conn, draft["id"])
+        if waiting is not None:
+            raise ToolError(
+                f"draft {draft['id']} is already waiting for approval #{waiting}; "
+                "tell the user it is waiting"
+            )
         return f"Send email to {draft['to_addr']}: {draft['subject']!r}"
     raise ToolError(f"no approval flow for {action}")
+
+
+def _pending_for_draft(conn: sqlite3.Connection, draft_id: int) -> int | None:
+    """The id of a pending send for this draft, if one is already queued."""
+    for row in conn.execute(
+        "SELECT id, payload FROM approvals WHERE status = 'pending' AND action = 'email_send'"
+    ):
+        if json.loads(row["payload"]).get("draft_id") == draft_id:
+            return int(row["id"])
+    return None
 
 
 def _row(row: sqlite3.Row) -> Approval:
@@ -86,6 +102,12 @@ def approve(conn: sqlite3.Connection, approval_id: int, clock: Clock, outbox: Pa
     draft = conn.execute(
         "SELECT * FROM drafts WHERE id = ?", (approval.payload["draft_id"],)
     ).fetchone()
+    # Checked again here, not only when the send was queued: a database written by an
+    # older version can hold two pending sends for one draft, and only one may go out.
+    if draft is None:
+        raise ValueError(f"approval {approval_id} points to a draft that no longer exists")
+    if draft["status"] != "draft":
+        raise ValueError(f"draft {draft['id']} is already {draft['status']}; not sending it again")
     message = EmailMessage()
     message["To"] = draft["to_addr"]
     message["Subject"] = draft["subject"]
