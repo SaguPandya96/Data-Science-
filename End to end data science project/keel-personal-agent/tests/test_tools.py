@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from keel import approvals
 from keel.memory.embeddings import DEFAULT_ENCODER
@@ -124,6 +125,27 @@ def test_email_send_only_queues_an_approval(toolbox, conn, clock, tmp_path: Path
     assert "Subject: Dinner" in (tmp_path / "draft-1.eml").read_text()
     # A sent draft can't be queued again.
     assert run(toolbox, "email_send", draft_id=1).is_error
+
+
+def test_a_draft_is_sent_at_most_once(toolbox, conn, clock, tmp_path: Path):
+    run(toolbox, "email_draft", to="sam@example.com", subject="Dinner", body="Friday?")
+    assert run(toolbox, "email_send", draft_id=1).approval_id == 1
+    # Asking again while the first request waits is refused, so only one approval exists.
+    again = run(toolbox, "email_send", draft_id=1)
+    assert again.is_error and "already waiting for approval #1" in again.output
+    assert [a.id for a in approvals.pending(conn)] == [1]
+
+    # A database from before this check may already hold a second pending send.
+    with conn:
+        conn.execute(
+            "INSERT INTO approvals (action, summary, payload, created_at) VALUES (?, ?, ?, ?)",
+            ("email_send", "dup", json.dumps({"draft_id": 1}), clock.now().isoformat()),
+        )
+    approvals.approve(conn, 1, clock, tmp_path)
+    with pytest.raises(ValueError, match="already sent"):
+        approvals.approve(conn, 2, clock, tmp_path)
+    assert approvals.get(conn, 2).status == "pending"
+    assert [p.name for p in tmp_path.iterdir()] == ["draft-1.eml"]
 
 
 def test_reject_and_missing_draft(toolbox, conn, clock):
