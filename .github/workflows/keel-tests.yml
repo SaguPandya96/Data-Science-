@@ -63,7 +63,8 @@ jobs:
         include:
           - group: "1-10"
             rounds: "4 5 6 7 8 9 10"
-            tests: tests/test_rerank.py
+            # Round 7's rerankers are on disk here; the shipped one (round 18's) is tested in group 18.
+            tests: tests/test_rerank.py --deselect tests/test_rerank.py::test_real_shipped_reranker_is_deterministic_and_semantic
           - group: "11-12"
             rounds: "11 12"
           - group: "13-14"
